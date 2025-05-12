@@ -70,12 +70,11 @@ tank_spec = ExtResource("2_eykj3")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 
-[node name="Camera2D" type="Camera2D" parent="."]
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_cbkxa")
 
 [node name="Hull" type="Sprite2D" parent="."]
+z_index = 1
 script = ExtResource("3_axr6c")
 
 [node name="LeftTrack" type="AnimatedSprite2D" parent="Hull"]
@@ -89,7 +88,7 @@ sprite_frames = SubResource("SpriteFrames_cxr3h")
 [node name="EngineSound" type="AudioStreamPlayer2D" parent="Hull"]
 
 [node name="Turret" type="Sprite2D" parent="."]
-z_index = 1
+z_index = 2
 script = ExtResource("4_eykj3")
 
 [node name="Cannon" type="Sprite2D" parent="Turret"]

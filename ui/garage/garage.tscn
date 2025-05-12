@@ -1,0 +1,128 @@
+[gd_scene load_steps=2 format=3 uid="uid://cu3rghbstb2jo"]
+
+[ext_resource type="PackedScene" uid="uid://cnsy87eymywb0" path="res://entities/tank/tank.tscn" id="1_6ygmu"]
+
+[node name="Garage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.177778
+grow_horizontal = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+
+[node name="Button" type="Button" parent="Header/HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "PLAY"
+
+[node name="MenuButton" type="MenuButton" parent="Header/HBoxContainer"]
+layout_mode = 2
+text = "GAME MODE"
+item_count = 3
+popup/item_0/text = "LEVELS"
+popup/item_0/id = 0
+popup/item_1/text = "SURVIVAL"
+popup/item_1/id = 1
+popup/item_2/text = "MULTIPLAYER"
+popup/item_2/id = 2
+popup/item_2/disabled = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Header/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Header/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "PLAYERNAME"
+
+[node name="Label2" type="Label" parent="Header/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "SILVER: 1000"
+
+[node name="Label3" type="Label" parent="Header/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "BONDS: 23"
+
+[node name="TankList" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.711111
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ColorRect" type="ColorRect" parent="TankList"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.0647461, 0.12865, 0.0568696, 0.454902)
+
+[node name="TabContainer" type="TabContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.4
+anchor_top = 0.177778
+anchor_right = 0.9995
+anchor_bottom = 0.711
+offset_right = 0.320007
+offset_bottom = 0.0399933
+grow_horizontal = 2
+grow_vertical = 2
+current_tab = 0
+tab_focus_mode = 0
+
+[node name="MODULES" type="VBoxContainer" parent="TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="UpgradeContainer" type="HBoxContainer" parent="TabContainer/MODULES"]
+layout_mode = 2
+
+[node name="CREW" type="VBoxContainer" parent="TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="EQUIPMENT" type="VBoxContainer" parent="TabContainer"]
+visible = false
+layout_mode = 2
+focus_mode = 2
+mouse_filter = 0
+metadata/_tab_index = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.178
+anchor_right = 0.4
+anchor_bottom = 0.711
+offset_top = -0.0799179
+offset_bottom = 0.0399933
+metadata/_edit_use_anchors_ = true
+
+[node name="ColorRect" type="ColorRect" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.158382, 0.065528, 0.180444, 0.454902)
+
+[node name="Tank" parent="VBoxContainer/ColorRect" instance=ExtResource("1_6ygmu")]
+position = Vector2(128, 95.9999)

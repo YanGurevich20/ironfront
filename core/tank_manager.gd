@@ -1,5 +1,6 @@
 class_name TankManager
 
+static var CameraScene := preload("res://core/main_camera.tscn")
 
 enum TankType {TIGER_1, M4A1_SHERMAN}
 static var TANK_SPECS: Dictionary[TankType, TankSpec] = {
@@ -24,6 +25,9 @@ static func create_tank(tank_type: TankType, tank_controller_type: TankControlle
 	tank.tank_spec = TANK_SPECS.get(tank_type)
 	var tank_controller: Node = TANK_CONTROLLER_SCENES.get(tank_controller_type).instantiate()
 	tank.add_child(tank_controller)
+	if is_player:
+		var camera: Camera2D = CameraScene.instantiate()
+		tank.add_child(camera)
 	return tank
 
 static func create_destroyed_tank(tank: Tank) -> DestroyedTank:

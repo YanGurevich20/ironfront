@@ -21,6 +21,7 @@ visible = false
 z_index = 1
 
 [node name="MainMenu" parent="." instance=ExtResource("4_eb6af")]
+visible = false
 
 [node name="PauseOverlay" parent="." instance=ExtResource("5_iquxp")]
 visible = false
