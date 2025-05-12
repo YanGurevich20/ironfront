@@ -1,14 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://cu3rghbstb2jo"]
+[gd_scene load_steps=15 format=3 uid="uid://cu3rghbstb2jo"]
 
 [ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://theme/default.tres" id="1_6ygmu"]
+[ext_resource type="Texture2D" uid="uid://ddfui22i8rmka" path="res://global_assets/game_title/title_192_trasnparent.png" id="1_ip7jb"]
 [ext_resource type="PackedScene" uid="uid://cnsy87eymywb0" path="res://entities/tank/tank.tscn" id="2_f20ri"]
 [ext_resource type="Resource" uid="uid://6lsuora6wir4" path="res://entities/tank/tanks/tiger_1/tiger_1.tres" id="3_m7huh"]
+[ext_resource type="Texture2D" uid="uid://c4ya4m6foxa7k" path="res://ui/garage/assets/turret_temp.jpg" id="4_ovx6s"]
+[ext_resource type="Texture2D" uid="uid://dtye06nmuba70" path="res://ui/garage/assets/star_612.jpg" id="4_tqyjs"]
+[ext_resource type="Texture2D" uid="uid://ujnmgkmorwj2" path="res://ui/garage/assets/medal_626.png" id="5_u13t8"]
+[ext_resource type="Texture2D" uid="uid://dq08guwjfr57" path="res://ui/garage/assets/crew_person_960.png" id="7_43e85"]
+[ext_resource type="Texture2D" uid="uid://c0iknn1vgkoq8" path="res://ui/garage/assets/granade.png" id="8_kjpwv"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0fusm"]
 size = Vector2(120, 60)
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_6ygmu"]
-size = Vector2(192, 192)
+[sub_resource type="Gradient" id="Gradient_ip7jb"]
+colors = PackedColorArray(0.0110536, 0.0759063, 0.0237082, 1, 0.223171, 0.08545, 0.0275675, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_tqyjs"]
+gradient = SubResource("Gradient_ip7jb")
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ovx6s"]
+size = Vector2(64, 48)
+
+[sub_resource type="LabelSettings" id="LabelSettings_ip7jb"]
+font_size = 8
 
 [node name="Garage" type="Control"]
 layout_mode = 3
@@ -18,52 +33,74 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="Header" type="HBoxContainer" parent="."]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
+[node name="HeaderButtonsContainer" type="HBoxContainer" parent="Header"]
 layout_mode = 2
 size_flags_horizontal = 3
+alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Header/HeaderButtonsContainer"]
 layout_mode = 2
 alignment = 1
 
-[node name="TextureButton" type="TextureButton" parent="HBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="TextureButton2" type="TextureButton" parent="Header/HeaderButtonsContainer/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 texture_normal = SubResource("PlaceholderTexture2D_0fusm")
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/HBoxContainer"]
+[node name="TextureButton" type="TextureButton" parent="Header/HeaderButtonsContainer/HBoxContainer"]
 layout_mode = 2
-alignment = 1
-
-[node name="TextureButton" type="TextureButton" parent="HBoxContainer/HBoxContainer/VBoxContainer2"]
-layout_mode = 2
+size_flags_vertical = 4
 texture_normal = SubResource("PlaceholderTexture2D_0fusm")
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Header"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Header/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("1_ip7jb")
+expand_mode = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Header"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 alignment = 2
 
-[node name="Label" type="Label" parent="HBoxContainer/HBoxContainer2"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="Header/HBoxContainer2"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label2" type="Label" parent="Header/HBoxContainer2/VBoxContainer2"]
+layout_mode = 2
+text = "124213 MONEYS"
+
+[node name="Label3" type="Label" parent="Header/HBoxContainer2/VBoxContainer2"]
+layout_mode = 2
+text = "12 BITCOIN LOL "
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Header/HBoxContainer2"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Header/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
 text = "PLAYER"
 
-[node name="Label2" type="Label" parent="HBoxContainer/HBoxContainer2"]
+[node name="Label2" type="Label" parent="Header/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
-text = "MONEYS"
+text = "LOGOUT"
 
-[node name="Label3" type="Label" parent="HBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "SUPER MONEYS"
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="."]
+[node name="Main" type="HBoxContainer" parent="."]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 1
 anchors_preset = 14
@@ -73,42 +110,228 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer2"]
+[node name="TankDisplay" type="VBoxContainer" parent="Main"]
 layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="HBoxContainer2/MarginContainer"]
+[node name="TankDisplayBackground" type="TextureRect" parent="Main/TankDisplay"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
-texture = SubResource("PlaceholderTexture2D_6ygmu")
+texture = SubResource("GradientTexture2D_tqyjs")
 
-[node name="Tank" parent="HBoxContainer2/MarginContainer" instance=ExtResource("2_f20ri")]
+[node name="Tank" parent="Main/TankDisplay" instance=ExtResource("2_f20ri")]
 position = Vector2(100, 100)
 
-[node name="TabBar" type="TabContainer" parent="HBoxContainer2"]
+[node name="UpgradeSection" type="TabContainer" parent="Main"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_6ygmu")
-current_tab = 0
+current_tab = 2
 
-[node name="MODULES" type="VBoxContainer" parent="HBoxContainer2/TabBar"]
+[node name="MODULES" type="ScrollContainer" parent="Main/UpgradeSection"]
+visible = false
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="CREW" type="VBoxContainer" parent="HBoxContainer2/TabBar"]
+[node name="ModuleList" type="VBoxContainer" parent="Main/UpgradeSection/MODULES"]
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/_tab_index = 1
+
+[node name="ModuleListItem" type="HBoxContainer" parent="Main/UpgradeSection/MODULES/ModuleList"]
+layout_mode = 2
+
+[node name="ModuleImage" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_ovx6s")
+expand_mode = 1
+
+[node name="ModuleLevelContainer" type="HBoxContainer" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect2" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect3" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect4" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect5" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect7" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("5_u13t8")
+expand_mode = 1
+
+[node name="ModuleButtons" type="HBoxContainer" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="DetailsButton" type="TextureButton" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleButtons"]
+layout_mode = 2
+texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
+
+[node name="UpgradeButton" type="TextureButton" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleButtons"]
+layout_mode = 2
+texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
+
+[node name="CREW" type="ScrollContainer" parent="Main/UpgradeSection"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="EQUIPMENT" type="VBoxContainer" parent="HBoxContainer2/TabBar"]
-visible = false
+[node name="CrewList" type="VBoxContainer" parent="Main/UpgradeSection/CREW"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CrewListItem" type="HBoxContainer" parent="Main/UpgradeSection/CREW/CrewList"]
+layout_mode = 2
+
+[node name="CrewImage" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("7_43e85")
+expand_mode = 1
+
+[node name="CrewLevelContainer" type="HBoxContainer" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect2" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect3" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect4" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect5" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_tqyjs")
+expand_mode = 1
+
+[node name="TextureRect7" type="TextureRect" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewLevelContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("5_u13t8")
+expand_mode = 1
+
+[node name="CrewButtons" type="HBoxContainer" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="DetailsButton" type="TextureButton" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewButtons"]
+layout_mode = 2
+texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
+
+[node name="UpgradeButton" type="TextureButton" parent="Main/UpgradeSection/CREW/CrewList/CrewListItem/CrewButtons"]
+layout_mode = 2
+texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
+
+[node name="EQUIPMENT" type="ScrollContainer" parent="Main/UpgradeSection"]
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="HBoxContainer3" type="ScrollContainer" parent="."]
+[node name="EquipmentList" type="VBoxContainer" parent="Main/UpgradeSection/EQUIPMENT"]
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/_tab_index = 1
+
+[node name="EquipmentListItem" type="HBoxContainer" parent="Main/UpgradeSection/EQUIPMENT/EquipmentList"]
+layout_mode = 2
+
+[node name="EquipmentImage" type="TextureRect" parent="Main/UpgradeSection/EQUIPMENT/EquipmentList/EquipmentListItem"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("8_kjpwv")
+expand_mode = 1
+
+[node name="ModuleLabel" type="Label" parent="Main/UpgradeSection/EQUIPMENT/EquipmentList/EquipmentListItem"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "This is the most dangerous item in the game btw
+You simply cannot afford it."
+vertical_alignment = 1
+
+[node name="UpgradeButton" type="Button" parent="Main/UpgradeSection/EQUIPMENT/EquipmentList/EquipmentListItem"]
+layout_mode = 2
+text = "UPGRADE
+1000 MONEYS"
+
+[node name="TankListScrollContainer" type="ScrollContainer" parent="."]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 12
@@ -121,117 +344,40 @@ grow_vertical = 0
 horizontal_scroll_mode = 3
 vertical_scroll_mode = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer3"]
+[node name="TankList" type="HBoxContainer" parent="TankListScrollContainer"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
+[node name="TankListItem" type="VBoxContainer" parent="TankListScrollContainer/TankList"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-alignment = 1
+alignment = 2
 
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer" instance=ExtResource("2_f20ri")]
+[node name="Tank" parent="TankListScrollContainer/TankList/TankListItem" instance=ExtResource("2_f20ri")]
 position = Vector2(40, 40)
 
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer"]
+[node name="TankNameLabel" type="Label" parent="TankListScrollContainer/TankList/TankListItem"]
 layout_mode = 2
+text = "M4A1 Sherman"
+label_settings = SubResource("LabelSettings_ip7jb")
+horizontal_alignment = 2
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="TankListScrollContainer/TankList"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-alignment = 1
+alignment = 2
 
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer2" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-
-[node name="VBoxContainer3" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer3" instance=ExtResource("2_f20ri")]
+[node name="Tank" parent="TankListScrollContainer/TankList/VBoxContainer2" instance=ExtResource("2_f20ri")]
 position = Vector2(40, 40)
 tank_spec = ExtResource("3_m7huh")
 
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer3"]
+[node name="Label" type="Label" parent="TankListScrollContainer/TankList/VBoxContainer2"]
 layout_mode = 2
-
-[node name="VBoxContainer4" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer4" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer4"]
-layout_mode = 2
-
-[node name="VBoxContainer5" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer5" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer5"]
-layout_mode = 2
-
-[node name="VBoxContainer6" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer6" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer6"]
-layout_mode = 2
-
-[node name="VBoxContainer7" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer7" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer7"]
-layout_mode = 2
-
-[node name="VBoxContainer8" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer8" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer8"]
-layout_mode = 2
+text = "Tiger 1"
+label_settings = SubResource("LabelSettings_ip7jb")
+horizontal_alignment = 2
+text_overrun_behavior = 3

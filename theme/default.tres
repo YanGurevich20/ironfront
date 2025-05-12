@@ -5,3 +5,4 @@ Button/font_sizes/font_size = 12
 Label/font_sizes/font_size = 12
 TabContainer/constants/icon_separation = 4
 TabContainer/constants/side_margin = 0
+TabContainer/styles/tab_unselected = null
