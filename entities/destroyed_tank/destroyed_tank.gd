@@ -1,0 +1,1 @@
+class_name DestroyedTank extends RigidBody2D

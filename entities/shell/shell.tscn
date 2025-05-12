@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://difemtk7pdjxu"]
+
+[ext_resource type="Script" uid="uid://npdk561p4mkr" path="res://entities/shell/shell.gd" id="1_sb42f"]
+[ext_resource type="Texture2D" uid="uid://6eekkqntd4w" path="res://entities/shell/sprites/shell_ap.png" id="2_6fq18"]
+
+[node name="Shell" type="Area2D" groups=["shell"]]
+script = ExtResource("1_sb42f")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_6fq18")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+rotation = 1.5708
+polygon = PackedVector2Array(-3, 5, 3, 5, 3, -2, 0, -4, -3, -2)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

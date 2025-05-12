@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://n71kmsoe2dta"]
+
+[ext_resource type="Script" uid="uid://cxsnna17qumo0" path="res://ui/overlays/base_overlay/base_section/base_section.gd" id="1_jnh55"]
+
+[node name="BaseSection" type="VBoxContainer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+script = ExtResource("1_jnh55")

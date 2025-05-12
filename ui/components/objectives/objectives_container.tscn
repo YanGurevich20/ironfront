@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://ccr3drqhqhsnj"]
+
+[ext_resource type="Script" uid="uid://dti00mu3msjlq" path="res://ui/components/objectives/objectives_container.gd" id="1_oppo5"]
+[ext_resource type="PackedScene" uid="uid://b3lxbxbnewgti" path="res://ui/components/objectives/objective_display.tscn" id="2_aq1ws"]
+
+[node name="ObjectivesContainer" type="MarginContainer"]
+custom_minimum_size = Vector2(300, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -52.5
+offset_right = 150.0
+offset_bottom = 52.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_top = 20
+script = ExtResource("1_oppo5")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ObjectivesLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "OBJECTIVES"
+horizontal_alignment = 1
+
+[node name="ObjectiveList" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ObjectiveDisplay1" parent="VBoxContainer/ObjectiveList" instance=ExtResource("2_aq1ws")]
+layout_mode = 2

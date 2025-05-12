@@ -1,0 +1,200 @@
+[gd_scene load_steps=27 format=3 uid="uid://bf8fcfoc0k2hc"]
+
+[ext_resource type="Script" uid="uid://dwiwmfinndxlo" path="res://entities/tank_v1/tank.gd" id="1_dsgy6"]
+[ext_resource type="Script" uid="uid://saptcuxe7pm2" path="res://entities/tank_v1/hull.gd" id="2_6vu8p"]
+[ext_resource type="Texture2D" uid="uid://c60v8167xbf60" path="res://entities/tank_v1/sprites/track.png" id="3_w2kvd"]
+[ext_resource type="Texture2D" uid="uid://bljcyx7yd5mh4" path="res://entities/tank_v1/sprites/hull.png" id="4_2slht"]
+[ext_resource type="Script" uid="uid://l81b6tnq7165" path="res://entities/tank_v1/turret.gd" id="5_owdos"]
+[ext_resource type="AudioStream" uid="uid://d2vc1sclhbmh1" path="res://entities/tank_v1/audio/cannon_fire/cannon_fire.mp3" id="6_17p3m"]
+[ext_resource type="Texture2D" uid="uid://clkkcpgguxruf" path="res://entities/tank_v1/sprites/cannon.png" id="7_g66np"]
+[ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank_v1/sprites/flash.png" id="8_c50an"]
+[ext_resource type="Texture2D" uid="uid://d1w2pnxkjrg2l" path="res://entities/tank_v1/sprites/turret.png" id="9_6swvq"]
+[ext_resource type="AudioStream" uid="uid://r413yjt4my03" path="res://entities/tank_v1/audio/engine/engine_sound.ogg" id="9_dsgy6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4c57u"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_efxa6"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dg77c"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ycdy4"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w48qg"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vivmo"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cqfq"]
+atlas = ExtResource("3_w2kvd")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yaehf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4c57u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_efxa6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dg77c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ycdy4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w48qg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vivmo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2cqfq")
+}],
+"loop": true,
+"name": &"spin",
+"speed": 1.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0hol4"]
+size = Vector2(47.7498, 64.0001)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kek77"]
+atlas = ExtResource("8_c50an")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yaehf"]
+atlas = ExtResource("8_c50an")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_074og"]
+atlas = ExtResource("8_c50an")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cegan"]
+atlas = ExtResource("8_c50an")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_82xsv"]
+atlas = ExtResource("8_c50an")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_getpj"]
+atlas = ExtResource("8_c50an")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ryguw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kek77")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yaehf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_074og")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cegan")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_82xsv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_getpj")
+}],
+"loop": false,
+"name": &"flash",
+"speed": 30.0
+}]
+
+[node name="TankV1" type="RigidBody2D" groups=["damageable"]]
+gravity_scale = 0.0
+script = ExtResource("1_dsgy6")
+
+[node name="Hull" type="Node2D" parent="."]
+script = ExtResource("2_6vu8p")
+
+[node name="LeftTrack" type="AnimatedSprite2D" parent="Hull"]
+position = Vector2(0, -16)
+sprite_frames = SubResource("SpriteFrames_yaehf")
+animation = &"spin"
+
+[node name="RightTrack" type="AnimatedSprite2D" parent="Hull"]
+position = Vector2(0, 16)
+sprite_frames = SubResource("SpriteFrames_yaehf")
+animation = &"spin"
+
+[node name="Hull" type="Sprite2D" parent="Hull"]
+texture = ExtResource("4_2slht")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_0hol4")
+
+[node name="Turret" type="Node2D" parent="."]
+position = Vector2(8, 0)
+script = ExtResource("5_owdos")
+
+[node name="Cannon" type="Node2D" parent="Turret"]
+
+[node name="GunfireSound" type="AudioStreamPlayer2D" parent="Turret/Cannon"]
+stream = ExtResource("6_17p3m")
+attenuation = 1.41421
+max_polyphony = 10
+
+[node name="Cannon" type="Sprite2D" parent="Turret/Cannon"]
+position = Vector2(30.37, 0)
+texture = ExtResource("7_g66np")
+
+[node name="Muzzle" type="Marker2D" parent="Turret/Cannon"]
+position = Vector2(48.37, 0)
+
+[node name="RayCast2D" type="RayCast2D" parent="Turret/Cannon/Muzzle"]
+position = Vector2(-48.37, 0)
+
+[node name="MuzzleFlash" type="AnimatedSprite2D" parent="Turret/Cannon/Muzzle"]
+visible = false
+position = Vector2(33, 0)
+sprite_frames = SubResource("SpriteFrames_ryguw")
+animation = &"flash"
+frame = 5
+frame_progress = 1.0
+
+[node name="Turret" type="Sprite2D" parent="Turret"]
+texture = ExtResource("9_6swvq")
+
+[node name="ReloadTimer" type="Timer" parent="Turret"]
+wait_time = 0.1
+one_shot = true
+
+[node name="Camera" type="Camera2D" parent="."]
+enabled = false
+zoom = Vector2(0.8, 0.8)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+debug_use_custom = true
+debug_path_custom_color = Color(0.00109478, 0.249717, 0.859762, 1)
+
+[node name="EngineSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("9_dsgy6")
+volume_db = -10.0
+autoplay = true
+max_distance = 1000.0
+attenuation = 2.0
+max_polyphony = 10
+
+[connection signal="animation_finished" from="Turret/Cannon/Muzzle/MuzzleFlash" to="Turret" method="_on_muzzle_flash_animation_finished"]

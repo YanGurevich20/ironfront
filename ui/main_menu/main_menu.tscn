@@ -1,0 +1,87 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxmwayjad206f"]
+
+[ext_resource type="Script" uid="uid://er5w3qp18hvq" path="res://ui/main_menu/main_menu.gd" id="1_1g8jr"]
+[ext_resource type="Texture2D" uid="uid://b467wgacir8wa" path="res://ui/main_menu/assets/title.png" id="2_fe2o3"]
+[ext_resource type="Texture2D" uid="uid://h7jggwq5kgsb" path="res://ui/main_menu/assets/main_background_360p.png" id="2_omy8q"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1g8jr")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_omy8q")
+
+[node name="Title" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -216.0
+offset_top = -18.0
+offset_right = -24.0
+offset_bottom = 174.0
+grow_horizontal = 0
+texture = ExtResource("2_fe2o3")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -203.0
+offset_top = -202.0
+offset_right = -43.0
+offset_bottom = -27.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="MainMenuBox" type="VBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="VBoxContainer/MainMenuBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PLAY"
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer/MainMenuBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SETTINGS"
+
+[node name="MetricsButton" type="Button" parent="VBoxContainer/MainMenuBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "METRICS"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer/MainMenuBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "QUIT"
+
+[node name="LevelSelectBox" type="VBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LevelList" type="VBoxContainer" parent="VBoxContainer/LevelSelectBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="VBoxContainer/LevelSelectBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BACK
+"

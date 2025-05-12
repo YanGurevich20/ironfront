@@ -1,0 +1,157 @@
+[gd_scene load_steps=22 format=3 uid="uid://cyrvvk2kbnrsd"]
+
+[ext_resource type="Texture2D" uid="uid://8nyjghhoig5p" path="res://entities/destroyed_tank/sprites/hull_destroyed.png" id="1_qj327"]
+[ext_resource type="Script" uid="uid://n03f4n4aty1y" path="res://entities/destroyed_tank/destroyed_tank.gd" id="1_v2d8j"]
+[ext_resource type="Texture2D" uid="uid://e1xrvtglkk3a" path="res://entities/destroyed_tank/sprites/cannon_destroyed.png.png" id="2_anet3"]
+[ext_resource type="Texture2D" uid="uid://cwm24cd33qog6" path="res://entities/destroyed_tank/sprites/track_destroyed.png" id="2_tmb8b"]
+[ext_resource type="Texture2D" uid="uid://cqyxrf4x3j6gf" path="res://entities/destroyed_tank/sprites/turret_destroyed.png" id="3_0yvoa"]
+[ext_resource type="Texture2D" uid="uid://obj5nglso4jh" path="res://entities/destroyed_tank/sprites/tank_explosion.png" id="4_ea44q"]
+[ext_resource type="AudioStream" uid="uid://dhx68ert7yyd1" path="res://entities/destroyed_tank/audio/death_explosion.wav" id="6_2bv1y"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v5gh0"]
+size = Vector2(63, 50.5)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7uysx"]
+atlas = ExtResource("1_qj327")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v45rp"]
+atlas = ExtResource("1_qj327")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_td8jk"]
+atlas = ExtResource("1_qj327")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hqlyt"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7uysx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v45rp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_td8jk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bpe6x"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tmb8b"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5mkbh"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n8731"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ulsk5"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(0, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_agawt"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(128, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a7irc"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(0, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g6gkd"]
+atlas = ExtResource("4_ea44q")
+region = Rect2(128, 192, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_p2abd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bpe6x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tmb8b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5mkbh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n8731")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ulsk5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_agawt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a7irc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g6gkd")
+}],
+"loop": false,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="DestroyedTank" type="RigidBody2D" groups=["projectile_blocker"]]
+mass = 2.0
+gravity_scale = 0.0
+linear_damp = 8.0
+angular_damp = 8.0
+script = ExtResource("1_v2d8j")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, -0.75)
+shape = SubResource("RectangleShape2D_v5gh0")
+
+[node name="LeftTrack" type="Sprite2D" parent="."]
+position = Vector2(1, -17)
+rotation = 0.0296706
+texture = ExtResource("2_tmb8b")
+
+[node name="RightTrack" type="Sprite2D" parent="."]
+position = Vector2(1, 17)
+texture = ExtResource("2_tmb8b")
+
+[node name="Hull" type="AnimatedSprite2D" parent="."]
+z_index = 1
+sprite_frames = SubResource("SpriteFrames_hqlyt")
+autoplay = "default"
+frame_progress = 0.799673
+
+[node name="Turret" type="Sprite2D" parent="."]
+z_index = 2
+position = Vector2(8, 0)
+texture = ExtResource("3_0yvoa")
+centered = false
+offset = Vector2(-25.44, -26.91)
+
+[node name="Cannon" type="Sprite2D" parent="Turret"]
+z_index = -1
+position = Vector2(28, 5)
+texture = ExtResource("2_anet3")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 3
+position = Vector2(-5, 3)
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_p2abd")
+autoplay = "default"
+frame = 7
+frame_progress = 1.0
+
+[node name="ExplosionSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_2bv1y")
+volume_db = 5.0
+autoplay = true

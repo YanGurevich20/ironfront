@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bfvlynm40x135"]
+
+[ext_resource type="Script" uid="uid://brrm0lb254aeq" path="res://controllers/keyboard_tank_controller/player_tank_controller.gd" id="1_ehht2"]
+
+[node name="PlayerTankController" type="Node"]
+script = ExtResource("1_ehht2")

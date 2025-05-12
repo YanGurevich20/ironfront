@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://cn3kcu4qw2n6v"]
+
+[ext_resource type="Script" uid="uid://brj73bii83kt7" path="res://ui/touch_controls/game_control/game_control.gd" id="1_awo04"]
+[ext_resource type="Texture2D" uid="uid://cxg20d6t45dl0" path="res://ui/touch_controls/game_control/assets/pause_icon_white.png" id="2_f3lmn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lr51m"]
+
+[node name="GameControl" type="Control"]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+script = ExtResource("1_awo04")
+
+[node name="PauseButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -51.0
+offset_right = 461.0
+offset_bottom = 512.0
+grow_horizontal = 0
+scale = Vector2(0.1, 0.1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_lr51m")
+icon = ExtResource("2_f3lmn")
+icon_alignment = 1
