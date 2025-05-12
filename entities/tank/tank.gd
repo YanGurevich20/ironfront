@@ -12,7 +12,7 @@ signal shell_fired(shell: Shell, tank: Tank)
 @onready var turret := $Turret
 @onready var cannon := $Turret/Cannon
 @onready var muzzle_marker := $Turret/Cannon/MuzzleMarker
-@onready var hull := $Hull
+@onready var hull := $Hull 
 @onready var left_track := $Hull/LeftTrack
 @onready var right_track := $Hull/RightTrack
 @onready var collision_shape := $CollisionShape2D
