@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://cyhjue8xu1nc6" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres" id="2_eykj3"]
 [ext_resource type="Script" uid="uid://8pinjuwojoxv" path="res://entities/tank/hull.gd" id="3_axr6c"]
 [ext_resource type="Script" uid="uid://bwhyg2mhvr4k5" path="res://entities/tank/turret.gd" id="4_eykj3"]
-[ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank_v1/sprites/flash.png" id="5_eykj3"]
+[ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank/flash.png" id="5_eykj3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cbkxa"]
 size = Vector2(64, 64)

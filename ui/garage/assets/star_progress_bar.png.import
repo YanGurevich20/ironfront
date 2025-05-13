@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c60v8167xbf60"
-path="res://.godot/imported/track.png-892587c040c949bc89efb9894e39eb5c.ctex"
+uid="uid://dsuba1kmpfuki"
+path="res://.godot/imported/star_progress_bar.png-a5152511a024b329bea65db81e5b942e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://entities/tank_v1/sprites/track.png"
-dest_files=["res://.godot/imported/track.png-892587c040c949bc89efb9894e39eb5c.ctex"]
+source_file="res://ui/garage/assets/star_progress_bar.png"
+dest_files=["res://.godot/imported/star_progress_bar.png-a5152511a024b329bea65db81e5b942e.ctex"]
 
 [params]
 

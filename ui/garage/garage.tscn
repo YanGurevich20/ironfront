@@ -1,29 +1,22 @@
-[gd_scene load_steps=15 format=3 uid="uid://cu3rghbstb2jo"]
+[gd_scene load_steps=13 format=3 uid="uid://cu3rghbstb2jo"]
 
 [ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://theme/default.tres" id="1_6ygmu"]
 [ext_resource type="Texture2D" uid="uid://ddfui22i8rmka" path="res://global_assets/game_title/title_192_trasnparent.png" id="1_ip7jb"]
-[ext_resource type="PackedScene" uid="uid://cnsy87eymywb0" path="res://entities/tank/tank.tscn" id="2_f20ri"]
-[ext_resource type="Resource" uid="uid://6lsuora6wir4" path="res://entities/tank/tanks/tiger_1/tiger_1.tres" id="3_m7huh"]
-[ext_resource type="Texture2D" uid="uid://c4ya4m6foxa7k" path="res://ui/garage/assets/turret_temp.jpg" id="4_ovx6s"]
+[ext_resource type="Texture2D" uid="uid://8hxjpbfoe7w7" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.png" id="4_kjpwv"]
 [ext_resource type="Texture2D" uid="uid://dtye06nmuba70" path="res://ui/garage/assets/star_612.jpg" id="4_tqyjs"]
+[ext_resource type="PackedScene" uid="uid://bas5o57pf6pbp" path="res://ui/garage/star_progress_bar.tscn" id="5_m5yeo"]
 [ext_resource type="Texture2D" uid="uid://ujnmgkmorwj2" path="res://ui/garage/assets/medal_626.png" id="5_u13t8"]
 [ext_resource type="Texture2D" uid="uid://dq08guwjfr57" path="res://ui/garage/assets/crew_person_960.png" id="7_43e85"]
 [ext_resource type="Texture2D" uid="uid://c0iknn1vgkoq8" path="res://ui/garage/assets/granade.png" id="8_kjpwv"]
+[ext_resource type="Texture2D" uid="uid://lvfi4e6tqpvx" path="res://entities/tank/tanks/m4a1_sherman/composed_128.png" id="10_dpl2r"]
+[ext_resource type="Texture2D" uid="uid://04tw8i6m054b" path="res://entities/tank/tanks/tiger_1/preview_tiger_1.png" id="10_m5yeo"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0fusm"]
-size = Vector2(120, 60)
-
-[sub_resource type="Gradient" id="Gradient_ip7jb"]
-colors = PackedColorArray(0.0110536, 0.0759063, 0.0237082, 1, 0.223171, 0.08545, 0.0275675, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_tqyjs"]
-gradient = SubResource("Gradient_ip7jb")
+[sub_resource type="AtlasTexture" id="AtlasTexture_m5yeo"]
+atlas = ExtResource("4_kjpwv")
+region = Rect2(0, 192, 64, 64)
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ovx6s"]
 size = Vector2(64, 48)
-
-[sub_resource type="LabelSettings" id="LabelSettings_ip7jb"]
-font_size = 8
 
 [node name="Garage" type="Control"]
 layout_mode = 3
@@ -40,25 +33,21 @@ anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
 
-[node name="HeaderButtonsContainer" type="HBoxContainer" parent="Header"]
+[node name="HeaderButtonsContainer" type="VBoxContainer" parent="Header"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Header/HeaderButtonsContainer"]
 layout_mode = 2
-alignment = 1
 
-[node name="TextureButton2" type="TextureButton" parent="Header/HeaderButtonsContainer/HBoxContainer"]
+[node name="Button" type="Button" parent="Header/HeaderButtonsContainer/HBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = SubResource("PlaceholderTexture2D_0fusm")
+text = "PLAY"
 
-[node name="TextureButton" type="TextureButton" parent="Header/HeaderButtonsContainer/HBoxContainer"]
+[node name="Button2" type="Button" parent="Header/HeaderButtonsContainer/HBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 4
-texture_normal = SubResource("PlaceholderTexture2D_0fusm")
+text = "GAME MODE"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Header"]
 custom_minimum_size = Vector2(80, 80)
@@ -110,28 +99,25 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TankDisplay" type="VBoxContainer" parent="Main"]
-layout_mode = 2
-alignment = 1
-
-[node name="TankDisplayBackground" type="TextureRect" parent="Main/TankDisplay"]
+[node name="TankDisplayPanel" type="PanelContainer" parent="Main"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
-texture = SubResource("GradientTexture2D_tqyjs")
 
-[node name="Tank" parent="Main/TankDisplay" instance=ExtResource("2_f20ri")]
-position = Vector2(100, 100)
+[node name="TextureRect" type="TextureRect" parent="Main/TankDisplayPanel"]
+layout_mode = 2
+texture = ExtResource("10_dpl2r")
+expand_mode = 1
 
 [node name="UpgradeSection" type="TabContainer" parent="Main"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_6ygmu")
-current_tab = 2
+current_tab = 0
 
 [node name="MODULES" type="ScrollContainer" parent="Main/UpgradeSection"]
-visible = false
 layout_mode = 2
+horizontal_scroll_mode = 0
 metadata/_tab_index = 0
 
 [node name="ModuleList" type="VBoxContainer" parent="Main/UpgradeSection/MODULES"]
@@ -143,83 +129,29 @@ metadata/_tab_index = 1
 layout_mode = 2
 
 [node name="ModuleImage" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem"]
-custom_minimum_size = Vector2(48, 48)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("4_ovx6s")
+texture = SubResource("AtlasTexture_m5yeo")
 expand_mode = 1
 
-[node name="ModuleLevelContainer" type="HBoxContainer" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem"]
+[node name="StarProgressBar" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem" instance=ExtResource("5_m5yeo")]
 layout_mode = 2
-
-[node name="TextureRect" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("4_tqyjs")
-expand_mode = 1
-
-[node name="TextureRect2" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("4_tqyjs")
-expand_mode = 1
-
-[node name="TextureRect3" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("4_tqyjs")
-expand_mode = 1
-
-[node name="TextureRect4" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("4_tqyjs")
-expand_mode = 1
-
-[node name="TextureRect5" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("4_tqyjs")
-expand_mode = 1
-
-[node name="TextureRect7" type="TextureRect" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleLevelContainer"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("5_u13t8")
-expand_mode = 1
 
 [node name="ModuleButtons" type="HBoxContainer" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
 
-[node name="DetailsButton" type="TextureButton" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleButtons"]
-layout_mode = 2
-texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
-
-[node name="UpgradeButton" type="TextureButton" parent="Main/UpgradeSection/MODULES/ModuleList/ModuleListItem/ModuleButtons"]
-layout_mode = 2
-texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
-
 [node name="CREW" type="ScrollContainer" parent="Main/UpgradeSection"]
 visible = false
 layout_mode = 2
+horizontal_scroll_mode = 0
 metadata/_tab_index = 1
 
 [node name="CrewList" type="VBoxContainer" parent="Main/UpgradeSection/CREW"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -299,7 +231,9 @@ layout_mode = 2
 texture_normal = SubResource("PlaceholderTexture2D_ovx6s")
 
 [node name="EQUIPMENT" type="ScrollContainer" parent="Main/UpgradeSection"]
+visible = false
 layout_mode = 2
+horizontal_scroll_mode = 0
 metadata/_tab_index = 2
 
 [node name="EquipmentList" type="VBoxContainer" parent="Main/UpgradeSection/EQUIPMENT"]
@@ -328,11 +262,11 @@ vertical_alignment = 1
 
 [node name="UpgradeButton" type="Button" parent="Main/UpgradeSection/EQUIPMENT/EquipmentList/EquipmentListItem"]
 layout_mode = 2
+theme = ExtResource("1_6ygmu")
 text = "UPGRADE
 1000 MONEYS"
 
-[node name="TankListScrollContainer" type="ScrollContainer" parent="."]
-custom_minimum_size = Vector2(0, 80)
+[node name="TankListPanel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -341,43 +275,43 @@ anchor_bottom = 1.0
 offset_top = -80.0
 grow_horizontal = 2
 grow_vertical = 0
-horizontal_scroll_mode = 3
-vertical_scroll_mode = 0
 
-[node name="TankList" type="HBoxContainer" parent="TankListScrollContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="TankListPanel"]
 layout_mode = 2
-theme_override_constants/separation = 16
 
-[node name="TankListItem" type="VBoxContainer" parent="TankListScrollContainer/TankList"]
-custom_minimum_size = Vector2(80, 80)
+[node name="HBoxContainer" type="HBoxContainer" parent="TankListPanel/ScrollContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
-[node name="Tank" parent="TankListScrollContainer/TankList/TankListItem" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-
-[node name="TankNameLabel" type="Label" parent="TankListScrollContainer/TankList/TankListItem"]
+[node name="PanelContainer2" type="PanelContainer" parent="TankListPanel/ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(128, 64)
 layout_mode = 2
-text = "M4A1 Sherman"
-label_settings = SubResource("LabelSettings_ip7jb")
-horizontal_alignment = 2
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="TankListScrollContainer/TankList"]
-custom_minimum_size = Vector2(80, 80)
+[node name="TextureRect" type="TextureRect" parent="TankListPanel/ScrollContainer/HBoxContainer/PanelContainer2"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 2
+texture = ExtResource("10_dpl2r")
+expand_mode = 2
+stretch_mode = 5
 
-[node name="Tank" parent="TankListScrollContainer/TankList/VBoxContainer2" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="TankListScrollContainer/TankList/VBoxContainer2"]
+[node name="Label" type="Label" parent="TankListPanel/ScrollContainer/HBoxContainer/PanelContainer2"]
 layout_mode = 2
-text = "Tiger 1"
-label_settings = SubResource("LabelSettings_ip7jb")
-horizontal_alignment = 2
-text_overrun_behavior = 3
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 8
+text = "M4A1 Sherman "
+
+[node name="PanelContainer" type="PanelContainer" parent="TankListPanel/ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(128, 64)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="TankListPanel/ScrollContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+texture = ExtResource("10_m5yeo")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="TankListPanel/ScrollContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 8
+text = "Tiger I"

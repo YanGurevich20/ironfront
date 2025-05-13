@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://bas5o57pf6pbp"]
+
+[ext_resource type="Texture2D" uid="uid://dsuba1kmpfuki" path="res://ui/garage/assets/star_progress_bar.png" id="1_07k8t"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6uqi0"]
+atlas = ExtResource("1_07k8t")
+region = Rect2(0, 0, 384, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ppyta"]
+atlas = ExtResource("1_07k8t")
+region = Rect2(0, 64, 384, 64)
+
+[node name="StarProgressBar" type="TextureProgressBar"]
+max_value = 6.0
+texture_under = SubResource("AtlasTexture_6uqi0")
+texture_progress = SubResource("AtlasTexture_ppyta")
