@@ -77,7 +77,6 @@ size_flags_vertical = 3
 
 [node name="ModuleUpgradeList" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -96,20 +95,12 @@ layout_mode = 2
 
 [node name="CrewUpgradeList" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="HBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
-layout_mode = 2
-
-[node name="HBoxContainer4" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
-layout_mode = 2
-
-[node name="HBoxContainer2" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
-layout_mode = 2
-
-[node name="HBoxContainer3" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
 layout_mode = 2
 
 [node name="EquipmentUpgradeList" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer"]
@@ -123,10 +114,4 @@ size_flags_vertical = 3
 layout_mode = 2
 
 [node name="HBoxContainer4" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
-layout_mode = 2
-
-[node name="HBoxContainer2" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
-layout_mode = 2
-
-[node name="HBoxContainer3" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
 layout_mode = 2
