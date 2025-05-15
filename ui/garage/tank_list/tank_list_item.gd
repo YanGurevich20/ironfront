@@ -1,4 +1,4 @@
-extends PanelContainer
+class_name TankListItem extends PanelContainer
 
 @export var tank_name: String
 @export var tank_image: Texture2D

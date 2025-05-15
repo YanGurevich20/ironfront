@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://dslajcx0t8u3k"]
+[gd_scene load_steps=6 format=3 uid="uid://dslajcx0t8u3k"]
 
 [ext_resource type="PackedScene" uid="uid://dl4au2fgo071" path="res://ui/garage/header/header_panel.tscn" id="1_m7huh"]
+[ext_resource type="Script" uid="uid://csche0b3k1hne" path="res://ui/garage/garage.gd" id="1_tqyjs"]
 [ext_resource type="PackedScene" uid="uid://bttmy3kqvmgjf" path="res://ui/garage/tank_display/tank_display.tscn" id="2_ip7jb"]
 [ext_resource type="PackedScene" uid="uid://c0cjoeah2t6tw" path="res://ui/garage/upgrade_section/upgrade_section.tscn" id="3_ip7jb"]
 [ext_resource type="PackedScene" uid="uid://dct3lf2waqoil" path="res://ui/garage/tank_list/tank_list.tscn" id="3_tqyjs"]
@@ -12,22 +13,29 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_tqyjs")
 
 [node name="HeaderPanel" parent="." instance=ExtResource("1_m7huh")]
+unique_name_in_owner = true
 layout_mode = 1
 grow_horizontal = 1
 
 [node name="TankDisplay" parent="." instance=ExtResource("2_ip7jb")]
+unique_name_in_owner = true
 layout_mode = 1
 anchor_left = 0.012
 offset_left = -7.68
 grow_vertical = 1
 
 [node name="UpgradeSection" parent="." instance=ExtResource("3_ip7jb")]
+unique_name_in_owner = true
 layout_mode = 1
-offset_top = 0.0800018
+anchor_top = 0.222
+offset_top = 0.0799942
 offset_bottom = -0.0799866
+metadata/_edit_use_anchors_ = true
 
 [node name="TankListPanel" parent="." instance=ExtResource("3_tqyjs")]
+unique_name_in_owner = true
 layout_mode = 1
-offset_top = 79.92
+pivot_offset = Vector2(328, -312)

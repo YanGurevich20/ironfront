@@ -28,6 +28,7 @@ class_name TankSpec extends Resource
 @export var cannon_sprite: AtlasTexture
 @export var hull_sprite: AtlasTexture
 @export var track_sprite_frames: SpriteFrames
+@export var preview_texture: Texture2D
 @export_group("Sounds")
 @export var engine_sound: AudioStream
 @export var cannon_sound: AudioStream

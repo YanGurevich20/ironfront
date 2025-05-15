@@ -4,8 +4,8 @@ static var CameraScene := preload("res://core/main_camera.tscn")
 
 enum TankType {TIGER_1, M4A1_SHERMAN}
 static var TANK_SPECS: Dictionary[TankType, TankSpec] = {
-	TankType.TIGER_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
 	TankType.M4A1_SHERMAN: preload("res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
+	TankType.TIGER_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
 }
 
 enum TankControllerType {PLAYER, AI, DUMMY}
