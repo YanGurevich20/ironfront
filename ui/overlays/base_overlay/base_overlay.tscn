@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bshdi0li1xvng" path="res://ui/overlays/base_overlay/base_overlay.gd" id="1_l5gir"]
 [ext_resource type="PackedScene" uid="uid://n71kmsoe2dta" path="res://ui/overlays/base_overlay/base_section/base_section.tscn" id="2_2mq0n"]
 [ext_resource type="PackedScene" uid="uid://cj8vhf58f7lr0" path="res://ui/overlays/base_overlay/base_section/back_button.tscn" id="3_2mq0n"]
-[ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://theme/default.tres" id="4_4fi7y"]
+[ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://global_assets/theme/default.tres" id="4_4fi7y"]
 
 [node name="BaseOverlay" type="Control"]
 z_index = 1

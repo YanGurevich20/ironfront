@@ -1,0 +1,132 @@
+[gd_scene load_steps=3 format=3 uid="uid://c0cjoeah2t6tw"]
+
+[ext_resource type="PackedScene" uid="uid://cbeua31b6isr0" path="res://ui/garage/upgrade_section/upgrade_list_item/upgrade_list_item.tscn" id="1_kwkgd"]
+[ext_resource type="Script" uid="uid://dll3dx8lkgfxe" path="res://ui/garage/upgrade_section/upgrade_section.gd" id="1_pn002"]
+
+[node name="UpgradeSection" type="VBoxContainer"]
+custom_minimum_size = Vector2(0, 200)
+anchors_preset = -1
+anchor_left = 0.312
+anchor_top = 0.333
+anchor_right = 1.0
+anchor_bottom = 0.778
+offset_left = 0.319992
+offset_top = 0.119995
+offset_bottom = 50.92
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 2
+alignment = 1
+script = ExtResource("1_pn002")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="HboxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ModulesButton" type="Button" parent="MarginContainer/HboxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "MODULES"
+
+[node name="CrewButton" type="Button" parent="MarginContainer/HboxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "CREW"
+
+[node name="EquipmentButton" type="Button" parent="MarginContainer/HboxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "EQUIPMENT
+"
+
+[node name="TankUpgradePanel" type="Panel" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="TankUpgradePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TankUpgradePanel/MarginContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="UpgradeListContainer" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ModuleUpgradeList" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer4" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer2" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer3" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="CrewUpgradeList" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer4" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer2" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer3" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="EquipmentUpgradeList" type="VBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer4" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer2" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2
+
+[node name="HBoxContainer3" parent="TankUpgradePanel/MarginContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_kwkgd")]
+layout_mode = 2

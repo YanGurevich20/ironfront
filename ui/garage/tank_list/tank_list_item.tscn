@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://dr4li26fnrnmf"]
+
+[ext_resource type="Script" uid="uid://bdtdlbkihkcgf" path="res://ui/garage/tank_list/tank_list_item.gd" id="1_gndlf"]
+
+[node name="TankListItem" type="PanelContainer"]
+custom_minimum_size = Vector2(128, 64)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_gndlf")
+
+[node name="TankListItemTexture" type="TextureRect" parent="."]
+layout_mode = 2
+expand_mode = 2
+stretch_mode = 6
+
+[node name="TankListItemLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_vertical = 1
+vertical_alignment = 2

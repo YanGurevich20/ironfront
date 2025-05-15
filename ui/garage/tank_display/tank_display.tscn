@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://bttmy3kqvmgjf"]
+
+[ext_resource type="Texture2D" uid="uid://lvfi4e6tqpvx" path="res://entities/tank/tanks/m4a1_sherman/composed_128.png" id="1_g07ds"]
+
+[node name="TankDisplay" type="CenterContainer"]
+anchors_preset = -1
+anchor_top = 0.222
+anchor_right = 0.312
+anchor_bottom = 0.778
+offset_top = 0.0799942
+offset_right = 0.319992
+offset_bottom = -0.0800171
+grow_vertical = 2
+
+[node name="TankDisplayTexture" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = ExtResource("1_g07ds")

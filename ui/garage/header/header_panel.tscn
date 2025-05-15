@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://dl4au2fgo071"]
+
+[node name="HeaderPanel" type="Panel"]
+custom_minimum_size = Vector2(640, 80)
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.222
+offset_bottom = 0.0800018
+grow_horizontal = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button3" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "PLAY"
+
+[node name="Button4" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "GAME MODE
+"
+
+[node name="MarginContainer2" type="MarginContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_right = 10
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="Panel" type="PanelContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label2" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
+layout_mode = 2
+text = "PREMIUM MONEY"
+
+[node name="Label" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
+layout_mode = 2
+text = "MONEY "
+
+[node name="Panel2" type="PanelContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel2"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel2/VBoxContainer2"]
+layout_mode = 2
+text = "PLAYER"
+horizontal_alignment = 2
+
+[node name="Label2" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel2/VBoxContainer2"]
+layout_mode = 2
+text = "LOGOUT / SETTINGS"
