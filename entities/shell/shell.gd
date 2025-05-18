@@ -1,7 +1,7 @@
 class_name Shell extends Area2D
 
 @export var speed :float= 800.0
-@export var damage :int = 1
+@export var damage :int = 300
 var velocity := Vector2.ZERO
 var firing_tank: Node2D
 

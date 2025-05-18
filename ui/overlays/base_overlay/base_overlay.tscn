@@ -1,9 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://b2ndbkv4et6g1"]
+[gd_scene load_steps=3 format=3 uid="uid://b2ndbkv4et6g1"]
 
 [ext_resource type="Script" uid="uid://bshdi0li1xvng" path="res://ui/overlays/base_overlay/base_overlay.gd" id="1_l5gir"]
-[ext_resource type="PackedScene" uid="uid://n71kmsoe2dta" path="res://ui/overlays/base_overlay/base_section/base_section.tscn" id="2_2mq0n"]
-[ext_resource type="PackedScene" uid="uid://cj8vhf58f7lr0" path="res://ui/overlays/base_overlay/base_section/back_button.tscn" id="3_2mq0n"]
-[ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://global_assets/theme/default.tres" id="4_4fi7y"]
+[ext_resource type="PackedScene" uid="uid://byocrfp5gbeii" path="res://ui/overlays/base_overlay/base_section/base_section.tscn" id="2_l5gir"]
 
 [node name="BaseOverlay" type="Control"]
 z_index = 1
@@ -22,29 +20,31 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.647059)
+color = Color(0, 0, 0, 0.482353)
 
-[node name="SectionsContainer" type="VBoxContainer" parent="."]
-unique_name_in_owner = true
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -150.0
-offset_top = -20.0
-offset_right = 150.0
-offset_bottom = 20.0
+offset_left = -33.5
+offset_top = -24.5
+offset_right = 33.5
+offset_bottom = 24.5
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
+theme_type_variation = &"PanelContainerDark"
 
-[node name="RootSection" parent="SectionsContainer" instance=ExtResource("2_2mq0n")]
+[node name="SectionsContainer" type="VBoxContainer" parent="PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-is_root = true
+alignment = 1
 
-[node name="BackButton" parent="SectionsContainer/RootSection" instance=ExtResource("3_2mq0n")]
+[node name="RootSection" parent="PanelContainer/SectionsContainer" instance=ExtResource("2_l5gir")]
+unique_name_in_owner = true
 layout_mode = 2
-theme = ExtResource("4_4fi7y")
+size_flags_vertical = 3
+is_root = true

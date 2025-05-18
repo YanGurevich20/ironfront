@@ -1,19 +1,86 @@
-[gd_scene load_steps=2 format=3 uid="uid://dr4li26fnrnmf"]
+[gd_scene load_steps=4 format=3 uid="uid://bp473opt1iu8r"]
 
-[ext_resource type="Script" uid="uid://bdtdlbkihkcgf" path="res://ui/garage/tank_list/tank_list_item.gd" id="1_gndlf"]
+[ext_resource type="Script" uid="uid://bq7udv8ayaxnf" path="res://ui/garage/tank_list/tank_list_item.gd" id="1_3gs4r"]
+[ext_resource type="Texture2D" uid="uid://bhrs2smr4fl7x" path="res://global_assets/theme/main.png" id="3_kuv1v"]
 
-[node name="TankListItem" type="PanelContainer"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_qfjce"]
+atlas = ExtResource("3_kuv1v")
+region = Rect2(192, 192, 64, 64)
+
+[node name="TankListItem" type="Button"]
+clip_contents = true
 custom_minimum_size = Vector2(128, 64)
-size_flags_horizontal = 4
-size_flags_vertical = 4
-script = ExtResource("1_gndlf")
+anchors_preset = -1
+anchor_right = 0.2
+anchor_bottom = 0.178
+offset_right = -128.0
+offset_bottom = -64.08
+theme_type_variation = &"SelectablePanel"
+toggle_mode = true
+script = ExtResource("1_3gs4r")
 
-[node name="TankListItemTexture" type="TextureRect" parent="."]
-layout_mode = 2
-expand_mode = 2
-stretch_mode = 6
+[node name="TankImage" type="TextureRect" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
 
-[node name="TankListItemLabel" type="Label" parent="."]
-layout_mode = 2
-size_flags_vertical = 1
-vertical_alignment = 2
+[node name="LockOverlay" type="TextureRect" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_qfjce")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PriceLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 4.0
+offset_right = -8.0
+offset_bottom = -45.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "0 $"
+
+[node name="NameLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 44.0
+offset_right = -8.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Tank Name"
+horizontal_alignment = 2

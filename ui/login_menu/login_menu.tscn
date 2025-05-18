@@ -1,0 +1,71 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxmwayjad206f"]
+
+[ext_resource type="Script" uid="uid://qbcyelf552oj" path="res://ui/login_menu/login_menu.gd" id="1_l6yps"]
+[ext_resource type="Texture2D" uid="uid://b467wgacir8wa" path="res://ui/login_menu/assets/title.png" id="2_fe2o3"]
+[ext_resource type="Texture2D" uid="uid://h7jggwq5kgsb" path="res://ui/login_menu/assets/main_background_360p.png" id="2_omy8q"]
+
+[node name="LoginMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_l6yps")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_omy8q")
+
+[node name="Title" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -216.0
+offset_top = -18.0
+offset_right = -24.0
+offset_bottom = 174.0
+grow_horizontal = 0
+texture = ExtResource("2_fe2o3")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -20.0
+offset_right = -40.0
+offset_bottom = 66.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_type_variation = &"PanelContainerDark"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"GoldButton"
+text = "PLAY"
+
+[node name="LoginButton" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "LOG IN
+"
+
+[node name="QuitButton" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "QUIT"

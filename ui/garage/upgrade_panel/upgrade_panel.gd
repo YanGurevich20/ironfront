@@ -1,4 +1,4 @@
-class_name UpgradeSection extends VBoxContainer
+class_name UpgradePanel extends Control
 
 @onready var modules_button: Button = %ModulesButton
 @onready var crew_button: Button = %CrewButton

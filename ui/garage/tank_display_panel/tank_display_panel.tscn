@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://bttmy3kqvmgjf"]
+
+[ext_resource type="Texture2D" uid="uid://lvfi4e6tqpvx" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman_preview.png" id="1_g07ds"]
+[ext_resource type="Texture2D" uid="uid://m7nr8s6f5pu8" path="res://ui/garage/background_200.png" id="1_vveua"]
+
+[node name="TankDisplayPanel" type="CenterContainer"]
+anchors_preset = -1
+anchor_top = 0.222
+anchor_right = 0.312
+anchor_bottom = 0.778
+offset_top = -7.92002
+offset_right = 56.32
+offset_bottom = 31.92
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+theme_type_variation = &"PanelContainerDark"
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer"]
+layout_mode = 2
+texture = ExtResource("1_vveua")
+expand_mode = 1
+
+[node name="TankDisplayTexture" type="TextureRect" parent="PanelContainer"]
+layout_mode = 2
+texture = ExtResource("1_g07ds")

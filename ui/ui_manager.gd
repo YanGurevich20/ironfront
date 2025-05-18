@@ -2,16 +2,16 @@ extends CanvasLayer
 class_name UIManager
 #region Node Setup
 # === Nodes ===
-@onready var tank_control      : Control         = $TankControl
-@onready var game_control      : Control         = $GameControl
-@onready var main_menu         : Control         = $MainMenu
-@onready var pause_overlay     : PauseOverlay    = $PauseOverlay
+@onready var tank_control	: Control         = $TankControl
+@onready var game_control	: Control         = $GameControl
+@onready var garage : Garage          = $Garage
+@onready var login_menu : Control         = $LoginMenu
+@onready var pause_overlay: PauseOverlay    = $PauseOverlay
 @onready var result_overlay    : ResultOverlay   = $ResultOverlay
 @onready var settings_overlay  : SettingsOverlay = $SettingsOverlay
 @onready var metrics_overlay   : MetricsOverlay  = $MetricsOverlay
+@onready var garage_menu_overlay : GarageMenuOverlay = $GarageMenuOverlay
 
-# === Callables ===
-var fetch_metrics_callable: Callable
 
 # === Signals ===
 signal pause_game
@@ -31,29 +31,34 @@ var _overlay_nodes  : Array[Control]
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_menu_nodes = [ main_menu ]
+	_menu_nodes = [ login_menu, garage ]
 	_control_nodes = [ tank_control, game_control ]
-	_overlay_nodes = [ pause_overlay, result_overlay, settings_overlay, metrics_overlay ]
+	_overlay_nodes = [ pause_overlay, result_overlay, settings_overlay, metrics_overlay, garage_menu_overlay ]
 	_connect_signals()
-	show_menu()
+	show_login_menu()
 
 #region Public functions
 func setup(game: Game) -> void:
-	fetch_metrics_callable = game.fetch_metrics
-	main_menu.fetch_levels_callable        = game.fetch_levels
-	main_menu.fetch_level_stars_callable   = game.fetch_level_stars
+	garage.fetch_levels_callable = game.fetch_levels
+	garage.fetch_level_stars_callable = game.fetch_level_stars
 
-func show_menu() -> void:
+func show_login_menu() -> void:
 	_hide_all()
-	Utils.show_nodes(_menu_nodes)
+	login_menu.visible = true
+
+func show_garage() -> void:
+	_hide_all()
+	garage.visible = true
 
 func show_game_ui() -> void:
 	_hide_all()
 	Utils.show_nodes(_control_nodes)
 
 func show_overlay(overlay: Control) -> void:
-	if main_menu.visible:
-		Utils.show_nodes(_menu_nodes)
+	if login_menu.visible:
+		login_menu.visible = true
+	elif garage.visible:
+		garage.visible = true
 	else:
 		Utils.show_nodes(_control_nodes)
 	Utils.hide_nodes(_overlay_nodes)
@@ -67,7 +72,8 @@ func display_result(success: bool, metrics: Dictionary, objectives: Array) -> vo
 	show_overlay(result_overlay)
 
 func refresh_levels()->void:
-	main_menu.refresh_level_buttons()
+	if garage.has_method("refresh_level_buttons"):
+		garage.refresh_level_buttons()
 
 func reset_input() -> void:
 	tank_control.reset_input()
@@ -77,8 +83,8 @@ func update_objectives(objectives: Array) -> void:
 
 #endregion
 #region Signal handlers
-func _on_metrics_pressed()-> void:
-	var metrics :Dictionary= fetch_metrics_callable.call()
+func _on_metrics_pressed()->void:
+	var metrics :Dictionary= LoadableData.get_instance(Metrics).metrics
 	metrics_overlay.display_metrics(metrics)
 	show_overlay(metrics_overlay)
 
@@ -104,7 +110,7 @@ func _on_close_settings_pressed() -> void:
 	settings_overlay.visible = false
 
 func _on_return_pressed() -> void:
-	show_menu()
+	show_garage()
 	return_to_menu.emit()
 
 func _on_retry_pressed() -> void:
@@ -118,13 +124,20 @@ func _on_abort_pressed() -> void:
 	hide_overlays()
 	abort_level.emit()
 
+func _on_play_pressed() -> void:
+	show_garage()
+
+func _on_garage_menu_pressed() -> void:
+	show_overlay(garage_menu_overlay)
+
 #endregion
 #region Helpers
 func _connect_signals() -> void:
-	main_menu.level_pressed.connect(_on_level_pressed)
-	main_menu.settings_pressed.connect(_on_settings_pressed)
-	main_menu.metrics_pressed.connect(_on_metrics_pressed)
-	main_menu.quit_game_pressed.connect(_on_quit_pressed)
+	login_menu.play_pressed.connect(_on_play_pressed)
+	login_menu.login_pressed.connect(func()->void: print("Login pressed - functionality to be implemented"))
+
+	garage.garage_menu_pressed.connect(_on_garage_menu_pressed)
+	garage.level_pressed.connect(_on_level_pressed)
 
 	game_control.pause_pressed.connect(_on_pause_pressed)
 
@@ -140,6 +153,10 @@ func _connect_signals() -> void:
 	settings_overlay.reset_game_progress_pressed.connect(func()->void:reset_game_progress_pressed.emit())
 
 	metrics_overlay.exit_overlay_pressed.connect(hide_overlays)
+
+	garage_menu_overlay.exit_overlay_pressed.connect(hide_overlays)
+	garage_menu_overlay.settings_pressed.connect(_on_settings_pressed)
+	garage_menu_overlay.metrics_pressed.connect(_on_metrics_pressed)
 
 func _hide_all() -> void:
 	Utils.hide_nodes(_menu_nodes)

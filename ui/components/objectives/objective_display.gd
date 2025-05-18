@@ -1,5 +1,5 @@
 #objective_display.gd
-extends MarginContainer
+extends Control
 
 @onready var description_label :Label= $%DescriptionLabel
 @onready var progress_bar : ProgressBar= $%ProgressBar

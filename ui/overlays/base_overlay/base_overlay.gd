@@ -1,5 +1,4 @@
-class_name BaseOverlay
-extends Control
+class_name BaseOverlay extends Control
 
 signal exit_overlay_pressed
 @onready var sections_container := $%SectionsContainer

@@ -14,6 +14,8 @@ class_name TankSpec extends Resource
 @export var cannon_caliber: float #mm
 @export var reload_time: float #sec
 @export var max_turret_traverse_speed: float #deg/sec
+@export var gun_damage: int
+@export var projectile_speed: float
 
 @export_category("Info")
 @export_group("Info")
@@ -21,6 +23,11 @@ class_name TankSpec extends Resource
 @export var display_name: String
 @export var full_name: String
 @export var nation: String
+@export var price: int
+
+@export_category("Cost")
+@export var cost: int
+@export var bonds_cost: int
 
 @export_category("Assets")
 @export_group("Sprites")

@@ -36,7 +36,7 @@ func fire_shell() -> void:
 	shell.firing_tank = tank
 	shell.global_position = muzzle.global_position
 	shell.rotation = global_rotation
-	shell.velocity = Vector2.RIGHT.rotated(shell.rotation) * shell.speed
+	shell.velocity = Vector2.RIGHT.rotated(shell.rotation) * tank.tank_spec.projectile_speed
 	shell_fired.emit(shell)
 
 	reload_timer.start(tank.tank_spec.reload_time)

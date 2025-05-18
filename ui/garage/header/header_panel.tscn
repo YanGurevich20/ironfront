@@ -1,46 +1,51 @@
-[gd_scene format=3 uid="uid://dl4au2fgo071"]
+[gd_scene load_steps=4 format=3 uid="uid://dl4au2fgo071"]
 
-[node name="HeaderPanel" type="Panel"]
+[ext_resource type="Script" uid="uid://dg60vfr5mnm1m" path="res://ui/garage/header/header_panel.gd" id="1_nnyat"]
+[ext_resource type="Texture2D" uid="uid://dholynyd707rb" path="res://global_assets/icons.png" id="2_jrw7b"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fgfem"]
+atlas = ExtResource("2_jrw7b")
+region = Rect2(9, 209, 36, 31)
+
+[node name="HeaderPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(640, 80)
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.222
 offset_bottom = 0.0800018
 grow_horizontal = 2
+theme_type_variation = &"PanelContainerDark"
+script = ExtResource("1_nnyat")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer"]
+[node name="MarginContainer" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
+alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Button3" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+[node name="PlayButton" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
+theme_type_variation = &"GoldButton"
 text = "PLAY"
 
-[node name="Button4" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+[node name="GameModeButton" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
 text = "GAME MODE
 "
 
-[node name="MarginContainer2" type="MarginContainer" parent="HBoxContainer"]
+[node name="MarginContainer2" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_right = 10
+alignment = 1
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/MarginContainer2"]
 layout_mode = 2
@@ -51,35 +56,25 @@ alignment = 2
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-size_flags_vertical = 6
+size_flags_vertical = 3
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel"]
 layout_mode = 2
 alignment = 1
 
-[node name="Label2" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
+[node name="DollarsLabel" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "PREMIUM MONEY"
+text = "0 $"
 
-[node name="Label" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
+[node name="BondsLabel" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "MONEY "
+text = "0 BONDS"
 
-[node name="Panel2" type="PanelContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
-custom_minimum_size = Vector2(0, 48)
+[node name="GarageMenuButton" type="Button" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
-size_flags_vertical = 6
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel2"]
-layout_mode = 2
-alignment = 1
-
-[node name="Label" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel2/VBoxContainer2"]
-layout_mode = 2
-text = "PLAYER"
-horizontal_alignment = 2
-
-[node name="Label2" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel2/VBoxContainer2"]
-layout_mode = 2
-text = "LOGOUT / SETTINGS"
+icon = SubResource("AtlasTexture_fgfem")
+icon_alignment = 1

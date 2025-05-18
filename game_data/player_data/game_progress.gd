@@ -1,28 +1,23 @@
-class_name GameProgress extends Resource
+class_name GameProgress extends LoadableData
 
-@export var stars_per_level: Dictionary[int, int] = {} # e.g. {1: 3} means 3 stars on level 1
+@export var stars_per_level: Dictionary[int, int] = {}
+@export var dollars: int = 0
+@export var bonds: int = 0
+@export var unlocked_tank_ids: Array[String] = []
 
-const GAME_PROGRESS_PATH = "user://game_progress.tres"
+const FILE_NAME: String = "game_progress"
 
-func update_progress(level: int, stars: int) -> void:
-	var previous_stars :int= stars_per_level.get(level, 0)
+func get_file_name() -> String:
+	return FILE_NAME
+
+func add_dollars(amount: int) -> void:
+	dollars += amount
+
+func update_progress(level: int, stars: int, dollars_earned: int) -> void:
+	var previous_stars: int = stars_per_level.get(level, 0)
 	if stars >= previous_stars:
 		stars_per_level[level] = stars
+	add_dollars(dollars_earned)
 
 func get_stars_for_level(level: int) -> int:
 	return stars_per_level.get(level, 0)
-
-func save() -> void:
-	ResourceSaver.save(self, GAME_PROGRESS_PATH)
-
-func reset() -> void:
-	stars_per_level = {}
-
-static func load_or_create() -> GameProgress:
-	if ResourceLoader.exists(GAME_PROGRESS_PATH):
-		var loaded :GameProgress= load(GAME_PROGRESS_PATH)
-		if loaded is GameProgress:
-			return loaded
-	var new_progress := GameProgress.new()
-	new_progress.save()
-	return new_progress
