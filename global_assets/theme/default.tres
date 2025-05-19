@@ -1,7 +1,7 @@
 [gd_resource type="Theme" load_steps=16 format=3 uid="uid://dhe3ageaikkit"]
 
 [ext_resource type="FontFile" uid="uid://bnyngcuqbpdwa" path="res://global_assets/fonts/Military_March.ttf" id="2_mx1a8"]
-[ext_resource type="Texture2D" uid="uid://b167737ria8ax" path="res://global_assets/theme/main.png" id="2_plmku"]
+[ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="2_plmku"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qgxfu"]
 texture = ExtResource("2_plmku")
