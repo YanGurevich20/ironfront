@@ -36,10 +36,6 @@ func _ready() -> void:
 	show_login_menu()
 
 #region Public functions
-func setup(game: Game) -> void:
-	garage.fetch_levels_callable = game.fetch_levels
-	garage.fetch_level_stars_callable = game.fetch_level_stars
-
 func show_login_menu() -> void:
 	_hide_all()
 	login_menu.visible = true

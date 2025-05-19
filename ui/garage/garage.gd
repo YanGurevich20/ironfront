@@ -8,9 +8,6 @@ class_name Garage extends Control
 signal garage_menu_pressed
 signal level_pressed(level: int)
 
-var fetch_levels_callable: Callable
-var fetch_level_stars_callable: Callable
-
 func _ready() -> void:
 	header_panel.display_player_data()
 	header_panel.garage_menu_pressed.connect(func()->void: garage_menu_pressed.emit())
@@ -23,12 +20,6 @@ func _ready() -> void:
 	# Request tank selection update after connections are established
 	if tank_list_panel._selected_item != null:
 		tank_display_panel.display_tank(tank_list_panel._selected_item.tank_id)
-
-func refresh_level_buttons() -> void:
-	if fetch_levels_callable.is_valid() and fetch_level_stars_callable.is_valid():
-		var levels: Dictionary[int, PackedScene] = fetch_levels_callable.call()
-		var stars: Dictionary[int, int] = fetch_level_stars_callable.call()
-		print("Refreshing level buttons with levels: ", levels, " and stars: ", stars)
 
 func _on_unlock_requested(tank_id: TankManager.TankId) -> void:
 	var progress: PlayerData = LoadableData.get_instance(PlayerData)

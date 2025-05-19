@@ -33,7 +33,6 @@ func _ready() -> void:
 	ui_manager.abort_level.connect(_abort_level)
 	ui_manager.return_to_menu.connect(_quit_level)
 	ui_manager.quit_game.connect(_quit_game)
-	ui_manager.setup(self)
 	_save_player_metrics()
 
 #region level lifecycle
