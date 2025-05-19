@@ -26,3 +26,19 @@ static func show_nodes(nodes: Array[Control]) -> void:
 static func hide_nodes(nodes: Array[Control]) -> void:
 	for n in nodes:
 		n.visible = false
+
+static func with_commas(n: int) -> String:
+	var neg := n < 0
+	var s := str(abs(n))
+	var out := ""
+	while s.length() > 3:
+		out = "," + s.substr(s.length() - 3, 3) + out
+		s = s.substr(0, s.length() - 3)
+	out = s + out
+	return ("-" if neg else "") + out
+
+static func format_dollars(dollars: int) -> String:
+	return with_commas(dollars) + " $"
+
+static func format_bonds(bonds: int) -> String:
+	return with_commas(bonds) + " BONDS"

@@ -28,10 +28,12 @@ stretch_mode = 5
 custom_minimum_size = Vector2(228, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+value = 4.0
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 8
-text = "UPGRADE "
+text = "UPGRADE
+50,000 $"

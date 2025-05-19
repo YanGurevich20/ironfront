@@ -1,11 +1,11 @@
-class_name GameProgress extends LoadableData
+class_name PlayerData extends LoadableData
 
 @export var stars_per_level: Dictionary[int, int] = {}
 @export var dollars: int = 0
 @export var bonds: int = 0
-@export var unlocked_tank_ids: Array[String] = []
+@export var unlocked_tank_ids: Array[TankManager.TankId] = []
 
-const FILE_NAME: String = "game_progress"
+const FILE_NAME: String = "player_data"
 
 func get_file_name() -> String:
 	return FILE_NAME

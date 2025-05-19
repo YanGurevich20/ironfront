@@ -53,7 +53,7 @@ size_flags_horizontal = 3
 alignment = 2
 
 [node name="Panel" type="PanelContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(128, 48)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
@@ -70,6 +70,7 @@ text = "0 $"
 [node name="BondsLabel" type="Label" parent="HBoxContainer/MarginContainer2/HBoxContainer2/Panel/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"GoldLabel"
 text = "0 BONDS"
 
 [node name="GarageMenuButton" type="Button" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]

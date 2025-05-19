@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dct3lf2waqoil"]
 
-[ext_resource type="Script" uid="uid://cp6ojj7pmt7y" path="res://ui/garage/tank_list/tank_list.gd" id="1_2w535"]
+[ext_resource type="Script" uid="uid://cp6ojj7pmt7y" path="res://ui/garage/tank_list/tank_list_panel.gd" id="1_2w535"]
 [ext_resource type="PackedScene" uid="uid://bp473opt1iu8r" path="res://ui/garage/tank_list/tank_list_item.tscn" id="1_mtkyb"]
 
 [node name="TankListPanel" type="PanelContainer"]

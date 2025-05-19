@@ -23,11 +23,7 @@ class_name TankSpec extends Resource
 @export var display_name: String
 @export var full_name: String
 @export var nation: String
-@export var price: int
-
-@export_category("Cost")
-@export var cost: int
-@export var bonds_cost: int
+@export var dollar_cost: int
 
 @export_category("Assets")
 @export_group("Sprites")

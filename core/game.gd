@@ -94,7 +94,7 @@ func fetch_levels()->Dictionary:
 	return LEVEL_SCENES
 
 func fetch_level_stars(level: int)->int:
-	var game_progress: GameProgress = LoadableData.get_instance(GameProgress)
+	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
 	return game_progress.get_stars_for_level(level)
 
 #endregion
@@ -104,12 +104,9 @@ func _save_player_metrics(new_metrics: Dictionary = {}) -> void:
 	player_metrics.merge_metrics(new_metrics)
 	player_metrics.save()
 
-func _reset_player_metrics()->void:
-	LoadableData.reset(Metrics)
-
 func _save_game_progress(new_metrics: Dictionary, level_key: int) -> void:
 	var current_run_stars: int = new_metrics.get(Metrics.Metric.STARS_EARNED, 0)
-	var game_progress: GameProgress = LoadableData.get_instance(GameProgress)
+	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
 	var previous_max_stars: int = game_progress.get_stars_for_level(level_key)
 	var dollars_to_award_this_run: int = 0
 

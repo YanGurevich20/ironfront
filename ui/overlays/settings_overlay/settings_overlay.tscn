@@ -15,51 +15,33 @@ layout_mode = 2
 text = "SETTINGS"
 horizontal_alignment = 1
 
-[node name="DeveloperButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="1"]
+[node name="FeedbackButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="1"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "DEVELOPER"
-
-[node name="FeedbackButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="2"]
-unique_name_in_owner = true
-layout_mode = 2
+theme_type_variation = &"GoldButton"
 text = "FEEDBACK FORM"
 
-[node name="VideoButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
+[node name="VideoButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "VIDEO"
 
-[node name="AudioButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="4"]
+[node name="AudioButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "AUDIO"
 
-[node name="ControlsButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="5"]
+[node name="ControlsButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="4"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "CONTROLS"
 
-[node name="AboutButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="6"]
+[node name="AboutButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="5"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "ABOUT"
 
-[node name="DeveloperSection" parent="PanelContainer/SectionsContainer" index="1" instance=ExtResource("3_n1qli")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ResetPlayerMetricsButton" type="Button" parent="PanelContainer/SectionsContainer/DeveloperSection" index="0"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "RESET PLAYER METRICS"
-
-[node name="ResetGameProgressButton" type="Button" parent="PanelContainer/SectionsContainer/DeveloperSection" index="1"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "RESET GAME PROGRESS"
-
-[node name="VideoSection" parent="PanelContainer/SectionsContainer" index="2" instance=ExtResource("3_n1qli")]
+[node name="VideoSection" parent="PanelContainer/SectionsContainer" index="1" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -69,7 +51,7 @@ layout_mode = 2
 disabled = true
 text = "COMING SOON"
 
-[node name="AudioSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
+[node name="AudioSection" parent="PanelContainer/SectionsContainer" index="2" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -79,7 +61,7 @@ layout_mode = 2
 disabled = true
 text = "COMING SOON"
 
-[node name="ControlsSection" parent="PanelContainer/SectionsContainer" index="4" instance=ExtResource("3_n1qli")]
+[node name="ControlsSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -89,7 +71,7 @@ layout_mode = 2
 disabled = true
 text = "COMING SOON"
 
-[node name="AboutSection" parent="PanelContainer/SectionsContainer" index="5" instance=ExtResource("3_n1qli")]
+[node name="AboutSection" parent="PanelContainer/SectionsContainer" index="4" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

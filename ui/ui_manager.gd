@@ -21,8 +21,6 @@ signal restart_level
 signal abort_level
 signal return_to_menu
 signal quit_game
-signal reset_player_metrics_pressed
-signal reset_game_progress_pressed
 # === Groups ===
 var _menu_nodes     : Array[Control]
 var _control_nodes  : Array[Control]
@@ -149,9 +147,7 @@ func _connect_signals() -> void:
 	result_overlay.retry_pressed.connect(_on_retry_pressed)
 
 	settings_overlay.exit_overlay_pressed.connect(_on_exit_settings_pressed)
-	settings_overlay.reset_player_metrics_pressed.connect(func()->void:reset_player_metrics_pressed.emit())
-	settings_overlay.reset_game_progress_pressed.connect(func()->void:reset_game_progress_pressed.emit())
-
+	
 	metrics_overlay.exit_overlay_pressed.connect(hide_overlays)
 
 	garage_menu_overlay.exit_overlay_pressed.connect(hide_overlays)

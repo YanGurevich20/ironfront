@@ -10,9 +10,9 @@ func _ready() -> void:
 	garage_menu_button.pressed.connect(func()->void: garage_menu_pressed.emit())
 
 func display_player_data() -> void:
-	var game_progress: GameProgress = LoadableData.get_instance(GameProgress)
+	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
 	print("game_progress dollars: %s" % game_progress.dollars)
 	var dollars: int = game_progress.dollars
 	var bonds: int = game_progress.bonds
-	dollars_label.text = "%s $" % dollars
-	bonds_label.text = "%s BONDS" % bonds
+	dollars_label.text = Utils.format_dollars(dollars)
+	bonds_label.text = Utils.format_bonds(bonds)

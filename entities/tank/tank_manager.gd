@@ -2,11 +2,14 @@ class_name TankManager
 
 static var CameraScene := preload("res://core/main_camera.tscn")
 
-enum TankType {M4A1_SHERMAN, TIGER_1}
-static var TANK_SPECS: Dictionary[TankType, TankSpec] = {
-	TankType.M4A1_SHERMAN: preload("res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
-	TankType.TIGER_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
+enum TankId {m4a1_sherman, tiger_1}
+static var TANK_SPECS: Dictionary[TankId, TankSpec] = {
+	TankId.m4a1_sherman: preload("res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
+	TankId.tiger_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
 }
+
+static func get_tank_spec(tank_id: TankId) -> TankSpec:
+	return TANK_SPECS.get(tank_id)
 
 enum TankControllerType {PLAYER, AI, DUMMY}
 static var TANK_CONTROLLER_SCENES: Dictionary[TankControllerType, PackedScene] = {
@@ -18,11 +21,11 @@ static var TANK_CONTROLLER_SCENES: Dictionary[TankControllerType, PackedScene] =
 static var TankScene := preload("res://entities/tank/tank.tscn")
 static var DestroyedTankScene := preload("res://entities/destroyed_tank/destroyed_tank.tscn")
 
-static func create_tank(tank_type: TankType, tank_controller_type: TankControllerType) -> Tank:
+static func create_tank(tank_id: TankId, tank_controller_type: TankControllerType) -> Tank:
 	var is_player: bool = tank_controller_type == TankControllerType.PLAYER
 	var tank: Tank = TankScene.instantiate()
 	tank.is_player = is_player
-	tank.tank_spec = TANK_SPECS.get(tank_type)
+	tank.tank_spec = TANK_SPECS.get(tank_id)
 	var tank_controller: Node = TANK_CONTROLLER_SCENES.get(tank_controller_type).instantiate()
 	tank.add_child(tank_controller)
 	if is_player:

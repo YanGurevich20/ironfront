@@ -1,8 +1,8 @@
 class_name DeveloperMenu extends Control
 
 @onready var custom_func_button: Button = %CustomFuncButton
-@onready var delete_game_progress_button: Button = %DeleteGameProgressButton
-@onready var print_game_progress_button: Button = %PrintGameProgressButton
+@onready var delete_game_progress_button: Button = %DeletePlayerDataButton
+@onready var print_game_progress_button: Button = %PrintPlayerDataButton
 @onready var delete_metrics_button: Button = %DeleteMetricsButton
 @onready var print_metrics_button: Button = %PrintMetricsButton
 @onready var quit_button: Button = %QuitButton
@@ -16,14 +16,16 @@ func _ready() -> void:
 	quit_button.pressed.connect(func()->void: get_tree().quit())
 
 func _custom_func() -> void:
-	LoadableData.get_instance(GameProgress).update_progress(1, 1, 100)
+	LoadableData.get_instance(PlayerData).unlocked_tank_ids.append(TankManager.TankId.m4a1_sherman)
+	LoadableData.get_instance(PlayerData).update_progress(1, 1, 400000)
+	LoadableData.get_instance(PlayerData).save()
 
 func _delete_game_progress() -> void:
-	LoadableData.reset(GameProgress)
+	LoadableData.reset(PlayerData)
 	print("game progress deleted")
 
 func _print_game_progress() -> void:
-	LoadableData.get_instance(GameProgress).print_properties()
+	LoadableData.get_instance(PlayerData).print_properties()
 
 func _delete_metrics() -> void:
 	LoadableData.reset(Metrics)

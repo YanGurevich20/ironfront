@@ -32,12 +32,12 @@ layout_mode = 2
 theme_type_variation = &"GoldButton"
 text = "CUSTOM FUNC"
 
-[node name="DeleteGameProgressButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="DeletePlayerDataButton" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "DELETE GAME PROGRESS"
 
-[node name="PrintGameProgressButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="PrintPlayerDataButton" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "PRINT GAME PROGRESS"
