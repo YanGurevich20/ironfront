@@ -18,8 +18,8 @@ func display_levels() -> void:
 		var level_button: LevelButton = level_button_scene.instantiate()
 		var player_data: PlayerData = LoadableData.get_instance(PlayerData)
 		var level_stars: int = player_data.get_stars_for_level(level)
-		if level_stars < level_star_unlock_threshold: lock_next_level = true
 		level_button.disabled = lock_next_level
+		if level_stars < level_star_unlock_threshold: lock_next_level = true
 		level_button.level = level
 		level_button.stars = level_stars
 		level_button.pressed.connect(func() -> void: SignalBus.level_pressed.emit(level))
