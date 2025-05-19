@@ -6,7 +6,6 @@ class_name Garage extends Control
 @onready var tank_display_panel: TankDisplayPanel = %TankDisplayPanel
 
 signal garage_menu_pressed
-signal level_pressed(level: int)
 
 func _ready() -> void:
 	header_panel.display_player_data()

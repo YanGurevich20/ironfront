@@ -1,11 +1,36 @@
 class_name LoginMenu extends Control
 
-signal play_pressed
-signal login_pressed
 
-@onready var play_button: Button = $%PlayButton
-@onready var login_button: Button = $%LoginButton
+@onready var login_button: Button = %LoginButton
+@onready var username_input: LineEdit = %UsernameInput
+@onready var quit_button: Button = %QuitButton
 
 func _ready() -> void:
-	play_button.pressed.connect(func()->void:play_pressed.emit())
-	login_button.pressed.connect(func()->void:login_pressed.emit())
+	SignalBus.log_out_pressed.connect(_on_log_out_pressed)
+	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	print("player_data: %s" % player_data.player_name)
+
+	if player_data.player_name:
+		username_input.text = player_data.player_name
+
+	login_button.disabled = username_input.text.is_empty()
+
+	username_input.text_changed.connect(_handle_username_input)
+	login_button.pressed.connect(_on_login_button_pressed)
+	quit_button.pressed.connect(func() -> void: SignalBus.quit_pressed.emit())
+
+func _handle_username_input(text: String) -> void:
+	login_button.disabled = text.is_empty()
+
+	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	player_data.player_name = text
+
+func _on_login_button_pressed() -> void:
+	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	player_data.player_name = username_input.text
+	player_data.save()
+	SignalBus.login_pressed.emit()
+
+func _on_log_out_pressed() -> void:
+	username_input.text = ""
+	login_button.disabled = true

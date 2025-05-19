@@ -1,13 +1,20 @@
-extends Button
-class_name LevelButton
-@export var level := 1
-@export var stars := 0
+class_name LevelButton extends Button
 
-signal level_pressed(level: int)
+var _level: int
+var _stars: int
+@export var level: int:
+	get:
+		return _level
+	set(value):
+		_level = value
+		update_text()
+@export var stars: int:
+	get:
+		return _stars
+	set(value):
+		_stars = value
+		update_text()
 
-func _ready() -> void:
-	text = "LEVEL %d (%d/3)" % [level, stars]
-	pressed.connect(_on_pressed)
+func update_text() -> void:
+	text = "LEVEL %d (%d/3)" % [_level, _stars]
 
-func _on_pressed() -> void:
-	level_pressed.emit(level)

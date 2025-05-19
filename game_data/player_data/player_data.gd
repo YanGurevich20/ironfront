@@ -1,5 +1,6 @@
 class_name PlayerData extends LoadableData
 
+@export var player_name: String = ""
 @export var stars_per_level: Dictionary[int, int] = {}
 @export var dollars: int = 0
 @export var bonds: int = 0

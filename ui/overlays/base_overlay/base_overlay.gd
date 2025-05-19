@@ -18,5 +18,6 @@ func show_only(sections_to_show: Array[Node]) -> void:
 		section.visible = section in sections_to_show
 
 func _handle_back_pressed(is_root: bool)->void:
+	print("back pressed: %s" % is_root)
 	if is_root: exit_overlay_pressed.emit()
 	else: show_only([root_section])

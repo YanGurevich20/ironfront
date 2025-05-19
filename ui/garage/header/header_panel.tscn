@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dl4au2fgo071"]
 
 [ext_resource type="Script" uid="uid://dg60vfr5mnm1m" path="res://ui/garage/header/header_panel.gd" id="1_nnyat"]
-[ext_resource type="Texture2D" uid="uid://dholynyd707rb" path="res://global_assets/icons.png" id="2_jrw7b"]
+[ext_resource type="Texture2D" uid="uid://cc6ca0p6pg7fa" path="res://global_assets/icons.png" id="2_jrw7b"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fgfem"]
 atlas = ExtResource("2_jrw7b")
@@ -18,7 +18,9 @@ theme_type_variation = &"PanelContainerDark"
 script = ExtResource("1_nnyat")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+size_flags_vertical = 4
 alignment = 1
 
 [node name="MarginContainer" type="VBoxContainer" parent="HBoxContainer"]
@@ -29,22 +31,19 @@ alignment = 1
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="PlayButton" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 theme_type_variation = &"GoldButton"
 text = "PLAY"
 
-[node name="GameModeButton" type="Button" parent="HBoxContainer/MarginContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "GAME MODE
-"
-
 [node name="MarginContainer2" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 alignment = 1
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/MarginContainer2"]
@@ -53,7 +52,7 @@ size_flags_horizontal = 3
 alignment = 2
 
 [node name="Panel" type="PanelContainer" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
-custom_minimum_size = Vector2(128, 48)
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3

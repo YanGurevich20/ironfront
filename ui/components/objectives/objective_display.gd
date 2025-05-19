@@ -7,7 +7,9 @@ var progress_style := preload("res://ui/components/objectives/progress_bar_fill_
 @export var objective: Objective
 
 func _ready() -> void:
+	print("objectiv description: %s" % objective.generate_description())
 	description_label.text = objective.generate_description()
+	print("objective progress ratio: %s" % objective.get_progress_ratio())
 	var progress_ratio := objective.get_progress_ratio()
 	progress_bar.value = progress_bar.max_value * progress_ratio
 	if objective.is_complete:

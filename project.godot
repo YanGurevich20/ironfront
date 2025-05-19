@@ -19,7 +19,8 @@ boot_splash/minimum_display_time=1000
 
 [autoload]
 
-SignalBus="*res://core/signal_bus.gd"
+SignalBus="*res://core/singletons/signal_bus.gd"
+LevelManager="*res://core/singletons/level_manager.gd"
 
 [debug]
 

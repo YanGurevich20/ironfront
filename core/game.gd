@@ -6,14 +6,6 @@ const MobilePlayerTankControllerScene = preload("res://controllers/mobile_player
 const AITankControllerScene = preload("res://controllers/ai_tank_controller/ai_tank_controller.tscn")
 const DestroyedTankScene = preload("res://entities/destroyed_tank/destroyed_tank.tscn")
 
-#TODO: Consider moving to a level manager
-const LEVEL_SCENES = {
-	0: preload("res://levels/level_0.tscn"),
-	1: preload("res://levels/level_1.tscn"),
-	2: preload("res://levels/level_2.tscn"),
-	3: preload("res://levels/level_3.tscn"),
-}
-
 # === Variables ===
 var current_level: BaseLevel
 var current_level_key: int = 0
@@ -26,13 +18,13 @@ var current_level_key: int = 0
 
 # === Built-in Methods ===
 func _ready() -> void:
+	SignalBus.quit_pressed.connect(func() -> void: get_tree().quit())
+	SignalBus.level_pressed.connect(_start_level)
 	ui_manager.pause_game.connect(_pause_game)
 	ui_manager.resume_game.connect(_resume_game)
-	ui_manager.start_level.connect(_start_level)
 	ui_manager.restart_level.connect(_restart_level)
 	ui_manager.abort_level.connect(_abort_level)
 	ui_manager.return_to_menu.connect(_quit_level)
-	ui_manager.quit_game.connect(_quit_game)
 	_save_player_metrics()
 
 #region level lifecycle
@@ -53,9 +45,10 @@ func _on_objectives_updated(objectives: Array[Objective]) -> void:
 	ui_manager.update_objectives(objectives)
 
 func _start_level(level_key: int) -> void:
+	print("starting level: %s" % level_key)
 	_resume_game()
 	current_level_key = level_key
-	current_level = LEVEL_SCENES.get(level_key).instantiate()
+	current_level = LevelManager.LEVEL_SCENES.get(level_key).instantiate()
 	current_level.level_finished.connect(_finish_level)
 	current_level.objectives_updated.connect(_on_objectives_updated)
 	level_container.add_child(current_level)
@@ -74,7 +67,6 @@ func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> voi
 	ui_manager.reset_input()
 	_save_player_metrics(metrics)
 	_save_game_progress(metrics, current_level_key)
-	ui_manager.refresh_levels()
 
 func _quit_level() -> void:
 	if current_level:
@@ -84,13 +76,8 @@ func _quit_level() -> void:
 		current_level.queue_free()
 		current_level = null
 
-func _quit_game() -> void:
-	get_tree().quit()
 #endregion
 #region data api
-
-func fetch_levels()->Dictionary:
-	return LEVEL_SCENES
 
 func fetch_level_stars(level: int)->int:
 	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
