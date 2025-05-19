@@ -39,8 +39,13 @@ func _ready() -> void:
 
 	_update_item_states()
 
-	# Auto-select the latest unlocked tank if any was found
-	if latest_unlocked_item != null:
+	# Determine which tank should be selected initially
+	var progress: PlayerData = LoadableData.get_instance(PlayerData)
+	var saved_tank_id: TankManager.TankId = progress.selected_tank_id
+	# If the saved tank is unlocked, select it; otherwise fall back to the latest unlocked
+	if _unlocked_tank_ids.has(saved_tank_id):
+		select_tank_by_id(saved_tank_id)
+	elif latest_unlocked_item != null:
 		_select_tank(latest_unlocked_item)
 
 func _update_item_states() -> void:

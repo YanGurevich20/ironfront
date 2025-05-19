@@ -39,3 +39,7 @@ func _on_unlock_requested(tank_id: TankManager.TankId) -> void:
 
 func _on_tank_selected(tank_id: TankManager.TankId) -> void:
 	tank_display_panel.display_tank(tank_id)
+	# Persist the selected tank in player data
+	var progress: PlayerData = LoadableData.get_instance(PlayerData)
+	progress.selected_tank_id = tank_id
+	progress.save()

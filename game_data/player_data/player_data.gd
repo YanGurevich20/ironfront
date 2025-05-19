@@ -5,6 +5,7 @@ class_name PlayerData extends LoadableData
 @export var dollars: int = 0
 @export var bonds: int = 0
 @export var unlocked_tank_ids: Array[TankManager.TankId] = []
+@export var selected_tank_id: TankManager.TankId = TankManager.TankId.m4a1_sherman
 
 const FILE_NAME: String = "player_data"
 
