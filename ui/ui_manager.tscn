@@ -16,6 +16,7 @@
 script = ExtResource("1_yp0ob")
 
 [node name="LoginMenu" parent="." instance=ExtResource("10_30b5s")]
+visible = false
 
 [node name="Garage" parent="." instance=ExtResource("9_nymso")]
 visible = false
@@ -25,7 +26,6 @@ visible = false
 pivot_offset = Vector2(230, 250)
 
 [node name="GameControl" parent="." instance=ExtResource("3_di16j")]
-visible = false
 z_index = 1
 
 [node name="GarageMenuOverlay" parent="." instance=ExtResource("2_30b5s")]
@@ -45,4 +45,3 @@ visible = false
 
 [node name="LevelSelectOverlay" parent="." instance=ExtResource("11_i3dcd")]
 visible = false
-level_star_unlock_threshold = 2

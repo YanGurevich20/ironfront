@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bp473opt1iu8r"]
 
-[ext_resource type="Script" uid="uid://bq7udv8ayaxnf" path="res://ui/garage/tank_list/tank_list_item.gd" id="1_3gs4r"]
-[ext_resource type="Texture2D" uid="uid://bhrs2smr4fl7x" path="res://global_assets/theme/main.png" id="3_kuv1v"]
+[ext_resource type="Script" uid="uid://druochcuhwmgw" path="res://ui/garage/tank_list/tank_list_item.gd" id="1_3gs4r"]
+[ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="3_kuv1v"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qfjce"]
 atlas = ExtResource("3_kuv1v")

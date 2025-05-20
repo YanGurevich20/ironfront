@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://difemtk7pdjxu"]
 
 [ext_resource type="Script" uid="uid://npdk561p4mkr" path="res://entities/shell/shell.gd" id="1_sb42f"]
-[ext_resource type="Texture2D" uid="uid://6eekkqntd4w" path="res://entities/shell/sprites/shell_ap.png" id="2_6fq18"]
+[ext_resource type="Texture2D" uid="uid://6eekkqntd4w" path="res://entities/shell/assets/shell_ap.png" id="2_6fq18"]
 
 [node name="Shell" type="Area2D" groups=["shell"]]
 script = ExtResource("1_sb42f")

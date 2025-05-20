@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=3 uid="uid://71fs737wnngw"]
+
+[ext_resource type="Script" uid="uid://c727vhhwpha0b" path="res://ui/touch_controls/shell_select/shell_list_item/shell_list_item.gd" id="1_rrvgu"]
+[ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/tank/tanks/m4a1_sherman/shells/M63.tres" id="2_i6p84"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_brsp1"]
+load_path = "res://.godot/imported/rounds.png-22e3054bace21baf8a88316e5eb4729b.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xmjxb"]
+atlas = SubResource("CompressedTexture2D_brsp1")
+region = Rect2(16, 16, 32, 32)
+
+[node name="ShellListItem" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_rrvgu")
+shell_spec = ExtResource("2_i6p84")
+amount_left = 2
+
+[node name="ShellButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+icon = SubResource("AtlasTexture_xmjxb")
+icon_alignment = 1
+
+[node name="StatsContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="StatsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TypeLabel" type="Label" parent="StatsContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "AP"
+
+[node name="AmountLeftLabel" type="Label" parent="StatsContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "L: 20"
+
+[node name="DamageLabel" type="Label" parent="StatsContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "D: 500"
+
+[node name="PenetrationLabel" type="Label" parent="StatsContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "p: 200"
