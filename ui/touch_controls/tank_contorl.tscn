@@ -11,9 +11,9 @@
 [ext_resource type="Script" uid="uid://bf8bjst48hk3u" path="res://ui/touch_controls/shell_select.gd" id="9_gesvv"]
 [ext_resource type="PackedScene" uid="uid://71fs737wnngw" path="res://ui/touch_controls/shell_select/shell_list_item/shell_list_item.tscn" id="9_xmjxb"]
 [ext_resource type="Script" uid="uid://clsuuy75c3ymp" path="res://entities/shell/shell_spec.gd" id="10_ijy5s"]
-[ext_resource type="Resource" uid="uid://dr0gyuvt7fj63" path="res://entities/tank/tanks/m4a1_sherman/shells/M63_T.tres" id="11_buqlp"]
-[ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/tank/tanks/m4a1_sherman/shells/M63.tres" id="11_ijy5s"]
-[ext_resource type="Resource" uid="uid://chcoon7yta5au" path="res://entities/tank/tanks/tiger_1/shells/PZGR39.tres" id="12_buqlp"]
+[ext_resource type="Resource" uid="uid://dr0gyuvt7fj63" path="res://entities/shell/shells/m63_t.tres" id="11_buqlp"]
+[ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/shell/shells/m63.tres" id="11_ijy5s"]
+[ext_resource type="Resource" uid="uid://chcoon7yta5au" path="res://entities/shell/shells/pzgr39.tres" id="12_buqlp"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kye8a"]
 atlas = ExtResource("7_1xpg8")

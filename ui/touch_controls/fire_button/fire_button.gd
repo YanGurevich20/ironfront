@@ -11,7 +11,7 @@ func _gui_input(event: InputEvent) -> void:
 		button_click.pitch_scale = 0.9 if event.pressed else 1.1
 		button_click.play()
 		if event.pressed:
-			SignalBus.fire_button_pressed.emit()
+			SignalBus.fire_input.emit()
 	button_sprite.frame = 1 if is_button_pressed else 0
 
 func reset_input() -> void:

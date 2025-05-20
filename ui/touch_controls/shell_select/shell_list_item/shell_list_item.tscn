@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://71fs737wnngw"]
 
 [ext_resource type="Script" uid="uid://c727vhhwpha0b" path="res://ui/touch_controls/shell_select/shell_list_item/shell_list_item.gd" id="1_rrvgu"]
-[ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/tank/tanks/m4a1_sherman/shells/M63.tres" id="2_i6p84"]
+[ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/shell/shells/m63.tres" id="2_i6p84"]
 [ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://entities/shell/base_shell_type/rounds.png" id="3_i1bbt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hdfl3"]

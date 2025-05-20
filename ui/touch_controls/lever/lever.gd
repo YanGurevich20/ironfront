@@ -1,8 +1,8 @@
 class_name Lever
 extends Control
 
-enum Side { LEFT, RIGHT }
-@export var lever_side: Lever.Side
+enum LeverSide { LEFT, RIGHT }
+@export var lever_side: LeverSide
 
 @onready var lever_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var click_small: AudioStreamPlayer = $LeverClickSmall
@@ -21,7 +21,7 @@ var lever_value := 0.0
 var last_value := 0.0
 var start_position: Vector2
 
-signal lever_moved(lever_side: int, value: float)
+signal lever_moved(lever_side: LeverSide, value: float)
 
 func _gui_input(event:InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -64,7 +64,7 @@ func update_lever() -> void:
 		click_small.pitch_scale = randfn(0.7, 0.03)
 		click_small.play()
 		last_value = lever_value
-		SignalBus.lever_moved.emit(int(lever_side), lever_value)
+		SignalBus.lever_input.emit(lever_side, lever_value)
 
 func reset_input() -> void:
 	touch_y_position = control_field_height / 2

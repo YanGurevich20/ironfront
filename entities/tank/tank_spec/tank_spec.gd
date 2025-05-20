@@ -17,7 +17,7 @@ class_name TankSpec extends Resource
 @export var gun_damage: int
 @export var projectile_speed: float
 @export var shell_capacity: int
-@export var available_shells: Array[ShellSpec]
+@export var allowed_shells: Array[ShellManager.ShellId]
 
 @export_category("Info")
 @export_group("Info")
