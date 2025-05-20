@@ -64,7 +64,7 @@ func update_lever() -> void:
 		click_small.pitch_scale = randfn(0.7, 0.03)
 		click_small.play()
 		last_value = lever_value
-		lever_moved.emit(int(lever_side), lever_value)
+		SignalBus.lever_moved.emit(int(lever_side), lever_value)
 
 func reset_input() -> void:
 	touch_y_position = control_field_height / 2

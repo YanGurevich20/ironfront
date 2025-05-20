@@ -1,14 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://71fs737wnngw"]
+[gd_scene load_steps=6 format=3 uid="uid://71fs737wnngw"]
 
 [ext_resource type="Script" uid="uid://c727vhhwpha0b" path="res://ui/touch_controls/shell_select/shell_list_item/shell_list_item.gd" id="1_rrvgu"]
 [ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/tank/tanks/m4a1_sherman/shells/M63.tres" id="2_i6p84"]
+[ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://entities/shell/base_shell_type/rounds.png" id="3_i1bbt"]
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_brsp1"]
-load_path = "res://.godot/imported/rounds.png-22e3054bace21baf8a88316e5eb4729b.ctex"
+[sub_resource type="AtlasTexture" id="AtlasTexture_hdfl3"]
+atlas = ExtResource("3_i1bbt")
+region = Rect2(80, 16, 32, 32)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xmjxb"]
-atlas = SubResource("CompressedTexture2D_brsp1")
-region = Rect2(16, 16, 32, 32)
+[sub_resource type="CanvasTexture" id="CanvasTexture_i1bbt"]
 
 [node name="ShellListItem" type="VBoxContainer"]
 offset_right = 40.0
@@ -23,11 +23,27 @@ custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-icon = SubResource("AtlasTexture_xmjxb")
+icon = SubResource("AtlasTexture_hdfl3")
 icon_alignment = 1
+
+[node name="ShellLoadProgressBar" type="TextureProgressBar" parent="ShellButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 1.0
+step = 0.01
+fill_mode = 1
+nine_patch_stretch = true
+texture_progress = SubResource("CanvasTexture_i1bbt")
+tint_progress = Color(0, 0, 0, 0.368627)
 
 [node name="StatsContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="StatsContainer"]
@@ -37,12 +53,12 @@ theme_override_constants/separation = 0
 [node name="TypeLabel" type="Label" parent="StatsContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "AP"
+text = "HE"
 
 [node name="AmountLeftLabel" type="Label" parent="StatsContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "L: 20"
+text = "L: 2"
 
 [node name="DamageLabel" type="Label" parent="StatsContainer/VBoxContainer"]
 unique_name_in_owner = true
@@ -52,4 +68,4 @@ text = "D: 500"
 [node name="PenetrationLabel" type="Label" parent="StatsContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "p: 200"
+text = "P: 30.0"

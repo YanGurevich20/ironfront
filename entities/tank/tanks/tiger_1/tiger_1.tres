@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="TankSpec" load_steps=21 format=3 uid="uid://6lsuora6wir4"]
+[gd_resource type="Resource" script_class="TankSpec" load_steps=22 format=3 uid="uid://6lsuora6wir4"]
 
 [ext_resource type="Texture2D" uid="uid://bxne5pxm3w4l7" path="res://entities/tank/tanks/tiger_1/tiger_1.png" id="1_a1xuu"]
+[ext_resource type="Script" uid="uid://clsuuy75c3ymp" path="res://entities/shell/shell_spec.gd" id="1_vyo3s"]
 [ext_resource type="Texture2D" uid="uid://ckb5sihq2soyr" path="res://entities/tank/tanks/tiger_1/tiger_1_preview.png" id="3_ewn1r"]
 [ext_resource type="Script" uid="uid://c013xw6wq4kgl" path="res://entities/tank/tank_spec/tank_spec.gd" id="5_ajh2o"]
 [ext_resource type="Script" uid="uid://c15ujd74n166g" path="res://entities/tank/tank_spec/tank_spec_stats_armour.gd" id="6_rbgn8"]
@@ -111,6 +112,8 @@ reload_time = 5.0
 max_turret_traverse_speed = 22.0
 gun_damage = 500
 projectile_speed = 300.0
+shell_capacity = 0
+available_shells = Array[ExtResource("1_vyo3s")]([])
 id = "tiger_1"
 display_name = "Tiger I"
 full_name = "Pz.Kpfw. VI Tiger Ausf. E"
