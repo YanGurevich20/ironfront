@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://c0cjoeah2t6tw"]
+[gd_scene load_steps=5 format=3 uid="uid://c13olu340r4yx"]
 
 [ext_resource type="PackedScene" uid="uid://cbeua31b6isr0" path="res://ui/garage/upgrade_panel/upgrade_list_item/upgrade_list_item.tscn" id="1_x4cpo"]
 [ext_resource type="Script" uid="uid://stet18neyqx" path="res://ui/garage/upgrade_panel/upgrade_panel.gd" id="2_mwfdq"]
