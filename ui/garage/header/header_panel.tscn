@@ -1,11 +1,11 @@
 [gd_scene load_steps=4 format=3 uid="uid://dl4au2fgo071"]
 
-[ext_resource type="Script" uid="uid://dg60vfr5mnm1m" path="res://ui/garage/header/header_panel.gd" id="1_nnyat"]
-[ext_resource type="Texture2D" uid="uid://cc6ca0p6pg7fa" path="res://global_assets/icons.png" id="2_jrw7b"]
+[ext_resource type="Script" uid="uid://cdxtxkokgm2r7" path="res://ui/garage/header/header_panel.gd" id="1_nnyat"]
+[ext_resource type="Texture2D" uid="uid://mjiuy27e2xfx" path="res://global_assets/theme/icons.png" id="2_jrw7b"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fgfem"]
 atlas = ExtResource("2_jrw7b")
-region = Rect2(9, 209, 36, 31)
+region = Rect2(0, 16, 16, 16)
 
 [node name="HeaderPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(640, 80)

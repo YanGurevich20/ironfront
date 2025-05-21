@@ -91,12 +91,12 @@ func _spawn_tank(tank: Tank, spawn_point: Marker2D) -> void:
 	entities.add_child(tank)
 
 func _spawn_player() -> void:
-	var progress: PlayerData = LoadableData.get_instance(PlayerData)
-	var selected_tank_id: TankManager.TankId = progress.selected_tank_id
-	# Fallbacks in case data is missing or the selected tank is not yet unlocked
-	if !progress.unlocked_tank_ids.has(selected_tank_id):
-		if progress.unlocked_tank_ids.size() > 0:
-			selected_tank_id = progress.unlocked_tank_ids[0]
+	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	var selected_tank_id: TankManager.TankId = player_data.selected_tank_id
+	var unlocked_tank_ids: Array[TankManager.TankId] = player_data.get_unlocked_tank_ids()
+	if !unlocked_tank_ids.has(selected_tank_id):
+		if unlocked_tank_ids.size() > 0:
+			selected_tank_id = unlocked_tank_ids[0]
 		else:
 			selected_tank_id = TankManager.TankId.tiger_1
 	var player: Tank = TankManager.create_tank(selected_tank_id, TankManager.TankControllerType.PLAYER)

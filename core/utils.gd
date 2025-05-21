@@ -42,3 +42,10 @@ static func format_dollars(dollars: int) -> String:
 
 static func format_bonds(bonds: int) -> String:
 	return with_commas(bonds) + " BONDS"
+
+static func print_resource_properties(resource: Resource) -> void:
+	var properties := resource.get_property_list()
+	print("Properties for %s (%s):" % [resource.resource_path, resource.get_script().resource_path])
+	for prop in properties:
+		if prop.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			print("  %s: %s" % [prop.name, resource.get(prop.name)])

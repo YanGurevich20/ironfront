@@ -10,3 +10,5 @@ class_name ShellSpec extends Resource
 @export_category("Info")
 @export var shell_name: String = "M75"
 @export var caliber: int = 75
+@export var unlock_cost: int = 10_000
+@export var resupply_cost: int = 200

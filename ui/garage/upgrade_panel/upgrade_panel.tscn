@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://c0cjoeah2t6tw"]
+[gd_scene load_steps=5 format=3 uid="uid://c0cjoeah2t6tw"]
 
 [ext_resource type="PackedScene" uid="uid://cbeua31b6isr0" path="res://ui/garage/upgrade_panel/upgrade_list_item/upgrade_list_item.tscn" id="1_x4cpo"]
-[ext_resource type="Script" uid="uid://dll3dx8lkgfxe" path="res://ui/garage/upgrade_panel/upgrade_panel.gd" id="2_mwfdq"]
+[ext_resource type="Script" uid="uid://stet18neyqx" path="res://ui/garage/upgrade_panel/upgrade_panel.gd" id="2_mwfdq"]
+[ext_resource type="Script" uid="uid://dx5sodlppqts6" path="res://ui/garage/upgrade_panel/ammo_upgrade_list/ammo_upgrade_list.gd" id="3_76ils"]
+[ext_resource type="PackedScene" uid="uid://d0xyaf7obfc1q" path="res://ui/garage/upgrade_panel/ammo_upgrade_list/ammo_upgrade_list_item/ammo_upgrade_list_item.tscn" id="3_tr4hg"]
 
 [node name="UpgradePanel" type="PanelContainer"]
 anchors_preset = -1
@@ -58,6 +60,14 @@ toggle_mode = true
 text = "EQUIPMENT
 "
 
+[node name="AmmoButton" type="Button" parent="VBoxContainer/MarginContainer/HboxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+toggle_mode = true
+text = "AMMO"
+
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -72,20 +82,12 @@ size_flags_vertical = 3
 
 [node name="ModuleUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="HBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_x4cpo")]
-layout_mode = 2
-
-[node name="HBoxContainer4" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_x4cpo")]
-layout_mode = 2
-
-[node name="HBoxContainer2" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_x4cpo")]
-layout_mode = 2
-
-[node name="HBoxContainer3" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" instance=ExtResource("1_x4cpo")]
 layout_mode = 2
 
 [node name="CrewUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer"]
@@ -95,9 +97,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/CrewUpgradeList" instance=ExtResource("1_x4cpo")]
-layout_mode = 2
-
 [node name="EquipmentUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer"]
 unique_name_in_owner = true
 visible = false
@@ -105,8 +104,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_x4cpo")]
+[node name="AmmoUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer"]
+unique_name_in_owner = true
 layout_mode = 2
+script = ExtResource("3_76ils")
 
-[node name="HBoxContainer4" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/EquipmentUpgradeList" instance=ExtResource("1_x4cpo")]
+[node name="AmmoUpgradeListItem" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/AmmoUpgradeList" instance=ExtResource("3_tr4hg")]
 layout_mode = 2

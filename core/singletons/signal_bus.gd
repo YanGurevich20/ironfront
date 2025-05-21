@@ -13,3 +13,6 @@ signal log_out_pressed
 signal quit_pressed
 signal level_pressed(level: int)
 signal play_pressed
+
+signal tank_selected(tank_id: TankManager.TankId)
+signal shell_unlock_requested(shell_id: ShellManager.ShellId)

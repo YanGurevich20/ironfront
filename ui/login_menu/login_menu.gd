@@ -8,7 +8,6 @@ class_name LoginMenu extends Control
 func _ready() -> void:
 	SignalBus.log_out_pressed.connect(_on_log_out_pressed)
 	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
-	print("player_data: %s" % player_data.player_name)
 
 	if player_data.player_name:
 		username_input.text = player_data.player_name

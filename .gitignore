@@ -4,5 +4,3 @@
 .vscode
 *.apk
 misc/android/build/
-*.import
-*.uid

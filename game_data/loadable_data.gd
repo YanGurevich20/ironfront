@@ -26,7 +26,6 @@ static func reset(cls: Script) -> void:
 
 	var path: String = cls.new()._get_path()
 	if FileAccess.file_exists(path):
-		print("deleting file: ", path)
 		DirAccess.remove_absolute(path)
 
 func get_file_name() -> String:
@@ -43,8 +42,4 @@ func save() -> void:
 		push_error("Failed to save %s" % path)
 
 func print_properties() -> void:
-	var properties := get_property_list()
-	print("Properties for %s (%s):" % [get_file_name(), get_script().resource_path])
-	for prop in properties:
-		if prop.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
-			print("  %s: %s" % [prop.name, get(prop.name)])
+	Utils.print_resource_properties(self)

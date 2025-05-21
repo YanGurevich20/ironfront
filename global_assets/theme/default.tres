@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=16 format=3 uid="uid://dhe3ageaikkit"]
+[gd_resource type="Theme" load_steps=25 format=3 uid="uid://dhe3ageaikkit"]
 
 [ext_resource type="FontFile" uid="uid://bnyngcuqbpdwa" path="res://global_assets/fonts/Military_March.ttf" id="2_mx1a8"]
 [ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="2_plmku"]
@@ -8,8 +8,8 @@ texture = ExtResource("2_plmku")
 texture_margin_left = 8.0
 texture_margin_top = 8.0
 texture_margin_right = 8.0
-texture_margin_bottom = 9.0
-region_rect = Rect2(193, 9, 62, 47)
+texture_margin_bottom = 10.0
+region_rect = Rect2(193, 8, 62, 48)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_y77lc"]
 
@@ -45,6 +45,46 @@ texture_margin_top = 8.0
 texture_margin_right = 8.0
 texture_margin_bottom = 8.0
 region_rect = Rect2(129, 10, 62, 46)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_plmku"]
+atlas = ExtResource("2_plmku")
+region = Rect2(402, 448, 12, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mx1a8"]
+atlas = ExtResource("2_plmku")
+region = Rect2(434, 448, 12, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nfmsu"]
+atlas = ExtResource("2_plmku")
+region = Rect2(418, 448, 12, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_63k41"]
+atlas = ExtResource("2_plmku")
+region = Rect2(406, 480, 4, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xm64k"]
+texture = ExtResource("2_plmku")
+texture_margin_left = 1.0
+texture_margin_right = 1.0
+region_rect = Rect2(402, 464, 12, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4y6nw"]
+texture = ExtResource("2_plmku")
+texture_margin_left = 1.0
+texture_margin_right = 1.0
+region_rect = Rect2(402, 464, 12, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ugk4n"]
+texture = ExtResource("2_plmku")
+texture_margin_top = 8.0
+texture_margin_bottom = 8.0
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+region_rect = Rect2(418, 464, 12, 16)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_plmku"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_864tc"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_k5jc1"]
 texture = ExtResource("2_plmku")
@@ -132,11 +172,20 @@ GoldLabel/base_type = &"Label"
 GoldLabel/colors/font_color = Color(0.929412, 0.701961, 0.105882, 1)
 GreenLabel/base_type = &"Label"
 GreenLabel/colors/font_color = Color(0.682903, 0.994333, 0.341138, 1)
+HSlider/icons/grabber = SubResource("AtlasTexture_plmku")
+HSlider/icons/grabber_disabled = SubResource("AtlasTexture_mx1a8")
+HSlider/icons/grabber_highlight = SubResource("AtlasTexture_nfmsu")
+HSlider/icons/tick = SubResource("AtlasTexture_63k41")
+HSlider/styles/grabber_area = SubResource("StyleBoxTexture_xm64k")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxTexture_4y6nw")
+HSlider/styles/slider = SubResource("StyleBoxTexture_ugk4n")
 Label/colors/font_color = Color(0.983556, 0.966256, 0.92475, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 1)
 Label/constants/outline_size = 4
 Label/fonts/font = ExtResource("2_mx1a8")
-LineEdit/colors/font_color = Color(0.929412, 0.701961, 0.105882, 1)
+LineEdit/styles/focus = SubResource("StyleBoxEmpty_plmku")
+LineEdit/styles/normal = SubResource("StyleBoxEmpty_864tc")
+LineEdit/styles/read_only = null
 MarginContainer/constants/margin_bottom = 8
 MarginContainer/constants/margin_left = 8
 MarginContainer/constants/margin_right = 8

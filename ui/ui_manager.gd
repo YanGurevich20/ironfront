@@ -58,7 +58,6 @@ func hide_overlays() -> void:
 	Utils.hide_nodes(_overlay_nodes)
 
 func display_result(success: bool, metrics: Dictionary, objectives: Array) -> void:
-	print("calling display_result from ui_manager")
 	result_overlay.display_result(success, metrics, objectives)
 	show_overlay(result_overlay)
 
@@ -66,7 +65,6 @@ func reset_input() -> void:
 	tank_control.reset_input()
 
 func update_objectives(objectives: Array) -> void:
-	print("UIManager.update_objectives called with:", objectives)
 	pause_overlay.set_objectives(objectives)
 
 #endregion

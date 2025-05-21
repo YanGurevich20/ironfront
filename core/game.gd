@@ -45,7 +45,6 @@ func _on_objectives_updated(objectives: Array[Objective]) -> void:
 	ui_manager.update_objectives(objectives)
 
 func _start_level(level_key: int) -> void:
-	print("starting level: %s" % level_key)
 	_resume_game()
 	current_level_key = level_key
 	current_level = LevelManager.LEVEL_SCENES.get(level_key).instantiate()
