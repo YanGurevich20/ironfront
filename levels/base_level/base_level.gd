@@ -24,6 +24,7 @@ var player_tank: Tank
 #endregion
 #region Lifecycle
 func _ready() -> void:
+	SignalBus.shell_fired.connect(_on_shell_fired)
 	_initialize_spawn_points()
 
 func _initialize_spawn_points() -> void:
@@ -85,7 +86,6 @@ func evaluate_metrics_and_objectives(is_level_finished: bool) -> void:
 func _spawn_tank(tank: Tank, spawn_point: Marker2D) -> void:
 	tank.global_position = spawn_point.global_position
 	tank.global_rotation = spawn_point.global_rotation
-	tank.shell_fired.connect(_on_shell_fired)
 	tank.damage_taken.connect(_on_damage_taken)
 	tank.tank_destroyed.connect(_on_tank_destroyed)
 	entities.add_child(tank)

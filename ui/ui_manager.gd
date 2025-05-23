@@ -3,7 +3,6 @@ class_name UIManager
 #region Node Setup
 # === Nodes ===
 @onready var tank_control	: Control = $TankControl
-@onready var game_control	: Control = $GameControl
 @onready var garage : Garage = $Garage
 @onready var login_menu : Control = $LoginMenu
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
@@ -14,7 +13,6 @@ class_name UIManager
 @onready var level_select_overlay: LevelSelectOverlay = $LevelSelectOverlay
 
 # === Signals ===
-signal pause_game
 signal resume_game
 signal restart_level
 signal abort_level
@@ -30,7 +28,7 @@ var _overlay_nodes  : Array[Control]
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu_nodes = [ login_menu, garage ]
-	_control_nodes = [ tank_control, game_control ]
+	_control_nodes = [ tank_control ]
 	_overlay_nodes = [ pause_overlay, result_overlay, settings_overlay, metrics_overlay, garage_menu_overlay, level_select_overlay ]
 	_connect_signals()
 	show_menu(login_menu)
@@ -43,6 +41,7 @@ func show_menu(menu: Control) -> void:
 func show_game_ui() -> void:
 	_hide_all()
 	Utils.show_nodes(_control_nodes)
+	tank_control.display_controls()
 
 func show_overlay(overlay: Control) -> void:
 	if login_menu.visible:
@@ -82,7 +81,6 @@ func _on_level_pressed(_level: int) -> void:
 
 func _on_pause_pressed() -> void:
 	show_overlay(pause_overlay)
-	pause_game.emit()
 
 func _on_resume_pressed() -> void:
 	hide_overlays()
@@ -137,8 +135,9 @@ func _connect_signals() -> void:
 	#* level select overlay *#
 	SignalBus.level_pressed.connect(_on_level_pressed)
 	level_select_overlay.exit_overlay_pressed.connect(hide_overlays)
-	#* game control overlay *#
-	game_control.pause_pressed.connect(_on_pause_pressed)
+
+	#* tank controls *#
+	SignalBus.pause_input.connect(_on_pause_pressed)
 
 	#* pause overlay *#
 	pause_overlay.exit_overlay_pressed.connect(_on_resume_pressed)

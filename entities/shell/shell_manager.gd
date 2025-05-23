@@ -6,7 +6,8 @@ enum ShellId {
 	M75,
 	M75_T,
 	PZGR39,
-	PZGR39_T	
+	PZGR39_T,
+	PZGR40,
 }
 
 static var SHELL_SPECS: Dictionary[ShellId, ShellSpec] = {
@@ -16,6 +17,7 @@ static var SHELL_SPECS: Dictionary[ShellId, ShellSpec] = {
 	ShellId.M75_T: preload("res://entities/shell/shells/m75_t.tres"),
 	ShellId.PZGR39: preload("res://entities/shell/shells/pzgr39.tres"),
 	ShellId.PZGR39_T: preload("res://entities/shell/shells/pzgr39_t.tres"),
+	ShellId.PZGR40: preload("res://entities/shell/shells/pzgr40.tres"),
 }
 
 static func get_shell_spec(shell_id: ShellId) -> ShellSpec:

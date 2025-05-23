@@ -6,7 +6,6 @@ var health: int
 var is_player: bool
 signal damage_taken(amount: int, tank: Tank)
 signal tank_destroyed(tank: Tank)
-signal shell_fired(shell: Shell, tank: Tank)
 
 #region references
 @onready var turret := $Turret
@@ -31,12 +30,11 @@ func _ready() -> void:
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)
-	turret.shell_fired.connect(func(shell: Shell) -> void: shell_fired.emit(shell, self))
-
-func fire_shell() -> void:
-	turret.fire_shell()
+func fire_shell(shell_id: ShellManager.ShellId) -> void:
+	turret.fire_shell(shell_id)
 
 func take_damage(amount: int) -> void:
+	print("take_damage: ", amount)
 	damage_taken.emit(amount, self)
 	health -= amount
 	if health <= 0:

@@ -12,4 +12,6 @@ penetration = 30.0
 explosive_yield = 200.0
 shell_name = "M63"
 caliber = 75
+unlock_cost = 10000
+resupply_cost = 200
 metadata/_custom_type_script = "uid://clsuuy75c3ymp"

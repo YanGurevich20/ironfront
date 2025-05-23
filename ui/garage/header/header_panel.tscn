@@ -74,7 +74,9 @@ text = "0 BONDS"
 
 [node name="GarageMenuButton" type="Button" parent="HBoxContainer/MarginContainer2/HBoxContainer2"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 size_flags_horizontal = 4
 icon = SubResource("AtlasTexture_fgfem")
 icon_alignment = 1
+expand_icon = true

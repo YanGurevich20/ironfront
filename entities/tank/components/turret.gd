@@ -11,7 +11,6 @@ extends Sprite2D
 # TODO: Handle multiple shell types (AP, HE, etc.) via shell_scene switching
 var shell_scene: PackedScene = preload("res://entities/shell/shell.tscn")
 
-signal shell_fired(shell: Shell)
 func _ready() -> void:
 	flash.animation_finished.connect(func()->void:flash.visible=false)
 
@@ -28,16 +27,13 @@ func has_line_of_sight(target: Node2D) -> bool:
 #endregion
 
 #region Shell Firing
-func fire_shell() -> void:
+func fire_shell(shell_id: ShellManager.ShellId) -> void:
 	if not reload_timer.is_stopped():
 		return
-
+	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
 	var shell: Shell = shell_scene.instantiate()
-	shell.firing_tank = tank
-	shell.global_position = muzzle.global_position
-	shell.rotation = global_rotation
-	shell.velocity = Vector2.RIGHT.rotated(shell.rotation) * tank.tank_spec.projectile_speed
-	shell_fired.emit(shell)
+	shell.initialize(shell_spec, muzzle, tank)
+	SignalBus.shell_fired.emit(shell, tank)
 
 	reload_timer.start(tank.tank_spec.reload_time)
 	$CannonSound.play()

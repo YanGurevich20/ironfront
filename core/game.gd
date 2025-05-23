@@ -20,7 +20,7 @@ var current_level_key: int = 0
 func _ready() -> void:
 	SignalBus.quit_pressed.connect(func() -> void: get_tree().quit())
 	SignalBus.level_pressed.connect(_start_level)
-	ui_manager.pause_game.connect(_pause_game)
+	SignalBus.pause_input.connect(_pause_game)
 	ui_manager.resume_game.connect(_resume_game)
 	ui_manager.restart_level.connect(_restart_level)
 	ui_manager.abort_level.connect(_abort_level)

@@ -31,8 +31,8 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_id: ShellManager
 	if not is_locked:
 		ammo_count_container.show()
 		unlock_container.hide()
+		current_allowed_count = max_allowed_count
 		var loaded_count := player_tank_config.get_shell_amount(shell_id)
-		current_allowed_count = loaded_count
 		update_count(loaded_count)
 	else:
 		update_count(0)
@@ -43,9 +43,12 @@ func _ready() -> void:
 	count_decrement_button.pressed.connect(func()->void:update_count(current_count - 1))
 	count_increment_button.pressed.connect(func()->void:update_count(current_count + 1))
 	count_slider.value_changed.connect(func(value: float)->void:update_count(int(value)))
+	count_input.text_changed.connect(func(text: String)->void:update_count(int(text)))
 
 func update_count(new_count: int) -> void:
 	current_count = clamp(new_count,0,current_allowed_count)
 	count_slider.value = current_count
 	count_input.text = str(current_count)
 	count_updated.emit(shell_id, current_count)
+	count_decrement_button.disabled = current_count == 0
+	count_increment_button.disabled = current_count == current_allowed_count

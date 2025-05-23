@@ -12,9 +12,9 @@ func _on_wheel_input(value:float) -> void:
 	if tank.is_player: # Ensure this controller only acts if it's the player's tank
 		tank.turret_rotation_input = value
 
-func _on_fire_input() -> void:
+func _on_fire_input(shell_id: ShellManager.ShellId) -> void:
 	if tank.is_player: # Ensure this controller only acts if it's the player's tank
-		tank.fire_shell()
+		tank.fire_shell(shell_id)
 
 func _enter_tree() -> void:
 	SignalBus.lever_input.connect(_on_lever_input)
