@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://difemtk7pdjxu"]
+[gd_scene load_steps=8 format=3 uid="uid://difemtk7pdjxu"]
 
 [ext_resource type="Script" uid="uid://npdk561p4mkr" path="res://entities/shell/shell.gd" id="1_sb42f"]
 [ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://entities/shell/base_shell_type/rounds.png" id="2_2fcui"]
@@ -10,20 +10,28 @@ region = Rect2(30, 159, 4, 3)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5ehh3"]
 size = Vector2(3, 4)
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2fcui"]
+[sub_resource type="Curve" id="Curve_2fcui"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_ginmc"]
+curve = SubResource("Curve_2fcui")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_2fcui"]
 particle_flag_disable_z = true
 angle_min = -55.6
 angle_max = 219.6
-spread = 73.685
-angular_velocity_min = -208.49
-angular_velocity_max = 139.0
-gravity = Vector3(-1, 0, 0)
+direction = Vector3(-10, 0, 0)
+spread = 0.539
+initial_velocity_min = 267.13
+initial_velocity_max = 299.69
+gravity = Vector3(0, 0, 0)
 linear_accel_min = -2.23517e-06
 linear_accel_max = -2.23517e-06
 tangential_accel_min = -5.0
 tangential_accel_max = 5.0
+scale_curve = SubResource("CurveTexture_ginmc")
+color = Color(0.918879, 0.927828, 0, 1)
 
 [node name="Shell" type="Area2D" groups=["shell"]]
 script = ExtResource("1_sb42f")
@@ -35,11 +43,11 @@ texture = SubResource("AtlasTexture_ginmc")
 rotation = 1.5708
 shape = SubResource("RectangleShape2D_5ehh3")
 
-[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+[node name="FireParticles" type="GPUParticles2D" parent="."]
 position = Vector2(-2, 0)
-emitting = false
-texture = SubResource("PlaceholderTexture2D_2fcui")
-lifetime = 0.3
+scale = Vector2(0.659276, 1.04802)
+amount = 50
+local_coords = true
 process_material = SubResource("ParticleProcessMaterial_2fcui")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

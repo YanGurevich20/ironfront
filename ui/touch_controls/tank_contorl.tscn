@@ -54,6 +54,7 @@ layout_mode = 1
 layout_mode = 1
 offset_left = -180.0
 offset_right = 0.0
+scale = Vector2(0.990476, 0.984456)
 lever_side = 1
 
 [node name="TraverseWheel" type="Control" parent="."]

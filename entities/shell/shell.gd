@@ -1,5 +1,6 @@
 class_name Shell extends Area2D
 
+var shell_id: ShellManager.ShellId
 var firing_tank: Node2D
 var damage: int
 var velocity: Vector2
@@ -10,7 +11,9 @@ var shell_texture: Texture2D
 func _ready() -> void:
 	shell_sprite.texture = shell_texture
 
-func initialize(shell_spec: ShellSpec, muzzle: Marker2D, _firing_tank: Node2D) -> void:
+func initialize(_shell_id: ShellManager.ShellId, muzzle: Marker2D, _firing_tank: Node2D) -> void:
+	var shell_spec: ShellSpec = ShellManager.get_shell_spec(_shell_id)
+	shell_id = _shell_id
 	damage = shell_spec.damage
 	rotation = muzzle.global_rotation
 	firing_tank = _firing_tank

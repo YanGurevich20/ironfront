@@ -23,6 +23,8 @@ var left_track_input := 0.0
 var turret_rotation_input := 0.0
 #endregion
 
+var current_shell_id: ShellManager.ShellId
+var _has_initial_shell_been_set: bool = false
 var distance_traveled: float = 0.0
 @onready var _last_position: Vector2 = global_position
 
@@ -30,11 +32,17 @@ func _ready() -> void:
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)
+
+func set_active_shell(shell_id: ShellManager.ShellId) -> void:
+	if not _has_initial_shell_been_set or shell_id != current_shell_id:
+		current_shell_id = shell_id
+		_has_initial_shell_been_set = true
+		turret.reset_reload_timer()
+
 func fire_shell(shell_id: ShellManager.ShellId) -> void:
 	turret.fire_shell(shell_id)
 
 func take_damage(amount: int) -> void:
-	print("take_damage: ", amount)
 	damage_taken.emit(amount, self)
 	health -= amount
 	if health <= 0:

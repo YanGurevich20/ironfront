@@ -76,7 +76,7 @@ func _on_metrics_pressed()->void:
 	metrics_overlay.display_metrics(metrics)
 	show_overlay(metrics_overlay)
 
-func _on_level_pressed(_level: int) -> void:
+func _on_level_started() -> void:
 	show_game_ui()
 
 func _on_pause_pressed() -> void:
@@ -133,7 +133,7 @@ func _connect_signals() -> void:
 	SignalBus.log_out_pressed.connect(_on_log_out_pressed)
 
 	#* level select overlay *#
-	SignalBus.level_pressed.connect(_on_level_pressed)
+	SignalBus.level_started.connect(_on_level_started)
 	level_select_overlay.exit_overlay_pressed.connect(hide_overlays)
 
 	#* tank controls *#

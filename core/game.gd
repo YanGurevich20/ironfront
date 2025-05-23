@@ -52,6 +52,7 @@ func _start_level(level_key: int) -> void:
 	current_level.objectives_updated.connect(_on_objectives_updated)
 	level_container.add_child(current_level)
 	current_level.start_level()
+	SignalBus.level_started.emit()
 
 func _restart_level() -> void:
 	if current_level_key != 0:

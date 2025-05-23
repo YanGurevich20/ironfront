@@ -19,17 +19,13 @@ func _ready() -> void:
 	stats_container.hide()
 	shell_button.pressed.connect(_on_shell_button_pressed)
 
-func display_shell(_shell_id: ShellManager.ShellId, amount: int) -> void:
+func display_shell(_shell_id: ShellManager.ShellId) -> void:
 	shell_id = _shell_id
 	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
 	shell_button.icon = shell_spec.base_shell_type.round_texture
 	type_label.text = shell_spec.shell_name
 	damage_label.text = "D: %d" % shell_spec.damage
 	penetration_label.text = "P: %d" % shell_spec.penetration
-	update_shell_amount(amount)
-
-func update_progress_bar(progress_left: float) -> void:
-	shell_load_progress_bar.value = progress_left
 
 func reset_progress_bar() -> void:
 	shell_load_progress_bar.value = 0
@@ -37,10 +33,17 @@ func reset_progress_bar() -> void:
 func _on_shell_button_pressed() -> void:
 	if is_expanded: shell_selected.emit(shell_id)
 	else: shell_expand_requested.emit()
+
 func update_shell_amount(amount: int) -> void:
+	if amount == 0:
+		shell_button.disabled = true
 	amount_left = amount
 	amount_left_label.text = "L: %d" % amount_left
 
 func update_is_expanded(expand:bool) -> void:
 	is_expanded = expand
 	stats_container.visible = is_expanded
+
+func update_progress_bar(progress: float) -> void:
+	if amount_left == 0: return
+	shell_load_progress_bar.value = 1-progress
