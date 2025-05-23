@@ -1,10 +1,10 @@
-extends Control
+class_name FireButton extends Control
 
 @onready var button_sprite:= $ButtonSprite
 @onready var button_click:= $ButtonClick
 
 var is_button_pressed := false
-signal fire_button_pressed()
+signal fire_button_pressed
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:

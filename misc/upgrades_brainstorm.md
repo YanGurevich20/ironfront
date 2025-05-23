@@ -7,7 +7,7 @@ Turret - Traverse speed, mastery - ?
 Cannon - Muzzle velocity, mastery - Shell unlocks
 
 Commander - Vision range, mastery - Crew Effectiveness
-Gunner - Intuition, mastery - ?
+Gunner - Intuition, mastery - Aim Select (choose whether to hit the turret or the hull)
 Loader - Loading speed, mastery - Auto load (no need to tap shell)
 Driver - Acceleration curve, mastery - ?
 Radio operator - Minimap range, mastery - Damage Reveal (Ping location of enemy that hit your tank)

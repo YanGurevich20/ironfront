@@ -1,20 +1,20 @@
 extends Node
 @onready var tank: Tank = get_parent()
 
-func _on_lever_input(lever_side: Lever.Side, value: float) -> void:
+func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
 	if tank.is_player: # Ensure this controller only acts if it's the player's tank
-		if lever_side == Lever.Side.LEFT:
+		if lever_side == Lever.LeverSide.LEFT:
 			tank.left_track_input = value
-		elif lever_side == Lever.Side.RIGHT:
+		elif lever_side == Lever.LeverSide.RIGHT:
 			tank.right_track_input = value
 
 func _on_wheel_input(value:float) -> void:
 	if tank.is_player: # Ensure this controller only acts if it's the player's tank
 		tank.turret_rotation_input = value
 
-func _on_fire_input() -> void:
+func _on_fire_input(shell_id: ShellManager.ShellId) -> void:
 	if tank.is_player: # Ensure this controller only acts if it's the player's tank
-		tank.fire_shell()
+		tank.fire_shell(shell_id)
 
 func _enter_tree() -> void:
 	SignalBus.lever_input.connect(_on_lever_input)

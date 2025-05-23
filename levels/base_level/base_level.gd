@@ -24,6 +24,7 @@ var player_tank: Tank
 #endregion
 #region Lifecycle
 func _ready() -> void:
+	SignalBus.shell_fired.connect(_on_shell_fired)
 	_initialize_spawn_points()
 
 func _initialize_spawn_points() -> void:
@@ -85,13 +86,20 @@ func evaluate_metrics_and_objectives(is_level_finished: bool) -> void:
 func _spawn_tank(tank: Tank, spawn_point: Marker2D) -> void:
 	tank.global_position = spawn_point.global_position
 	tank.global_rotation = spawn_point.global_rotation
-	tank.shell_fired.connect(_on_shell_fired)
 	tank.damage_taken.connect(_on_damage_taken)
 	tank.tank_destroyed.connect(_on_tank_destroyed)
 	entities.add_child(tank)
 
 func _spawn_player() -> void:
-	var player: Tank = TankManager.create_tank(TankManager.TankType.TIGER_1, TankManager.TankControllerType.PLAYER)
+	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	var selected_tank_id: TankManager.TankId = player_data.selected_tank_id
+	var unlocked_tank_ids: Array[TankManager.TankId] = player_data.get_unlocked_tank_ids()
+	if !unlocked_tank_ids.has(selected_tank_id):
+		if unlocked_tank_ids.size() > 0:
+			selected_tank_id = unlocked_tank_ids[0]
+		else:
+			selected_tank_id = TankManager.TankId.tiger_1
+	var player: Tank = TankManager.create_tank(selected_tank_id, TankManager.TankControllerType.PLAYER)
 	player_tank = player
 	_spawn_tank(player_tank, player_spawn_point)
 
@@ -100,10 +108,10 @@ func _spawn_enemies() -> void:
 		if level_index == 0:
 			#TODO: This is temporary override for level 0.
 			# develop a better system for level overrides, or use composition
-			var dummy_tank: Tank = TankManager.create_tank(TankManager.TankType.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY)
+			var dummy_tank: Tank = TankManager.create_tank(TankManager.TankId.m4a1_sherman, TankManager.TankControllerType.DUMMY)
 			_spawn_tank(dummy_tank, spawn_point)
 			continue
-		var enemy_tank: Tank = TankManager.create_tank(TankManager.TankType.M4A1_SHERMAN, TankManager.TankControllerType.AI)
+		var enemy_tank: Tank = TankManager.create_tank(TankManager.TankId.m4a1_sherman, TankManager.TankControllerType.AI)
 		_spawn_tank(enemy_tank, spawn_point)
 #endregion
 #region Signal Handlers

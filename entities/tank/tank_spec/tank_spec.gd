@@ -14,6 +14,10 @@ class_name TankSpec extends Resource
 @export var cannon_caliber: float #mm
 @export var reload_time: float #sec
 @export var max_turret_traverse_speed: float #deg/sec
+@export var gun_damage: int
+@export var projectile_speed: float
+@export var shell_capacity: int
+@export var allowed_shells: Array[ShellManager.ShellId]
 
 @export_category("Info")
 @export_group("Info")
@@ -21,6 +25,7 @@ class_name TankSpec extends Resource
 @export var display_name: String
 @export var full_name: String
 @export var nation: String
+@export var dollar_cost: int
 
 @export_category("Assets")
 @export_group("Sprites")
@@ -28,6 +33,7 @@ class_name TankSpec extends Resource
 @export var cannon_sprite: AtlasTexture
 @export var hull_sprite: AtlasTexture
 @export var track_sprite_frames: SpriteFrames
+@export var preview_texture: Texture2D
 @export_group("Sounds")
 @export var engine_sound: AudioStream
 @export var cannon_sound: AudioStream

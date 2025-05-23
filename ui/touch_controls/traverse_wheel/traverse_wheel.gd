@@ -1,8 +1,6 @@
 class_name TraverseWheel
 extends Control
 
-signal wheel_rotated(speed: float)
-
 @export var max_turn_speed: float = 20.0  # Radians/sec for full input
 @export var acceleration: float = 10.0  # How quickly it interpolates
 
@@ -45,7 +43,7 @@ func _process(delta: float) -> void:
 	wheel.rotation += current_speed * max_turn_speed * delta
 
 	# Emit signal
-	wheel_rotated.emit(current_speed)
+	SignalBus.wheel_input.emit(current_speed)
 
 func reset_input() -> void:
 	target_speed = 0.0

@@ -43,5 +43,5 @@ func generate_description() -> String:
 		"<": "less than",
 		"<=": "at most"
 	}.get(operator)
-	var generated_description := "%s %d %s (%d)" % [op_text, required_value, metric_name, current_value]
+	var generated_description := "%s %s %d (%d)" % [metric_name, op_text, required_value, current_value]
 	return generated_description.capitalize()

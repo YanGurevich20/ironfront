@@ -1,14 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://cu3rghbstb2jo"]
+[gd_scene load_steps=6 format=3 uid="uid://dslajcx0t8u3k"]
 
-[ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://theme/default.tres" id="1_6ygmu"]
-[ext_resource type="PackedScene" uid="uid://cnsy87eymywb0" path="res://entities/tank/tank.tscn" id="2_f20ri"]
-[ext_resource type="Resource" uid="uid://6lsuora6wir4" path="res://entities/tank/tanks/tiger_1/tiger_1.tres" id="3_m7huh"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0fusm"]
-size = Vector2(120, 60)
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_6ygmu"]
-size = Vector2(192, 192)
+[ext_resource type="PackedScene" uid="uid://dl4au2fgo071" path="res://ui/garage/header/header_panel.tscn" id="1_m7huh"]
+[ext_resource type="Script" uid="uid://dabqtp587rwcn" path="res://ui/garage/garage.gd" id="1_tqyjs"]
+[ext_resource type="PackedScene" uid="uid://bttmy3kqvmgjf" path="res://ui/garage/tank_display_panel/tank_display_panel.tscn" id="2_ip7jb"]
+[ext_resource type="PackedScene" uid="uid://c13olu340r4yx" path="res://ui/garage/upgrade_panel/upgrade_panel.tscn" id="3_ip7jb"]
+[ext_resource type="PackedScene" uid="uid://dct3lf2waqoil" path="res://ui/garage/tank_list/tank_list_panel.tscn" id="3_tqyjs"]
 
 [node name="Garage" type="Control"]
 layout_mode = 3
@@ -17,221 +13,34 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_tqyjs")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-custom_minimum_size = Vector2(0, 80)
+[node name="HeaderPanel" parent="." instance=ExtResource("1_m7huh")]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-grow_horizontal = 2
+grow_horizontal = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/HBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="TextureButton" type="TextureButton" parent="HBoxContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-texture_normal = SubResource("PlaceholderTexture2D_0fusm")
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/HBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="TextureButton" type="TextureButton" parent="HBoxContainer/HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-texture_normal = SubResource("PlaceholderTexture2D_0fusm")
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 16
-alignment = 2
-
-[node name="Label" type="Label" parent="HBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "PLAYER"
-
-[node name="Label2" type="Label" parent="HBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "MONEYS"
-
-[node name="Label3" type="Label" parent="HBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "SUPER MONEYS"
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="."]
-custom_minimum_size = Vector2(0, 200)
+[node name="UpgradePanel" parent="." instance=ExtResource("3_ip7jb")]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-grow_horizontal = 2
-grow_vertical = 2
+anchor_top = 0.222
+offset_left = 0.319992
+offset_top = 0.0799942
 
-[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer2"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="TextureRect" type="TextureRect" parent="HBoxContainer2/MarginContainer"]
-layout_mode = 2
-texture = SubResource("PlaceholderTexture2D_6ygmu")
-
-[node name="Tank" parent="HBoxContainer2/MarginContainer" instance=ExtResource("2_f20ri")]
-position = Vector2(100, 100)
-
-[node name="TabBar" type="TabContainer" parent="HBoxContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme = ExtResource("1_6ygmu")
-current_tab = 0
-
-[node name="MODULES" type="VBoxContainer" parent="HBoxContainer2/TabBar"]
-layout_mode = 2
-metadata/_tab_index = 0
-
-[node name="CREW" type="VBoxContainer" parent="HBoxContainer2/TabBar"]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 1
-
-[node name="EQUIPMENT" type="VBoxContainer" parent="HBoxContainer2/TabBar"]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 2
-
-[node name="HBoxContainer3" type="ScrollContainer" parent="."]
-custom_minimum_size = Vector2(0, 80)
+[node name="TankDisplayPanel" parent="." instance=ExtResource("2_ip7jb")]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -80.0
+anchor_top = 0.222222
+anchor_right = 0.3125
+anchor_bottom = 0.777778
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
 grow_horizontal = 2
-grow_vertical = 0
-horizontal_scroll_mode = 3
-vertical_scroll_mode = 0
+metadata/_edit_use_anchors_ = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer3"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer2" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-
-[node name="VBoxContainer3" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer3" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer3"]
-layout_mode = 2
-
-[node name="VBoxContainer4" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer4" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer4"]
-layout_mode = 2
-
-[node name="VBoxContainer5" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer5" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer5"]
-layout_mode = 2
-
-[node name="VBoxContainer6" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer6" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer6"]
-layout_mode = 2
-
-[node name="VBoxContainer7" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer7" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer7"]
-layout_mode = 2
-
-[node name="VBoxContainer8" type="VBoxContainer" parent="HBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-alignment = 1
-
-[node name="Tank" parent="HBoxContainer3/HBoxContainer/VBoxContainer8" instance=ExtResource("2_f20ri")]
-position = Vector2(40, 40)
-tank_spec = ExtResource("3_m7huh")
-
-[node name="Label" type="Label" parent="HBoxContainer3/HBoxContainer/VBoxContainer8"]
-layout_mode = 2
+[node name="TankListPanel" parent="." instance=ExtResource("3_tqyjs")]
+unique_name_in_owner = true
+layout_mode = 1
+offset_top = -0.0799866
+offset_bottom = 0.0

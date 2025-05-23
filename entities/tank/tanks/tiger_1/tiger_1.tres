@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="TankSpec" load_steps=20 format=3 uid="uid://6lsuora6wir4"]
+[gd_resource type="Resource" script_class="TankSpec" load_steps=21 format=3 uid="uid://6lsuora6wir4"]
 
 [ext_resource type="Texture2D" uid="uid://bxne5pxm3w4l7" path="res://entities/tank/tanks/tiger_1/tiger_1.png" id="1_a1xuu"]
+[ext_resource type="Texture2D" uid="uid://ckb5sihq2soyr" path="res://entities/tank/tanks/tiger_1/tiger_1_preview.png" id="3_ewn1r"]
 [ext_resource type="Script" uid="uid://c013xw6wq4kgl" path="res://entities/tank/tank_spec/tank_spec.gd" id="5_ajh2o"]
 [ext_resource type="Script" uid="uid://c15ujd74n166g" path="res://entities/tank/tank_spec/tank_spec_stats_armour.gd" id="6_rbgn8"]
 
@@ -108,14 +109,20 @@ turret_armor = SubResource("Resource_x46jr")
 cannon_caliber = 88.0
 reload_time = 5.0
 max_turret_traverse_speed = 22.0
+gun_damage = 500
+projectile_speed = 300.0
+shell_capacity = 30
+allowed_shells = Array[int]([4, 5, 6])
 id = "tiger_1"
 display_name = "Tiger I"
 full_name = "Pz.Kpfw. VI Tiger Ausf. E"
 nation = "germany"
+dollar_cost = 500000
 turret_sprite = SubResource("AtlasTexture_48i7y")
 cannon_sprite = SubResource("AtlasTexture_a1xuu")
 hull_sprite = SubResource("AtlasTexture_x46jr")
 track_sprite_frames = SubResource("SpriteFrames_a1xuu")
+preview_texture = ExtResource("3_ewn1r")
 engine_sound = SubResource("AudioStream_x46jr")
 cannon_sound = SubResource("AudioStream_a1xuu")
 hull_size = Vector2(63, 38)

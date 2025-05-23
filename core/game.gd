@@ -6,14 +6,6 @@ const MobilePlayerTankControllerScene = preload("res://controllers/mobile_player
 const AITankControllerScene = preload("res://controllers/ai_tank_controller/ai_tank_controller.tscn")
 const DestroyedTankScene = preload("res://entities/destroyed_tank/destroyed_tank.tscn")
 
-#TODO: Consider moving to a level manager
-const LEVEL_SCENES = {
-	0: preload("res://levels/level_0.tscn"),
-	1: preload("res://levels/level_1.tscn"),
-	2: preload("res://levels/level_2.tscn"),
-	3: preload("res://levels/level_3.tscn"),
-}
-
 # === Variables ===
 var current_level: BaseLevel
 var current_level_key: int = 0
@@ -23,21 +15,16 @@ var current_level_key: int = 0
 @onready var ui_manager: UIManager= $UIManager
 @onready var tank_control: = $UIManager/TankControl
 @onready var level_container: = $LevelContainer
-@onready var game_progress := GameProgress.load_or_create()
-@onready var player_metrics := Metrics.load_or_create()
 
 # === Built-in Methods ===
 func _ready() -> void:
-	ui_manager.pause_game.connect(_pause_game)
+	SignalBus.quit_pressed.connect(func() -> void: get_tree().quit())
+	SignalBus.level_pressed.connect(_start_level)
+	SignalBus.pause_input.connect(_pause_game)
 	ui_manager.resume_game.connect(_resume_game)
-	ui_manager.start_level.connect(_start_level)
 	ui_manager.restart_level.connect(_restart_level)
 	ui_manager.abort_level.connect(_abort_level)
 	ui_manager.return_to_menu.connect(_quit_level)
-	ui_manager.quit_game.connect(_quit_game)
-	ui_manager.reset_player_metrics_pressed.connect(_reset_player_metrics)
-	ui_manager.reset_game_progress_pressed.connect(_reset_game_progress)
-	ui_manager.setup(self)
 	_save_player_metrics()
 
 #region level lifecycle
@@ -60,7 +47,7 @@ func _on_objectives_updated(objectives: Array[Objective]) -> void:
 func _start_level(level_key: int) -> void:
 	_resume_game()
 	current_level_key = level_key
-	current_level = LEVEL_SCENES.get(level_key).instantiate()
+	current_level = LevelManager.LEVEL_SCENES.get(level_key).instantiate()
 	current_level.level_finished.connect(_finish_level)
 	current_level.objectives_updated.connect(_on_objectives_updated)
 	level_container.add_child(current_level)
@@ -79,7 +66,6 @@ func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> voi
 	ui_manager.reset_input()
 	_save_player_metrics(metrics)
 	_save_game_progress(metrics, current_level_key)
-	ui_manager.refresh_levels()
 
 func _quit_level() -> void:
 	if current_level:
@@ -89,34 +75,38 @@ func _quit_level() -> void:
 		current_level.queue_free()
 		current_level = null
 
-func _quit_game() -> void:
-	get_tree().quit()
 #endregion
 #region data api
-func fetch_metrics()-> Dictionary:
-	return player_metrics.metrics
-
-func fetch_levels()->Dictionary:
-	return LEVEL_SCENES
 
 func fetch_level_stars(level: int)->int:
+	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
 	return game_progress.get_stars_for_level(level)
 
 #endregion
 #region data saves
 func _save_player_metrics(new_metrics: Dictionary = {}) -> void:
+	var player_metrics: Metrics = LoadableData.get_instance(Metrics)
 	player_metrics.merge_metrics(new_metrics)
 	player_metrics.save()
 
-func _reset_player_metrics()->void:
-	player_metrics.reset()
-	player_metrics.save()
-
 func _save_game_progress(new_metrics: Dictionary, level_key: int) -> void:
-	game_progress.update_progress(level_key, new_metrics[Metrics.Metric.STARS_EARNED])
+	var current_run_stars: int = new_metrics.get(Metrics.Metric.STARS_EARNED, 0)
+	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
+	var previous_max_stars: int = game_progress.get_stars_for_level(level_key)
+	var dollars_to_award_this_run: int = 0
+
+	if current_run_stars > previous_max_stars:
+		var star_dollar_values: Dictionary = {
+			1: 100,
+			2: 200,
+			3: 300
+		}
+
+		for star_level_iter in range(previous_max_stars + 1, current_run_stars + 1):
+			var dollars_for_this_star: int = star_dollar_values.get(star_level_iter, 0)
+			dollars_to_award_this_run += dollars_for_this_star
+
+	game_progress.update_progress(level_key, current_run_stars, dollars_to_award_this_run)
 	game_progress.save()
 
-func _reset_game_progress()->void:
-	game_progress.reset()
-	game_progress.save()
 #endregion

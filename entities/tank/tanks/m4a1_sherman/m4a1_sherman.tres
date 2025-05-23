@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="TankSpec" load_steps=17 format=3 uid="uid://cyhjue8xu1nc6"]
+[gd_resource type="Resource" script_class="TankSpec" load_steps=18 format=3 uid="uid://cyhjue8xu1nc6"]
 
 [ext_resource type="Texture2D" uid="uid://8hxjpbfoe7w7" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.png" id="1_kukh5"]
+[ext_resource type="Texture2D" uid="uid://c3bvrg0oikrdo" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman_preview.png" id="3_tnmsc"]
 [ext_resource type="Script" uid="uid://c15ujd74n166g" path="res://entities/tank/tank_spec/tank_spec_stats_armour.gd" id="4_7veuw"]
 [ext_resource type="Script" uid="uid://c013xw6wq4kgl" path="res://entities/tank/tank_spec/tank_spec.gd" id="5_ppoeq"]
 
@@ -87,14 +88,20 @@ turret_armor = SubResource("Resource_p2men")
 cannon_caliber = 75.0
 reload_time = 3.0
 max_turret_traverse_speed = 30.0
+gun_damage = 300
+projectile_speed = 800.0
+shell_capacity = 70
+allowed_shells = Array[int]([2, 3, 0])
 id = "m4a1_sherman"
 display_name = "M4A1 Sherman"
 full_name = "M4A1 Sherman"
 nation = "usa"
+dollar_cost = 0
 turret_sprite = SubResource("AtlasTexture_q8dw0")
 cannon_sprite = SubResource("AtlasTexture_ihbcg")
 hull_sprite = SubResource("AtlasTexture_p2men")
 track_sprite_frames = SubResource("SpriteFrames_7sc8v")
+preview_texture = ExtResource("3_tnmsc")
 engine_sound = SubResource("AudioStream_3ssyx")
 cannon_sound = SubResource("AudioStream_7veuw")
 hull_size = Vector2(52, 26)

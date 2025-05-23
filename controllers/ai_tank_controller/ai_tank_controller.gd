@@ -1,6 +1,6 @@
 extends Node
 
-@onready var tank: Node2D = get_parent()
+@onready var tank: Tank = get_parent()
 @onready var nav_agent: NavigationAgent2D = tank.get_node("NavigationAgent2D")
 @onready var turret: Node2D = tank.get_node("Turret")
 @onready var state_machine :StateMachine= $StateMachine
@@ -118,7 +118,7 @@ func aim_and_fire_at(target: Node2D, delta: float) -> void:
 	if angle_deg < aim_tolerance_deg and distance < fire_range and turret.has_line_of_sight(target):
 		time_on_target += delta
 		if time_on_target >= hold_to_fire_time:
-			tank.fire_shell()
+			tank.fire_shell(tank.tank_spec.allowed_shells[0])
 			time_on_target = 0.0
 	else:
 		time_on_target = 0.0

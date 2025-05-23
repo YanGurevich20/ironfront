@@ -3,23 +3,30 @@ extends Control
 @onready var left_lever := $LeftLever
 @onready var right_lever := $RightLever
 @onready var traverse_wheel := $TraverseWheel
-@onready var fire_button := $FireButton
+@onready var fire_button: FireButton = $FireButton
+@onready var shell_select: ShellSelect = $ShellSelect
+@onready var pause_button: Button = %PauseButton
+
+var _current_shell_id: ShellManager.ShellId
 
 func _ready() -> void:
-	left_lever.lever_moved.connect(_on_lever_input)
-	right_lever.lever_moved.connect(_on_lever_input)
-	traverse_wheel.wheel_rotated.connect(_on_wheel_rotated)
-	fire_button.fire_button_pressed.connect(_on_fire_button_pressed)
+	SignalBus.shell_selected.connect(func(shell_id: ShellManager.ShellId) -> void:
+		print("shell_selected: %s" % ShellManager.ShellId.find_key(shell_id))
+		_current_shell_id = shell_id
+	)
+	fire_button.fire_button_pressed.connect(func() -> void:
+		SignalBus.fire_input.emit(_current_shell_id)
+	)
+
+	pause_button.pressed.connect(func() -> void:
+		SignalBus.pause_input.emit()
+	)
 
 func reset_input() -> void:
 	left_lever.reset_input()
 	right_lever.reset_input()
 	traverse_wheel.reset_input()
 	fire_button.reset_input()
-
-func _on_lever_input(lever_side: Lever.Side, value: float) -> void:
-	SignalBus.lever_input.emit(lever_side,value)
-func _on_wheel_rotated(value:float) -> void:
-	SignalBus.wheel_input.emit(value)
-func _on_fire_button_pressed() -> void:
-	SignalBus.fire_input.emit()
+	
+func display_controls() -> void:
+	shell_select.display_shells()
