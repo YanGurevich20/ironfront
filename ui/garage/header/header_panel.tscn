@@ -40,6 +40,19 @@ layout_mode = 2
 theme_type_variation = &"GoldButton"
 text = "PLAY"
 
+[node name="WarningLabelContainer" type="PanelContainer" parent="HBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="WarningLabel" type="Label" parent="HBoxContainer/MarginContainer/HBoxContainer/WarningLabelContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+text = "NOT ENOUGH AMMO"
+horizontal_alignment = 1
+
 [node name="MarginContainer2" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3

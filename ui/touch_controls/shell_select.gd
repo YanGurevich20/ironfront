@@ -12,7 +12,7 @@ func _ready() -> void:
 	SignalBus.reload_progress_left_updated.connect(_on_reload_progress_left_updated)
 
 func initialize() -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	var player_data := PlayerData.get_instance()
 	var player_tank_config: PlayerTankConfig = player_data.get_current_tank_config()
 	shell_counts = player_tank_config.shells.duplicate()
 	for shell_id: ShellManager.ShellId in shell_counts.keys():

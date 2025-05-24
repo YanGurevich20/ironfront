@@ -33,15 +33,17 @@ func get_progress_ratio() -> float:
 		return 1.0
 	return clamp(ratio, 0.0, 0.99)
 
+const OP_TEXTS: Dictionary[String, String] = {
+	"=": "equal to",
+	"!=": "not equal to",
+	">": "more than",
+	">=": "at least",
+	"<": "less than",
+	"<=": "at most"
+}
+
 func generate_description() -> String:
-	var metric_name :String= Metrics.Metric.find_key(metric).capitalize()
-	var op_text :String= {
-		"=": "equal to",
-		"!=": "not equal to",
-		">": "more than",
-		">=": "at least",
-		"<": "less than",
-		"<=": "at most"
-	}.get(operator)
+	var metric_name := str(Metrics.Metric.find_key(metric)).capitalize()
+	var op_text := OP_TEXTS[operator]
 	var generated_description := "%s %s %d (%d)" % [metric_name, op_text, required_value, current_value]
 	return generated_description.capitalize()

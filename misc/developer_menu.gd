@@ -17,8 +17,7 @@ func _ready() -> void:
 
 func _custom_func() -> void:
 	LoadableData.reset(PlayerData)
-	var player_data := LoadableData.get_instance(PlayerData)
-	player_data.dollars += 900_000
+	var player_data := PlayerData.get_instance()
 	player_data.print_properties()
 	player_data.save()
 
@@ -26,10 +25,10 @@ func _delete_game_progress() -> void:
 	LoadableData.reset(PlayerData)
 
 func _print_game_progress() -> void:
-	LoadableData.get_instance(PlayerData).print_properties()
+	PlayerData.get_instance().print_properties()
 
 func _delete_metrics() -> void:
 	LoadableData.reset(Metrics)
 
 func _print_metrics() -> void:
-	LoadableData.get_instance(Metrics).print_properties()
+	Metrics.get_instance().print_properties()

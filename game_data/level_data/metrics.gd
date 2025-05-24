@@ -40,6 +40,9 @@ var derived_metrics := {
 		metrics[Metric.SHOTS_MISSED] = metrics[Metric.SHOTS_FIRED] - metrics[Metric.SHOTS_HIT]
 }
 
+static func get_instance() -> Metrics:
+	return LoadableData.get_loadable_instance(Metrics)
+
 func get_file_name() -> String:
 	return "metrics"
 

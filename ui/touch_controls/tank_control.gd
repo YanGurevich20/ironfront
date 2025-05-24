@@ -1,4 +1,4 @@
-extends Control
+class_name TankControl extends Control
 
 @onready var left_lever := $LeftLever
 @onready var right_lever := $RightLever

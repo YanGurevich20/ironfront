@@ -59,7 +59,7 @@ func _count_remaining_enemies() -> void:
 	var entities_children: Array[Node] = entities.get_children()
 	enemies_left = entities_children.filter(
 		func(entity: Node) -> bool:
-			return entity is Tank and !entity.is_player
+			return entity is Tank and !(entity as Tank).is_player
 	).size()
 
 func calculate_stars(success: bool, score: int) -> int:
@@ -91,7 +91,7 @@ func _spawn_tank(tank: Tank, spawn_point: Marker2D) -> void:
 	entities.add_child(tank)
 
 func _spawn_player() -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	var player_data: PlayerData = PlayerData.get_instance()
 	var selected_tank_id: TankManager.TankId = player_data.selected_tank_id
 	var unlocked_tank_ids: Array[TankManager.TankId] = player_data.get_unlocked_tank_ids()
 	if !unlocked_tank_ids.has(selected_tank_id):

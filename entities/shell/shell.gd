@@ -18,7 +18,7 @@ func _ready() -> void:
 	tracer_particles.emitting = is_tracer
 
 func initialize(_shell_id: ShellManager.ShellId, muzzle: Marker2D, _firing_tank: Node2D) -> void:
-	var shell_spec: ShellSpec = ShellManager.get_shell_spec(_shell_id)
+	var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[_shell_id]
 	shell_id = _shell_id
 	damage = shell_spec.damage
 	rotation = muzzle.global_rotation
@@ -38,7 +38,6 @@ func _on_body_entered(body: Node2D) -> void:
 		queue_free()
 	if !body.is_in_group("damageable"):
 		return
-	if !body.has_method("take_damage"):
-		return
-	body.take_damage(damage)
+	if body.has_method("take_damage"):
+		body.take_damage(damage)
 	queue_free()

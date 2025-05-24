@@ -47,7 +47,7 @@ func _on_objectives_updated(objectives: Array[Objective]) -> void:
 func _start_level(level_key: int) -> void:
 	_resume_game()
 	current_level_key = level_key
-	current_level = LevelManager.LEVEL_SCENES.get(level_key).instantiate()
+	current_level = LevelManager.LEVEL_SCENES[level_key].instantiate()
 	current_level.level_finished.connect(_finish_level)
 	current_level.objectives_updated.connect(_on_objectives_updated)
 	level_container.add_child(current_level)
@@ -80,19 +80,19 @@ func _quit_level() -> void:
 #region data api
 
 func fetch_level_stars(level: int)->int:
-	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
+	var game_progress := PlayerData.get_instance()
 	return game_progress.get_stars_for_level(level)
 
 #endregion
 #region data saves
 func _save_player_metrics(new_metrics: Dictionary = {}) -> void:
-	var player_metrics: Metrics = LoadableData.get_instance(Metrics)
+	var player_metrics: Metrics = Metrics.get_instance()
 	player_metrics.merge_metrics(new_metrics)
 	player_metrics.save()
 
 func _save_game_progress(new_metrics: Dictionary, level_key: int) -> void:
 	var current_run_stars: int = new_metrics.get(Metrics.Metric.STARS_EARNED, 0)
-	var game_progress: PlayerData = LoadableData.get_instance(PlayerData)
+	var game_progress := PlayerData.get_instance()
 	var previous_max_stars: int = game_progress.get_stars_for_level(level_key)
 	var dollars_to_award_this_run: int = 0
 

@@ -5,11 +5,11 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tr4hg"]
 atlas = ExtResource("3_qbox6")
-region = Rect2(19, 20, 10, 6)
+region = Rect2(17, 19, 14, 10)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2mxw0"]
 atlas = ExtResource("3_qbox6")
-region = Rect2(35, 20, 10, 6)
+region = Rect2(33, 19, 14, 10)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_u4n65"]
 atlas = ExtResource("3_qbox6")
@@ -37,7 +37,6 @@ alignment = 2
 
 [node name="AmmoCountContainer" type="HBoxContainer" parent="HBoxContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -74,20 +73,26 @@ alignment = 1
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer"]
 layout_mode = 2
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="CountIncrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 icon = SubResource("AtlasTexture_tr4hg")
+icon_alignment = 1
 
 [node name="CountDecrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 icon = SubResource("AtlasTexture_2mxw0")
+icon_alignment = 1
 
 [node name="UnlockContainer" type="HBoxContainer" parent="HBoxContainer"]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -102,9 +107,11 @@ text = "UNLOCK
 20,000 $"
 
 [node name="InfoButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 disabled = true
 icon = SubResource("AtlasTexture_u4n65")
 icon_alignment = 1
+expand_icon = true

@@ -148,7 +148,7 @@ region_rect = Rect2(129, 200, 62, 48)
 
 [resource]
 default_font = ExtResource("2_mx1a8")
-default_font_size = 8
+default_font_size = 9
 Button/colors/font_color = Color(0.984314, 0.964706, 0.92549, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)
@@ -199,3 +199,5 @@ SelectablePanel/styles/hover = SubResource("StyleBoxTexture_2wtiw")
 SelectablePanel/styles/hover_pressed = SubResource("StyleBoxTexture_n3vth")
 SelectablePanel/styles/normal = SubResource("StyleBoxTexture_63k41")
 SelectablePanel/styles/pressed = SubResource("StyleBoxTexture_g1n00")
+WarningLabel/base_type = &"Label"
+WarningLabel/colors/font_color = Color(0.880368, 0.329185, 0.180823, 1)

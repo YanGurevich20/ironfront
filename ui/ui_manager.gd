@@ -2,7 +2,7 @@ extends CanvasLayer
 class_name UIManager
 #region Node Setup
 # === Nodes ===
-@onready var tank_control	: Control = $TankControl
+@onready var tank_control	: TankControl = $TankControl
 @onready var garage : Garage = $Garage
 @onready var login_menu : Control = $LoginMenu
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
@@ -70,9 +70,10 @@ func update_objectives(objectives: Array) -> void:
 #region Signal handlers
 func _on_play_pressed() -> void:
 	show_overlay(level_select_overlay)
+	level_select_overlay.display_levels()
 
 func _on_metrics_pressed()->void:
-	var metrics :Dictionary= LoadableData.get_instance(Metrics).metrics
+	var metrics := Metrics.get_instance().metrics
 	metrics_overlay.display_metrics(metrics)
 	show_overlay(metrics_overlay)
 

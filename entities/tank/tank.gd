@@ -8,13 +8,13 @@ signal damage_taken(amount: int, tank: Tank)
 signal tank_destroyed(tank: Tank)
 
 #region references
-@onready var turret := $Turret
-@onready var cannon := $Turret/Cannon
-@onready var muzzle_marker := $Turret/Cannon/MuzzleMarker
-@onready var hull := $Hull 
-@onready var left_track := $Hull/LeftTrack
-@onready var right_track := $Hull/RightTrack
-@onready var collision_shape := $CollisionShape2D
+@onready var turret : Turret = $Turret
+@onready var cannon :Sprite2D= $Turret/Cannon
+@onready var muzzle_marker :Marker2D= $Turret/Cannon/MuzzleMarker
+@onready var hull : Hull = $Hull 
+@onready var left_track :AnimatedSprite2D= $Hull/LeftTrack
+@onready var right_track :AnimatedSprite2D= $Hull/RightTrack
+@onready var collision_shape :CollisionShape2D= $CollisionShape2D
 #endregion
 
 #region input api

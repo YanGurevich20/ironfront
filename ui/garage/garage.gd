@@ -5,6 +5,7 @@ class_name Garage extends Control
 @onready var tank_list_panel: TankListPanel = %TankListPanel
 @onready var tank_display_panel: TankDisplayPanel = %TankDisplayPanel
 
+var player_data: PlayerData = PlayerData.get_instance()
 signal garage_menu_pressed
 
 func _ready() -> void:
@@ -15,8 +16,7 @@ func _ready() -> void:
 	display_player_data()
 
 func _on_tank_unlock_requested(tank_id: TankManager.TankId) -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
-	var tank_spec: TankSpec = TankManager.get_tank_spec(tank_id)
+	var tank_spec: TankSpec = TankManager.TANK_SPECS[tank_id]
 	if player_data.dollars < tank_spec.dollar_cost:
 		return #TODO: Feedback insufficient funds
 	player_data.dollars -= tank_spec.dollar_cost
@@ -26,8 +26,7 @@ func _on_tank_unlock_requested(tank_id: TankManager.TankId) -> void:
 	display_player_data()
 
 func _on_shell_unlock_requested(shell_id: ShellManager.ShellId) -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
-	var unlock_cost := ShellManager.get_shell_spec(shell_id).unlock_cost
+	var unlock_cost := ShellManager.SHELL_SPECS[shell_id].unlock_cost
 	if player_data.dollars < unlock_cost:
 		return #TODO: Feedback insufficient funds
 	player_data.dollars -= unlock_cost
@@ -37,13 +36,11 @@ func _on_shell_unlock_requested(shell_id: ShellManager.ShellId) -> void:
 	display_player_data()
 
 func _on_tank_selected(tank_id: TankManager.TankId) -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
 	player_data.selected_tank_id = tank_id
 	player_data.save()
 	display_player_data()
 
 func display_player_data() -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
 	header_panel.display_player_data()
 	tank_list_panel.display_player_data(player_data)
 	tank_display_panel.display_tank(player_data)

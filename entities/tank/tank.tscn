@@ -97,14 +97,18 @@ z_index = -1
 [node name="MuzzleMarker" type="Marker2D" parent="Turret/Cannon"]
 
 [node name="MuzzleFlash" type="AnimatedSprite2D" parent="Turret/Cannon/MuzzleMarker"]
+unique_name_in_owner = true
 visible = false
 position = Vector2(33, 0)
 sprite_frames = SubResource("SpriteFrames_f0hnj")
 animation = &"flash"
 
 [node name="LineOfSightRaycast" type="RayCast2D" parent="Turret/Cannon/MuzzleMarker"]
+unique_name_in_owner = true
 
 [node name="ReloadTimer" type="Timer" parent="Turret"]
+unique_name_in_owner = true
 one_shot = true
 
 [node name="CannonSound" type="AudioStreamPlayer2D" parent="Turret"]
+unique_name_in_owner = true

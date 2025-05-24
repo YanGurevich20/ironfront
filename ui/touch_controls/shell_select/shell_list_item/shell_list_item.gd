@@ -21,7 +21,7 @@ func _ready() -> void:
 
 func display_shell(_shell_id: ShellManager.ShellId) -> void:
 	shell_id = _shell_id
-	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
+	var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[shell_id]
 	shell_button.icon = shell_spec.base_shell_type.round_texture
 	type_label.text = shell_spec.shell_name
 	damage_label.text = "D: %d" % shell_spec.damage

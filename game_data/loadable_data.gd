@@ -3,7 +3,7 @@ extends Resource
 
 static var _instances: Dictionary = {}
 
-static func get_instance(cls: Script) -> LoadableData:
+static func get_loadable_instance(cls: Script) -> LoadableData:
 	var key: String = cls.new().get_file_name()
 
 	if _instances.has(key):

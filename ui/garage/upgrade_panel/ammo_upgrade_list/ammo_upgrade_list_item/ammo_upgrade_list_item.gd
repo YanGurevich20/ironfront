@@ -17,12 +17,12 @@ var shell_id: ShellManager.ShellId
 var current_count: int
 var current_allowed_count: int
 
-signal count_updated(shell_id: ShellManager.ShellId, count: int)
+signal count_updated()
 
 func display_shell(player_tank_config: PlayerTankConfig, _shell_id: ShellManager.ShellId) -> void:
 	shell_id = _shell_id
-	var shell_spec := ShellManager.get_shell_spec(shell_id)
-	var tank_spec := TankManager.get_tank_spec(player_tank_config.tank_id)
+	var shell_spec := ShellManager.SHELL_SPECS[shell_id]
+	var tank_spec := TankManager.TANK_SPECS[player_tank_config.tank_id]
 	var is_locked: bool = not player_tank_config.shells.has(shell_id)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
@@ -35,6 +35,8 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_id: ShellManager
 		var loaded_count := player_tank_config.get_shell_amount(shell_id)
 		update_count(loaded_count)
 	else:
+		ammo_count_container.hide()
+		unlock_container.show()
 		update_count(0)
 		unlock_button.text = "UNLOCK\n" + Utils.format_dollars(shell_spec.unlock_cost)
 
@@ -43,12 +45,19 @@ func _ready() -> void:
 	count_decrement_button.pressed.connect(func()->void:update_count(current_count - 1))
 	count_increment_button.pressed.connect(func()->void:update_count(current_count + 1))
 	count_slider.value_changed.connect(func(value: float)->void:update_count(int(value)))
-	count_input.text_changed.connect(func(text: String)->void:update_count(int(text)))
+	count_input.text_submitted.connect(func(text: String)->void:update_count(int(text)))
 
 func update_count(new_count: int) -> void:
 	current_count = clamp(new_count,0,current_allowed_count)
 	count_slider.value = current_count
 	count_input.text = str(current_count)
-	count_updated.emit(shell_id, current_count)
+	save_count()
+	count_updated.emit()
 	count_decrement_button.disabled = current_count == 0
 	count_increment_button.disabled = current_count == current_allowed_count
+
+func save_count() -> void:
+	var player_data := PlayerData.get_instance()
+	var current_tank_config: PlayerTankConfig = player_data.get_current_tank_config()
+	current_tank_config.set_shell_amount(shell_id, current_count)
+	player_data.save()

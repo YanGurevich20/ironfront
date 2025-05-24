@@ -2,13 +2,13 @@ class_name Turret
 extends Sprite2D
 
 @onready var tank :Tank= get_parent()
-@onready var cannon := $Cannon
-@onready var muzzle := $Cannon/MuzzleMarker
-@onready var flash := $Cannon/MuzzleMarker/MuzzleFlash
-@onready var reload_timer: Timer = $ReloadTimer
-@onready var line_of_sight_raycast: RayCast2D = $Cannon/MuzzleMarker/LineOfSightRaycast
+@onready var cannon :Sprite2D= $Cannon
+@onready var muzzle :Marker2D= $Cannon/MuzzleMarker
+@onready var flash :AnimatedSprite2D= %MuzzleFlash
+@onready var reload_timer: Timer = %ReloadTimer
+@onready var line_of_sight_raycast: RayCast2D = %LineOfSightRaycast
+@onready var cannon_sound: AudioStreamPlayer2D = %CannonSound
 
-# TODO: Handle multiple shell types (AP, HE, etc.) via shell_scene switching
 var shell_scene: PackedScene = preload("res://entities/shell/shell.tscn")
 
 func _ready() -> void:
@@ -39,7 +39,7 @@ func fire_shell(shell_id: ShellManager.ShellId) -> void:
 	SignalBus.reload_progress_left_updated.emit(0.0, tank)
 
 	reload_timer.start(tank.tank_spec.reload_time)
-	$CannonSound.play()
+	cannon_sound.play()
 
 	# Muzzle Flash
 	flash.visible = true

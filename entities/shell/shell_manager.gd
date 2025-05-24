@@ -19,6 +19,3 @@ static var SHELL_SPECS: Dictionary[ShellId, ShellSpec] = {
 	ShellId.PZGR39_T: preload("res://entities/shell/shells/pzgr39_t.tres"),
 	ShellId.PZGR40: preload("res://entities/shell/shells/pzgr40.tres"),
 }
-
-static func get_shell_spec(shell_id: ShellId) -> ShellSpec:
-	return SHELL_SPECS.get(shell_id)

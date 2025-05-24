@@ -5,9 +5,10 @@ class_name LoginMenu extends Control
 @onready var username_input: LineEdit = %UsernameInput
 @onready var quit_button: Button = %QuitButton
 
+var player_data: PlayerData = PlayerData.get_instance()
+
 func _ready() -> void:
 	SignalBus.log_out_pressed.connect(_on_log_out_pressed)
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
 
 	if player_data.player_name:
 		username_input.text = player_data.player_name
@@ -21,11 +22,9 @@ func _ready() -> void:
 func _handle_username_input(text: String) -> void:
 	login_button.disabled = text.is_empty()
 
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
 	player_data.player_name = text
 
 func _on_login_button_pressed() -> void:
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
 	player_data.player_name = username_input.text
 	player_data.save()
 	SignalBus.login_pressed.emit()

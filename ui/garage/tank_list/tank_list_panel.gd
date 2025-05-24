@@ -21,7 +21,7 @@ func _ready() -> void:
 	for id: int in tank_ids:
 		all_tank_ids.append(id)
 
-	var player_data: PlayerData = LoadableData.get_instance(PlayerData)
+	var player_data: PlayerData = PlayerData.get_instance()
 	display_player_data(player_data)
 
 	# Keep track of the latest unlocked tank item
@@ -29,7 +29,7 @@ func _ready() -> void:
 
 	for tank_id in all_tank_ids:
 		var tank_list_item: TankListItem = _tank_list_item_scene.instantiate()
-		tank_list_item.pressed.connect(func()->void: _on_item_pressed(tank_list_item))
+		tank_list_item.item_pressed.connect(func()->void: _on_item_pressed(tank_list_item))
 		tank_list.add_child(tank_list_item)
 		tank_list_item.display_tank(tank_id)
 
@@ -40,8 +40,7 @@ func _ready() -> void:
 	_update_item_states()
 
 	# Determine which tank should be selected initially
-	var progress: PlayerData = LoadableData.get_instance(PlayerData)
-	var saved_tank_id: TankManager.TankId = progress.selected_tank_id
+	var saved_tank_id: TankManager.TankId = player_data.selected_tank_id
 	# If the saved tank is unlocked, select it; otherwise fall back to the latest unlocked
 	if _unlocked_tank_ids.has(saved_tank_id):
 		select_tank_by_id(saved_tank_id)
@@ -49,9 +48,10 @@ func _ready() -> void:
 		_select_tank(latest_unlocked_item)
 
 func _update_item_states() -> void:
-	for item in tank_list.get_children():
+	for item: TankListItem in tank_list.get_children():
 		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
-		var selected_id: TankManager.TankId = LoadableData.get_instance(PlayerData).selected_tank_id
+		var player_data: PlayerData = PlayerData.get_instance()
+		var selected_id: TankManager.TankId = player_data.selected_tank_id
 		if unlocked:
 			if item.tank_id == selected_id:
 				item.state = item.State.SELECTED
@@ -75,14 +75,14 @@ func _on_item_pressed(item: TankListItem) -> void:
 func _select_tank(item: TankListItem) -> void:
 	if item.state in [item.State.LOCKED, item.State.UNLOCKABLE]:
 		return
-	for other in tank_list.get_children():
+	for other: TankListItem in tank_list.get_children():
 		if other == item: other.state = other.State.SELECTED
 		elif other.state == other.State.SELECTED: other.state = other.State.UNLOCKED
 	tank_selected.emit(item.tank_id)
 
 # Allow parent node to programmatically select a tank by its ID.
 func select_tank_by_id(tank_id: TankManager.TankId) -> void:
-	for item in tank_list.get_children():
+	for item: TankListItem in tank_list.get_children():
 		if item.tank_id == tank_id:
 			_select_tank(item)
 			return
