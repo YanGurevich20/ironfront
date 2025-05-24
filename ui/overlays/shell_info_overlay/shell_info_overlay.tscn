@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://dg228i3wg5mxx"]
+
+[ext_resource type="PackedScene" uid="uid://b2ndbkv4et6g1" path="res://ui/overlays/base_overlay/base_overlay.tscn" id="1_ejn7u"]
+[ext_resource type="Script" uid="uid://bq6oxq6xmyhj7" path="res://ui/overlays/shell_info_overlay/shell_info_overlay.gd" id="2_p56iy"]
+[ext_resource type="PackedScene" uid="uid://coutl2tg4we02" path="res://ui/overlays/shell_info_overlay/penetration_simulator/penetration_simulator.tscn" id="3_lktvo"]
+
+[node name="ShellInfoOverlay" instance=ExtResource("1_ejn7u")]
+script = ExtResource("2_p56iy")
+
+[node name="Name" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="0"]
+layout_mode = 2
+text = "M63"
+
+[node name="Name2" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="1"]
+layout_mode = 2
+text = "HE T "
+
+[node name="Name3" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="2"]
+layout_mode = 2
+text = "ACTION TYPE: Explosive"
+
+[node name="Name4" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
+layout_mode = 2
+text = "Some long description "
+
+[node name="PenetrationSimulator" parent="PanelContainer/SectionsContainer/RootSection" index="4" instance=ExtResource("3_lktvo")]
+layout_mode = 2

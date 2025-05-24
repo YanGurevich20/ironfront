@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=25 format=3 uid="uid://dhe3ageaikkit"]
+[gd_resource type="Theme" load_steps=27 format=3 uid="uid://dhe3ageaikkit"]
 
 [ext_resource type="FontFile" uid="uid://bnyngcuqbpdwa" path="res://global_assets/fonts/Military_March.ttf" id="2_mx1a8"]
 [ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="2_plmku"]
@@ -86,6 +86,16 @@ region_rect = Rect2(418, 464, 12, 16)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_864tc"]
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_864tc"]
+texture = ExtResource("2_plmku")
+texture_margin_left = 7.0
+texture_margin_top = 7.0
+texture_margin_right = 7.0
+texture_margin_bottom = 7.0
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+region_rect = Rect2(1, 136, 62, 48)
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_k5jc1"]
 texture = ExtResource("2_plmku")
 texture_margin_left = 7.0
@@ -97,6 +107,16 @@ axis_stretch_vertical = 2
 region_rect = Rect2(1, 136, 62, 48)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_plmku"]
+texture = ExtResource("2_plmku")
+texture_margin_left = 8.0
+texture_margin_top = 8.0
+texture_margin_right = 8.0
+texture_margin_bottom = 8.0
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+region_rect = Rect2(2, 66, 60, 60)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_legrx"]
 texture = ExtResource("2_plmku")
 texture_margin_left = 8.0
 texture_margin_top = 8.0
@@ -190,9 +210,12 @@ MarginContainer/constants/margin_bottom = 8
 MarginContainer/constants/margin_left = 8
 MarginContainer/constants/margin_right = 8
 MarginContainer/constants/margin_top = 8
+Panel/styles/panel = SubResource("StyleBoxTexture_864tc")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_k5jc1")
 PanelContainerDark/base_type = &"PanelContainer"
 PanelContainerDark/styles/panel = SubResource("StyleBoxTexture_plmku")
+PanelDark/base_type = &"Panel"
+PanelDark/styles/panel = SubResource("StyleBoxTexture_legrx")
 SelectablePanel/base_type = &"Button"
 SelectablePanel/styles/disabled = SubResource("StyleBoxTexture_m67xt")
 SelectablePanel/styles/hover = SubResource("StyleBoxTexture_2wtiw")

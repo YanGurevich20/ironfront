@@ -1,0 +1,84 @@
+[gd_scene load_steps=4 format=3 uid="uid://coutl2tg4we02"]
+
+[ext_resource type="Script" uid="uid://c73lxwkt6jayd" path="res://ui/overlays/shell_info_overlay/penetration_simulator/penetration_simulator.gd" id="1_khe8w"]
+[ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://entities/shell/base_shell_type/rounds.png" id="2_10d1r"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v6vx3"]
+atlas = ExtResource("2_10d1r")
+region = Rect2(16, 16, 32, 32)
+
+[node name="PenetrationSimulator" type="Panel"]
+custom_minimum_size = Vector2(128, 128)
+anchors_preset = -1
+anchor_right = 0.2
+anchor_bottom = 0.356
+offset_right = -128.0
+offset_bottom = -128.16
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_type_variation = &"PanelDark"
+script = ExtResource("1_khe8w")
+
+[node name="PenetrationLine" type="Line2D" parent="."]
+scale = Vector2(1, 1.025)
+points = PackedVector2Array(64, 54.6342, 64, 93.6585)
+width = 2.0
+default_color = Color(0.635174, 0.231089, 0.19118, 1)
+
+[node name="ShellTexture" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = 69.0
+offset_right = 8.0
+offset_bottom = 85.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 3.11018
+pivot_offset = Vector2(8.00356, -36.9864)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("AtlasTexture_v6vx3")
+expand_mode = 1
+
+[node name="ArmourTexture" type="ColorRect" parent="."]
+layout_mode = 2
+offset_left = 16.0
+offset_top = 96.0
+offset_right = 112.0
+offset_bottom = 98.0
+color = Color(0.0790177, 0.505859, 0.381277, 1)
+
+[node name="Marker2D" type="Marker2D" parent="ArmourTexture"]
+position = Vector2(48, 0)
+gizmo_extents = 13.0
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_top = 128.0
+offset_right = 128.0
+offset_bottom = 168.0
+
+[node name="ArmourThicknessLineEdit" type="LineEdit" parent="Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -45.5
+offset_top = -12.0
+offset_right = 45.5
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+placeholder_text = "thickness"
+alignment = 1
+emoji_menu_enabled = false
+virtual_keyboard_type = 2
