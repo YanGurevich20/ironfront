@@ -3,8 +3,8 @@ class_name PauseOverlay extends BaseOverlay
 @onready var objectives_button: Button = %ObjectivesButton
 @onready var settings_button: Button = %SettingsButton
 @onready var abort_button :Button = %AbortButton
-@onready var objectives_section := %ObjectivesSection
-@onready var objectives_container := %ObjectivesContainer
+@onready var objectives_section: BaseSection = %ObjectivesSection
+@onready var objectives_container: ObjectivesContainer = %ObjectivesContainer
 
 signal settings_pressed
 signal abort_pressed

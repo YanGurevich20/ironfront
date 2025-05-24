@@ -1,10 +1,11 @@
 class_name TankControl extends Control
 
-@onready var left_lever := $LeftLever
-@onready var right_lever := $RightLever
-@onready var traverse_wheel := $TraverseWheel
+@onready var left_lever :Lever= $LeftLever
+@onready var right_lever :Lever= $RightLever
+@onready var traverse_wheel :TraverseWheel= $TraverseWheel
 @onready var fire_button: FireButton = $FireButton
 @onready var shell_select: ShellSelect = $ShellSelect
+
 @onready var pause_button: Button = %PauseButton
 
 var _current_shell_id: ShellManager.ShellId

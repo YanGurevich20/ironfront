@@ -10,11 +10,11 @@ func _ready() -> void:
 	all_sections = sections_container.get_children()
 	show_only([root_section])
 	for section in all_sections:
-		if section is not BaseSection: continue
-		section.back_pressed.connect(_handle_back_pressed)
+		if not section is BaseSection: continue
+		(section as BaseSection).back_pressed.connect(_handle_back_pressed)
 
 func show_only(sections_to_show: Array[Node]) -> void:
-	for section in all_sections:
+	for section: Control in all_sections:
 		section.visible = section in sections_to_show
 
 func _handle_back_pressed(is_root: bool)->void:

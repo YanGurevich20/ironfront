@@ -3,14 +3,14 @@ extends Resource
 
 static var _instances: Dictionary = {}
 
-static func get_loadable_instance(cls: Script) -> LoadableData:
-	var key: String = cls.new().get_file_name()
+static func get_loadable_instance(cls: GDScript) -> LoadableData:
+	var instance: LoadableData = cls.new()
+	var key: String = instance.get_file_name()
 
 	if _instances.has(key):
 		return _instances[key]
 
-	var path: String = cls.new()._get_path()
-	var instance: LoadableData = cls.new()
+	var path: String = instance._get_path()
 
 	if ResourceLoader.exists(path):
 		instance = load(path)
@@ -20,11 +20,12 @@ static func get_loadable_instance(cls: Script) -> LoadableData:
 	_instances[key] = instance
 	return instance
 
-static func reset(cls: Script) -> void:
-	var key: String = cls.new().get_file_name()
+static func reset(cls: GDScript) -> void:
+	var instance: LoadableData = cls.new()
+	var key: String = instance.get_file_name()
 	_instances.erase(key)
 
-	var path: String = cls.new()._get_path()
+	var path: String = instance._get_path()
 	if FileAccess.file_exists(path):
 		DirAccess.remove_absolute(path)
 

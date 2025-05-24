@@ -10,7 +10,8 @@ func display_metrics(metrics:Dictionary) -> void:
 		metrics_list.remove_child(child)
 		child.queue_free()
 	for metric: Metrics.Metric in metrics:
-		var metric_display := MetricDisplayScene.instantiate()
-		metric_display.metric_text = Metrics.Metric.keys()[metric].capitalize()
+		var metric_display: MetricDisplay = MetricDisplayScene.instantiate()
+		var metric_name: String = str(Metrics.Metric.keys()[metric]).capitalize()
+		metric_display.metric_text = metric_name
 		metric_display.value_text = str(metrics[metric])
 		metrics_list.add_child(metric_display)

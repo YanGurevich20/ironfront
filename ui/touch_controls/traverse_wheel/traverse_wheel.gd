@@ -18,15 +18,17 @@ func _ready() -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
-		if !event.pressed:
+		var touch_event: InputEventScreenTouch = event
+		if !touch_event.pressed:
 			# Finger lifted: stop target speed, start deceleration
 			target_speed = 0.0
 			return
-		last_angle = (event.position - middle_point).angle()
+		last_angle = (touch_event.position - middle_point).angle()
 		last_time = Time.get_ticks_msec() / 1000.0
 	elif event is InputEventScreenDrag:
+		var drag_event: InputEventScreenDrag = event
 		var now: float = Time.get_ticks_msec() / 1000.0
-		var angle: float = (event.position - middle_point).angle()
+		var angle: float = (drag_event.position - middle_point).angle()
 		var delta_angle: float = wrapf(angle - last_angle, -PI, PI)
 		var delta_time: float = now - last_time
 		if delta_time > 0:

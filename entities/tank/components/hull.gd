@@ -1,8 +1,7 @@
 class_name Hull extends Sprite2D
 
 @onready var tank :Tank= get_parent()
-@onready var engine_sound := $EngineSound
-
+@onready var engine_sound :AudioStreamPlayer2D= %EngineSound
 
 func play_engine_sound(_left_track_input: float, _right_track_input: float) -> void:
 	engine_sound.pitch_scale = 1 #TODO: per speed and input

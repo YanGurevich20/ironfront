@@ -1,5 +1,5 @@
 #objective_display.gd
-extends Control
+class_name ObjectiveDisplay extends Control
 
 @onready var description_label :Label= $%DescriptionLabel
 @onready var progress_bar : ProgressBar= $%ProgressBar

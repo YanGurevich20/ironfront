@@ -35,7 +35,7 @@ enum Metric {
 	Metric.LEVELS_PLAYED: 0
 }
 
-var derived_metrics := {
+var derived_metrics :Dictionary[Metric, Callable] = {
 	Metric.SHOTS_MISSED: func() -> void:
 		metrics[Metric.SHOTS_MISSED] = metrics[Metric.SHOTS_FIRED] - metrics[Metric.SHOTS_HIT]
 }

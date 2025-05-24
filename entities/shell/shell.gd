@@ -38,6 +38,7 @@ func _on_body_entered(body: Node2D) -> void:
 		queue_free()
 	if !body.is_in_group("damageable"):
 		return
-	if body.has_method("take_damage"):
-		body.take_damage(damage)
+	if body is Tank:
+		var tank: Tank = body
+		tank.take_damage(damage)
 	queue_free()

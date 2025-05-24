@@ -9,6 +9,6 @@ func display_objectives(objectives: Array[Objective]) -> void:
 		remove_child(objective_display)
 		objective_display.queue_free()
 	for objective in objectives:
-		var objective_display := ObjectiveDisplayScene.instantiate()
+		var objective_display :ObjectiveDisplay= ObjectiveDisplayScene.instantiate()
 		objective_display.objective = objective
 		add_child(objective_display)

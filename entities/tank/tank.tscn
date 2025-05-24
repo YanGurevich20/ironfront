@@ -86,6 +86,7 @@ z_index = -1
 sprite_frames = SubResource("SpriteFrames_cxr3h")
 
 [node name="EngineSound" type="AudioStreamPlayer2D" parent="Hull"]
+unique_name_in_owner = true
 
 [node name="Turret" type="Sprite2D" parent="."]
 z_index = 2

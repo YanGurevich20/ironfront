@@ -10,7 +10,7 @@ class_name UpgradePanel extends Control
 @onready var modules_upgrade_list: VBoxContainer = %ModuleUpgradeList
 @onready var crew_upgrade_list: VBoxContainer = %CrewUpgradeList
 @onready var equipment_upgrade_list: VBoxContainer = %EquipmentUpgradeList
-@onready var ammo_upgrade_list: VBoxContainer = %AmmoUpgradeList
+@onready var ammo_upgrade_list: AmmoUpgradeList = %AmmoUpgradeList
 @onready var buttons: Array[Button] = [modules_button, crew_button, equipment_button, ammo_button]
 
 @onready var select_tank_warning: Control = %SelectTankWarning
@@ -27,7 +27,7 @@ func _show_list(list_to_show: VBoxContainer, button_pressed: Button) -> void:
 	if not is_tank_selected: return
 	for button in buttons:
 		button.button_pressed = button == button_pressed
-	for list in upgrade_list_container.get_children():
+	for list: Control in upgrade_list_container.get_children():
 		list.visible = list == list_to_show
 
 func display_player_data(player_data: PlayerData) -> void:
