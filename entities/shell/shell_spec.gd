@@ -12,27 +12,29 @@ class_name ShellSpec extends Resource
 @export var unlock_cost: int = 10_000
 @export var resupply_cost: int = 200
 
-enum ImpactResultType{
-	PENETRATED,
-	BOUNCED,
-	UNPENETRATED,
-	SHATTERED,
-}
+enum ImpactResultType{ PENETRATED, OVERMATCHED, BOUNCED, UNPENETRATED, SHATTERED}
 
-enum ImpactResult{
-	DAMAGE,
-	RESLT_TYPE
-}
+class ImpactResult:
+	var damage : float
+	var result_type : ImpactResultType
+	func _init(_damage: float, _result_type: ImpactResultType) -> void:
+		damage = _damage
+		result_type = _result_type
 
-const CALIBER_DIVISOR: float = 100.0
-const ARMOR_DIVISOR: float = 100.0
-const MAX_DAMAGE_MULTIPLIER: float = 0.25
-const MIN_DAMAGE_MULTIPLIER: float = 0.01
+const OVERMATCH_RATIO: float = 3.0
+const MAX_DAMAGE_MULTIPLIER: float = 1.25
+const MIN_DAMAGE_MULTIPLIER: float = 0.25
+const CALIBER_DIVISOR: float = 10.0
+const ARMOR_DIVISOR: float = 10.0
 
-func get_bounce_chance(impact_angle: float, armor_thickness: float) -> float:
-	var penetrator_caliber: float = caliber * base_shell_type.subcaliber_ratio
-	if penetrator_caliber * 3 > armor_thickness and base_shell_type.is_kinetic:
-		return 0.0
+func get_penetrator_caliber() -> float:
+	return caliber * base_shell_type.subcaliber_ratio
+
+func get_should_overmatch(armor_thickness: float) -> bool:
+	if not base_shell_type.is_kinetic: return false
+	return get_penetrator_caliber() > armor_thickness * OVERMATCH_RATIO
+
+func get_bounce_chance(impact_angle: float) -> float:
 	if impact_angle < base_shell_type.ricochet_angle_soft:
 		return 0.0
 	elif impact_angle < base_shell_type.ricochet_angle_hard:
@@ -41,18 +43,21 @@ func get_bounce_chance(impact_angle: float, armor_thickness: float) -> float:
 	else:
 		return 1.0
 
+func get_effective_thickness(impact_angle: float, armor_thickness: float) -> float:
+	if impact_angle == 90.0: return INF
+	if base_shell_type.is_explosive_damage:
+		return armor_thickness
+	return armor_thickness / cos(deg_to_rad(impact_angle))
+
 func should_penetrate(impact_angle: float, armor_thickness: float) -> bool:
-	var penetrator_caliber: float = caliber * base_shell_type.subcaliber_ratio
-	if penetrator_caliber * 3 > armor_thickness and base_shell_type.is_kinetic:
-		return true
-	var effective_thickness: float = armor_thickness / cos(impact_angle)
+	if base_shell_type.is_explosive_damage: return penetration > armor_thickness
+	var effective_thickness: float = get_effective_thickness(impact_angle, armor_thickness)
 	#* Note to self - Edit here if using penetration chance instead of binary decision
 	return penetration >= effective_thickness
 
 #* Idea - Subcaliber will benefit from larger armor thickness
 func get_damage_roll(penetrated: bool, armour_thickness: float) -> float:
-	randomize()
-	var rolled_damage: float = randfn(damage, base_shell_type.standard_damage_deviation)
+	var rolled_damage: float = randfn(damage, damage * base_shell_type.standard_damage_deviation)
 	if penetrated:
 		return rolled_damage
 	if base_shell_type.is_explosive_damage:
@@ -68,16 +73,13 @@ func calculate_unpenetrated_explosive_damage(armour_thickness: float) -> float:
 	var min_damage: float = explosion_damage * MIN_DAMAGE_MULTIPLIER
 	return clamp(explosion_damage, min_damage, max_damage)
 
-func get_impact_result(impact_angle: float, armor_thickness: float) -> Dictionary[ImpactResult, float]:
-	var should_bounce: bool = get_bounce_chance(impact_angle, armor_thickness) < 0.5
-	if should_bounce:
-		return {
-			ImpactResult.DAMAGE: 0,
-			ImpactResult.RESLT_TYPE: ImpactResultType.SHATTERED if base_shell_type.is_kinetic else ImpactResultType.BOUNCED,
-		}
+func get_impact_result(impact_angle: float, armor_thickness: float) -> ImpactResult:
+	randomize()
+	var should_overmatch: bool = get_should_overmatch(armor_thickness)
+	var should_bounce: bool = get_bounce_chance(impact_angle) >= randf()
 	var penetrated: bool = should_penetrate(impact_angle, armor_thickness)
-	var damage_roll: float = get_damage_roll(penetrated, armor_thickness)
-	return {
-		ImpactResult.DAMAGE: damage_roll,
-		ImpactResult.RESLT_TYPE: ImpactResultType.PENETRATED if penetrated else ImpactResultType.UNPENETRATED,
-	}
+	var damage_roll: float = get_damage_roll(true if should_overmatch else penetrated, armor_thickness)
+
+	if should_overmatch: return ImpactResult.new(damage_roll, ImpactResultType.OVERMATCHED)
+	if should_bounce: return ImpactResult.new(0, ImpactResultType.BOUNCED if base_shell_type.is_kinetic else ImpactResultType.SHATTERED)
+	return ImpactResult.new(damage_roll,ImpactResultType.PENETRATED if penetrated else ImpactResultType.UNPENETRATED)
