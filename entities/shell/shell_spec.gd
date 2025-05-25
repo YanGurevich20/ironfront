@@ -25,7 +25,6 @@ const OVERMATCH_RATIO: float = 3.0
 const MAX_DAMAGE_MULTIPLIER: float = 1.25
 const MIN_DAMAGE_MULTIPLIER: float = 0.25
 const CALIBER_DIVISOR: float = 10.0
-const ARMOR_DIVISOR: float = 10.0
 
 func get_penetrator_caliber() -> float:
 	return caliber * base_shell_type.subcaliber_ratio
@@ -56,22 +55,21 @@ func should_penetrate(impact_angle: float, armor_thickness: float) -> bool:
 	return penetration >= effective_thickness
 
 #* Idea - Subcaliber will benefit from larger armor thickness
-func get_damage_roll(penetrated: bool, armour_thickness: float) -> float:
-	var rolled_damage: int = floori(Utils.trandfn(damage, damage * base_shell_type.standard_damage_deviation))
+func get_damage_roll(penetrated: bool, armour_thickness: float) -> int:
+	var rolled_damage: float = Utils.trandfn(damage, damage * base_shell_type.standard_damage_deviation)
 	if penetrated:
-		return rolled_damage
+		return floori(rolled_damage)
 	if base_shell_type.is_explosive_damage:
-		return calculate_unpenetrated_explosive_damage(armour_thickness)
+		return calculate_unpenetrated_explosive_damage(armour_thickness, rolled_damage)
 	else:
 		return 0
 
-func calculate_unpenetrated_explosive_damage(armour_thickness: float) -> float:
+func calculate_unpenetrated_explosive_damage(armour_thickness: float, rolled_damage: float) -> int:
 	var caliber_factor: float = caliber / CALIBER_DIVISOR
-	var armor_factor: float = armour_thickness / ARMOR_DIVISOR + 1.0
-	var explosion_damage: float = damage * (caliber_factor / armor_factor)
+	var explosion_damage: float = rolled_damage * (caliber_factor / armour_thickness)
 	var max_damage: float = explosion_damage * MAX_DAMAGE_MULTIPLIER
 	var min_damage: float = explosion_damage * MIN_DAMAGE_MULTIPLIER
-	return clamp(explosion_damage, min_damage, max_damage)
+	return floori(clamp(explosion_damage, min_damage, max_damage))
 
 func get_impact_result(impact_angle: float, armor_thickness: float) -> ImpactResult:
 	randomize()

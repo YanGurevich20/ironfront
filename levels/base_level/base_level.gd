@@ -98,7 +98,7 @@ func _spawn_player() -> void:
 		if unlocked_tank_ids.size() > 0:
 			selected_tank_id = unlocked_tank_ids[0]
 		else:
-			selected_tank_id = TankManager.TankId.tiger_1
+			selected_tank_id = TankManager.TankId.TIGER_1
 	var player: Tank = TankManager.create_tank(selected_tank_id, TankManager.TankControllerType.PLAYER)
 	player_tank = player
 	_spawn_tank(player_tank, player_spawn_point)
@@ -108,10 +108,10 @@ func _spawn_enemies() -> void:
 		if level_index == 0:
 			#TODO: This is temporary override for level 0.
 			# develop a better system for level overrides, or use composition
-			var dummy_tank: Tank = TankManager.create_tank(TankManager.TankId.m4a1_sherman, TankManager.TankControllerType.DUMMY)
+			var dummy_tank: Tank = TankManager.create_tank(TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY)
 			_spawn_tank(dummy_tank, spawn_point)
 			continue
-		var enemy_tank: Tank = TankManager.create_tank(TankManager.TankId.m4a1_sherman, TankManager.TankControllerType.AI)
+		var enemy_tank: Tank = TankManager.create_tank(TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.AI)
 		_spawn_tank(enemy_tank, spawn_point)
 #endregion
 #region Signal Handlers

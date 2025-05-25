@@ -2,10 +2,11 @@ class_name TankManager
 
 static var CameraScene := preload("res://core/main_camera.tscn")
 
-enum TankId {m4a1_sherman, tiger_1}
+enum TankId {DEBUG_TANK, M4A1_SHERMAN, TIGER_1}
 static var TANK_SPECS: Dictionary[TankId, TankSpec] = {
-	TankId.m4a1_sherman: preload("res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
-	TankId.tiger_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
+	TankId.DEBUG_TANK: preload("res://entities/tank/tanks/debug_tank/debug_tank.tres"),
+	TankId.M4A1_SHERMAN: preload("res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
+	TankId.TIGER_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
 }
 
 enum TankControllerType {PLAYER, AI, DUMMY}

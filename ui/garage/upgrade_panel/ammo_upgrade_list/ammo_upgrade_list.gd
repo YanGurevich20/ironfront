@@ -25,3 +25,4 @@ func _on_count_updated() -> void:
 	var unallocated_count := max_allowed_count - current_total_count
 	for item: AmmoUpgradeListItem in get_children():
 		item.current_allowed_count = item.current_count + unallocated_count
+		item.update_buttons()

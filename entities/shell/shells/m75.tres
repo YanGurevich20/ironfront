@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_h8e70")
 base_shell_type = ExtResource("1_e23d5")
-muzzle_velocity = 10.0
+muzzle_velocity = 600.0
 damage = 300
 penetration = 100.0
 shell_name = "M75"

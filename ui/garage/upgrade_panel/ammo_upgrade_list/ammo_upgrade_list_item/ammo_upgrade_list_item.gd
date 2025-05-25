@@ -53,10 +53,14 @@ func update_count(new_count: int) -> void:
 	current_count = clamp(new_count,0,current_allowed_count)
 	count_slider.value = current_count
 	count_input.text = str(current_count)
+	update_buttons()
 	save_count()
 	count_updated.emit()
+
+func update_buttons() -> void:
 	count_decrement_button.disabled = current_count == 0
 	count_increment_button.disabled = current_count == current_allowed_count
+
 
 func save_count() -> void:
 	var player_data := PlayerData.get_instance()

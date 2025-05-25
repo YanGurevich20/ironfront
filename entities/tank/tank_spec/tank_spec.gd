@@ -14,8 +14,6 @@ class_name TankSpec extends Resource
 @export var cannon_caliber: float #mm
 @export var reload_time: float #sec
 @export var max_turret_traverse_speed: float #deg/sec
-@export var gun_damage: int
-@export var projectile_speed: float
 @export var shell_capacity: int
 @export var allowed_shells: Array[ShellManager.ShellId]
 
