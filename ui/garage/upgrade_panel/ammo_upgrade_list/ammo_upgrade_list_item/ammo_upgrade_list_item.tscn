@@ -107,11 +107,11 @@ text = "UNLOCK
 20,000 $"
 
 [node name="InfoButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-disabled = true
 icon = SubResource("AtlasTexture_u4n65")
 icon_alignment = 1
 expand_icon = true

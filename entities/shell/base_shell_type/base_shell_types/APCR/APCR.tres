@@ -25,6 +25,5 @@ ricochet_angle_hard = 65.0
 ricochet_ease_curve = 2.0
 round_texture = SubResource("AtlasTexture_hdfl3")
 projectile_texture = SubResource("AtlasTexture_64s4n")
-shell_type_name = "Armor Piercing (AP)"
-shell_type_description = "Armor Piercing shells are designed to penetrate enemy armor."
+shell_type_name = "Armor Piercing Composite Rigid"
 metadata/_custom_type_script = "uid://0m20y2pnl21p"

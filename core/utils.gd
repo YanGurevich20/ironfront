@@ -38,7 +38,7 @@ static func with_commas(n: int) -> String:
 	return ("-" if neg else "") + out
 
 static func format_dollars(dollars: int) -> String:
-	return with_commas(dollars) + " $"
+	return with_commas(dollars) + "$"
 
 static func format_bonds(bonds: int) -> String:
 	return with_commas(bonds) + " BONDS"
@@ -49,3 +49,9 @@ static func print_resource_properties(resource: Resource) -> void:
 	for prop in properties:
 		if prop.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
 			print("  %s: %s" % [prop.name, resource.get(prop.name)])
+
+static func trandfn(mean: float, std_dev: float) -> float:
+	var roll: float = randfn(mean, std_dev)
+	while abs(roll - mean) > std_dev:
+		roll = randfn(mean, std_dev)
+	return roll

@@ -7,6 +7,7 @@ signal exit_overlay_pressed
 var all_sections: Array[Node]
 
 func _ready() -> void:
+	print("BaseOverlay _ready")
 	all_sections = sections_container.get_children()
 	show_only([root_section])
 	for section in all_sections:
@@ -18,5 +19,6 @@ func show_only(sections_to_show: Array[Node]) -> void:
 		section.visible = section in sections_to_show
 
 func _handle_back_pressed(is_root: bool)->void:
+	print("BaseOverlay _handle_back_pressed: ", is_root)
 	if is_root: exit_overlay_pressed.emit()
 	else: show_only([root_section])

@@ -9,7 +9,6 @@ base_shell_type = ExtResource("1_e23d5")
 muzzle_velocity = 10.0
 damage = 300
 penetration = 100.0
-explosive_yield = 0.0
 shell_name = "M75"
 caliber = 75
 unlock_cost = 10000

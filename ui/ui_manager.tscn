@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bbwbe6voggknh"]
+[gd_scene load_steps=12 format=3 uid="uid://bbwbe6voggknh"]
 
 [ext_resource type="Script" uid="uid://dfdooe5mh6vby" path="res://ui/ui_manager.gd" id="1_yp0ob"]
 [ext_resource type="PackedScene" uid="uid://s5td064aaxj4" path="res://ui/overlays/garage_menu_overlay/garage_menu_overlay.tscn" id="2_30b5s"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://dli0nb24kjbl7" path="res://ui/overlays/metrics_overlay/metrics_overlay.tscn" id="8_hcyq4"]
 [ext_resource type="PackedScene" uid="uid://dslajcx0t8u3k" path="res://ui/garage/garage.tscn" id="9_nymso"]
 [ext_resource type="PackedScene" uid="uid://dxmwayjad206f" path="res://ui/login_menu/login_menu.tscn" id="10_30b5s"]
+[ext_resource type="PackedScene" uid="uid://dg228i3wg5mxx" path="res://ui/overlays/shell_info_overlay/shell_info_overlay.tscn" id="11_cd8r4"]
 [ext_resource type="PackedScene" uid="uid://d0m67gddqumno" path="res://ui/overlays/level_select_overlay/level_select_overlay.tscn" id="11_i3dcd"]
 
 [node name="UIManager" type="CanvasLayer"]
@@ -39,4 +40,7 @@ visible = false
 visible = false
 
 [node name="LevelSelectOverlay" parent="." instance=ExtResource("11_i3dcd")]
+visible = false
+
+[node name="ShellInfoOverlay" parent="." instance=ExtResource("11_cd8r4")]
 visible = false

@@ -16,7 +16,3 @@ enum ShellType{AP, APCR, APDS, APHE, HE, HEAT}
 @export_category("Textures")
 @export var round_texture: Texture2D 
 @export var projectile_texture: Texture
-
-@export_category("Shell Info")
-@export var shell_type_name: String = "Armor Piercing (AP)"
-@export var shell_type_description: String = "Armor Piercing shells are designed to penetrate enemy armor."

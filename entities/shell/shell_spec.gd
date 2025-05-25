@@ -57,7 +57,7 @@ func should_penetrate(impact_angle: float, armor_thickness: float) -> bool:
 
 #* Idea - Subcaliber will benefit from larger armor thickness
 func get_damage_roll(penetrated: bool, armour_thickness: float) -> float:
-	var rolled_damage: float = randfn(damage, damage * base_shell_type.standard_damage_deviation)
+	var rolled_damage: int = floori(Utils.trandfn(damage, damage * base_shell_type.standard_damage_deviation))
 	if penetrated:
 		return rolled_damage
 	if base_shell_type.is_explosive_damage:

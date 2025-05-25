@@ -19,6 +19,7 @@ signal play_pressed
 # Garage signals
 signal tank_selected(tank_id: TankManager.TankId)
 signal shell_unlock_requested(shell_id: ShellManager.ShellId)
+signal shell_info_requested(shell_id: ShellManager.ShellId)
 
 # Tank signals
 signal shell_fired(shell: Shell, tank: Tank)

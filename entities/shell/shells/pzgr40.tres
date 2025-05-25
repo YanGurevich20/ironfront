@@ -9,7 +9,6 @@ base_shell_type = ExtResource("1_ia4fo")
 muzzle_velocity = 800.0
 damage = 640
 penetration = 170.0
-explosive_yield = 0.0
 shell_name = "PzGr. 40"
 caliber = 88
 unlock_cost = 20000

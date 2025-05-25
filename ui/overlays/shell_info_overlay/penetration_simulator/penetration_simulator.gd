@@ -20,7 +20,7 @@ const MIN_ARMOUR_THICKNESS_MM: float = 1
 const MAX_ARMOUR_THICKNESS_MM: float = 500
 
 var armour_thickness_mm: float = 10.0
-var shell_spec: ShellSpec
+var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[ShellManager.ShellId.PZGR40]
 var impact_angle: float = 0.0
 var previous_impact_angle: float = 0.0
 
@@ -28,10 +28,8 @@ func _ready() -> void:
 	shell_texture.gui_input.connect(func(_event: InputEvent)->void:
 		if _event is InputEventScreenDrag: _update_shell_rotation()
 	)
-	display_shell_info(ShellManager.ShellId.PZGR40)
 	armour_thickness_line_edit.text_submitted.connect(_on_thickness_changed)
 	simulate_button.pressed.connect(_update_simulation)
-	_update_simulation()
 
 func display_shell_info(shell_id: ShellManager.ShellId) -> void:
 	shell_spec = ShellManager.SHELL_SPECS[shell_id]
@@ -57,14 +55,14 @@ func _update_shell_rotation() -> void:
 
 func _update_simulation() -> void:
 	var effective_thickness := shell_spec.get_effective_thickness(impact_angle, armour_thickness_mm)
-	print("effective_thickness: ", effective_thickness)
 	var impact_result := shell_spec.get_impact_result(impact_angle, armour_thickness_mm)
 	var damage: float = impact_result.damage
-	var result_name := str(ShellSpec.ImpactResultType.find_key(impact_result.result_type)).capitalize()
+	var result_type: ShellSpec.ImpactResultType = impact_result.result_type
+	var result_name := str(ShellSpec.ImpactResultType.find_key(result_type)).capitalize()
 	_update_labels(damage, result_name, effective_thickness)
+	_update_penetration_line(result_type)
 
 func _on_thickness_changed(new_text: String) -> void:
-	if not new_text.is_valid_float(): return
 	var clamped_thickness: float = clamp(float(new_text), MIN_ARMOUR_THICKNESS_MM, MAX_ARMOUR_THICKNESS_MM)
 	armour_thickness_mm = clamped_thickness
 	armour_thickness_line_edit.text = str(armour_thickness_mm)
@@ -73,9 +71,20 @@ func _on_thickness_changed(new_text: String) -> void:
 	_update_simulation()
 
 func _update_labels(damage: float, result_name: String, effective_thickness: float) -> void:
-	damage_label.text = "DAMAGE: %0.2f" % damage
+	damage_label.text = "DAMAGE: %d HP" % damage
 	result_label.text = "RESULT: " + result_name
 	angle_label.text = "ANGLE: %0.2f°" % impact_angle
 	effective_thickness_label.text = "EFFECTIVE THICKNESS: %0.2f mm" % effective_thickness
 	var bounce_chance_string: String = "%0.1f" % (shell_spec.get_bounce_chance(impact_angle)*100.0) + "%"
 	bounce_chance_label.text = "BOUNCE CHANCE: " + ("0% (Overmatched)"  if result_name == "Overmatched" else bounce_chance_string)
+
+const PENETRATION_LINE_COLORS: Dictionary = {
+	ShellSpec.ImpactResultType.PENETRATED: Color.GREEN,
+	ShellSpec.ImpactResultType.OVERMATCHED: Color.BLUE,
+	ShellSpec.ImpactResultType.BOUNCED: Color.RED,
+	ShellSpec.ImpactResultType.UNPENETRATED: Color.RED,
+	ShellSpec.ImpactResultType.SHATTERED: Color.RED,
+}
+
+func _update_penetration_line(result_type: ShellSpec.ImpactResultType) -> void:
+	penetration_line.modulate = PENETRATION_LINE_COLORS[result_type]

@@ -11,6 +11,7 @@ class_name UIManager
 @onready var metrics_overlay: MetricsOverlay = $MetricsOverlay
 @onready var garage_menu_overlay: GarageMenuOverlay = $GarageMenuOverlay
 @onready var level_select_overlay: LevelSelectOverlay = $LevelSelectOverlay
+@onready var shell_info_overlay: ShellInfoOverlay = $ShellInfoOverlay
 
 # === Signals ===
 signal resume_game
@@ -29,7 +30,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu_nodes = [ login_menu, garage ]
 	_control_nodes = [ tank_control ]
-	_overlay_nodes = [ pause_overlay, result_overlay, settings_overlay, metrics_overlay, garage_menu_overlay, level_select_overlay ]
+	_overlay_nodes = [ pause_overlay, result_overlay, settings_overlay, metrics_overlay, garage_menu_overlay, level_select_overlay, shell_info_overlay ]
 	_connect_signals()
 	show_menu(login_menu)
 
@@ -71,6 +72,10 @@ func update_objectives(objectives: Array) -> void:
 func _on_play_pressed() -> void:
 	show_overlay(level_select_overlay)
 	level_select_overlay.display_levels()
+
+func _on_shell_info_requested(shell_id: ShellManager.ShellId) -> void:
+	show_overlay(shell_info_overlay)
+	shell_info_overlay.display_shell_info(shell_id)
 
 func _on_metrics_pressed()->void:
 	var metrics := Metrics.get_instance().metrics
@@ -125,18 +130,22 @@ func _connect_signals() -> void:
 
 	#* garage menu *#
 	SignalBus.play_pressed.connect(_on_play_pressed)
+	SignalBus.shell_info_requested.connect(_on_shell_info_requested)
 	garage.garage_menu_pressed.connect(_on_garage_menu_pressed)
 	garage_menu_overlay.exit_overlay_pressed.connect(hide_overlays)
 	garage_menu_overlay.settings_pressed.connect(_on_settings_pressed)
 	garage_menu_overlay.metrics_pressed.connect(_on_metrics_pressed)
 
-	#* garage overlay *#
+	#* garage menu overlay *#
 	SignalBus.log_out_pressed.connect(_on_log_out_pressed)
 
 	#* level select overlay *#
 	SignalBus.level_started.connect(_on_level_started)
 	level_select_overlay.exit_overlay_pressed.connect(hide_overlays)
 
+	#* shell info overlay *#
+	shell_info_overlay.exit_overlay_pressed.connect(hide_overlays)
+ 
 	#* tank controls *#
 	SignalBus.pause_input.connect(_on_pause_pressed)
 

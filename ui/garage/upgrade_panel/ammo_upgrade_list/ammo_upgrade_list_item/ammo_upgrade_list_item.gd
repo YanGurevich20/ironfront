@@ -7,6 +7,7 @@ class_name AmmoUpgradeListItem extends HBoxContainer
 @onready var count_input: LineEdit = %CountInput
 @onready var count_increment_button: Button = %CountIncrementButton
 @onready var count_decrement_button: Button = %CountDecrementButton
+@onready var info_button: Button = %InfoButton
 
 @onready var ammo_count_container: HBoxContainer = %AmmoCountContainer
 @onready var unlock_container: HBoxContainer = %UnlockContainer
@@ -46,7 +47,8 @@ func _ready() -> void:
 	count_increment_button.pressed.connect(func()->void:update_count(current_count + 1))
 	count_slider.value_changed.connect(func(value: float)->void:update_count(int(value)))
 	count_input.text_submitted.connect(func(text: String)->void:update_count(int(text)))
-
+	info_button.pressed.connect(func()->void:SignalBus.shell_info_requested.emit(shell_id))
+	
 func update_count(new_count: int) -> void:
 	current_count = clamp(new_count,0,current_allowed_count)
 	count_slider.value = current_count
