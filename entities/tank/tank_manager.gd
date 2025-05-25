@@ -39,7 +39,6 @@ static func create_destroyed_tank(tank: Tank) -> DestroyedTank:
 	destroyed_tank.angular_velocity = tank.angular_velocity
 
 	var tank_turret := tank.turret
-	var destroyed_tank_turret := destroyed_tank.turret
-	destroyed_tank_turret.rotation = tank_turret.rotation
+	destroyed_tank.turret_rotation = tank_turret.rotation
 
 	return destroyed_tank

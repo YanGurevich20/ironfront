@@ -20,6 +20,7 @@ func _update_shell_stats(shell_spec: ShellSpec) -> void:
 	var text: String = ""
 	text += "Shell: %s\n" % shell_spec.shell_name
 	text += _get_flag_text(shell_spec) + "\n"
+	if shell_spec.base_shell_type.is_tracer: text +="Tracer\n"
 	var shell_type_name: String = BaseShellType.ShellType.find_key(shell_spec.base_shell_type.shell_type)
 	text += "Shell Type: %s\n" % shell_type_name
 	text += "Caliber: %0.1f mm\n" % shell_spec.caliber
@@ -43,8 +44,7 @@ func _update_base_shell_stats(shell_spec: ShellSpec) -> void:
 
 func _get_flag_text(shell_spec: ShellSpec) -> String:
 	var flag_text: String = ""
-	if shell_spec.base_shell_type.is_kinetic: flag_text += "Kinetic, "
-	if shell_spec.base_shell_type.is_tracer: flag_text += "Tracer, "
+	flag_text += "Kinetic, " if shell_spec.base_shell_type.is_kinetic else "Non-Kinetic, "
 	if shell_spec.base_shell_type.is_subcaliber: flag_text += "Subcaliber, "
 	if shell_spec.base_shell_type.is_explosive_damage: flag_text += "Explosive Damage, "
 	return flag_text.trim_suffix(", ")

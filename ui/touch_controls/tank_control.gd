@@ -8,11 +8,8 @@ class_name TankControl extends Control
 
 @onready var pause_button: Button = %PauseButton
 
-var _current_shell_id: ShellManager.ShellId
-
 func _ready() -> void:
-	SignalBus.shell_selected.connect(func(shell_id: ShellManager.ShellId, _remaining_shell_count: int) -> void: _current_shell_id = shell_id)
-	fire_button.fire_button_pressed.connect(func() -> void: SignalBus.fire_input.emit(_current_shell_id))
+	fire_button.fire_button_pressed.connect(func() -> void: SignalBus.fire_input.emit())
 	pause_button.pressed.connect(func() -> void: SignalBus.pause_input.emit())
 
 func reset_input() -> void:

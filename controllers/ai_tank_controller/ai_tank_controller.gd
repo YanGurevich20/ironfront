@@ -13,8 +13,13 @@ extends Node
 var time_on_target: float = 0.0
 
 func _physics_process(delta: float) -> void:
-	var tanks := get_tree().get_nodes_in_group("tank") as Array[Tank]
+	var tanks_group_nodes := get_tree().get_nodes_in_group("tank")
+	var tanks: Array[Tank] = []
+	for node in tanks_group_nodes:
+		if node is Tank:
+			tanks.append(node)
 	var player_tanks: Array[Tank] = tanks.filter(func(t: Tank) -> bool: return t.is_player)
+
 	if player_tanks.is_empty():
 		push_warning("No player tanks found")
 		return
@@ -117,7 +122,7 @@ func aim_and_fire_at(target: Node2D, delta: float) -> void:
 	if angle_deg < aim_tolerance_deg and distance < fire_range and tank.turret.has_line_of_sight(target):
 		time_on_target += delta
 		if time_on_target >= hold_to_fire_time:
-			tank.fire_shell(tank.tank_spec.allowed_shells[0])
+			tank.fire_shell()
 			time_on_target = 0.0
 	else:
 		time_on_target = 0.0

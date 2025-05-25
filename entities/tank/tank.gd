@@ -23,8 +23,6 @@ var left_track_input := 0.0
 var turret_rotation_input := 0.0
 #endregion
 
-var current_shell_id: ShellManager.ShellId
-var _has_initial_shell_been_set: bool = false
 var distance_traveled: float = 0.0
 @onready var _last_position: Vector2 = global_position
 
@@ -33,17 +31,14 @@ func _ready() -> void:
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)
 
-func set_active_shell(shell_id: ShellManager.ShellId) -> void:
-	if not _has_initial_shell_been_set or shell_id != current_shell_id:
-		current_shell_id = shell_id
-		_has_initial_shell_been_set = true
-		turret.reset_reload_timer()
+func set_current_shell_id(shell_id: ShellManager.ShellId) -> void:
+	turret.set_current_shell_id(shell_id)
 
 func set_remaining_shell_count(count: int) -> void:
-	turret.set_remaining_shell_count(count)
+	turret.remaining_shell_count = count
 
-func fire_shell(shell_id: ShellManager.ShellId) -> void:
-	turret.fire_shell(shell_id)
+func fire_shell() -> void:
+	turret.fire_shell()
 
 func take_damage(amount: int) -> void:
 	damage_taken.emit(amount, self)
