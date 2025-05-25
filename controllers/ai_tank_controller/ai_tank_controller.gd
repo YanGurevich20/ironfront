@@ -6,7 +6,6 @@ extends Node
 
 @export var full_speed_traverse_zone: float = 0.9
 @export var compount_turn_zone: float = 0.2
-@export var fire_range: float = 600.0
 @export var aim_tolerance_deg: float = 10.0
 @export var hold_to_fire_time: float = 4.0
 
@@ -15,13 +14,15 @@ var time_on_target: float = 0.0
 func _physics_process(delta: float) -> void:
 	var tanks_group_nodes := get_tree().get_nodes_in_group("tank")
 	var tanks: Array[Tank] = []
-	for node in tanks_group_nodes:
-		if node is Tank:
-			tanks.append(node)
+	tanks.assign(tanks_group_nodes.filter(func(node: Node) -> bool: return node is Tank))
+
 	var player_tanks: Array[Tank] = tanks.filter(func(t: Tank) -> bool: return t.is_player)
 
 	if player_tanks.is_empty():
 		push_warning("No player tanks found")
+		return
+	if player_tanks.size() > 1:
+		push_warning("Multiple player tanks found")
 		return
 	var target: Tank = player_tanks[0]
 
@@ -111,7 +112,6 @@ func drive_to_position(target_position: Vector2, reverse_threshold: float = 200.
 func aim_and_fire_at(target: Node2D, delta: float) -> void:
 	var target_position: Vector2 = target.global_position
 	var angle_to_target: float = get_angle_diff(tank.turret.global_position, tank.turret.global_rotation, target_position)
-	var distance: float = tank.turret.global_position.distance_to(target_position)
 	var angle_deg: float = abs(rad_to_deg(angle_to_target))
 
 	# Rotate turret
@@ -119,7 +119,7 @@ func aim_and_fire_at(target: Node2D, delta: float) -> void:
 	tank.turret_rotation_input = get_scaled_turn_input(normalized_angle)
 
 	# Fire if aligned
-	if angle_deg < aim_tolerance_deg and distance < fire_range and tank.turret.has_line_of_sight(target):
+	if angle_deg < aim_tolerance_deg and tank.turret.has_line_of_sight(target):
 		time_on_target += delta
 		if time_on_target >= hold_to_fire_time:
 			tank.fire_shell()

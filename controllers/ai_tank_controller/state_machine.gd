@@ -3,7 +3,7 @@ class_name StateMachine
 
 @export var detection_range := 600.0
 @export var fight_range_max := 400.0
-@export var fight_range_min := 200.0
+@export var fight_range_min := 100.0
 
 enum State { PATROL, CHASE, FIGHT, DISENGAGE }
 
