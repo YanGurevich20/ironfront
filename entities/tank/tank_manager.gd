@@ -42,4 +42,4 @@ static func create_destroyed_tank(tank: Tank) -> DestroyedTank:
 	var destroyed_tank_turret := destroyed_tank.turret
 	destroyed_tank_turret.rotation = tank_turret.rotation
 
-	return destroyed_tank 
+	return destroyed_tank

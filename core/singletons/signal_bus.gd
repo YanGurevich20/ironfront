@@ -4,8 +4,9 @@ extends Node
 signal lever_input(lever_side: Lever.LeverSide, value: float)
 signal wheel_input(value: float)
 signal fire_input(shell_id: ShellManager.ShellId)
-signal shell_selected(shell_id: ShellManager.ShellId)
+signal shell_selected(shell_id: ShellManager.ShellId, remaining_shell_count: int)
 signal pause_input()
+signal update_remaining_shell_count(count: int)
 
 signal reload_progress_left_updated(progress: float, tank: Tank) # 0 just fired, 1 fully loaded
 

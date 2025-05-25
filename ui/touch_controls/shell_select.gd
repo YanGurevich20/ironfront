@@ -42,7 +42,7 @@ func _on_shell_selected(shell_id: ShellManager.ShellId) -> void:
 		else:
 			child.hide()
 	_reset_loading_progress_bars()
-	SignalBus.shell_selected.emit(shell_id)
+	SignalBus.shell_selected.emit(shell_id, shell_counts[shell_id])
 
 func _on_shell_expand_requested() -> void:
 	for child: ShellListItem in shell_list.get_children():
@@ -61,6 +61,7 @@ func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 	if shell_counts[shell.shell_id] == 0:
 		_on_shell_expand_requested()
 	update_counts()
+	SignalBus.update_remaining_shell_count.emit(shell_counts[shell.shell_id])
 
 func _on_reload_progress_left_updated(progress: float, tank: Tank) -> void:
 	if not tank.is_player: return

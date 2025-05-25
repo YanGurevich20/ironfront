@@ -39,6 +39,9 @@ func set_active_shell(shell_id: ShellManager.ShellId) -> void:
 		_has_initial_shell_been_set = true
 		turret.reset_reload_timer()
 
+func set_remaining_shell_count(count: int) -> void:
+	turret.set_remaining_shell_count(count)
+
 func fire_shell(shell_id: ShellManager.ShellId) -> void:
 	turret.fire_shell(shell_id)
 

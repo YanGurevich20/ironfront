@@ -10,6 +10,7 @@ extends Sprite2D
 @onready var cannon_sound: AudioStreamPlayer2D = %CannonSound
 
 var shell_scene: PackedScene = preload("res://entities/shell/shell.tscn")
+var remaining_shell_count: int = 1
 
 func _ready() -> void:
 	flash.animation_finished.connect(func()->void:flash.visible=false)
@@ -31,6 +32,10 @@ func has_line_of_sight(target: Node2D) -> bool:
 
 #region Shell Firing
 func fire_shell(shell_id: ShellManager.ShellId) -> void:
+	print("fire_shell", remaining_shell_count)
+	if remaining_shell_count <= 0:
+		reload_timer.stop()
+		return
 	if not reload_timer.is_stopped():
 		return
 	var shell: Shell = shell_scene.instantiate()
@@ -47,9 +52,9 @@ func fire_shell(shell_id: ShellManager.ShellId) -> void:
 
 	# Recoil Animation
 	var tween := get_tree().create_tween()
-	var original_x :float= cannon.position.x
-	tween.tween_property(cannon, "position:x", original_x - 10.0, 0.02).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	tween.tween_property(cannon, "position:x", original_x, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	var original_cannon_x: float = tank.tank_spec.cannon_offset.x
+	tween.tween_property(cannon, "position:x", original_cannon_x - 10.0, 0.02).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cannon, "position:x", original_cannon_x, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Knockback Impulse
 	var recoil_vector :Vector2 = -muzzle.global_transform.x * 40.0 * (tank.tank_spec.cannon_caliber / 100)
@@ -63,3 +68,6 @@ func get_reload_progress() -> float:
 func reset_reload_timer() -> void:
 	reload_timer.stop()
 	reload_timer.start(tank.tank_spec.reload_time)
+
+func set_remaining_shell_count(count: int) -> void:
+	remaining_shell_count = count

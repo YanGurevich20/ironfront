@@ -77,19 +77,17 @@ region = Rect2(0, 192, 64, 64)
 
 [resource]
 script = ExtResource("4_k8vc1")
-health = 500
+health = 10000
 hull_armor = SubResource("Resource_3ssyx")
 linear_damping = 1.0
 angular_damping = 3.0
-max_speed = 80.0
+max_speed = 180.0
 acceleration_curve = SubResource("Curve_ihbcg")
-max_acceleration = 60.0
+max_acceleration = 120.0
 turret_armor = SubResource("Resource_p2men")
-cannon_caliber = 75.0
-reload_time = 3.0
-max_turret_traverse_speed = 30.0
-gun_damage = 300
-projectile_speed = 800.0
+cannon_caliber = 90.0
+reload_time = 0.1
+max_turret_traverse_speed = 50.0
 shell_capacity = 100
 allowed_shells = Array[int]([7, 8, 9, 10, 11, 12, 13])
 id = "debug_tank"

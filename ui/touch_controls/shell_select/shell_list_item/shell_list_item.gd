@@ -9,10 +9,7 @@ signal shell_expand_requested
 
 @onready var shell_button: Button = %ShellButton
 @onready var stats_container: PanelContainer = %StatsContainer
-@onready var type_label: Label = %TypeLabel
-@onready var amount_left_label: Label = %AmountLeftLabel
-@onready var damage_label: Label = %DamageLabel
-@onready var penetration_label: Label = %PenetrationLabel
+@onready var stats_label: Label = %StatsLabel
 @onready var shell_load_progress_bar: TextureProgressBar = %ShellLoadProgressBar
 
 func _ready() -> void:
@@ -23,9 +20,7 @@ func display_shell(_shell_id: ShellManager.ShellId) -> void:
 	shell_id = _shell_id
 	var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[shell_id]
 	shell_button.icon = shell_spec.base_shell_type.round_texture
-	type_label.text = shell_spec.shell_name
-	damage_label.text = "D: %d" % shell_spec.damage
-	penetration_label.text = "P: %d" % shell_spec.penetration
+	update_stats_label(amount_left)
 
 func reset_progress_bar() -> void:
 	shell_load_progress_bar.value = 0
@@ -38,7 +33,7 @@ func update_shell_amount(amount: int) -> void:
 	if amount == 0:
 		shell_button.disabled = true
 	amount_left = amount
-	amount_left_label.text = "L: %d" % amount_left
+	update_stats_label(amount_left)
 
 func update_is_expanded(expand:bool) -> void:
 	is_expanded = expand
@@ -47,3 +42,12 @@ func update_is_expanded(expand:bool) -> void:
 func update_progress_bar(progress: float) -> void:
 	if amount_left == 0: return
 	shell_load_progress_bar.value = 1-progress
+
+func update_stats_label(_amount_left: int) -> void:
+	amount_left = _amount_left
+	var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[shell_id]
+	var text: String = ""
+	text += "D: %d\n" % shell_spec.damage
+	text += "P: %d\n" % shell_spec.penetration
+	text += "L: %d" % amount_left
+	stats_label.text = text
