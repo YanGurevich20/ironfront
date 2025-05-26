@@ -1,13 +1,19 @@
-[gd_scene load_steps=16 format=3 uid="uid://cnsy87eymywb0"]
+[gd_scene load_steps=19 format=3 uid="uid://cnsy87eymywb0"]
 
 [ext_resource type="Script" uid="uid://dore72xdttiqc" path="res://entities/tank/tank.gd" id="1_dsgy6"]
 [ext_resource type="Resource" uid="uid://cyhjue8xu1nc6" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres" id="2_eykj3"]
 [ext_resource type="Script" uid="uid://8pinjuwojoxv" path="res://entities/tank/components/hull.gd" id="3_axr6c"]
+[ext_resource type="Texture2D" uid="uid://bf7waln3elljp" path="res://entities/tank/tanks/debug_tank/debug_tank.png" id="3_cxr3h"]
 [ext_resource type="Script" uid="uid://bwhyg2mhvr4k5" path="res://entities/tank/components/turret.gd" id="4_eykj3"]
 [ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank/assets/flash.png" id="5_eykj3"]
+[ext_resource type="PackedScene" uid="uid://bal81er17r4dc" path="res://entities/tank/tank_hud/tank_hud.tscn" id="7_lx22l"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cbkxa"]
-size = Vector2(64, 64)
+size = Vector2(52, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f0hnj"]
+atlas = ExtResource("3_cxr3h")
+region = Rect2(7, 83, 52, 26)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_eykj3"]
 
@@ -64,6 +70,7 @@ animations = [{
 }]
 
 [node name="Tank" type="RigidBody2D" groups=["tank"]]
+z_index = 1
 can_sleep = false
 continuous_cd = 2
 contact_monitor = true
@@ -74,35 +81,38 @@ tank_spec = ExtResource("2_eykj3")
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+show_behind_parent = true
 shape = SubResource("RectangleShape2D_cbkxa")
 
 [node name="Hull" type="Sprite2D" parent="."]
-z_index = 1
+show_behind_parent = true
+texture = SubResource("AtlasTexture_f0hnj")
 script = ExtResource("3_axr6c")
 
 [node name="LeftTrack" type="AnimatedSprite2D" parent="Hull"]
-z_index = -1
+show_behind_parent = true
 sprite_frames = SubResource("SpriteFrames_eykj3")
 
 [node name="RightTrack" type="AnimatedSprite2D" parent="Hull"]
-z_index = -1
+show_behind_parent = true
 sprite_frames = SubResource("SpriteFrames_cxr3h")
 
 [node name="EngineSound" type="AudioStreamPlayer2D" parent="Hull"]
 unique_name_in_owner = true
 
 [node name="Turret" type="Sprite2D" parent="."]
-z_index = 2
+show_behind_parent = true
 script = ExtResource("4_eykj3")
 
 [node name="Cannon" type="Sprite2D" parent="Turret"]
-z_index = -1
+show_behind_parent = true
 
 [node name="MuzzleMarker" type="Marker2D" parent="Turret/Cannon"]
 
 [node name="MuzzleFlash" type="AnimatedSprite2D" parent="Turret/Cannon/MuzzleMarker"]
 unique_name_in_owner = true
 visible = false
+show_behind_parent = true
 position = Vector2(33, 0)
 sprite_frames = SubResource("SpriteFrames_f0hnj")
 animation = &"flash"
@@ -117,3 +127,12 @@ one_shot = true
 
 [node name="CannonSound" type="AudioStreamPlayer2D" parent="Turret"]
 unique_name_in_owner = true
+
+[node name="TankHUD" parent="." instance=ExtResource("7_lx22l")]
+unique_name_in_owner = true
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 66.0
+offset_bottom = 18.0
+
+[node name="Camera2D" type="Camera2D" parent="."]

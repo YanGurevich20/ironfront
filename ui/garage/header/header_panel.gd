@@ -35,5 +35,5 @@ func _display_warning(text: String) -> void:
 	var scene_tree := get_tree()
 	warning_label_container.visible = true
 	warning_label.text = text
-	var timer := scene_tree.create_timer(3.0)
-	timer.timeout.connect(func()->void: warning_label_container.visible = false)
+	await scene_tree.create_timer(3.0).timeout
+	warning_label_container.visible = false

@@ -11,10 +11,12 @@ signal tank_destroyed(tank: Tank)
 @onready var turret : Turret = $Turret
 @onready var cannon :Sprite2D= $Turret/Cannon
 @onready var muzzle_marker :Marker2D= $Turret/Cannon/MuzzleMarker
-@onready var hull : Hull = $Hull 
+@onready var hull : Hull = $Hull
 @onready var left_track :AnimatedSprite2D= $Hull/LeftTrack
 @onready var right_track :AnimatedSprite2D= $Hull/RightTrack
 @onready var collision_shape :CollisionShape2D= $CollisionShape2D
+
+@onready var tank_hud :TankHUD = %TankHUD
 #endregion
 
 #region input api
@@ -30,6 +32,7 @@ func _ready() -> void:
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)
+	tank_hud.initialize(self)
 
 func set_current_shell_id(shell_id: ShellManager.ShellId) -> void:
 	turret.set_current_shell_id(shell_id)
@@ -43,6 +46,11 @@ func fire_shell() -> void:
 func take_damage(amount: int) -> void:
 	damage_taken.emit(amount, self)
 	health -= amount
+	tank_hud.update_health_bar(health)
+
+func update_impact_result(result: ShellSpec.ImpactResultType) -> void:
+	tank_hud.update_impact_result(result)
+
 	if health <= 0:
 		tank_destroyed.emit(self)
 
@@ -71,3 +79,6 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	# === Distance tracking ===
 	distance_traveled += global_position.distance_to(_last_position)
 	_last_position = global_position
+
+	# === HUD positioning ===
+	tank_hud.update_hud_position()
