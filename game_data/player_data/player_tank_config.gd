@@ -8,7 +8,8 @@ func unlock_shell(shell_id: ShellManager.ShellId) -> void:
 
 func get_shell_amount(shell_id: ShellManager.ShellId) -> int:
 	check_and_fix_shells_integrity()
-	assert(shell_id in shells, "Shell %s not found in shells" % shell_id)
+	if not shells.has(shell_id):
+		return 0
 	return shells[shell_id]
 
 func set_shell_amount(shell_id: ShellManager.ShellId, amount: int) -> void:

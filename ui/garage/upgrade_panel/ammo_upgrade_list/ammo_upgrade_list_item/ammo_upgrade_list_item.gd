@@ -24,7 +24,9 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_id: ShellManager
 	shell_id = _shell_id
 	var shell_spec := ShellManager.SHELL_SPECS[shell_id]
 	var tank_spec := TankManager.TANK_SPECS[player_tank_config.tank_id]
+	print("shells", player_tank_config.shells)
 	var is_locked: bool = not player_tank_config.shells.has(shell_id)
+	print("is_locked", is_locked)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
 	count_slider.max_value = max_allowed_count
@@ -61,9 +63,10 @@ func update_buttons() -> void:
 	count_decrement_button.disabled = current_count == 0
 	count_increment_button.disabled = current_count == current_allowed_count
 
-
 func save_count() -> void:
 	var player_data := PlayerData.get_instance()
 	var current_tank_config: PlayerTankConfig = player_data.get_current_tank_config()
-	current_tank_config.set_shell_amount(shell_id, current_count)
-	player_data.save()
+	#? Only save if the shell is unlocked (exists in the shells dictionary)
+	if current_tank_config.shells.has(shell_id):
+		current_tank_config.set_shell_amount(shell_id, current_count)
+		player_data.save()
