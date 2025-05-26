@@ -15,9 +15,9 @@ class_name ShellSpec extends Resource
 enum ImpactResultType{ PENETRATED, OVERMATCHED, BOUNCED, UNPENETRATED, SHATTERED}
 
 class ImpactResult:
-	var damage : float
+	var damage : int
 	var result_type : ImpactResultType
-	func _init(_damage: float, _result_type: ImpactResultType) -> void:
+	func _init(_damage: int, _result_type: ImpactResultType) -> void:
 		damage = _damage
 		result_type = _result_type
 
@@ -76,7 +76,7 @@ func get_impact_result(impact_angle: float, armor_thickness: float) -> ImpactRes
 	var should_overmatch: bool = get_should_overmatch(armor_thickness)
 	var should_bounce: bool = get_bounce_chance(impact_angle) >= randf()
 	var penetrated: bool = should_penetrate(impact_angle, armor_thickness)
-	var damage_roll: float = get_damage_roll(true if should_overmatch else penetrated, armor_thickness)
+	var damage_roll: int = get_damage_roll(true if should_overmatch else penetrated, armor_thickness)
 
 	if should_overmatch: return ImpactResult.new(damage_roll, ImpactResultType.OVERMATCHED)
 	if should_bounce: return ImpactResult.new(0, ImpactResultType.BOUNCED if base_shell_type.is_kinetic else ImpactResultType.SHATTERED)

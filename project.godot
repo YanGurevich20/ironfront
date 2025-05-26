@@ -43,9 +43,7 @@ version_control/autoload_on_startup=true
 
 [global_group]
 
-damageable="node that can be damaged"
 projectile_blocker="any object that can absorb a projectile without getting damaged"
-shell="any object that can be fired from a tank"
 navigation_polygon_source_geometry_group="colliders that are accounted into the navigation polygon"
 tank="just a tank"
 

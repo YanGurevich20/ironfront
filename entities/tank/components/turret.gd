@@ -59,9 +59,9 @@ func fire_shell() -> void:
 	tween.tween_property(cannon, "position:x", original_cannon_x, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Knockback Impulse
-	# var recoil_vector :Vector2 = -muzzle.global_transform.x * 40.0 * (tank.tank_spec.cannon_caliber / 100)
-	# var recoil_position :Vector2= position.rotated(tank.rotation)
-	# tank.apply_impulse(recoil_vector, recoil_position)
+	var recoil_vector :Vector2 = -muzzle.global_transform.x * 10.0 * (tank.tank_spec.cannon_caliber / 100)
+	var recoil_position :Vector2= position.rotated(tank.rotation)
+	tank.apply_impulse(recoil_vector, recoil_position)
 #endregion
 
 func get_reload_progress() -> float:

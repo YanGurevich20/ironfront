@@ -51,8 +51,8 @@ func set_button_properties(disabled: bool, toggle_mode: bool, button_pressed: bo
 	_button.button_pressed = button_pressed
 
 func set_price_label_properties(_visible: bool, _theme_type_variation: String) -> void:
-	_price_label.visible = visible
-	_price_label.theme_type_variation = theme_type_variation
+	_price_label.visible = _visible
+	_price_label.theme_type_variation = _theme_type_variation
 
 func set_unlockable_overlay_visibility(_visible: bool) -> void:
 	_unlockable_overlay.visible = _visible

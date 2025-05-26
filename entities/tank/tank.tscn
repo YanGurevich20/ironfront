@@ -63,7 +63,7 @@ animations = [{
 "speed": 30.0
 }]
 
-[node name="Tank" type="RigidBody2D" groups=["damageable", "tank"]]
+[node name="Tank" type="RigidBody2D" groups=["tank"]]
 can_sleep = false
 continuous_cd = 2
 contact_monitor = true
@@ -77,7 +77,6 @@ tank_spec = ExtResource("2_eykj3")
 shape = SubResource("RectangleShape2D_cbkxa")
 
 [node name="Hull" type="Sprite2D" parent="."]
-modulate = Color(1, 1, 1, 0.517647)
 z_index = 1
 script = ExtResource("3_axr6c")
 

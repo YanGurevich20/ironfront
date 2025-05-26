@@ -28,4 +28,3 @@ size_flags_vertical = 3
 [node name="TankListItem1" parent="ScrollContainer/TankList" instance=ExtResource("1_mtkyb")]
 custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
-theme_override_constants/separation = 0

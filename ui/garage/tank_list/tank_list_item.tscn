@@ -118,11 +118,6 @@ theme_type_variation = &"GoldLabel"
 text = "0 $"
 horizontal_alignment = 1
 
-[node name="Control" type="Control" parent="TankListItemButton"]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
 [node name="PanelContainer" type="Panel" parent="."]
 layout_mode = 2
 size_flags_vertical = 3

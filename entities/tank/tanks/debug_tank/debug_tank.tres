@@ -69,8 +69,8 @@ hull_armor = Dictionary[int, float]({
 2: 40.0,
 3: 30.0
 })
-linear_damping = 1.0
-angular_damping = 3.0
+linear_damping = 4.0
+angular_damping = 5.0
 max_speed = 180.0
 acceleration_curve = SubResource("Curve_ihbcg")
 max_acceleration = 120.0

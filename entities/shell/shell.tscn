@@ -46,7 +46,7 @@ tangential_accel_max = 5.0
 scale_curve = SubResource("CurveTexture_ginmc")
 color = Color(0.917647, 0.0196078, 0, 1)
 
-[node name="Shell" type="Area2D" groups=["shell"]]
+[node name="Shell" type="Area2D"]
 scale = Vector2(1.0112, 1)
 script = ExtResource("1_sb42f")
 
