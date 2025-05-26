@@ -65,6 +65,9 @@ animations = [{
 
 [node name="Tank" type="RigidBody2D" groups=["damageable", "tank"]]
 can_sleep = false
+continuous_cd = 2
+contact_monitor = true
+max_contacts_reported = 1
 script = ExtResource("1_dsgy6")
 tank_spec = ExtResource("2_eykj3")
 
@@ -74,6 +77,7 @@ tank_spec = ExtResource("2_eykj3")
 shape = SubResource("RectangleShape2D_cbkxa")
 
 [node name="Hull" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.517647)
 z_index = 1
 script = ExtResource("3_axr6c")
 
@@ -106,6 +110,7 @@ animation = &"flash"
 
 [node name="LineOfSightRaycast" type="RayCast2D" parent="Turret/Cannon/MuzzleMarker"]
 unique_name_in_owner = true
+target_position = Vector2(50, 0)
 
 [node name="ReloadTimer" type="Timer" parent="Turret"]
 unique_name_in_owner = true

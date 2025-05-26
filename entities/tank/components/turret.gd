@@ -17,6 +17,7 @@ func _ready() -> void:
 	flash.animation_finished.connect(func()->void:flash.visible=false)
 	reload_timer.timeout.connect(func()->void:SignalBus.reload_progress_left_updated.emit(1.0, tank))
 	current_shell_id = tank.tank_spec.allowed_shells[0]
+	line_of_sight_raycast.add_exception(tank)
 
 #region Rotation Handling
 func _process(delta: float) -> void:
@@ -58,9 +59,9 @@ func fire_shell() -> void:
 	tween.tween_property(cannon, "position:x", original_cannon_x, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Knockback Impulse
-	var recoil_vector :Vector2 = -muzzle.global_transform.x * 40.0 * (tank.tank_spec.cannon_caliber / 100)
-	var recoil_position :Vector2= position.rotated(tank.rotation)
-	tank.apply_impulse(recoil_vector, recoil_position)
+	# var recoil_vector :Vector2 = -muzzle.global_transform.x * 40.0 * (tank.tank_spec.cannon_caliber / 100)
+	# var recoil_position :Vector2= position.rotated(tank.rotation)
+	# tank.apply_impulse(recoil_vector, recoil_position)
 #endregion
 
 func get_reload_progress() -> float:

@@ -23,10 +23,10 @@ Ammunition capacity
 
 New mechanic ideas:
 - XP
-- Currency
-- Shell types
-- Shell loading
-- Penetration
+- Currency [V]
+- Shell types [V]
+- Shell loading [V]
+- Penetration []
 - Over penetration
 - Fog of war
 - Scouting
@@ -39,3 +39,6 @@ New mechanic ideas:
 - Crew transfers?
 - Intuition (trajectory preview on long aim)
 - Minimap
+- Module and crew regions with damage probability
+- Aim select Turret / Hull
+- LANDMINES

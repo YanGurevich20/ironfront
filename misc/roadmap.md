@@ -10,10 +10,10 @@
 - [x] 1.7 Objective UI
 
 ## 2. Progression system
-- [ ] 2.1 Currency
-- [ ] 2.2 Garage
+- [V] 2.1 Currency
+- [V] 2.2 Garage
 - [ ] 2.3 Upgrades
-- [ ] 2.4 Component-based stats
+- [ ] 2.4 Component-based stats (upgrades?)
 - [ ] 2.5 Experience and crew skills
 
 **[x] Alpha release**
@@ -21,15 +21,16 @@
 ## 3. Enemy system upgrade
 - [ ] 3.1 Base enemy class
 - [ ] 3.2 Different enemy types (light, heavy, fast, etc.)
-- [ ] 3.3 Different AI behaviors (patrol, chase, sniper, etc.)
+- [V] 3.3 Different AI behaviors (patrol, chase, sniper, etc.)
 - [ ] 3.4 Enemy spawn balancing and scaling
 - [ ] 3.5 Navigation upgrade (Nav mesh edge detection and reverse)
 
 ## 4. Analytics system
-- [ ] 4.1 Basic user stats collection (runs played, enemies destroyed, time survived)
+- [V] 4.1 Basic user stats collection (runs played, enemies destroyed, time survived)
 - [ ] 4.2 Advanced analytics (popular levels, upgrade usage, player death reasons)
-- [ ] 4.3 Event tracking (level start, level complete, death, upgrade purchase)
-- [ ] 4.4 Data storage system (local save / server-side optional)
+- [V] 4.3 Event tracking (level start, level complete, death, upgrade purchase)
+- [V] 4.4 Local Data storage system
+- [ ] 4.5 Cloud player data storage
 
 ## 5. Settings system
 - [ ] 5.1 Settings menu

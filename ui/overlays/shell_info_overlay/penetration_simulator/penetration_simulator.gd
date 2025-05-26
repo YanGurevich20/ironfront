@@ -20,7 +20,7 @@ const MIN_ARMOUR_THICKNESS_MM: float = 1
 const MAX_ARMOUR_THICKNESS_MM: float = 500
 
 var armour_thickness_mm: float = 10.0
-var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[ShellManager.ShellId.PZGR40]
+var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[ShellManager.ShellId.M63_T]
 var impact_angle: float = 0.0
 var previous_impact_angle: float = 0.0
 

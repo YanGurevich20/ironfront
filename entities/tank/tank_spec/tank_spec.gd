@@ -1,16 +1,22 @@
 class_name TankSpec extends Resource
 
+const TankSideType = Enums.TankSideType
+
 @export_category("Stats")
 @export_group("Hull")
 @export var health: int
-@export var hull_armor: TankSpecStatsArmour
+@export var hull_armor: Dictionary[TankSideType, float] = {
+	TankSideType.FRONT: 0.0,
+	TankSideType.REAR: 0.0,
+	TankSideType.LEFT: 0.0,
+	TankSideType.RIGHT: 0.0
+}
 @export var linear_damping: float = 5.0 # Added for Godot's RigidBody2D linear damp
 @export var angular_damping: float = 15.0 # Added for Godot's RigidBody2D angular damp
 @export var max_speed: float
 @export var acceleration_curve: Curve
 @export var max_acceleration: float
 @export_group("Turret")
-@export var turret_armor: TankSpecStatsArmour
 @export var cannon_caliber: float #mm
 @export var reload_time: float #sec
 @export var max_turret_traverse_speed: float #deg/sec

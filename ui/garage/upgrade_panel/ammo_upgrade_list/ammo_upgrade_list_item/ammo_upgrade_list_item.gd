@@ -48,7 +48,7 @@ func _ready() -> void:
 	count_slider.value_changed.connect(func(value: float)->void:update_count(int(value)))
 	count_input.text_submitted.connect(func(text: String)->void:update_count(int(text)))
 	info_button.pressed.connect(func()->void:SignalBus.shell_info_requested.emit(shell_id))
-	
+
 func update_count(new_count: int) -> void:
 	current_count = clamp(new_count,0,current_allowed_count)
 	count_slider.value = current_count

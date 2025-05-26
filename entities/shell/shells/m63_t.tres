@@ -1,15 +1,16 @@
 [gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://dr0gyuvt7fj63"]
 
-[ext_resource type="Resource" uid="uid://c0nnmrgqk51e" path="res://entities/shell/base_shell_type/base_shell_types/HE/HE_T.tres" id="1_oksg4"]
-[ext_resource type="Script" uid="uid://clsuuy75c3ymp" path="res://entities/shell/shell_spec.gd" id="2_hw1tg"]
+[ext_resource type="Resource" uid="uid://bmowonvrk2i1v" path="res://entities/shell/base_shell_type/base_shell_types/AP/AP.tres" id="1_e23d5"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="2_h8e70"]
 
 [resource]
-script = ExtResource("2_hw1tg")
-base_shell_type = ExtResource("1_oksg4")
-muzzle_velocity = 530.0
-damage = 500
-penetration = 30.0
-explosive_yield = 200.0
-shell_name = "M63 T"
+script = ExtResource("2_h8e70")
+base_shell_type = ExtResource("1_e23d5")
+muzzle_velocity = 580.0
+damage = 280
+penetration = 95.0
+shell_name = "M63-T"
 caliber = 75
+unlock_cost = 8500
+resupply_cost = 200
 metadata/_custom_type_script = "uid://clsuuy75c3ymp"
