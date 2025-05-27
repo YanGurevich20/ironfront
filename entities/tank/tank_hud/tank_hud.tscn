@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c6q0geftoyjwo" path="res://global_assets/white_square.png" id="2_667dt"]
 
 [node name="TankHUD" type="Control"]
+modulate = Color(1, 1, 1, 0.764706)
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5

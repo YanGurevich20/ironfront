@@ -58,7 +58,7 @@ func should_penetrate(impact_angle: float, armor_thickness: float) -> bool:
 func get_damage_roll(penetrated: bool, armour_thickness: float) -> int:
 	var rolled_damage: float = Utils.trandfn(damage, damage * base_shell_type.standard_damage_deviation)
 	if penetrated:
-		return floori(rolled_damage)
+		return roundi(rolled_damage)
 	if base_shell_type.is_explosive_damage:
 		return calculate_unpenetrated_explosive_damage(armour_thickness, rolled_damage)
 	else:
@@ -69,7 +69,7 @@ func calculate_unpenetrated_explosive_damage(armour_thickness: float, rolled_dam
 	var explosion_damage: float = rolled_damage * (caliber_factor / armour_thickness)
 	var max_damage: float = explosion_damage * MAX_DAMAGE_MULTIPLIER
 	var min_damage: float = explosion_damage * MIN_DAMAGE_MULTIPLIER
-	return floori(clamp(explosion_damage, min_damage, max_damage))
+	return roundi(clamp(explosion_damage, min_damage, max_damage))
 
 func get_impact_result(impact_angle: float, armor_thickness: float) -> ImpactResult:
 	randomize()

@@ -130,9 +130,8 @@ unique_name_in_owner = true
 
 [node name="TankHUD" parent="." instance=ExtResource("7_lx22l")]
 unique_name_in_owner = true
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 66.0
-offset_bottom = 18.0
+z_index = 1023
+offset_top = -46.0
+offset_bottom = -25.0
 
 [node name="Camera2D" type="Camera2D" parent="."]

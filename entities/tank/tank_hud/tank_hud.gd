@@ -7,6 +7,7 @@ class_name TankHUD extends Control
 @onready var impact_result_type_label :Label = %ImpactResultType
 
 var tank_reference: Tank
+var impact_timer: SceneTreeTimer
 const ImpactResultType := ShellSpec.ImpactResultType
 
 func _ready() -> void:
@@ -33,8 +34,17 @@ func update_hud_position() -> void:
 	rotation = -tank_reference.global_rotation
 
 func update_impact_result(result: ImpactResultType) -> void:
+	if impact_timer != null and impact_timer.timeout.is_connected(_hide_impact_result):
+		impact_timer.timeout.disconnect(_hide_impact_result)
+
 	var result_name: String = ImpactResultType.find_key(result)
 	impact_result_type_label.text = result_name.capitalize() + "!"
 	impact_result_type_label.show()
-	await get_tree().create_timer(1.0).timeout
+
+	# Start new timer
+	impact_timer = get_tree().create_timer(1.0)
+	impact_timer.timeout.connect(_hide_impact_result)
+
+func _hide_impact_result() -> void:
 	impact_result_type_label.hide()
+	impact_timer = null

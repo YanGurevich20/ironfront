@@ -2,6 +2,8 @@
 #* Shell collision shape is 0px wide, because the raycast goes from the middle of the shell.
 #* The impact point determination algorithm requires tracing the shell's path to the tank, from the shell's center.
 #* In a case when the shell grazes the tank, a wider collision polygon would detect the shell before its center enters the body.
+#* Pros - easily implement tracing by one raycast
+#* Cons - can miss the tank even when it looks like the sides of the shell should hit
 class_name Shell extends Area2D
 
 const TankSideType = Enums.TankSideType
@@ -76,17 +78,10 @@ func handle_impact_result(impact_result: ShellSpec.ImpactResult, tank: Tank, hit
 			queue_free()
 
 func get_surface_normal(hit_side: TankSideType, tank: Tank) -> Vector2:
-	# Get the local normal vector for each side
 	var local_normal: Vector2
 	match hit_side:
-		TankSideType.FRONT:  # +X face, outward normal points in +X direction
-			local_normal = Vector2.RIGHT
-		TankSideType.REAR:   # -X face, outward normal points in -X direction
-			local_normal = Vector2.LEFT
-		TankSideType.LEFT:   # -Y face, outward normal points in -Y direction
-			local_normal = Vector2.UP
-		TankSideType.RIGHT:  # +Y face, outward normal points in +Y direction
-			local_normal = Vector2.DOWN
-	
-	# Transform the local normal to global coordinates (only rotation, no translation)
+		TankSideType.FRONT: local_normal = Vector2.RIGHT
+		TankSideType.REAR: local_normal = Vector2.LEFT
+		TankSideType.LEFT: local_normal = Vector2.UP
+		TankSideType.RIGHT: local_normal = Vector2.DOWN
 	return local_normal.rotated(tank.global_rotation)

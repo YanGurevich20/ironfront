@@ -47,12 +47,11 @@ func take_damage(amount: int) -> void:
 	damage_taken.emit(amount, self)
 	health -= amount
 	tank_hud.update_health_bar(health)
+	if health <= 0:
+		tank_destroyed.emit(self)
 
 func update_impact_result(result: ShellSpec.ImpactResultType) -> void:
 	tank_hud.update_impact_result(result)
-
-	if health <= 0:
-		tank_destroyed.emit(self)
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	var forward := transform.x.normalized()
