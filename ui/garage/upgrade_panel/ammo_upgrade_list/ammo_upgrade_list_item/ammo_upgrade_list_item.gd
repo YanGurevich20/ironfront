@@ -24,9 +24,7 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_id: ShellManager
 	shell_id = _shell_id
 	var shell_spec := ShellManager.SHELL_SPECS[shell_id]
 	var tank_spec := TankManager.TANK_SPECS[player_tank_config.tank_id]
-	print("shells", player_tank_config.shells)
 	var is_locked: bool = not player_tank_config.shells.has(shell_id)
-	print("is_locked", is_locked)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
 	count_slider.max_value = max_allowed_count

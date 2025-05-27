@@ -22,6 +22,8 @@ func _ready() -> void:
 		all_tank_ids.append(id)
 
 	var player_data: PlayerData = PlayerData.get_instance()
+	if !player_data.is_developer:
+		all_tank_ids.remove_at(all_tank_ids.find(TankManager.TankId.DEBUG_TANK))
 	display_player_data(player_data)
 
 	# Keep track of the latest unlocked tank item

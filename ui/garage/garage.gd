@@ -13,6 +13,7 @@ func _ready() -> void:
 	tank_list_panel.unlock_tank_requested.connect(_on_tank_unlock_requested)
 	tank_list_panel.tank_selected.connect(_on_tank_selected)
 	SignalBus.shell_unlock_requested.connect(_on_shell_unlock_requested)
+	SignalBus.level_finished_and_saved.connect(display_player_data)
 	display_player_data()
 
 func _on_tank_unlock_requested(tank_id: TankManager.TankId) -> void:

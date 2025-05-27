@@ -43,15 +43,16 @@ func set_remaining_shell_count(count: int) -> void:
 func fire_shell() -> void:
 	turret.fire_shell()
 
+func handle_impact_result(result: ShellSpec.ImpactResult) -> void:
+	tank_hud.handle_impact_result(result)
+	take_damage(result.damage)
+
 func take_damage(amount: int) -> void:
 	damage_taken.emit(amount, self)
 	health -= amount
 	tank_hud.update_health_bar(health)
 	if health <= 0:
 		tank_destroyed.emit(self)
-
-func update_impact_result(result: ShellSpec.ImpactResultType) -> void:
-	tank_hud.update_impact_result(result)
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	var forward := transform.x.normalized()

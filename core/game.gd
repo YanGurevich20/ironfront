@@ -98,9 +98,9 @@ func _save_game_progress(new_metrics: Dictionary, level_key: int) -> void:
 
 	if current_run_stars > previous_max_stars:
 		var star_dollar_values: Dictionary = {
-			1: 100,
-			2: 200,
-			3: 300
+			1: 50_000,
+			2: 100_000,
+			3: 200_000,
 		}
 
 		for star_level_iter in range(previous_max_stars + 1, current_run_stars + 1):
@@ -109,5 +109,5 @@ func _save_game_progress(new_metrics: Dictionary, level_key: int) -> void:
 
 	game_progress.update_progress(level_key, current_run_stars, dollars_to_award_this_run)
 	game_progress.save()
-
+	SignalBus.level_finished_and_saved.emit()
 #endregion

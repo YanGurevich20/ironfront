@@ -26,6 +26,8 @@ func _handle_username_input(text: String) -> void:
 
 func _on_login_button_pressed() -> void:
 	player_data.player_name = username_input.text
+	if player_data.player_name == "DEVELOPER":
+		player_data.is_developer = true
 	player_data.save()
 	SignalBus.login_pressed.emit()
 

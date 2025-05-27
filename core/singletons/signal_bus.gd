@@ -16,6 +16,7 @@ signal quit_pressed
 signal level_pressed(level: int)
 signal level_started()
 signal play_pressed
+signal level_finished_and_saved()
 
 # Garage signals
 signal tank_selected(tank_id: TankManager.TankId)

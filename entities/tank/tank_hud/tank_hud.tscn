@@ -84,3 +84,15 @@ theme_override_font_sizes/font_size = 5
 text = "PENETRATED!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="DamageTicker" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 68.0
+offset_top = 2.5
+offset_right = 108.0
+offset_bottom = 12.5
+theme_override_font_sizes/font_size = 5
+text = "-9999"
+vertical_alignment = 1

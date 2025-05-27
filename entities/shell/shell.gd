@@ -44,7 +44,6 @@ func _physics_process(delta: float) -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body == firing_tank:
-		push_warning("Shell hit itself - this shouldn't happen!")
 		return
 	if body.is_in_group("projectile_blocker"):
 		queue_free()
@@ -59,23 +58,15 @@ func _on_body_entered(body: Node2D) -> void:
 #TODO: Move the impact result match to the tank
 func handle_impact_result(impact_result: ShellSpec.ImpactResult, tank: Tank, hit_params: ShellHelpers.ShellHitParams) -> void:
 	var global_hit_point: Vector2 = tank.to_global(hit_params.hit_point)
-	tank.update_impact_result(impact_result.result_type)
-	match impact_result.result_type:
-		ShellSpec.ImpactResultType.OVERMATCHED:
-			tank.take_damage(impact_result.damage)
-			queue_free()
-		ShellSpec.ImpactResultType.BOUNCED:
-			global_position = global_hit_point
-			var surface_normal: Vector2 = get_surface_normal(hit_params.hit_side, tank)
-			velocity = velocity.bounce(surface_normal)
-			rotation = velocity.angle()
-		ShellSpec.ImpactResultType.SHATTERED:
-			queue_free()
-		ShellSpec.ImpactResultType.PENETRATED:
-			tank.take_damage(impact_result.damage)
-			queue_free()
-		ShellSpec.ImpactResultType.UNPENETRATED:
-			queue_free()
+	tank.handle_impact_result(impact_result)
+	if impact_result.result_type == ShellSpec.ImpactResultType.BOUNCED:
+		starting_global_position = global_hit_point
+		global_position = global_hit_point
+		var surface_normal: Vector2 = get_surface_normal(hit_params.hit_side, tank)
+		velocity = velocity.bounce(surface_normal)
+		rotation = velocity.angle()
+	else:
+		queue_free()
 
 func get_surface_normal(hit_side: TankSideType, tank: Tank) -> Vector2:
 	var local_normal: Vector2

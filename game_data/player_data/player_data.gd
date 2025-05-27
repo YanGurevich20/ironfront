@@ -6,6 +6,7 @@ class_name PlayerData extends LoadableData
 @export var bonds: int = 0
 @export var tank_configs: Dictionary[TankManager.TankId, PlayerTankConfig]
 @export var selected_tank_id: TankManager.TankId
+@export var is_developer: bool = false
 
 const FILE_NAME: String = "player_data"
 
@@ -17,7 +18,6 @@ static func get_instance() -> PlayerData:
 
 func add_dollars(amount: int) -> void:
 	dollars += amount
-
 
 func update_progress(level: int, stars: int, dollars_earned: int) -> void:
 	var previous_stars: int = stars_per_level.get(level, 0)

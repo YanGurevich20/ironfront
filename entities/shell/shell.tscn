@@ -50,7 +50,7 @@ color = Color(0.917647, 0.0196078, 0, 1)
 scale = Vector2(1.0112, 1)
 script = ExtResource("1_sb42f")
 
-[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="."]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
 polygon = PackedVector2Array(-2, 0, -1, 0, 2, 0)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
