@@ -133,5 +133,3 @@ unique_name_in_owner = true
 z_index = 1023
 offset_top = -46.0
 offset_bottom = -25.0
-
-[node name="Camera2D" type="Camera2D" parent="."]

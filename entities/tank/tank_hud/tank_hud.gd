@@ -30,7 +30,7 @@ func update_health_bar(health: int) -> void:
 func update_hud_position() -> void:
 	assert(tank_reference != null, "Tank reference is not set")
 	var biggest_dimension :float= max(tank_reference.tank_spec.hull_size.x, tank_reference.tank_spec.hull_size.y)
-	global_position = tank_reference.global_position + Vector2(0, -biggest_dimension) - size / 2
+	global_position = tank_reference.global_position - Vector2(-size.x / 2, biggest_dimension)
 	rotation = -tank_reference.global_rotation
 
 func update_impact_result(result: ImpactResultType) -> void:
