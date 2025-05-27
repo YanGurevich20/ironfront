@@ -32,7 +32,7 @@ offset_left = 17.0
 offset_top = 90.0
 offset_right = 113.0
 offset_bottom = 92.0
-color = Color(0.0790177, 0.505859, 0.381277, 1)
+color = Color(0.251473, 0.286272, 0.333984, 1)
 
 [node name="ImpactPointMarker" type="Marker2D" parent="HBoxContainer/SimulatorDisplay/ArmourTexture"]
 unique_name_in_owner = true

@@ -12,7 +12,7 @@ var impact_timer: SceneTreeTimer
 const ImpactResultType := ShellSpec.ImpactResultType
 
 func _ready() -> void:
-	pass
+	_hide_impact_result()
 
 func initialize(tank: Tank) -> void:
 	tank_reference = tank

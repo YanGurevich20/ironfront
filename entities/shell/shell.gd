@@ -55,7 +55,6 @@ func _on_body_entered(body: Node2D) -> void:
 		var impact_result := shell_spec.get_impact_result(hit_params.normal_angle, armour_thickness)
 		handle_impact_result(impact_result, tank, hit_params)
 
-#TODO: Move the impact result match to the tank
 func handle_impact_result(impact_result: ShellSpec.ImpactResult, tank: Tank, hit_params: ShellHelpers.ShellHitParams) -> void:
 	var global_hit_point: Vector2 = tank.to_global(hit_params.hit_point)
 	tank.handle_impact_result(impact_result)

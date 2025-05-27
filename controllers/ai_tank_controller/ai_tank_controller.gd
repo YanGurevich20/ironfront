@@ -7,7 +7,7 @@ extends Node
 @export var full_speed_traverse_zone: float = 0.9
 @export var compount_turn_zone: float = 0.2
 @export var aim_tolerance_deg: float = 10.0
-@export var hold_to_fire_time: float = 4.0
+@export var hold_to_fire_time: float = 6.0
 
 var time_on_target: float = 0.0
 

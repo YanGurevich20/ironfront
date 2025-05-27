@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://chcoon7yta5au"]
 
 [ext_resource type="Resource" uid="uid://bmowonvrk2i1v" path="res://entities/shell/base_shell_type/base_shell_types/AP/AP.tres" id="1_1kq2p"]
-[ext_resource type="Script" uid="uid://clsuuy75c3ymp" path="res://entities/shell/shell_spec.gd" id="2_ccsh8"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="2_ccsh8"]
 
 [resource]
 script = ExtResource("2_ccsh8")
@@ -9,7 +9,6 @@ base_shell_type = ExtResource("1_1kq2p")
 muzzle_velocity = 700.0
 damage = 700
 penetration = 150.0
-explosive_yield = 0.0
-shell_name = "PzGr. 39"
+shell_name = "PzGr.39"
 caliber = 88
-metadata/_custom_type_script = "uid://clsuuy75c3ymp"
+unlock_cost = 10000

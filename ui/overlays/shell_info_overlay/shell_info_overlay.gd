@@ -27,7 +27,6 @@ func _update_shell_stats(shell_spec: ShellSpec) -> void:
 	if shell_spec.base_shell_type.is_subcaliber:
 		text += "Penetrator Caliber: %0.1f mm\n" % shell_spec.get_penetrator_caliber()
 	text += "Unlock Cost: %s\n" % Utils.format_dollars(shell_spec.unlock_cost)
-	text += "Resupply Cost: %s\n" % Utils.format_dollars(shell_spec.resupply_cost)
 	shell_stats_label.text = text
 
 func _update_base_shell_stats(shell_spec: ShellSpec) -> void:

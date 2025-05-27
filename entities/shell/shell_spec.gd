@@ -10,7 +10,6 @@ class_name ShellSpec extends Resource
 @export var shell_name: String = "M75"
 @export var caliber: int = 75
 @export var unlock_cost: int = 10_000
-@export var resupply_cost: int = 200
 
 enum ImpactResultType{ PENETRATED, OVERMATCHED, BOUNCED, UNPENETRATED, SHATTERED}
 
@@ -74,10 +73,14 @@ func calculate_unpenetrated_explosive_damage(armour_thickness: float, rolled_dam
 func get_impact_result(impact_angle: float, armor_thickness: float) -> ImpactResult:
 	randomize()
 	var should_overmatch: bool = get_should_overmatch(armor_thickness)
+	print("should overmatch:", should_overmatch)
 	var should_bounce: bool = get_bounce_chance(impact_angle) >= randf()
+	print("bounce chance:", get_bounce_chance(impact_angle))
+	print("should bounce:", should_bounce)
 	var penetrated: bool = should_penetrate(impact_angle, armor_thickness)
+	print("penetrated:", penetrated)
 	var damage_roll: int = get_damage_roll(true if should_overmatch else penetrated, armor_thickness)
-
+	print("damage roll:", damage_roll)
 	if should_overmatch: return ImpactResult.new(damage_roll, ImpactResultType.OVERMATCHED)
 	if should_bounce: return ImpactResult.new(0, ImpactResultType.BOUNCED if base_shell_type.is_kinetic else ImpactResultType.SHATTERED)
 	return ImpactResult.new(damage_roll,ImpactResultType.PENETRATED if penetrated else ImpactResultType.UNPENETRATED)

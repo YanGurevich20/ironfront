@@ -23,6 +23,8 @@ func _on_tank_unlock_requested(tank_id: TankManager.TankId) -> void:
 	player_data.dollars -= tank_spec.dollar_cost
 	player_data.unlock_tank(tank_id)
 	player_data.selected_tank_id = tank_id
+	var player_tank_config := player_data.get_tank_config(player_data.selected_tank_id)
+	player_tank_config.unlock_shell(TankManager.TANK_SPECS[tank_id].allowed_shells[0])
 	player_data.save()
 	display_player_data()
 

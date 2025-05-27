@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://8pinjuwojoxv" path="res://entities/tank/components/hull.gd" id="3_axr6c"]
 [ext_resource type="Texture2D" uid="uid://bf7waln3elljp" path="res://entities/tank/tanks/debug_tank/debug_tank.png" id="3_cxr3h"]
 [ext_resource type="Script" uid="uid://bwhyg2mhvr4k5" path="res://entities/tank/components/turret.gd" id="4_eykj3"]
-[ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank/assets/flash.png" id="5_eykj3"]
+[ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank/shared_assets/muzzle_flash.png" id="5_eykj3"]
 [ext_resource type="PackedScene" uid="uid://bal81er17r4dc" path="res://entities/tank/tank_hud/tank_hud.tscn" id="7_lx22l"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cbkxa"]

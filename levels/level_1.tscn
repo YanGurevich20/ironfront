@@ -66,5 +66,5 @@ position = Vector2(102, 263)
 rotation = -4.07208
 
 [node name="EnemySpawnPoint2" parent="SpawnPoints" index="2" instance=ExtResource("3_nsrm0")]
-position = Vector2(317, 569)
-rotation = -7.67854
+position = Vector2(422, 680)
+rotation = -9.14308
