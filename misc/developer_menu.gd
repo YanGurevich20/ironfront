@@ -18,7 +18,7 @@ func _ready() -> void:
 func _custom_func() -> void:
 	# LoadableData.reset(PlayerData)
 	var player_data := PlayerData.get_instance()
-	player_data.add_dollars(500000	)
+	player_data.add_dollars(500000)
 
 	# player_data.print_properties()
 	player_data.save()

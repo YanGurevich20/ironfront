@@ -2,7 +2,7 @@
 ## Aesthetics
 - [V] Destroyed tank textures
 - [ ] Engine sounds - per weight class and speed
-- [ ] Gun sounds - per caliber class
+- [V] Gun sounds - per caliber class
 ## Gameplay
 - [ ] Level dollar reward feedback in result screen
 - [ ] Map size (don't overdo)
