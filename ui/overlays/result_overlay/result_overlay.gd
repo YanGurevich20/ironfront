@@ -15,7 +15,9 @@ signal retry_pressed
 
 func _ready() -> void:
 	super._ready()
-	retry_button.pressed.connect(func()->void: retry_pressed.emit())
+	retry_button.pressed.connect(func()->void:
+		print("retry pressed result overlay")
+		retry_pressed.emit())
 	objectives_button.pressed.connect(_on_objectives_button_pressed)
 
 func display_result(success: bool, metrics: Dictionary[Metrics.Metric, int], objectives: Array[Objective], reward_info: Game.RewardInfo) -> void:

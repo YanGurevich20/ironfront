@@ -2,7 +2,7 @@ class_name PlayerData extends LoadableData
 
 @export var player_name: String = ""
 @export var stars_per_level: Dictionary[int, int] = {}
-@export var dollars: int = 20_000
+@export var dollars: int = 300_000
 @export var bonds: int = 0
 @export var tank_configs: Dictionary[TankManager.TankId, PlayerTankConfig]
 @export var selected_tank_id: TankManager.TankId
