@@ -11,4 +11,4 @@
 - [ ] Set up session tracking in the cloud
 - [ ] Update feedback form questions
 ## Critical bugs
-- [ ] Level restart broken
+- [V] Level restart broken
