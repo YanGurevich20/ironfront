@@ -22,6 +22,7 @@ signal tank_destroyed(tank: Tank)
 @onready var camera_2d :Camera2D = %Camera2D
 @onready var death_explosion_sprite: AnimatedSprite2D = %DeathExploisonSprite
 @onready var death_explosion_sound: AudioStreamPlayer2D = %DeathExplosionSound
+@onready var cannon_sound: AudioStreamPlayer2D = %CannonSound
 
 @onready var tank_destruction_shader :ShaderMaterial = preload("res://entities/tank/shaders/tank_destruction_shader_material.tres")
 
@@ -98,7 +99,6 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	# === Acceleration Based on Curve ===
 	var current_speed := get_forward_speed(state.linear_velocity)
 	var speed_ratio: float = clamp((current_speed) / tank_spec.max_speed, 0.0, 1.0)
-	if is_player: print("speed_ratio ", speed_ratio)
 	var accel_scalar := tank_spec.acceleration_curve.sample(speed_ratio)
 
 	# === Apply Forces Per Track ===

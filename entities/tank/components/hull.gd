@@ -12,7 +12,7 @@ const TRACK_PITCH_MAX: float = 1.5
 func play_engine_sound(_left_track_input: float, _right_track_input: float, _linear_velocity: Vector2) -> void:
 	var input_force: float= (abs(_left_track_input) + abs(_right_track_input)) / 2.0
 	var target_pitch: float = lerp(ENGINE_PITCH_MIN, ENGINE_PITCH_MAX, input_force)
-	engine_sound.pitch_scale = lerp(engine_sound.pitch_scale, target_pitch, 0.1 * get_physics_process_delta_time())
+	engine_sound.pitch_scale = lerp(engine_sound.pitch_scale, target_pitch, 1 * get_physics_process_delta_time())
 
 	var abs_speed:float = abs(tank.get_forward_speed(_linear_velocity))
 	if abs_speed > 2.0:

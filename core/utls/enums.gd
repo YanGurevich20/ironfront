@@ -6,3 +6,9 @@ enum TankSideType {
 	RIGHT,
 	REAR
 }
+
+enum GunCaliberClass {
+	SMALL,
+	MEDIUM,
+	LARGE
+}
