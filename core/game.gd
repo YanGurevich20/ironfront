@@ -57,10 +57,11 @@ func _abort_level()-> void:
 	if current_level: current_level.finish_level(false)
 
 func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> void:
-	ui_manager.display_result(success, metrics, objectives)
+	var reward_info: RewardInfo = calculate_level_reward(metrics, current_level_key)
+	ui_manager.display_result(success, metrics, objectives, reward_info)
 	ui_manager.reset_input()
 	_save_player_metrics(metrics)
-	_save_game_progress(metrics, current_level_key)
+	_save_game_progress(metrics, current_level_key, reward_info.total_reward)
 
 func _quit_level() -> void:
 	if current_level:
@@ -84,24 +85,50 @@ func _save_player_metrics(new_metrics: Dictionary = {}) -> void:
 	player_metrics.merge_metrics(new_metrics)
 	player_metrics.save()
 
-func _save_game_progress(new_metrics: Dictionary, level_key: int) -> void:
+func _save_game_progress(new_metrics: Dictionary, level_key: int, dollar_reward: int = 0) -> void:
 	var current_run_stars: int = new_metrics.get(Metrics.Metric.STARS_EARNED, 0)
 	var game_progress := PlayerData.get_instance()
-	var previous_max_stars: int = game_progress.get_stars_for_level(level_key)
-	var dollars_to_award_this_run: int = 0
-
-	if current_run_stars > previous_max_stars:
-		var star_dollar_values: Dictionary = {
-			1: 50_000,
-			2: 100_000,
-			3: 200_000,
-		}
-
-		for star_level_iter in range(previous_max_stars + 1, current_run_stars + 1):
-			var dollars_for_this_star: int = star_dollar_values.get(star_level_iter, 0)
-			dollars_to_award_this_run += dollars_for_this_star
+	var _previous_max_stars: int = game_progress.get_stars_for_level(level_key)
+	var dollars_to_award_this_run: int = dollar_reward
 
 	game_progress.update_progress(level_key, current_run_stars, dollars_to_award_this_run)
 	game_progress.save()
 	SignalBus.level_finished_and_saved.emit()
+#endregion
+#region reward calculation
+class RewardInfo:
+	var total_reward: int = 0
+	var doubled_stars: Array[int] = []
+	
+	func _init(reward: int = 0, stars: Array = []) -> void:
+		total_reward = reward
+		doubled_stars = stars
+
+#TODO: Possible to abuse by spamming levvel 0. Consider adding a check to prevent this or per level reward calculation
+func calculate_level_reward(new_metrics: Dictionary, level_key: int) -> RewardInfo:
+	var current_run_stars: int = new_metrics.get(Metrics.Metric.STARS_EARNED, 0)
+	var game_progress := PlayerData.get_instance()
+	var previous_max_stars: int = game_progress.get_stars_for_level(level_key)
+	var dollars_to_award_this_run: int = 0
+	var doubled_stars: Array[int] = []
+
+	var star_dollar_values: Dictionary = {
+		1: 25_000,
+		2: 50_000,
+		3: 100_000,
+	}
+
+	# Award base rewards for all stars earned in this run
+	for star_level in range(1, current_run_stars + 1):
+		var base_dollars: int = star_dollar_values.get(star_level, 0)
+		var dollars_for_this_star: int = base_dollars
+		
+		# Double the reward if this star is being earned for the first time
+		if star_level > previous_max_stars:
+			dollars_for_this_star = base_dollars * 2
+			doubled_stars.append(star_level)
+		
+		dollars_to_award_this_run += dollars_for_this_star
+
+	return RewardInfo.new(dollars_to_award_this_run, doubled_stars)
 #endregion

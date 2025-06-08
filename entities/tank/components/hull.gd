@@ -35,7 +35,7 @@ func setup_sounds(tank_size_class: Enums.TankSizeClass) -> void:
 func setup_engine_sounds(engine_size_class: Enums.TankSizeClass) -> void:
 	engine_sounds_map = EngineSounds.ENGINE_SOUNDS[engine_size_class]
 	engine_pitch_ranges = EngineSounds.ENGINE_PITCH_RANGES[engine_size_class]
-	# Assign the correct AudioStream to each engine sound player
+
 	engine_sound_slow.stream = engine_sounds_map[SpeedType.SLOW]
 	engine_sound_normal.stream = engine_sounds_map[SpeedType.NORMAL]
 	engine_sound_fast.stream = engine_sounds_map[SpeedType.FAST]
@@ -45,7 +45,7 @@ func setup_track_sounds(tank_size_class: Enums.TankSizeClass) -> void:
 	track_sound_slow.stream = track_sounds_map[SpeedType.SLOW]
 	track_sound_normal.stream = track_sounds_map[SpeedType.NORMAL]
 	track_sound_fast.stream = track_sounds_map[SpeedType.FAST]
-	# Assign pitch ranges
+
 	track_pitch_ranges = TrackSounds.TRACK_PITCH_RANGES[tank_size_class]
 
 #* === Main sound and animation process === *#
@@ -73,17 +73,15 @@ func play_track_sound(_linear_velocity: Vector2) -> void:
 	var speed_type := EngineSounds.get_speed_type_from_ratio(speed_ratio)
 	var lerped_pitch := EngineSounds.calculate_pitch(speed_ratio, track_pitch_ranges)
 	
-	# Calculate target volume based on speed
 	var target_volume_db: float = _calculate_track_volume(speed_ratio)
 
 	var track_sounds :Array[AudioStreamPlayer2D] = [track_sound_slow, track_sound_normal, track_sound_fast]
 
-	if speed_ratio > 0.01:  # Only play if moving
+	if speed_ratio > 0.01:
 		var active_sound := _get_sound_player_for_speed_type(speed_type, SoundType.TRACK)
 		_crossfade_sounds(track_sounds, active_sound, lerped_pitch, 3.0, target_volume_db)
 	else:
-		# Fade out all sounds when stopped
-		_fade_out_all_sounds(track_sounds, 3.0)
+		_fade_out_sounds(track_sounds, 3.0)
 
 func _get_sound_player_for_speed_type(speed_type: SpeedType, sound_type: SoundType) -> AudioStreamPlayer2D:
 	var is_engine := sound_type == SoundType.ENGINE
@@ -139,7 +137,7 @@ func _fade_out_sound(sound: AudioStreamPlayer2D, fade_speed: float, delta: float
 			sound.stop()
 			sound.volume_db = SILENT_VOLUME_DB
 
-func _fade_out_all_sounds(sounds: Array[AudioStreamPlayer2D], fade_speed: float) -> void:
+func _fade_out_sounds(sounds: Array[AudioStreamPlayer2D], fade_speed: float) -> void:
 	var delta := get_physics_process_delta_time()
 	for sound in sounds:
 		_fade_out_sound(sound, fade_speed, delta)
@@ -164,7 +162,9 @@ func update_track_animation(track_node: AnimatedSprite2D, speed: float) -> void:
 		track_node.speed_scale = 0.0
 
 func stop_sounds() -> void:
-	var all_sounds :Array[AudioStreamPlayer2D] = [engine_sound_slow, engine_sound_normal, engine_sound_fast, 
-					  track_sound_slow, track_sound_normal, track_sound_fast]
+	var all_sounds :Array[AudioStreamPlayer2D] = [
+		engine_sound_slow, engine_sound_normal, engine_sound_fast,
+		track_sound_slow, track_sound_normal, track_sound_fast,
+	]
 	for sound in all_sounds:
 		sound.stop()
