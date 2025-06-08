@@ -77,6 +77,8 @@ func handle_tank_destroyed() -> void:
 	if controller: controller.queue_free()
 	hull.stop_sounds()
 	reset_input()
+	turret.set_process(false)
+	turret.set_physics_process(false)
 
 func apply_destruction_effects() -> void:
 	var destruction_material: ShaderMaterial = tank_destruction_shader.duplicate()

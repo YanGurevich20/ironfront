@@ -57,8 +57,8 @@ func show_overlay(overlay: Control) -> void:
 func hide_overlays() -> void:
 	Utils.hide_nodes(_overlay_nodes)
 
-func display_result(success: bool, metrics: Dictionary, objectives: Array) -> void:
-	result_overlay.display_result(success, metrics, objectives)
+func display_result(success: bool, metrics: Dictionary, objectives: Array, reward_info: Game.RewardInfo) -> void:
+	result_overlay.display_result(success, metrics, objectives, reward_info)
 	show_overlay(result_overlay)
 
 func reset_input() -> void:

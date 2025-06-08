@@ -38,5 +38,5 @@ position = Vector2(-37, 7)
 rotation = -0.053307
 
 [node name="EnemySpawnPoint1" parent="SpawnPoints" index="1"]
-position = Vector2(856, 48)
-rotation = -3.18896
+position = Vector2(87.9999, 2.99998)
+rotation = -4.75081
