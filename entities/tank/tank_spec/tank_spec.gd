@@ -91,10 +91,10 @@ func initialize_tank_from_spec(tank: Tank) -> void:
 	tank.hull.setup_engine_sounds(engine_size_class)
 
 const CaliberClass = Enums.GunCaliberClass
-const CALIBER_THRESHOLD_MEDIUM: float = 75.0 #mm
+const CALIBER_THRESHOLD_MEDIUM: float = 76.0 #mm
 const CALIBER_THRESHOLD_LARGE: float = 120.0 #mm
 
 func get_caliber_class(caliber: float) -> CaliberClass:
-	if caliber <= CALIBER_THRESHOLD_MEDIUM: return CaliberClass.SMALL
-	elif caliber <= CALIBER_THRESHOLD_LARGE: return CaliberClass.MEDIUM
+	if caliber < CALIBER_THRESHOLD_MEDIUM: return CaliberClass.SMALL
+	elif caliber < CALIBER_THRESHOLD_LARGE: return CaliberClass.MEDIUM
 	else: return CaliberClass.LARGE
