@@ -106,6 +106,7 @@ func _on_return_pressed() -> void:
 	return_to_menu.emit()
 
 func _on_retry_pressed() -> void:
+	print("retry pressed ui manager")
 	hide_overlays()
 	restart_level.emit()
 

@@ -49,9 +49,8 @@ func _start_level(level_key: int) -> void:
 	SignalBus.level_started.emit()
 
 func _restart_level() -> void:
-	if current_level_key != 0:
-		_quit_level()
-		_start_level(current_level_key)
+	_quit_level()
+	_start_level(current_level_key)
 
 func _abort_level()-> void:
 	if current_level: current_level.finish_level(false)
@@ -66,8 +65,8 @@ func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> voi
 func _quit_level() -> void:
 	if current_level:
 		current_level.level_finished.disconnect(_finish_level)
-		if current_level.is_connected("objectives_updated", _on_objectives_updated):
-				current_level.objectives_updated.disconnect(_on_objectives_updated)
+		current_level.objectives_updated.disconnect(_on_objectives_updated)
+		level_container.remove_child(current_level)
 		current_level.queue_free()
 		current_level = null
 
@@ -113,9 +112,9 @@ func calculate_level_reward(new_metrics: Dictionary, level_key: int) -> RewardIn
 	var doubled_stars: Array[int] = []
 
 	var star_dollar_values: Dictionary = {
-		1: 25_000,
-		2: 50_000,
-		3: 100_000,
+		1: 5_000,
+		2: 15_000,
+		3: 30_000,
 	}
 
 	# Award base rewards for all stars earned in this run
