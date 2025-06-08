@@ -64,7 +64,6 @@ func handle_impact_result(result: ShellSpec.ImpactResult) -> void:
 
 func setup_controller(controller_node: Node) -> void:
 	controller = controller_node
-	
 
 func take_damage(amount: int) -> void:
 	damage_taken.emit(amount, self)

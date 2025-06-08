@@ -95,4 +95,5 @@ track_offset = Vector2(0, 10)
 turret_pivot_offset = Vector2(-1, 0)
 cannon_offset = Vector2(16, 0)
 muzzle_offset = Vector2(11, 0)
+engine_size_class = 1
 metadata/_custom_type_script = "uid://c013xw6wq4kgl"
