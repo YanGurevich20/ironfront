@@ -247,21 +247,18 @@ max_distance = 400.0
 [node name="EngineSoundSlow" type="AudioStreamPlayer2D" parent="Hull/EngineSounds"]
 unique_name_in_owner = true
 rotation = -0.001131
-scale = Vector2(1, 1)
 autoplay = true
 max_distance = 800.0
 
 [node name="EngineSoundNormal" type="AudioStreamPlayer2D" parent="Hull/EngineSounds"]
 unique_name_in_owner = true
 rotation = -0.001131
-scale = Vector2(1, 1)
 autoplay = true
 max_distance = 800.0
 
 [node name="EngineSoundFast" type="AudioStreamPlayer2D" parent="Hull/EngineSounds"]
 unique_name_in_owner = true
 rotation = -0.001131
-scale = Vector2(1, 1)
 autoplay = true
 max_distance = 800.0
 

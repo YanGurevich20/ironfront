@@ -1,8 +1,9 @@
 # Alpha Release Checklist 
 ## Aesthetics
 - [V] Destroyed tank textures
-- [ ] Engine sounds - per weight class and speed
+- [V] Engine sounds - per weight class and speed
 - [V] Gun sounds - per caliber class
+- [V] Audio balancing
 ## Gameplay
 - [ ] Level dollar reward feedback in result screen
 - [ ] Map size (don't overdo)

@@ -57,6 +57,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 func handle_impact_result(impact_result: ShellSpec.ImpactResult, tank: Tank, hit_params: ShellHelpers.ShellHitParams) -> void:
 	var global_hit_point: Vector2 = tank.to_global(hit_params.hit_point)
+	impact_result.damage = clamp(impact_result.damage, 0, tank._health)
 	tank.handle_impact_result(impact_result)
 	if impact_result.result_type == ShellSpec.ImpactResultType.BOUNCED:
 		starting_global_position = global_hit_point

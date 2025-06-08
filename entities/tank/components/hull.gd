@@ -110,7 +110,7 @@ func _crossfade_sounds(sounds: Array, active_sound: AudioStreamPlayer2D, pitch: 
 	
 	for sp: AudioStreamPlayer2D in sounds:
 		if sp == active_sound:
-			_fade_in_sound(sp, target_volume_db, pitch, fade_speed, delta)
+			_fade_in_sound(sp, target_volume_db, pitch, fade_speed * 2, delta)
 		else:
 			_fade_out_sound(sp, fade_speed, delta)
 
