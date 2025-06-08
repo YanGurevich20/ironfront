@@ -16,9 +16,11 @@ func _ready() -> void:
 	quit_button.pressed.connect(func()->void: get_tree().quit())
 
 func _custom_func() -> void:
-	LoadableData.reset(PlayerData)
+	# LoadableData.reset(PlayerData)
 	var player_data := PlayerData.get_instance()
-	player_data.print_properties()
+	player_data.add_dollars(500000	)
+
+	# player_data.print_properties()
 	player_data.save()
 
 func _delete_game_progress() -> void:

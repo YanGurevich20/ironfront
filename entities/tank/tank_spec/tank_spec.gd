@@ -57,20 +57,38 @@ const TankSideType = Enums.TankSideType
 @export var muzzle_offset: Vector2
 
 func initialize_tank_from_spec(tank: Tank) -> void:
+	#* Textures
 	tank.turret.texture = turret_sprite
 	tank.cannon.texture = cannon_sprite
 	tank.hull.texture = hull_sprite
 	tank.left_track.sprite_frames = track_sprite_frames
 	tank.right_track.sprite_frames = track_sprite_frames
 
+	#* Collision
 	var collision_rectangle := RectangleShape2D.new()
 	collision_rectangle.size = hull_size
 	tank.collision_shape.shape = collision_rectangle
 
+	#* Dimensions
 	tank.turret.position = turret_pivot_offset
 	tank.cannon.position = cannon_offset
 	tank.muzzle_marker.position = muzzle_offset
 	tank.left_track.position = - track_offset
 	tank.right_track.position = track_offset
 
+	#* Health
 	tank._health = health
+
+	#* Audio
+	var stream_randomizer :AudioStreamRandomizer= tank.cannon_sound.stream
+	var cannon_sound : AudioStream = CannonSounds.get_cannon_sound(get_caliber_class(cannon_caliber))
+	stream_randomizer.add_stream(0, cannon_sound) 
+
+const CaliberClass = Enums.GunCaliberClass
+const CALIBER_THRESHOLD_MEDIUM: float = 75.0 #mm
+const CALIBER_THRESHOLD_LARGE: float = 120.0 #mm
+
+func get_caliber_class(caliber: float) -> CaliberClass:
+	if caliber <= CALIBER_THRESHOLD_MEDIUM: return CaliberClass.SMALL
+	elif caliber <= CALIBER_THRESHOLD_LARGE: return CaliberClass.MEDIUM
+	else: return CaliberClass.LARGE
