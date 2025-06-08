@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://bmhlylnhjmbix"]
+
+[ext_resource type="Resource" uid="uid://fqrmhgwgttbs" path="res://entities/shell/base_shell_type/base_shell_types/AP/AP_T.tres" id="1_dghgr"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="2_v0sio"]
+
+[resource]
+script = ExtResource("2_v0sio")
+base_shell_type = ExtResource("1_dghgr")
+muzzle_velocity = 700.0
+damage = 350
+penetration = 80.0
+shell_name = "DEBUG_AP"
+caliber = 90
+unlock_cost = 0

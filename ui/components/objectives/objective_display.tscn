@@ -1,0 +1,48 @@
+[gd_scene load_steps=5 format=3 uid="uid://b3lxbxbnewgti"]
+
+[ext_resource type="Script" uid="uid://cu56vqdovxu6k" path="res://ui/components/objectives/objective_display.gd" id="1_q5fs3"]
+[ext_resource type="Script" uid="uid://c312c8cbsvli7" path="res://game_data/level_data/objective.gd" id="2_yhnna"]
+[ext_resource type="Theme" uid="uid://dhe3ageaikkit" path="res://global_assets/theme/default.tres" id="3_e54fj"]
+
+[sub_resource type="Resource" id="Resource_li21f"]
+script = ExtResource("2_yhnna")
+description = "Kill enemies"
+metric = 0
+operator = "="
+required_value = 0
+score_value = 100
+metadata/_custom_type_script = "uid://c312c8cbsvli7"
+
+[node name="ObjectiveDisplay" type="PanelContainer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -29.0
+offset_right = 160.0
+offset_bottom = 29.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_q5fs3")
+objective = SubResource("Resource_li21f")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Kill enemies:"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("3_e54fj")
+step = 1.0
+value = 16.0

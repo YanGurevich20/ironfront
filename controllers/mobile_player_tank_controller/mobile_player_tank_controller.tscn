@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cenigilxsiyby"]
+
+[ext_resource type="Script" uid="uid://bidtjxrw4efh5" path="res://controllers/mobile_player_tank_controller/mobile_player_tank_controller.gd" id="1_mvihi"]
+
+[node name="MobilePlayerTankController" type="Node"]
+script = ExtResource("1_mvihi")

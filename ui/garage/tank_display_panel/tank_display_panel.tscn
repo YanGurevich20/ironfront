@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://bttmy3kqvmgjf"]
+
+[ext_resource type="Script" uid="uid://cmt5iql4ot25w" path="res://ui/garage/tank_display_panel/tank_display_panel.gd" id="1_0g2d7"]
+[ext_resource type="Texture2D" uid="uid://cds80ke8yjv62" path="res://ui/garage/background_200.png" id="1_vveua"]
+
+[node name="TankDisplayPanel" type="CenterContainer"]
+anchors_preset = -1
+anchor_top = 0.222
+anchor_right = 0.312
+anchor_bottom = 0.778
+offset_top = -7.92002
+offset_right = 56.32
+offset_bottom = 31.92
+grow_vertical = 2
+script = ExtResource("1_0g2d7")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+theme_type_variation = &"PanelContainerDark"
+
+[node name="Background" type="TextureRect" parent="PanelContainer"]
+layout_mode = 2
+texture = ExtResource("1_vveua")
+expand_mode = 1
+
+[node name="TankDisplay" type="TextureRect" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2

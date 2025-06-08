@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://d0m67gddqumno"]
+
+[ext_resource type="PackedScene" uid="uid://b2ndbkv4et6g1" path="res://ui/overlays/base_overlay/base_overlay.tscn" id="1_leqec"]
+[ext_resource type="Script" uid="uid://dwo20ipobp0ve" path="res://ui/overlays/level_select_overlay/level_select_overlay.gd" id="2_3ilfa"]
+
+[node name="LevelSelectOverlay" instance=ExtResource("1_leqec")]
+script = ExtResource("2_3ilfa")
+level_star_unlock_threshold = 2
+
+[node name="LevelsContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection" index="0"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3

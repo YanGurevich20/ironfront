@@ -1,0 +1,91 @@
+[gd_scene load_steps=4 format=3 uid="uid://dl4au2fgo071"]
+
+[ext_resource type="Script" uid="uid://cdxtxkokgm2r7" path="res://ui/garage/header/header_panel.gd" id="1_nnyat"]
+[ext_resource type="Texture2D" uid="uid://mjiuy27e2xfx" path="res://global_assets/theme/icons.png" id="2_jrw7b"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fgfem"]
+atlas = ExtResource("2_jrw7b")
+region = Rect2(0, 16, 16, 16)
+
+[node name="HeaderPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(640, 48)
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.222
+offset_bottom = -29.92
+grow_horizontal = 2
+theme_type_variation = &"PanelContainerDark"
+script = ExtResource("1_nnyat")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_vertical = 4
+alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayButton" type="Button" parent="HBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"GoldButton"
+text = "PLAY "
+
+[node name="WarningLabelContainer" type="PanelContainer" parent="HBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="WarningLabel" type="Label" parent="HBoxContainer/HBoxContainer2/WarningLabelContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+text = "NOT ENOUGH AMMO"
+horizontal_alignment = 1
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="Panel" type="PanelContainer" parent="HBoxContainer/HBoxContainer3"]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/HBoxContainer3/Panel"]
+custom_minimum_size = Vector2(192, 0)
+layout_mode = 2
+
+[node name="DollarsLabel" type="Label" parent="HBoxContainer/HBoxContainer3/Panel/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "10,000 $"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/HBoxContainer3/Panel/HBoxContainer"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BondsLabel" type="Label" parent="HBoxContainer/HBoxContainer3/Panel/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"GoldLabel"
+text = "0 BONDS"
+
+[node name="GarageMenuButton" type="Button" parent="HBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+icon = SubResource("AtlasTexture_fgfem")
+icon_alignment = 1
+expand_icon = true

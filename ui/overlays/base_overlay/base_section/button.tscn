@@ -1,0 +1,6 @@
+[gd_scene load_steps=0 format=3 uid="uid://cnmcf2uttnmh8"]
+
+[node name="BackButton" type="Button"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "BACK"

@@ -1,0 +1,93 @@
+[gd_scene load_steps=13 format=3 uid="uid://camgssrj8fl6e"]
+
+[ext_resource type="Script" uid="uid://4c373ydvs1jt" path="res://ui/touch_controls/lever/lever.gd" id="1_8di2w"]
+[ext_resource type="Texture2D" uid="uid://bn3dcmac5qr7e" path="res://ui/touch_controls/lever/lever.png" id="2_dkrws"]
+[ext_resource type="AudioStream" uid="uid://bsjsyej1dg26y" path="res://ui/touch_controls/lever/audio/click_small.ogg" id="3_efr3d"]
+[ext_resource type="AudioStream" uid="uid://cndsxuroiqj1w" path="res://ui/touch_controls/lever/audio/click_large.ogg" id="4_3flmr"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uk4kw"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_58irs"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7iwrw"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(0, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mkyu2"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(128, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b1l8p"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(256, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l53lr"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(0, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bpkj2"]
+atlas = ExtResource("2_dkrws")
+region = Rect2(128, 256, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5a7il"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uk4kw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_58irs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7iwrw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mkyu2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b1l8p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l53lr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bpkj2")
+}],
+"loop": false,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Lever" type="Control"]
+layout_mode = 3
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -640.0
+offset_top = -180.0
+offset_right = -460.0
+offset_bottom = 180.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("1_8di2w")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(90, 180)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_5a7il")
+frame = 3
+
+[node name="LeverClickSmall" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_efr3d")
+volume_db = -10.0
+max_polyphony = 10
+
+[node name="LeverClickLarge" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_3flmr")
+volume_db = -5.86

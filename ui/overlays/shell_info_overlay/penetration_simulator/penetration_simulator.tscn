@@ -1,0 +1,151 @@
+[gd_scene load_steps=4 format=3 uid="uid://coutl2tg4we02"]
+
+[ext_resource type="Script" uid="uid://c73lxwkt6jayd" path="res://ui/overlays/shell_info_overlay/penetration_simulator/penetration_simulator.gd" id="1_khe8w"]
+[ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://entities/shell/base_shell_type/rounds.png" id="2_10d1r"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v6vx3"]
+atlas = ExtResource("2_10d1r")
+region = Rect2(16, 16, 32, 32)
+
+[node name="PenetationSimulator" type="PanelContainer"]
+custom_minimum_size = Vector2(448, 0)
+offset_right = 448.0
+offset_bottom = 142.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_khe8w")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SimulatorDisplay" type="Panel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_type_variation = &"PanelDark"
+
+[node name="ArmourTexture" type="ColorRect" parent="HBoxContainer/SimulatorDisplay"]
+unique_name_in_owner = true
+layout_mode = 2
+offset_left = 17.0
+offset_top = 90.0
+offset_right = 113.0
+offset_bottom = 92.0
+color = Color(0.251473, 0.286272, 0.333984, 1)
+
+[node name="ImpactPointMarker" type="Marker2D" parent="HBoxContainer/SimulatorDisplay/ArmourTexture"]
+unique_name_in_owner = true
+position = Vector2(48, 0)
+gizmo_extents = 13.0
+
+[node name="ShellTexture" type="TextureRect" parent="HBoxContainer/SimulatorDisplay"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -7.05106
+offset_top = 58.9669
+offset_right = 8.94894
+offset_bottom = 74.9669
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -3.14159
+pivot_offset = Vector2(8, -34)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("AtlasTexture_v6vx3")
+expand_mode = 1
+
+[node name="PenetrationLine" type="Line2D" parent="HBoxContainer/SimulatorDisplay/ShellTexture"]
+unique_name_in_owner = true
+show_behind_parent = true
+position = Vector2(71.9489, 59.9669)
+rotation = -3.14159
+scale = Vector2(1, 1.025)
+points = PackedVector2Array(64, 58, 64, 92)
+closed = true
+width = 2.0
+default_color = Color(1, 1, 1, 0.372549)
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SimulationResultContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Result" type="Label" parent="HBoxContainer/VBoxContainer2/SimulationResultContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "RESULT:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer2/SimulationResultContainer"]
+layout_mode = 2
+
+[node name="Damage" type="Label" parent="HBoxContainer/VBoxContainer2/SimulationResultContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "DAMAGE: "
+
+[node name="Angle" type="Label" parent="HBoxContainer/VBoxContainer2/SimulationResultContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ANGLE:"
+
+[node name="Effective" type="Label" parent="HBoxContainer/VBoxContainer2/SimulationResultContainer"]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 1
+text = "EFFECTIVE: 212412.55 mm "
+uppercase = true
+
+[node name="Bounce" type="Label" parent="HBoxContainer/VBoxContainer2/SimulationResultContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BOUNCE CHANCE:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer2/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="ArmourThicknessLineEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer2/HBoxContainer/PanelContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+text = "10"
+placeholder_text = "Thickness"
+alignment = 2
+emoji_menu_enabled = false
+virtual_keyboard_type = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer2/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+text = "mm"
+
+[node name="BoxContainer" type="BoxContainer" parent="HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SimulateButton" type="Button" parent="HBoxContainer/VBoxContainer2/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_vertical = 4
+text = "SIMULATE"

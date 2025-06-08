@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://caei6b0xnh50m"]
+
+[ext_resource type="Resource" uid="uid://dnv4imqeol052" path="res://entities/shell/base_shell_type/base_shell_types/APDS/APDS.tres" id="1_kam5q"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="2_m1lbj"]
+
+[resource]
+script = ExtResource("2_m1lbj")
+base_shell_type = ExtResource("1_kam5q")
+muzzle_velocity = 900.0
+damage = 300
+penetration = 100.0
+shell_name = "DEBUG_APDS"
+caliber = 90
+unlock_cost = 0
+metadata/_custom_type_script = "uid://clsuuy75c3ymp"

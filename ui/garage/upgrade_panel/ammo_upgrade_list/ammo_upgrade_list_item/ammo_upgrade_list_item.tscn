@@ -1,0 +1,127 @@
+[gd_scene load_steps=6 format=3 uid="uid://d0xyaf7obfc1q"]
+
+[ext_resource type="Script" uid="uid://dh1v2oiq0xbhq" path="res://ui/garage/upgrade_panel/ammo_upgrade_list/ammo_upgrade_list_item/ammo_upgrade_list_item.gd" id="1_q44e7"]
+[ext_resource type="Texture2D" uid="uid://mjiuy27e2xfx" path="res://global_assets/theme/icons.png" id="3_qbox6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tr4hg"]
+atlas = ExtResource("3_qbox6")
+region = Rect2(17, 19, 14, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2mxw0"]
+atlas = ExtResource("3_qbox6")
+region = Rect2(33, 19, 14, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u4n65"]
+atlas = ExtResource("3_qbox6")
+region = Rect2(0, 0, 16, 16)
+
+[node name="AmmoUpgradeListItem" type="HBoxContainer"]
+custom_minimum_size = Vector2(424, 0)
+script = ExtResource("1_q44e7")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+
+[node name="ShellIcon" type="TextureRect" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ShellName" type="Label" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 6
+text = "PZGR.40"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 2
+
+[node name="AmmoCountContainer" type="HBoxContainer" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="CountSlider" type="HSlider" parent="HBoxContainer/AmmoCountContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 20.0
+value = 9.0
+scrollable = false
+tick_count = 21
+ticks_on_borders = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/AmmoCountContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="PanelContainer2" type="PanelContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="CountInput" type="LineEdit" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/PanelContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 10
+text = "10"
+alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="CountIncrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+icon = SubResource("AtlasTexture_tr4hg")
+icon_alignment = 1
+
+[node name="CountDecrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+icon = SubResource("AtlasTexture_2mxw0")
+icon_alignment = 1
+
+[node name="UnlockContainer" type="HBoxContainer" parent="HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 2
+
+[node name="UnlockButton" type="Button" parent="HBoxContainer/UnlockContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "UNLOCK
+20,000 $"
+
+[node name="InfoButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+icon = SubResource("AtlasTexture_u4n65")
+icon_alignment = 1
+expand_icon = true

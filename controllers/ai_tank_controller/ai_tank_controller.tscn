@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://c50swh12sxjmb"]
+
+[ext_resource type="Script" uid="uid://bpdvacm64qs" path="res://controllers/ai_tank_controller/ai_tank_controller.gd" id="1_j1olg"]
+[ext_resource type="Script" uid="uid://brurs15f6t7n" path="res://controllers/ai_tank_controller/state_machine.gd" id="2_km31a"]
+
+[node name="AITankController" type="Node"]
+script = ExtResource("1_j1olg")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("2_km31a")
+metadata/_custom_type_script = "uid://brurs15f6t7n"
