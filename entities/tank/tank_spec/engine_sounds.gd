@@ -47,3 +47,28 @@ const ENGINE_PITCH_RANGES: Dictionary[TankSizeClass, Dictionary] = {
 	TankSizeClass.MEDIUM: MEDIUM_ENGINE_PITCH_RANGES,
 	TankSizeClass.LARGE: LARGE_ENGINE_PITCH_RANGES
 }
+
+static func get_speed_type_from_ratio(ratio: float) -> SpeedType:
+	if ratio < 1.0/3.0:
+		return SpeedType.SLOW
+	elif ratio < 2.0/3.0:
+		return SpeedType.NORMAL
+	else:
+		return SpeedType.FAST
+
+static func get_interpolation_factor(ratio: float, speed_type: SpeedType) -> float:
+	match speed_type:
+		SpeedType.SLOW:
+			return ratio * 3.0
+		SpeedType.NORMAL:
+			return (ratio - 1.0/3.0) * 3.0
+		SpeedType.FAST:
+			return (ratio - 2.0/3.0) * 3.0
+		_:
+			return 0.0
+
+static func calculate_pitch(ratio: float, pitch_ranges: Dictionary[SpeedType, Vector2]) -> float:
+	var speed_type := get_speed_type_from_ratio(ratio)
+	var pitch_range := pitch_ranges[speed_type]
+	var t := get_interpolation_factor(ratio, speed_type)
+	return lerp(pitch_range.x, pitch_range.y, clamp(t, 0.0, 1.0))

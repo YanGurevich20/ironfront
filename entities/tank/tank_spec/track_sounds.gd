@@ -42,3 +42,14 @@ const TRACK_PITCH_RANGES: Dictionary[Enums.TankSizeClass, Dictionary] = {
 	Enums.TankSizeClass.MEDIUM: MEDIUM_TRACK_PITCH_RANGES,
 	Enums.TankSizeClass.LARGE: LARGE_TRACK_PITCH_RANGES
 }
+
+static func get_track_sounds(tank_size_class: TankSizeClass) -> Dictionary[Enums.SpeedType, AudioStream]:
+	match tank_size_class:
+		TankSizeClass.SMALL:
+			return SMALL_TRACK_SOUNDS
+		TankSizeClass.MEDIUM:
+			return MEDIUM_TRACK_SOUNDS
+		TankSizeClass.LARGE:
+			return LARGE_TRACK_SOUNDS
+		_:
+			return SMALL_TRACK_SOUNDS
