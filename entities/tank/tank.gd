@@ -42,6 +42,7 @@ func _ready() -> void:
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)
+	hull.setup_sounds(tank_spec.engine_size_class)
 	tank_hud.initialize(self)
 	if controller: add_child(controller)
 	if is_player: 
@@ -76,6 +77,7 @@ func handle_tank_destroyed() -> void:
 	tank_destroyed.emit(self)
 	if controller: controller.queue_free()
 	hull.stop_sounds()
+	reset_input()
 
 func apply_destruction_effects() -> void:
 	var destruction_material: ShaderMaterial = tank_destruction_shader.duplicate()
@@ -117,9 +119,8 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	var lateral_damping_force := -sideways * lateral_velocity * tank_spec.linear_damping
 	state.apply_force(lateral_damping_force)
 
-	# === Delegate Sound & Track Animations ===
-	hull.play_engine_sound(left_track_input, right_track_input, state.linear_velocity)
-	hull.animate_tracks(state.linear_velocity, state.angular_velocity)
+	# === Delegate all hull logic to master process ===
+	hull.process(left_track_input, right_track_input, state.linear_velocity, state.angular_velocity)
 
 	# === Distance Tracking ===
 	distance_traveled += global_position.distance_to(_last_position)
@@ -131,3 +132,8 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 func get_forward_speed(velocity: Vector2) -> float:
 	var forward := transform.x.normalized()
 	return velocity.dot(forward)
+
+func reset_input() -> void:
+	right_track_input = 0.0
+	left_track_input = 0.0
+	turret_rotation_input = 0.0

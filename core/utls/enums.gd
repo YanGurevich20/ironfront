@@ -12,3 +12,15 @@ enum GunCaliberClass {
 	MEDIUM,
 	LARGE
 }
+
+enum TankSizeClass {
+	SMALL,
+	MEDIUM,
+	LARGE
+}
+
+enum SpeedType {
+	SLOW,
+	NORMAL,
+	FAST
+}

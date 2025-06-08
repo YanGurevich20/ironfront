@@ -56,6 +56,9 @@ const TankSideType = Enums.TankSideType
 @export var cannon_offset: Vector2
 @export var muzzle_offset: Vector2
 
+@export_category("Engine")
+@export var engine_size_class: Enums.TankSizeClass = Enums.TankSizeClass.MEDIUM
+
 func initialize_tank_from_spec(tank: Tank) -> void:
 	#* Textures
 	tank.turret.texture = turret_sprite
@@ -82,7 +85,10 @@ func initialize_tank_from_spec(tank: Tank) -> void:
 	#* Audio
 	var stream_randomizer :AudioStreamRandomizer= tank.cannon_sound.stream
 	var cannon_sound : AudioStream = CannonSounds.get_cannon_sound(get_caliber_class(cannon_caliber))
-	stream_randomizer.add_stream(0, cannon_sound) 
+	stream_randomizer.add_stream(0, cannon_sound)
+
+	#* Engine Sounds Setup (dynamic, like cannon sounds)
+	tank.hull.setup_engine_sounds(engine_size_class)
 
 const CaliberClass = Enums.GunCaliberClass
 const CALIBER_THRESHOLD_MEDIUM: float = 75.0 #mm
