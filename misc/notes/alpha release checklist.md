@@ -5,7 +5,7 @@
 - [V] Gun sounds - per caliber class
 - [V] Audio balancing
 ## Gameplay
-- [ ] Level dollar reward feedback in result screen
+- [V] Level dollar reward feedback in result screen
 - [ ] Map size (don't overdo)
 ## Analytics
 - [ ] Set up session tracking in the cloud
