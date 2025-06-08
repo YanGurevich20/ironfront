@@ -1,0 +1,10 @@
+; GOLD = edb31b
+; GOLD_BRIGHT = feda90
+; GOLD_DARK = a07809
+
+; WHITE = fbf6ec 
+; WHITE_BRIGHT = ffffff
+; WHITE_DARK = f7ede0
+
+; FRIENDLY_GREEN = 00751e
+; ENEMY_RED = 750008

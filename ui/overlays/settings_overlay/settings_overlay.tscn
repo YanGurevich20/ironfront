@@ -1,0 +1,82 @@
+[gd_scene load_steps=4 format=3 uid="uid://y7yy28xv8gj6"]
+
+[ext_resource type="PackedScene" uid="uid://b2ndbkv4et6g1" path="res://ui/overlays/base_overlay/base_overlay.tscn" id="1_7c0on"]
+[ext_resource type="Script" uid="uid://dus1gtshapvxw" path="res://ui/overlays/settings_overlay/settings_overlay.gd" id="2_n1qli"]
+[ext_resource type="PackedScene" uid="uid://byocrfp5gbeii" path="res://ui/overlays/base_overlay/base_section/base_section.tscn" id="3_n1qli"]
+
+[node name="SettingsOverlay" instance=ExtResource("1_7c0on")]
+script = ExtResource("2_n1qli")
+
+[node name="RootSection" parent="PanelContainer/SectionsContainer" index="0"]
+visible = false
+
+[node name="SettingsLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="0"]
+layout_mode = 2
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="FeedbackButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"GoldButton"
+text = "FEEDBACK FORM"
+
+[node name="VideoButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "VIDEO"
+
+[node name="AudioButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "AUDIO"
+
+[node name="ControlsButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="4"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CONTROLS"
+
+[node name="AboutButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="5"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ABOUT"
+
+[node name="VideoSection" parent="PanelContainer/SectionsContainer" index="1" instance=ExtResource("3_n1qli")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/VideoSection" index="0"]
+layout_mode = 2
+disabled = true
+text = "COMING SOON"
+
+[node name="AudioSection" parent="PanelContainer/SectionsContainer" index="2" instance=ExtResource("3_n1qli")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/AudioSection" index="0"]
+layout_mode = 2
+disabled = true
+text = "COMING SOON"
+
+[node name="ControlsSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/ControlsSection" index="0"]
+layout_mode = 2
+disabled = true
+text = "COMING SOON"
+
+[node name="AboutSection" parent="PanelContainer/SectionsContainer" index="4" instance=ExtResource("3_n1qli")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/AboutSection" index="0"]
+layout_mode = 2
+disabled = true
+text = "COMING SOON"

@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://doykr13uqyd0t"]
+
+[ext_resource type="PackedScene" uid="uid://b2ndbkv4et6g1" path="res://ui/overlays/base_overlay/base_overlay.tscn" id="1_bxxhh"]
+[ext_resource type="Script" uid="uid://b1bu0b1qiec25" path="res://ui/overlays/pause_overlay/pause_overlay.gd" id="2_y2pna"]
+[ext_resource type="PackedScene" uid="uid://ccr3drqhqhsnj" path="res://ui/components/objectives/objectives_container.tscn" id="3_if81o"]
+[ext_resource type="PackedScene" uid="uid://byocrfp5gbeii" path="res://ui/overlays/base_overlay/base_section/base_section.tscn" id="4_qs701"]
+
+[node name="PauseOverlay" instance=ExtResource("1_bxxhh")]
+script = ExtResource("2_y2pna")
+
+[node name="PausedLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="0"]
+layout_mode = 2
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="ObjectivesButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "OBJECTIVES"
+
+[node name="SettingsButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SETTINGS"
+
+[node name="AbortButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ABORT MISSION"
+
+[node name="ObjectivesSection" parent="PanelContainer/SectionsContainer" index="1" instance=ExtResource("4_qs701")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ObjectivesLabel" type="Label" parent="PanelContainer/SectionsContainer/ObjectivesSection" index="0"]
+layout_mode = 2
+text = "OBJECTIVES"
+horizontal_alignment = 1
+
+[node name="ObjectivesContainer" parent="PanelContainer/SectionsContainer/ObjectivesSection" index="1" instance=ExtResource("3_if81o")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 1
