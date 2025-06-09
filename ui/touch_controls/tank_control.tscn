@@ -1,23 +1,23 @@
 [gd_scene load_steps=16 format=3 uid="uid://fbdhh7erijnq"]
 
-[ext_resource type="Script" uid="uid://cxwiysrx477cq" path="res://ui/touch_controls/tank_control.gd" id="1_brsp1"]
-[ext_resource type="PackedScene" uid="uid://camgssrj8fl6e" path="res://ui/touch_controls/lever/lever.tscn" id="2_xmjxb"]
-[ext_resource type="Script" uid="uid://ceenq5uclnedj" path="res://ui/touch_controls/traverse_wheel/traverse_wheel.gd" id="3_gesvv"]
-[ext_resource type="Texture2D" uid="uid://8uq7l7l46y78" path="res://ui/touch_controls/traverse_wheel/sprites/traverse_wheel_base.png" id="4_ijfau"]
-[ext_resource type="Texture2D" uid="uid://bon2mxv2kjgr1" path="res://ui/touch_controls/traverse_wheel/sprites/traverse_wheel.png" id="5_ijy5s"]
-[ext_resource type="Script" uid="uid://b3jc8iqdhkf0h" path="res://ui/touch_controls/fire_button/fire_button.gd" id="6_buqlp"]
-[ext_resource type="Texture2D" uid="uid://dh3pmgul5285a" path="res://ui/touch_controls/fire_button/fire_button.png" id="7_1xpg8"]
-[ext_resource type="AudioStream" uid="uid://dbc2tftwi6fju" path="res://ui/touch_controls/fire_button/click.ogg" id="8_8dgnt"]
-[ext_resource type="Script" uid="uid://bf8bjst48hk3u" path="res://ui/touch_controls/shell_select.gd" id="9_gesvv"]
-[ext_resource type="PackedScene" uid="uid://71fs737wnngw" path="res://ui/touch_controls/shell_select/shell_list_item/shell_list_item.tscn" id="9_xmjxb"]
-[ext_resource type="Texture2D" uid="uid://mjiuy27e2xfx" path="res://global_assets/theme/icons.png" id="11_ijfau"]
+[ext_resource type="Script" uid="uid://cxwiysrx477cq" path="res://ui/touch_controls/tank_control.gd" id="1_t160p"]
+[ext_resource type="PackedScene" uid="uid://camgssrj8fl6e" path="res://ui/touch_controls/lever/lever.tscn" id="2_7ylqn"]
+[ext_resource type="Script" uid="uid://ceenq5uclnedj" path="res://ui/touch_controls/traverse_wheel/traverse_wheel.gd" id="3_2g8rm"]
+[ext_resource type="Texture2D" uid="uid://8uq7l7l46y78" path="res://ui/touch_controls/traverse_wheel/sprites/traverse_wheel_base.png" id="4_v15m1"]
+[ext_resource type="Texture2D" uid="uid://bon2mxv2kjgr1" path="res://ui/touch_controls/traverse_wheel/sprites/traverse_wheel.png" id="5_3al2x"]
+[ext_resource type="Script" uid="uid://b3jc8iqdhkf0h" path="res://ui/touch_controls/fire_button/fire_button.gd" id="6_xyrtp"]
+[ext_resource type="Texture2D" uid="uid://dh3pmgul5285a" path="res://ui/touch_controls/fire_button/fire_button.png" id="7_51kfi"]
+[ext_resource type="AudioStream" uid="uid://dbc2tftwi6fju" path="res://ui/touch_controls/fire_button/click.ogg" id="8_qrisr"]
+[ext_resource type="Texture2D" uid="uid://mjiuy27e2xfx" path="res://global_assets/theme/icons.png" id="9_8v5tm"]
+[ext_resource type="Script" uid="uid://bf8bjst48hk3u" path="res://ui/touch_controls/shell_select.gd" id="10_n5egk"]
+[ext_resource type="PackedScene" uid="uid://71fs737wnngw" path="res://ui/touch_controls/shell_select/shell_list_item/shell_list_item.tscn" id="11_0mi2q"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kye8a"]
-atlas = ExtResource("7_1xpg8")
+atlas = ExtResource("7_51kfi")
 region = Rect2(0, 0, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_n2tbn"]
-atlas = ExtResource("7_1xpg8")
+atlas = ExtResource("7_51kfi")
 region = Rect2(0, 32, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_b262a"]
@@ -35,7 +35,7 @@ animations = [{
 }]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ijfau"]
-atlas = ExtResource("11_ijfau")
+atlas = ExtResource("9_8v5tm")
 region = Rect2(32, 0, 16, 16)
 
 [node name="TankControl" type="Control"]
@@ -45,12 +45,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_brsp1")
+script = ExtResource("1_t160p")
 
-[node name="LeftLever" parent="." instance=ExtResource("2_xmjxb")]
+[node name="LeftLever" parent="." instance=ExtResource("2_7ylqn")]
 layout_mode = 1
 
-[node name="RightLever" parent="." instance=ExtResource("2_xmjxb")]
+[node name="RightLever" parent="." instance=ExtResource("2_7ylqn")]
 layout_mode = 1
 offset_left = -180.0
 offset_right = 0.0
@@ -64,21 +64,21 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -152.0
-offset_top = 32.0
-offset_right = -24.0
-offset_bottom = 160.0
+offset_left = -160.0
+offset_top = 51.0
+offset_right = -32.0
+offset_bottom = 179.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("3_gesvv")
+script = ExtResource("3_2g8rm")
 
 [node name="TraverseWheelBaseSprite" type="Sprite2D" parent="TraverseWheel"]
-texture = ExtResource("4_ijfau")
+texture = ExtResource("4_v15m1")
 centered = false
 
 [node name="TraverseWheelSprite" type="Sprite2D" parent="TraverseWheel"]
 position = Vector2(64, 64)
-texture = ExtResource("5_ijy5s")
+texture = ExtResource("5_3al2x")
 centered = false
 offset = Vector2(-64, -64)
 
@@ -95,15 +95,15 @@ offset_right = 156.0
 offset_bottom = -31.0
 grow_horizontal = 2
 grow_vertical = 0
-script = ExtResource("6_buqlp")
+script = ExtResource("6_xyrtp")
 
 [node name="ButtonSprite" type="AnimatedSprite2D" parent="FireButton"]
-position = Vector2(48, 48)
+position = Vector2(63, 94)
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_b262a")
 
 [node name="ButtonClick" type="AudioStreamPlayer" parent="FireButton"]
-stream = ExtResource("8_8dgnt")
+stream = ExtResource("8_qrisr")
 volume_db = -12.0
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
@@ -133,12 +133,35 @@ offset_bottom = 66.0
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"PanelContainerDark"
-script = ExtResource("9_gesvv")
+script = ExtResource("10_n5egk")
 
 [node name="ShellList" type="HBoxContainer" parent="HBoxContainer/ShellSelect"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="ShellListItem" parent="HBoxContainer/ShellSelect/ShellList" instance=ExtResource("9_xmjxb")]
+[node name="ShellListItem" parent="HBoxContainer/ShellSelect/ShellList" instance=ExtResource("11_0mi2q")]
 layout_mode = 2
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -192.0
+offset_right = 192.0
+offset_bottom = 16.0
+grow_horizontal = 2
+
+[node name="ZoomSlider" type="HSlider" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+min_value = 0.5
+max_value = 1.5
+step = 0.1
+value = 1.0

@@ -1,4 +1,4 @@
-extends Node
+class_name LevelManager extends Node
 
 # === Constants ===
 const LEVEL_SCENES: Dictionary[int, PackedScene] = {
