@@ -21,6 +21,7 @@ static func get_loadable_instance(cls: GDScript) -> LoadableData:
 	return instance
 
 static func reset(cls: GDScript) -> void:
+	push_warning("Resetting %s" % cls, "Unsafe method!")
 	var instance: LoadableData = cls.new()
 	var key: String = instance.get_file_name()
 	_instances.erase(key)
