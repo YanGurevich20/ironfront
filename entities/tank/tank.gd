@@ -38,9 +38,10 @@ var turret_rotation_input := 0.0
 var distance_traveled: float = 0.0
 @onready var _last_position: Vector2 = global_position
 
-var settings_data: SettingsData = SettingsData.get_instance()
+var settings_data: SettingsData
 
 func _ready() -> void:
+	settings_data = SettingsData.get_instance()
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)

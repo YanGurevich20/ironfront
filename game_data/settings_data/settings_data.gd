@@ -1,10 +1,15 @@
 class_name SettingsData extends LoadableData
 
-@export_group("Video")
-@export_category("UI")
-@export var controls_opacity: float = 1.0:
+@export_group("HUD")
+@export var controls_opacity: float = 0.8:
 	set(value):
 		controls_opacity = value
+		save()
+		SignalBus.settings_changed.emit()
+
+@export var tank_hud_opacity: float = 0.8:
+	set(value):
+		tank_hud_opacity = value
 		save()
 		SignalBus.settings_changed.emit()
 

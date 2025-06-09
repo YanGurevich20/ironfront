@@ -5,11 +5,13 @@
 - [V] Gun sounds - per caliber class
 - [V] Audio balancing
 - [ ] Tank controls upgrade
+- [?] Camera shake
+- [?] Hit stop
 ## Gameplay
 - [V] Level dollar reward feedback in result screen
 - [ ] Map size (don't overdo)
-- [ ] Camera zoom control
-- [ ] Basic settings - Audio sliders, UI opacity, HUD opacity
+- [V] Camera zoom control
+- [V] Basic settings - Audio sliders, UI opacity, HUD opacity
 ## Analytics
 - [ ] Set up session tracking in the cloud
 - [ ] Update feedback form questions
