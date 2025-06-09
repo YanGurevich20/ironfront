@@ -89,16 +89,16 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = 60.0
-offset_top = -127.0
-offset_right = 156.0
-offset_bottom = -31.0
+offset_left = 64.0
+offset_top = -72.0
+offset_right = 128.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("6_xyrtp")
 
 [node name="ButtonSprite" type="AnimatedSprite2D" parent="FireButton"]
-position = Vector2(63, 94)
+position = Vector2(32, 32)
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_b262a")
 

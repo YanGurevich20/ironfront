@@ -81,13 +81,12 @@ func take_damage(amount: int) -> void:
 	if _health <= 0: handle_tank_destroyed()
 
 func handle_tank_destroyed() -> void:
-	apply_destruction_effects()
-	tank_destroyed.emit(self)
-	if controller: controller.queue_free()
-	hull.stop_sounds()
+	if controller: 
+		controller.queue_free()
 	reset_input()
-	turret.set_process(false)
-	turret.set_physics_process(false)
+	hull.stop_sounds()
+	tank_destroyed.emit(self)
+	apply_destruction_effects()
 
 func apply_destruction_effects() -> void:
 	var destruction_material: ShaderMaterial = tank_destruction_shader.duplicate()
@@ -131,6 +130,9 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 
 	# === Delegate all hull logic to master process ===
 	hull.process(left_track_input, right_track_input, state.linear_velocity, state.angular_velocity)
+
+	# === Delegate turret rotation ===
+	turret.process(state.step, turret_rotation_input)
 
 	# === Distance Tracking ===
 	distance_traveled += global_position.distance_to(_last_position)
