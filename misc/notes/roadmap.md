@@ -16,14 +16,14 @@
 - [ ] 2.4 Component-based stats (upgrades?)
 - [ ] 2.5 Experience and crew skills
 
-**[x] Alpha release**
+**[ ] Alpha release**
 
 ## 3. Enemy system upgrade
-- [ ] 3.1 Base enemy class
-- [ ] 3.2 Different enemy types (light, heavy, fast, etc.)
+- [X] 3.1 Base enemy class - replaced by base tank
+- [X] 3.2 Different enemy types (light, heavy, fast, etc.) - replaced by tank types
 - [V] 3.3 Different AI behaviors (patrol, chase, sniper, etc.)
-- [ ] 3.4 Enemy spawn balancing and scaling
-- [ ] 3.5 Navigation upgrade (Nav mesh edge detection and reverse)
+- [V] 3.4 Enemy spawn balancing and scaling
+- [V] 3.5 Navigation upgrade (Nav mesh edge detection and reverse)
 
 ## 4. Analytics system
 - [V] 4.1 Basic user stats collection (runs played, enemies destroyed, time survived)
@@ -33,8 +33,8 @@
 - [ ] 4.5 Cloud player data storage
 
 ## 5. Settings system
-- [ ] 5.1 Settings menu
-- [ ] 5.2 Feature groups (Audio, Graphics, Controls, Gameplay)
+- [V] 5.1 Settings menu
+- [V] 5.2 Feature groups (Audio, Graphics, Controls, Gameplay) - Add as you go
 
 ## 6. Advanced physics system
 - [ ] 6.1 Engine gears
@@ -51,7 +51,7 @@
 - [ ] 7.4 Weather effects
 - [ ] 7.5 Lighting improvements
 - [ ] 7.6 Music
-- [ ] 7.7 Audio balancing
+- [V] 7.7 Audio balancing
 - [ ] 7.8 Game Art (Icon, Title screen)
 
 **Full release**

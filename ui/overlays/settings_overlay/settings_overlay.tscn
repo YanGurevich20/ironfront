@@ -28,14 +28,13 @@ text = "VIDEO"
 
 [node name="AudioButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 text = "AUDIO"
 
-[node name="ControlsButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="4"]
+[node name="HUDButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="4"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "CONTROLS"
+text = "HUD"
 
 [node name="AboutButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="5"]
 unique_name_in_owner = true
@@ -62,21 +61,40 @@ layout_mode = 2
 disabled = true
 text = "COMING SOON"
 
-[node name="ControlsSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
+[node name="HUDSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/SectionsContainer/ControlsSection" index="0"]
+[node name="ControlsOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="0"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/ControlsSection/PanelContainer" index="0"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity" index="0"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/ControlsSection/PanelContainer/VBoxContainer" index="0"]
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity/VBoxContainer" index="0"]
 layout_mode = 2
 text = "CONTROLS OPACITY"
 
-[node name="ControlsOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/ControlsSection/PanelContainer/VBoxContainer" index="1"]
+[node name="ControlsOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity/VBoxContainer" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.04
+value = 1.0
+tick_count = 26
+ticks_on_borders = true
+
+[node name="TankHUDOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="1"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity" index="0"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity/VBoxContainer" index="0"]
+layout_mode = 2
+text = "TANK HUD OPACITY"
+
+[node name="TankHUDOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity/VBoxContainer" index="1"]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0

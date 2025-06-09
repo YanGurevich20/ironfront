@@ -9,9 +9,10 @@ class_name TankControl extends Control
 @onready var pause_button: Button = %PauseButton
 @onready var zoom_slider: HSlider = %ZoomSlider
 
-var settings_data: SettingsData = SettingsData.get_instance()
+var settings_data: SettingsData
 
 func _ready() -> void:
+	settings_data = SettingsData.get_instance()
 	fire_button.fire_button_pressed.connect(func() -> void: SignalBus.fire_input.emit())
 	pause_button.pressed.connect(func() -> void: SignalBus.pause_input.emit())
 	zoom_slider.value_changed.connect(func(value: float) -> void: settings_data.zoom_level = value)

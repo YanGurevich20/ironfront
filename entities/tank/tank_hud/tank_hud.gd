@@ -11,8 +11,16 @@ var tank_reference: Tank
 var impact_timer: SceneTreeTimer
 const ImpactResultType := ShellSpec.ImpactResultType
 
+var settings_data: SettingsData
+
 func _ready() -> void:
 	_hide_impact_result()
+	settings_data = SettingsData.get_instance()
+	SignalBus.settings_changed.connect(_apply_settings)
+	_apply_settings()
+
+func _apply_settings() -> void:
+	modulate.a = settings_data.tank_hud_opacity
 
 func initialize(tank: Tank) -> void:
 	tank_reference = tank
