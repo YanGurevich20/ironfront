@@ -20,8 +20,9 @@ func _ready() -> void:
 	line_of_sight_raycast.add_exception(tank)
 
 #region Rotation Handling
-func _process(delta: float) -> void:
-	rotation_degrees += tank.turret_rotation_input * tank.tank_spec.max_turret_traverse_speed * delta
+
+func process(delta: float, rotation_input: float) -> void:
+	rotation_degrees += rotation_input * tank.tank_spec.max_turret_traverse_speed * delta
 	if not reload_timer.is_stopped():
 		SignalBus.reload_progress_left_updated.emit(get_reload_progress(), tank)
 #endregion

@@ -6,6 +6,8 @@
 
 [node name="SettingsOverlay" instance=ExtResource("1_7c0on")]
 script = ExtResource("2_n1qli")
+metadata/_edit_vertical_guides_ = [320.0]
+metadata/_edit_horizontal_guides_ = [180.0]
 
 [node name="RootSection" parent="PanelContainer/SectionsContainer" index="0"]
 visible = false
