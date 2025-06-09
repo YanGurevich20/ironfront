@@ -11,6 +11,7 @@ var settings_data: SettingsData
 
 @onready var controls_opacity_slider: HSlider = %ControlsOpacitySlider
 @onready var tank_hud_opacity_slider: HSlider = %TankHUDOpacitySlider
+@onready var master_volume_slider: HSlider = %MasterVolumeSlider
 
 func _ready() -> void:
 	super._ready()
@@ -27,3 +28,6 @@ func _ready() -> void:
 
 	tank_hud_opacity_slider.value = settings_data.tank_hud_opacity
 	tank_hud_opacity_slider.value_changed.connect(func(value: float) -> void: settings_data.tank_hud_opacity = value)
+
+	master_volume_slider.value = settings_data.master_volume
+	master_volume_slider.value_changed.connect(func(value: float) -> void: settings_data.master_volume = value)

@@ -46,7 +46,12 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/VideoSection" index="0"]
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/VideoSection" index="0"]
+layout_mode = 2
+text = "VIDEO"
+horizontal_alignment = 1
+
+[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/VideoSection" index="1"]
 layout_mode = 2
 disabled = true
 text = "COMING SOON"
@@ -56,16 +61,41 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/AudioSection" index="0"]
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/AudioSection" index="0"]
 layout_mode = 2
-disabled = true
-text = "COMING SOON"
+text = "AUDIO"
+horizontal_alignment = 1
+
+[node name="MasterVolume" type="PanelContainer" parent="PanelContainer/SectionsContainer/AudioSection" index="1"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/AudioSection/MasterVolume" index="0"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/AudioSection/MasterVolume/VBoxContainer" index="0"]
+layout_mode = 2
+text = "MASTER VOLUME"
+
+[node name="MasterVolumeSlider" type="HSlider" parent="PanelContainer/SectionsContainer/AudioSection/MasterVolume/VBoxContainer" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+tick_count = 21
+ticks_on_borders = true
 
 [node name="HUDSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
-[node name="ControlsOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="0"]
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/HUDSection" index="0"]
+layout_mode = 2
+text = "HUD"
+horizontal_alignment = 1
+
+[node name="ControlsOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="1"]
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity" index="0"]
@@ -79,12 +109,12 @@ text = "CONTROLS OPACITY"
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
-step = 0.04
+step = 0.05
 value = 1.0
-tick_count = 26
+tick_count = 21
 ticks_on_borders = true
 
-[node name="TankHUDOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="1"]
+[node name="TankHUDOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="2"]
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity" index="0"]
@@ -98,9 +128,9 @@ text = "TANK HUD OPACITY"
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
-step = 0.04
+step = 0.05
 value = 1.0
-tick_count = 26
+tick_count = 21
 ticks_on_borders = true
 
 [node name="AboutSection" parent="PanelContainer/SectionsContainer" index="4" instance=ExtResource("3_n1qli")]
@@ -108,7 +138,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/AboutSection" index="0"]
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/AboutSection" index="0"]
 layout_mode = 2
-disabled = true
-text = "COMING SOON"
+text = "ABOUT"
+horizontal_alignment = 1
