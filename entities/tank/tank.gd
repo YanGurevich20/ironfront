@@ -38,6 +38,8 @@ var turret_rotation_input := 0.0
 var distance_traveled: float = 0.0
 @onready var _last_position: Vector2 = global_position
 
+var settings_data: SettingsData = SettingsData.get_instance()
+
 func _ready() -> void:
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
@@ -48,6 +50,12 @@ func _ready() -> void:
 	if is_player: 
 		audio_listener.make_current()
 		camera_2d.make_current()
+		SignalBus.settings_changed.connect(_apply_settings)
+		_apply_settings()
+
+func _apply_settings() -> void:
+	var zoom_level: float = settings_data.zoom_level
+	camera_2d.zoom = Vector2(zoom_level, zoom_level)
 
 func set_current_shell_id(shell_id: ShellManager.ShellId) -> void:
 	turret.set_current_shell_id(shell_id)

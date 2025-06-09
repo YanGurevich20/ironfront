@@ -56,6 +56,8 @@ func show_overlay(overlay: Control) -> void:
 
 func hide_overlays() -> void:
 	Utils.hide_nodes(_overlay_nodes)
+	# TODO: temporary fix for sub-menu back press.
+	resume_game.emit()
 
 func display_result(success: bool, metrics: Dictionary, objectives: Array, reward_info: Game.RewardInfo) -> void:
 	result_overlay.display_result(success, metrics, objectives, reward_info)

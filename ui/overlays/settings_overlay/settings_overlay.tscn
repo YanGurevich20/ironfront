@@ -28,6 +28,7 @@ text = "VIDEO"
 
 [node name="AudioButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "AUDIO"
 
@@ -63,13 +64,26 @@ text = "COMING SOON"
 
 [node name="ControlsSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 
-[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/ControlsSection" index="0"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/SectionsContainer/ControlsSection" index="0"]
 layout_mode = 2
-disabled = true
-text = "COMING SOON"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/ControlsSection/PanelContainer" index="0"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/ControlsSection/PanelContainer/VBoxContainer" index="0"]
+layout_mode = 2
+text = "CONTROLS OPACITY"
+
+[node name="ControlsOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/ControlsSection/PanelContainer/VBoxContainer" index="1"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.04
+value = 1.0
+tick_count = 26
+ticks_on_borders = true
 
 [node name="AboutSection" parent="PanelContainer/SectionsContainer" index="4" instance=ExtResource("3_n1qli")]
 unique_name_in_owner = true
