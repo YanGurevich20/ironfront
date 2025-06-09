@@ -5,8 +5,8 @@
 - [V] Gun sounds - per caliber class
 - [V] Audio balancing
 - [ ] Tank controls upgrade
-- [?] Camera shake
-- [?] Hit stop
+- [ ] Camera shake - maybe
+- [ ] Hit stop - maybe
 ## Gameplay
 - [V] Level dollar reward feedback in result screen
 - [ ] Map size (don't overdo)

@@ -1,13 +1,22 @@
 class_name SettingsData extends LoadableData
 
+@export_group("Audio")
+@export_range(0.0, 1.0, 0.05) var master_volume: float = 1.0:
+	set(value):
+		master_volume = value
+		var bus_index := AudioServer.get_bus_index("Master")
+		AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))
+		save()
+		SignalBus.settings_changed.emit()
+
 @export_group("HUD")
-@export var controls_opacity: float = 0.8:
+@export_range(0.0, 1.0, 0.05) var controls_opacity: float = 0.8:
 	set(value):
 		controls_opacity = value
 		save()
 		SignalBus.settings_changed.emit()
 
-@export var tank_hud_opacity: float = 0.8:
+@export_range(0.0, 1.0, 0.05) var tank_hud_opacity: float = 0.8:
 	set(value):
 		tank_hud_opacity = value
 		save()
@@ -15,9 +24,8 @@ class_name SettingsData extends LoadableData
 
 # settings that are not controlled from the settings menu
 @export_group("Dynamic")
-@export var zoom_level: float = 1.0:
+@export_range(0.5, 1.5, 0.1) var zoom_level: float = 1.0:
 	set(value):
-		print("zoom_level set to ", value)
 		zoom_level = value
 		save()
 		SignalBus.settings_changed.emit()
