@@ -1,26 +1,26 @@
 class_name Enums
 
 enum TankSideType {
-	FRONT,
-	LEFT,
-	RIGHT,
-	REAR
+	FRONT=0,
+	LEFT=1,
+	RIGHT=2,
+	REAR=3
 }
 
 enum GunCaliberClass {
-	SMALL,
-	MEDIUM,
-	LARGE
+	SMALL=0,
+	MEDIUM=1,
+	LARGE=2
 }
 
 enum TankSizeClass {
-	SMALL,
-	MEDIUM,
-	LARGE
+	SMALL=0,
+	MEDIUM=1,
+	LARGE=2
 }
 
 enum SpeedType {
-	SLOW,
-	NORMAL,
-	FAST
+	SLOW=0,
+	NORMAL=1,
+	FAST=2
 }

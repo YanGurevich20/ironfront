@@ -1,13 +1,13 @@
 class_name TankManager
 
-enum TankId {DEBUG_TANK, M4A1_SHERMAN, TIGER_1}
+enum TankId {DEBUG_TANK=-1, M4A1_SHERMAN=0, TIGER_1=1}
 static var TANK_SPECS: Dictionary[TankId, TankSpec] = {
 	TankId.DEBUG_TANK: preload("res://entities/tank/tanks/debug_tank/debug_tank.tres"),
 	TankId.M4A1_SHERMAN: preload("res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
 	TankId.TIGER_1: preload("res://entities/tank/tanks/tiger_1/tiger_1.tres"),
 }
 
-enum TankControllerType {PLAYER, AI, DUMMY}
+enum TankControllerType {PLAYER=0, AI=1, DUMMY=2}
 static var TANK_CONTROLLER_SCENES: Dictionary[TankControllerType, PackedScene] = {
 	TankControllerType.PLAYER: preload("res://controllers/mobile_player_tank_controller/mobile_player_tank_controller.tscn"),
 	TankControllerType.AI: preload("res://controllers/ai_tank_controller/ai_tank_controller.tscn"),

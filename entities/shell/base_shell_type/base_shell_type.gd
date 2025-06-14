@@ -1,6 +1,6 @@
 class_name BaseShellType extends Resource
 
-enum ShellType{AP, APCR, APDS, APHE, HE, HEAT}
+enum ShellType{AP=0, APCR=1, APDS=2, APHE=3, HE=4, HEAT=5}
 @export var shell_type: ShellType = ShellType.AP
 @export var is_kinetic: bool = true
 @export var is_tracer: bool = false

@@ -1,7 +1,7 @@
 class_name Lever
 extends Control
 
-enum LeverSide { LEFT, RIGHT }
+enum LeverSide { LEFT=0, RIGHT=1 }
 @export var lever_side: LeverSide
 
 @onready var lever_sprite: AnimatedSprite2D = $AnimatedSprite2D

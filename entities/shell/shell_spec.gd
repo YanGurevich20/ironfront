@@ -11,7 +11,7 @@ class_name ShellSpec extends Resource
 @export var caliber: int = 75
 @export var unlock_cost: int = 10_000
 
-enum ImpactResultType{ PENETRATED, OVERMATCHED, BOUNCED, UNPENETRATED, SHATTERED}
+enum ImpactResultType{ PENETRATED=0, OVERMATCHED=1, BOUNCED=2, UNPENETRATED=3, SHATTERED=4}
 
 class ImpactResult:
 	var damage : int
