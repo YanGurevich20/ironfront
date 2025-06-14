@@ -20,7 +20,9 @@ var player_tank: Tank
 @onready var MetricEnum := Metrics.Metric
 @onready var entities: Node = $Entities
 @onready var player_spawn_point: Marker2D = $SpawnPoints/PlayerSpawnPoint
-@onready var enemy_spawn_points: Array[Marker2D] = []
+@onready var enemy_spawn_points: Array[SpawnPoint] = []
+
+const TankControllerType := TankManager.TankControllerType
 #endregion
 #region Lifecycle
 func _ready() -> void:
@@ -29,7 +31,7 @@ func _ready() -> void:
 
 func _initialize_spawn_points() -> void:
 	for spawn_point in $SpawnPoints.get_children() as Array[SpawnPoint]:
-		if spawn_point.type == SpawnPoint.Type.ENEMY:
+		if spawn_point.type != SpawnPoint.Type.PLAYER:
 			enemy_spawn_points.append(spawn_point)
 
 func start_level() -> void:
@@ -99,19 +101,15 @@ func _spawn_player() -> void:
 			selected_tank_id = unlocked_tank_ids[0]
 		else:
 			selected_tank_id = TankManager.TankId.TIGER_1
-	var player: Tank = TankManager.create_tank(selected_tank_id, TankManager.TankControllerType.PLAYER)
+	var player: Tank = TankManager.create_tank(selected_tank_id, TankControllerType.PLAYER)
 	player_tank = player
 	_spawn_tank(player_tank, player_spawn_point)
 
 func _spawn_enemies() -> void:
-	for spawn_point in enemy_spawn_points:
-		if level_index == 0:
-			#TODO: This is temporary override for level 0.
-			# develop a better system for level overrides, or use composition
-			var dummy_tank: Tank = TankManager.create_tank(TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY)
-			_spawn_tank(dummy_tank, spawn_point)
-			continue
-		var enemy_tank: Tank = TankManager.create_tank(TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.AI)
+	for spawn_point: SpawnPoint in enemy_spawn_points:
+		var is_dummy: bool = spawn_point.type == SpawnPoint.Type.DUMMY
+		var tank_controller_type: TankControllerType = TankControllerType.DUMMY if is_dummy else TankControllerType.AI
+		var enemy_tank: Tank = TankManager.create_tank(TankManager.TankId.M4A1_SHERMAN, tank_controller_type)
 		_spawn_tank(enemy_tank, spawn_point)
 #endregion
 #region Signal Handlers

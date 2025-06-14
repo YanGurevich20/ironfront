@@ -1,7 +1,7 @@
 class_name TankSpec extends Resource
 
 const TankSideType = Enums.TankSideType
-
+@export_file("*.tres") var shell_spec: String
 @export_category("Stats")
 @export_group("Hull")
 @export var health: int
@@ -11,8 +11,8 @@ const TankSideType = Enums.TankSideType
 	TankSideType.LEFT: 0.0,
 	TankSideType.RIGHT: 0.0
 }
-@export var linear_damping: float = 5.0 # Added for Godot's RigidBody2D linear damp
-@export var angular_damping: float = 15.0 # Added for Godot's RigidBody2D angular damp
+@export var linear_damping: float = 5.0 
+@export var angular_damping: float = 15.0
 @export var max_speed: float
 @export var acceleration_curve: Curve
 @export var max_acceleration: float
