@@ -4,7 +4,7 @@ class_name AmmoUpgradeList extends VBoxContainer
 
 var max_allowed_count: int
 var player_data: PlayerData
-signal shell_unlock_requested(shell_id: ShellManager.ShellId)
+signal shell_unlock_requested(shell_spec: ShellSpec)
 
 func display_ammo_upgrade_list(_player_data: PlayerData) -> void:
 	player_data = _player_data
@@ -13,10 +13,10 @@ func display_ammo_upgrade_list(_player_data: PlayerData) -> void:
 		child.queue_free()
 	var tank_spec := TankManager.TANK_SPECS[tank_config.tank_id]
 	max_allowed_count = tank_spec.shell_capacity
-	for shell_id: ShellManager.ShellId in tank_spec.allowed_shells:
+	for shell_spec: ShellSpec in tank_spec.allowed_shells:
 		var list_item: AmmoUpgradeListItem = ammo_upgrade_list_item_scene.instantiate()
 		add_child(list_item)
-		list_item.display_shell(tank_config, shell_id)
+		list_item.display_shell(tank_config, shell_spec)
 		list_item.count_updated.connect(_on_count_updated)
 
 func _on_count_updated() -> void:

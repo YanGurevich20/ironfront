@@ -75,9 +75,9 @@ func _on_play_pressed() -> void:
 	show_overlay(level_select_overlay)
 	level_select_overlay.display_levels()
 
-func _on_shell_info_requested(shell_id: ShellManager.ShellId) -> void:
+func _on_shell_info_requested(shell_spec: ShellSpec) -> void:
+	shell_info_overlay.display_shell_info(shell_spec)
 	show_overlay(shell_info_overlay)
-	shell_info_overlay.display_shell_info(shell_id)
 
 func _on_metrics_pressed()->void:
 	var metrics := Metrics.get_instance().metrics

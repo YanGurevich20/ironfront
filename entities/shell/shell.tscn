@@ -54,6 +54,7 @@ script = ExtResource("1_sb42f")
 polygon = PackedVector2Array(-2, 0, -1, 0, 2, 0)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true
 texture = SubResource("AtlasTexture_ginmc")
 
 [node name="FireParticles" type="GPUParticles2D" parent="."]

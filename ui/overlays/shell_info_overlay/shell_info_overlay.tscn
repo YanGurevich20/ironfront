@@ -1,11 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://dg228i3wg5mxx"]
+[gd_scene load_steps=5 format=3 uid="uid://dg228i3wg5mxx"]
 
 [ext_resource type="PackedScene" uid="uid://b2ndbkv4et6g1" path="res://ui/overlays/base_overlay/base_overlay.tscn" id="1_ejn7u"]
 [ext_resource type="Script" uid="uid://bq6oxq6xmyhj7" path="res://ui/overlays/shell_info_overlay/shell_info_overlay.gd" id="2_p56iy"]
 [ext_resource type="PackedScene" uid="uid://coutl2tg4we02" path="res://ui/overlays/shell_info_overlay/penetration_simulator/penetration_simulator.tscn" id="3_lktvo"]
+[ext_resource type="Resource" uid="uid://do4hmh2rl7t7y" path="res://entities/tank/tanks/m4a1_sherman/shells/m75.tres" id="3_pv4d1"]
 
 [node name="ShellInfoOverlay" instance=ExtResource("1_ejn7u")]
 script = ExtResource("2_p56iy")
+default_shell_spec = ExtResource("3_pv4d1")
 
 [node name="PanelContainer" parent="." index="1"]
 offset_left = -240.0
@@ -21,12 +23,7 @@ theme_override_constants/margin_bottom = 0
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/MarginContainer" index="0"]
 layout_mode = 2
 
-[node name="PenetrationSimulator" parent="PanelContainer/SectionsContainer/RootSection/MarginContainer/VBoxContainer" index="0" instance=ExtResource("3_lktvo")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 1
-
-[node name="InfoLabelContainer" type="HBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/MarginContainer/VBoxContainer" index="1"]
+[node name="InfoLabelContainer" type="HBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/MarginContainer/VBoxContainer" index="0"]
 layout_mode = 2
 size_flags_vertical = 6
 
@@ -69,3 +66,8 @@ Subcaliber Ratio
 Damage Range
 Ricochet Angle"
 uppercase = true
+
+[node name="PenetrationSimulator" parent="PanelContainer/SectionsContainer/RootSection/MarginContainer/VBoxContainer" index="1" instance=ExtResource("3_lktvo")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 1

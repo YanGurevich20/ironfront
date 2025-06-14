@@ -3,16 +3,16 @@ class_name ShellInfoOverlay  extends BaseOverlay
 @onready var penetration_simulator: PenetrationSimulator = %PenetrationSimulator
 @onready var shell_stats_label: Label = %ShellStats
 @onready var base_shell_stats_label: Label = %BaseShellStats
+@export var default_shell_spec: ShellSpec
 
 func _ready() -> void:
 	super._ready()
-	display_shell_info(ShellManager.ShellId.PZGR40)
+	# Default shell info display removed - will be set when requested
 
-func display_shell_info(shell_id: ShellManager.ShellId) -> void:
+func display_shell_info(shell_spec: ShellSpec) -> void:
 	if not is_inside_tree():
 		push_warning("ShellInfoOverlay not inside tree")
-	var shell_spec: ShellSpec = ShellManager.SHELL_SPECS[shell_id]
-	penetration_simulator.display_shell_info(shell_id)
+	penetration_simulator.display_shell_info(shell_spec)
 	_update_shell_stats(shell_spec)
 	_update_base_shell_stats(shell_spec)
 

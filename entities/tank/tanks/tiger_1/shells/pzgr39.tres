@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://chcoon7yta5au"]
+
+[ext_resource type="Resource" uid="uid://bmowonvrk2i1v" path="res://entities/shell/base_shell_type/base_shell_types/AP/AP.tres" id="1_pvux6"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="2_qlqq4"]
+
+[resource]
+script = ExtResource("2_qlqq4")
+base_shell_type = ExtResource("1_pvux6")
+muzzle_velocity = 700.0
+damage = 700
+penetration = 150.0
+shell_name = "PzGr.39"
+caliber = 88
+unlock_cost = 10000

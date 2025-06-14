@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="TankSpec" load_steps=13 format=3 uid="uid://cyhjue8xu1nc6"]
+[gd_resource type="Resource" script_class="TankSpec" load_steps=19 format=3 uid="uid://cyhjue8xu1nc6"]
 
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="1_3ssyx"]
 [ext_resource type="Texture2D" uid="uid://8hxjpbfoe7w7" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.png" id="1_rdsgh"]
+[ext_resource type="Resource" uid="uid://cc2vo4tsvge1o" path="res://entities/tank/tanks/m4a1_sherman/shells/m63.tres" id="2_p2men"]
 [ext_resource type="Texture2D" uid="uid://c3bvrg0oikrdo" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman_preview.png" id="3_7ojc8"]
+[ext_resource type="Resource" uid="uid://dr0gyuvt7fj63" path="res://entities/tank/tanks/m4a1_sherman/shells/m63_t.tres" id="3_7sc8v"]
 [ext_resource type="Script" uid="uid://c013xw6wq4kgl" path="res://entities/tank/tank_spec/tank_spec.gd" id="4_ivud1"]
+[ext_resource type="Resource" uid="uid://do4hmh2rl7t7y" path="res://entities/tank/tanks/m4a1_sherman/shells/m75.tres" id="4_q8dw0"]
+[ext_resource type="Resource" uid="uid://mdqwiwadrwg" path="res://entities/tank/tanks/m4a1_sherman/shells/m75_t.tres" id="5_itxx8"]
+[ext_resource type="Resource" uid="uid://c7kqynckiykje" path="res://entities/tank/tanks/m4a1_sherman/shells/m82.tres" id="6_u08mk"]
 
 [sub_resource type="Curve" id="Curve_ihbcg"]
 _data = [Vector2(0, 0.543148), 0.0, 0.0, 0, 0, Vector2(0.495541, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.658037), 0.0, 0.0, 0, 0]
@@ -58,7 +64,6 @@ region = Rect2(0, 192, 64, 64)
 
 [resource]
 script = ExtResource("4_ivud1")
-shell_spec = Array[String]([])
 health = 500
 hull_armor = Dictionary[int, float]({
 0: 80.0,
@@ -75,7 +80,7 @@ cannon_caliber = 75.0
 reload_time = 3.0
 max_turret_traverse_speed = 30.0
 shell_capacity = 70
-allowed_shells = Array[int]([2, 4, 3, 0])
+allowed_shells = Array[ExtResource("1_3ssyx")]([ExtResource("4_q8dw0"), ExtResource("6_u08mk"), ExtResource("2_p2men"), ExtResource("5_itxx8"), ExtResource("3_7sc8v")])
 id = "m4a1_sherman"
 display_name = "M4A1"
 full_name = "M4A1 Sherman"
