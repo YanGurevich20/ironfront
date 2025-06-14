@@ -1,11 +1,13 @@
 [gd_scene load_steps=5 format=4 uid="uid://bmrhpmmx0erk3"]
 
 [ext_resource type="Script" uid="uid://b2ek4rd4g0pod" path="res://levels/base_level/base_level.gd" id="1_fqjk7"]
-[ext_resource type="TileSet" uid="uid://bdjv7kqesxftp" path="res://levels/base_level/tiles/tileset.tres" id="2_spwyb"]
+[ext_resource type="TileSet" uid="uid://bdjv7kqesxftp" path="res://levels/base_level/tiles/floor_tileset.tres" id="2_spwyb"]
 [ext_resource type="PackedScene" uid="uid://d4elqwoe18ky3" path="res://levels/base_level/level_components/spawn_point/spawn_point.tscn" id="5_y3fao"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_xuqcn"]
 resource_local_to_scene = true
+vertices = PackedVector2Array(3010.47, -995.18, 3052.48, 1689.84, -1897.37, 1666.15, -1841.64, -1181.76)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-1873, -1215, -1930, 1698, 3085, 1722, 3042, -1026)])
 source_geometry_mode = 1
 agent_radius = 32.0
