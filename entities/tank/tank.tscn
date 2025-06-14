@@ -233,14 +233,17 @@ sprite_frames = SubResource("SpriteFrames_cxr3h")
 [node name="TrackSoundSlow" type="AudioStreamPlayer2D" parent="Hull/TrackSounds"]
 unique_name_in_owner = true
 max_distance = 400.0
+attenuation = 4.0
 
 [node name="TrackSoundNormal" type="AudioStreamPlayer2D" parent="Hull/TrackSounds"]
 unique_name_in_owner = true
 max_distance = 400.0
+attenuation = 4.0
 
 [node name="TrackSoundFast" type="AudioStreamPlayer2D" parent="Hull/TrackSounds"]
 unique_name_in_owner = true
 max_distance = 400.0
+attenuation = 4.0
 
 [node name="EngineSounds" type="Node2D" parent="Hull"]
 
@@ -249,18 +252,21 @@ unique_name_in_owner = true
 rotation = -0.001131
 autoplay = true
 max_distance = 800.0
+attenuation = 4.0
 
 [node name="EngineSoundNormal" type="AudioStreamPlayer2D" parent="Hull/EngineSounds"]
 unique_name_in_owner = true
 rotation = -0.001131
 autoplay = true
 max_distance = 800.0
+attenuation = 4.0
 
 [node name="EngineSoundFast" type="AudioStreamPlayer2D" parent="Hull/EngineSounds"]
 unique_name_in_owner = true
 rotation = -0.001131
 autoplay = true
 max_distance = 800.0
+attenuation = 4.0
 
 [node name="Turret" type="Sprite2D" parent="."]
 unique_name_in_owner = true

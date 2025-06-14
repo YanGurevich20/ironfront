@@ -1,7 +1,6 @@
 class_name TankSpec extends Resource
 
 const TankSideType = Enums.TankSideType
-@export_file("*.tres") var shell_spec: String
 @export_category("Stats")
 @export_group("Hull")
 @export var health: int
@@ -17,11 +16,11 @@ const TankSideType = Enums.TankSideType
 @export var acceleration_curve: Curve
 @export var max_acceleration: float
 @export_group("Turret")
-@export var cannon_caliber: float #mm
-@export var reload_time: float #sec
-@export var max_turret_traverse_speed: float #deg/sec
+@export_range(0,300,0.1,"suffix:mm") var cannon_caliber: float
+@export_range(0,120,0.1,"suffix:sec") var reload_time: float
+@export_range(0,360,0.1,"suffix:deg/sec") var max_turret_traverse_speed: float
 @export var shell_capacity: int
-@export var allowed_shells: Array[ShellManager.ShellId]
+@export var allowed_shells: Array[ShellSpec]
 
 @export_category("Info")
 @export_group("Info")

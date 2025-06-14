@@ -7,35 +7,40 @@
 class_name Shell extends Area2D
 
 const TankSideType = Enums.TankSideType
-var shell_id: ShellManager.ShellId
+
+
 var shell_spec: ShellSpec
-var firing_tank: Node2D
-var damage: int
 var velocity: Vector2
-var shell_texture: Texture2D
-var is_tracer: bool
 var starting_global_position: Vector2
 
-@onready var shell_sprite: Sprite2D = $Sprite2D
+@onready var sprite: Sprite2D = %Sprite2D
+
+var firing_tank: Node2D
+var damage: int
+var shell_texture: Texture2D
+var is_tracer: bool
+
 @onready var fire_particles: GPUParticles2D = %FireParticles
 @onready var tracer_particles: GPUParticles2D = %TracerParticles
 @onready var shell_tip: Marker2D = %ShellTip
 
 func _ready() -> void:
-	shell_sprite.texture = shell_texture
+	if shell_spec != null:
+		sprite.texture = shell_spec.base_shell_type.projectile_texture
 	body_entered.connect(_on_body_entered)
 	fire_particles.emitting = !is_tracer
 	tracer_particles.emitting = is_tracer
 	starting_global_position = global_position
 
-func initialize(_shell_id: ShellManager.ShellId, muzzle: Marker2D, _firing_tank: Node2D) -> void:
-	shell_spec = ShellManager.SHELL_SPECS[_shell_id]
-	shell_id = _shell_id
-	damage = shell_spec.damage
-	rotation = muzzle.global_rotation
+func initialize(_shell_spec: ShellSpec, muzzle: Marker2D, _firing_tank: Node2D) -> void:
+	shell_spec = _shell_spec
 	firing_tank = _firing_tank
-	position = muzzle.global_position
-	velocity = Vector2.RIGHT.rotated(rotation) * shell_spec.muzzle_velocity
+	
+	velocity = (muzzle.global_transform.x * shell_spec.muzzle_velocity)
+	global_position = muzzle.global_position
+	starting_global_position = muzzle.global_position
+	rotation = velocity.angle()
+	damage = shell_spec.damage
 	shell_texture = shell_spec.base_shell_type.projectile_texture
 	is_tracer = shell_spec.base_shell_type.is_tracer
 

@@ -16,9 +16,9 @@ func _on_fire_input() -> void:
 	if tank.is_player:
 		tank.fire_shell()
 
-func _on_shell_selected(shell_id: ShellManager.ShellId, remaining_shell_count: int) -> void:
+func _on_shell_selected(shell_spec: ShellSpec, remaining_shell_count: int) -> void:
 	if tank.is_player:
-		tank.set_current_shell_id(shell_id)
+		tank.set_current_shell_spec(shell_spec)
 		tank.set_remaining_shell_count(remaining_shell_count)
 
 func _on_update_remaining_shell_count(count: int) -> void:

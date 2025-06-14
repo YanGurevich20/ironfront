@@ -11,12 +11,13 @@ extends Sprite2D
 
 var shell_scene: PackedScene = preload("res://entities/shell/shell.tscn")
 var remaining_shell_count: int = 1
-var current_shell_id: ShellManager.ShellId
+var current_shell_spec: ShellSpec
 
 func _ready() -> void:
 	flash.animation_finished.connect(func()->void:flash.visible=false)
 	reload_timer.timeout.connect(func()->void:SignalBus.reload_progress_left_updated.emit(1.0, tank))
-	current_shell_id = tank.tank_spec.allowed_shells[0]
+	if tank.tank_spec.allowed_shells.size() > 0:
+		current_shell_spec = tank.tank_spec.allowed_shells[0]
 	line_of_sight_raycast.add_exception(tank)
 
 #region Rotation Handling
@@ -42,7 +43,7 @@ func fire_shell() -> void:
 	if not reload_timer.is_stopped():
 		return
 	var shell: Shell = shell_scene.instantiate()
-	shell.initialize(current_shell_id, muzzle, tank)
+	shell.initialize(current_shell_spec, muzzle, tank)
 	SignalBus.shell_fired.emit(shell, tank)
 	SignalBus.reload_progress_left_updated.emit(0.0, tank)
 
@@ -72,7 +73,7 @@ func reset_reload_timer() -> void:
 	reload_timer.stop()
 	reload_timer.start(tank.tank_spec.reload_time)
 
-func set_current_shell_id(shell_id: ShellManager.ShellId) -> void:
-	if shell_id != current_shell_id:
-		current_shell_id = shell_id
+func set_current_shell_spec(shell_spec: ShellSpec) -> void:
+	if shell_spec != current_shell_spec:
+		current_shell_spec = shell_spec
 		reset_reload_timer()

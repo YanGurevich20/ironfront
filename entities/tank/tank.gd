@@ -58,8 +58,8 @@ func _apply_settings() -> void:
 	var zoom_level: float = settings_data.zoom_level
 	camera_2d.zoom = Vector2(zoom_level, zoom_level)
 
-func set_current_shell_id(shell_id: ShellManager.ShellId) -> void:
-	turret.set_current_shell_id(shell_id)
+func set_current_shell_spec(shell_spec: ShellSpec) -> void:
+	turret.set_current_shell_spec(shell_spec)
 
 func set_remaining_shell_count(count: int) -> void:
 	turret.remaining_shell_count = count

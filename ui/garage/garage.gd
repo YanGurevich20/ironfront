@@ -22,19 +22,16 @@ func _on_tank_unlock_requested(tank_id: TankManager.TankId) -> void:
 		return #TODO: Feedback insufficient funds
 	player_data.dollars -= tank_spec.dollar_cost
 	player_data.unlock_tank(tank_id)
-	player_data.selected_tank_id = tank_id
-	var player_tank_config := player_data.get_tank_config(player_data.selected_tank_id)
-	player_tank_config.unlock_shell(TankManager.TANK_SPECS[tank_id].allowed_shells[0])
 	player_data.save()
 	display_player_data()
 
-func _on_shell_unlock_requested(shell_id: ShellManager.ShellId) -> void:
-	var unlock_cost := ShellManager.SHELL_SPECS[shell_id].unlock_cost
+func _on_shell_unlock_requested(shell_spec: ShellSpec) -> void:
+	var unlock_cost := shell_spec.unlock_cost
 	if player_data.dollars < unlock_cost:
 		return #TODO: Feedback insufficient funds
 	player_data.dollars -= unlock_cost
 	var player_tank_config := player_data.get_tank_config(player_data.selected_tank_id)
-	player_tank_config.unlock_shell(shell_id)
+	player_tank_config.unlock_shell(shell_spec)
 	player_data.save()
 	display_player_data()
 

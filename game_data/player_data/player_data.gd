@@ -1,12 +1,14 @@
 class_name PlayerData extends LoadableData
 
-@export var player_name: String = ""
+@export var player_name: String = "Iroh"
 @export var stars_per_level: Dictionary[int, int] = {}
 @export var dollars: int = 300_000
 @export var bonds: int = 0
-@export var tank_configs: Dictionary[TankManager.TankId, PlayerTankConfig]
+@export var tank_configs: Dictionary[TankManager.TankId, PlayerTankConfig] = {}
 @export var selected_tank_id: TankManager.TankId
 @export var is_developer: bool = false
+
+const DEFAULT_TANK_ID: TankManager.TankId = TankManager.TankId.M4A1_SHERMAN
 
 const FILE_NAME: String = "player_data"
 
@@ -14,7 +16,12 @@ func get_file_name() -> String:
 	return FILE_NAME
 
 static func get_instance() -> PlayerData:
-	return LoadableData.get_loadable_instance(PlayerData)
+	var instance: PlayerData = LoadableData.get_loadable_instance(PlayerData)
+	return instance
+
+func _init() -> void:
+	if tank_configs.is_empty():
+		unlock_tank(DEFAULT_TANK_ID)
 
 func add_dollars(amount: int) -> void:
 	dollars += amount
@@ -41,9 +48,12 @@ func get_current_tank_config() -> PlayerTankConfig:
 	return get_tank_config(selected_tank_id)
 
 func unlock_tank(tank_id: TankManager.TankId) -> void:
-	var tank_config: PlayerTankConfig = PlayerTankConfig.new()
-	tank_config.tank_id = tank_id
+	if tank_configs.has(tank_id):
+		push_warning("Tank already unlocked: ", tank_id)
+		return
+	var tank_config: PlayerTankConfig = PlayerTankConfig.new(tank_id)
 	tank_configs.set(tank_id, tank_config)
+	selected_tank_id = tank_id
 
 func is_selected_tank_valid() -> bool:
 	return selected_tank_id in tank_configs.keys()
