@@ -10,7 +10,7 @@ var tank_price: int = 0
 @onready var _price_label: Label = %PriceLabel
 @onready var _name_label: Label = %NameLabel
 
-enum State {LOCKED, UNLOCKABLE, UNLOCKED, SELECTED}
+enum State {LOCKED=0, UNLOCKABLE=1, UNLOCKED=2, SELECTED=3}
 
 signal item_pressed()
 

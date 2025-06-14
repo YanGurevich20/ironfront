@@ -5,7 +5,7 @@ class_name StateMachine
 @export var fight_range_max := 400.0
 @export var fight_range_min := 100.0
 
-enum State { PATROL, CHASE, FIGHT, DISENGAGE }
+enum State { PATROL=0, CHASE=1, FIGHT=2, DISENGAGE=3 }
 
 func determine_state(range_to_target: float, has_line_of_sight: bool) -> State:
 	if range_to_target > detection_range:

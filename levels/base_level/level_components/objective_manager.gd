@@ -2,7 +2,7 @@
 class_name ObjectiveManager extends Resource
 @export var objectives: Array[Objective]
 
-enum ObjectiveResult {SCORE, COUNT}
+enum ObjectiveResult {SCORE=0, COUNT=1}
 
 func evaluate_objectives(level_metrics: Dictionary[Metrics.Metric, int]) -> void:
 	if objectives.size() == 0:

@@ -25,7 +25,7 @@ var input_force: float = 0.0
 var track_sounds_map: Dictionary
 var track_pitch_ranges: Dictionary
 
-enum SoundType { ENGINE, TRACK }
+enum SoundType { ENGINE=0, TRACK=1 }
 const SpeedType = Enums.SpeedType
 
 func setup_sounds(tank_size_class: Enums.TankSizeClass) -> void:
