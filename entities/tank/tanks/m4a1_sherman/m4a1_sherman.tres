@@ -58,6 +58,7 @@ region = Rect2(0, 192, 64, 64)
 
 [resource]
 script = ExtResource("4_ivud1")
+shell_spec = Array[String]([])
 health = 500
 hull_armor = Dictionary[int, float]({
 0: 80.0,

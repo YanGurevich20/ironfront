@@ -4,7 +4,7 @@
 - [V] Engine sounds - per weight class and speed
 - [V] Gun sounds - per caliber class
 - [V] Audio balancing
-- [ ] Tank controls upgrade
+- [ ] Tank controls upgrade - maybe
 - [ ] Camera shake - maybe
 - [ ] Hit stop - maybe
 ## Gameplay
