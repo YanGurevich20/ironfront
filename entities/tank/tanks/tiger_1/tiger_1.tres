@@ -100,7 +100,6 @@ reload_time = 5.0
 max_turret_traverse_speed = 22.0
 shell_capacity = 30
 allowed_shells = Array[ExtResource("1_l506v")]([ExtResource("2_a1xuu"), ExtResource("3_x46jr"), ExtResource("4_48i7y")])
-allowed_shells_old = Array[int]([])
 id = "tiger_1"
 display_name = "Tiger I"
 full_name = "Pz.Kpfw. VI Tiger Ausf. E"

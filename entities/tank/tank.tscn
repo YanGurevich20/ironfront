@@ -197,7 +197,6 @@ animations = [{
 }]
 
 [node name="Tank" type="RigidBody2D" groups=["tank"]]
-z_index = 1
 can_sleep = false
 continuous_cd = 2
 contact_monitor = true

@@ -83,7 +83,6 @@ reload_time = 0.1
 max_turret_traverse_speed = 50.0
 shell_capacity = 100
 allowed_shells = Array[ExtResource("1_nbn4u")]([ExtResource("2_nct3w"), ExtResource("3_6lujh"), ExtResource("4_jv2ut"), ExtResource("5_x5oye"), ExtResource("6_f1qbn"), ExtResource("7_0xn4p"), ExtResource("8_lqc08")])
-allowed_shells_old = Array[int]([])
 id = "debug_tank"
 display_name = "DEBUG"
 full_name = "DEBUG TANK"
