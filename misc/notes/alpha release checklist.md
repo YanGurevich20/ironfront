@@ -4,16 +4,12 @@
 - [V] Engine sounds - per weight class and speed
 - [V] Gun sounds - per caliber class
 - [V] Audio balancing
-- [ ] Tank controls upgrade - maybe
-- [ ] Camera shake - maybe
-- [ ] Hit stop - maybe
 ## Gameplay
 - [V] Level dollar reward feedback in result screen
-- [ ] Map size (don't overdo)
+- [V] Map size (don't overdo)
 - [V] Camera zoom control
 - [V] Basic settings - Audio sliders, UI opacity, HUD opacity
 ## Analytics
-- [ ] Set up session tracking in the cloud
 - [ ] Update feedback form questions
 ## Critical bugs
 - [V] Level restart broken
