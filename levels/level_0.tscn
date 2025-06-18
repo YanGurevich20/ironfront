@@ -23,7 +23,7 @@ metadata/_custom_type_script = "uid://dhqboadrtowib"
 objective_manager = SubResource("Resource_jum3j")
 
 [node name="PlayerSpawnPoint" parent="SpawnPoints" index="0"]
-position = Vector2(-37, 7)
+position = Vector2(-65, 26)
 rotation = -0.053307
 
 [node name="EnemySpawnPoint1" parent="SpawnPoints" index="1"]
