@@ -86,6 +86,8 @@ func handle_tank_destroyed() -> void:
 	reset_input()
 	hull.stop_sounds()
 	tank_destroyed.emit(self)
+	remove_from_group("tank")
+	add_to_group("projectile_blocker")
 	apply_destruction_effects()
 
 func apply_destruction_effects() -> void:

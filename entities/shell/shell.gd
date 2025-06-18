@@ -52,6 +52,7 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if body.is_in_group("projectile_blocker"):
 		queue_free()
+		return
 	if body is Tank:
 		var tank: Tank = body
 		var hit_params: ShellHelpers.ShellHitParams = ShellHelpers.handle_tank_hit(tank, self)

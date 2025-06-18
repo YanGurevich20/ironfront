@@ -1,15 +1,10 @@
 [gd_resource type="TileSet" load_steps=5 format=3 uid="uid://roonsgr5u26r"]
 
-[ext_resource type="Texture2D" uid="uid://cb0dg2l7v3sns" path="res://levels/base_level/tiles/tileset.png" id="1_mit6u"]
-
-[sub_resource type="TileMapPattern" id="TileMapPattern_mbjti"]
-tile_data = PackedInt32Array(458752, 2293760, 5, 196610, 2031616, 5, 720898, 2031616, 5, 393221, 2621440, 5, 655365, 2293760, 5, 7, 2293760, 5, 327689, 2621440, 5, 393225, 2621440, 5, 655369, 2621440, 5, 131085, 2293760, 10)
-
-[sub_resource type="TileMapPattern" id="TileMapPattern_vkfbd"]
-tile_data = PackedInt32Array(458756, 2293760, 5, 262150, 2293760, 10, 65544, 1900544, 5, 9, 2031616, 7)
+[ext_resource type="Texture2D" uid="uid://cb0dg2l7v3sns" path="res://global_assets/map/tileset.png" id="1_vtkug"]
+[ext_resource type="PackedScene" uid="uid://c06nra7itenvy" path="res://global_assets/map/tree_obstacle/tree_obstacle.tscn" id="2_pixht"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mbjti"]
-texture = ExtResource("1_mit6u")
+texture = ExtResource("1_vtkug")
 15:7/0 = 0
 15:7/0/terrain_set = 0
 15:7/0/terrain = 0
@@ -1037,27 +1032,10 @@ texture = ExtResource("1_mit6u")
 27:0/0 = 0
 28:0/0 = 0
 29:0/0 = 0
-35:10/size_in_atlas = Vector2i(4, 4)
-35:10/0 = 0
-35:10/0/physics_layer_0/polygon_0/points = PackedVector2Array(-5.49019, -3.75905, -0.939762, -6.42995, 4.40204, -5.3418, 8, -1.87952, 8, 3.26443, 4.99558, 6.62779, 0.544073, 6.92456, -5.0945, 6.03426, -8, 3.26443, -8.85355, 0.593533)
-35:5/size_in_atlas = Vector2i(4, 4)
-35:5/0 = 0
-35:5/0/physics_layer_0/polygon_0/points = PackedVector2Array(-5.49019, -3.75905, -0.939762, -6.42995, 4.40204, -5.3418, 8, -1.87952, 8, 3.26443, 4.99558, 6.62779, 0.544073, 6.92456, -5.0945, 6.03426, -8, 3.26443, -8.85355, 0.593533)
-40:5/size_in_atlas = Vector2i(3, 3)
-40:5/0 = 0
-40:5/0/physics_layer_0/polygon_0/points = PackedVector2Array(-5.49019, -3.75905, -0.939762, -6.42995, 4.40204, -5.3418, 8, -1.87952, 8, 3.26443, 4.99558, 6.62779, 0.544073, 6.92456, -5.0945, 6.03426, -8, 3.26443, -8.85355, 0.593533)
-31:7/size_in_atlas = Vector2i(2, 2)
-31:7/0 = 0
-31:7/0/physics_layer_0/polygon_0/points = PackedVector2Array(-4.30312, -3.36336, -0.544073, -4.25366, 3.41282, -3.5612, 5.39127, -0.296768, 3.61066, 3.75905, -0.247305, 4.64935, -4.89665, 3.46228, -5.88588, 0)
-29:7/size_in_atlas = Vector2i(2, 2)
-29:7/0 = 0
-29:7/0/physics_layer_0/polygon_0/points = PackedVector2Array(-4.30312, -3.36336, -0.544073, -4.25366, 3.41282, -3.5612, 5.39127, -0.296768, 3.61066, 3.75905, -0.247305, 4.64935, -4.89665, 3.46228, -5.88588, 0)
-29:5/size_in_atlas = Vector2i(2, 2)
-29:5/0 = 0
-29:5/0/physics_layer_0/polygon_0/points = PackedVector2Array(-4.30312, -3.36336, -0.544073, -4.25366, 3.41282, -3.5612, 5.39127, -0.296768, 3.61066, 3.75905, -0.247305, 4.64935, -4.89665, 3.46228, -5.88588, 0)
-31:5/size_in_atlas = Vector2i(2, 2)
-31:5/0 = 0
-31:5/0/physics_layer_0/polygon_0/points = PackedVector2Array(-4.30312, -3.36336, -0.544073, -4.25366, 3.41282, -3.5612, 5.39127, -0.296768, 3.61066, 3.75905, -0.247305, 4.64935, -4.89665, 3.46228, -5.88588, 0)
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_p3svh"]
+resource_name = "Trees"
+scenes/1/scene = ExtResource("2_pixht")
 
 [resource]
 physics_layer_0/collision_layer = 1
@@ -1069,5 +1047,4 @@ terrain_set_0/terrain_1/color = Color(0.383152, 0.272452, 1, 1)
 terrain_set_0/terrain_2/name = "Light Grass"
 terrain_set_0/terrain_2/color = Color(0.957012, 0.560867, 3.85046e-07, 1)
 sources/0 = SubResource("TileSetAtlasSource_mbjti")
-pattern_0 = SubResource("TileMapPattern_mbjti")
-pattern_1 = SubResource("TileMapPattern_vkfbd")
+sources/1 = SubResource("TileSetScenesCollectionSource_p3svh")
