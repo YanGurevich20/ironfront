@@ -8,7 +8,6 @@ class_name AmmoUpgradeListItem extends HBoxContainer
 @onready var count_increment_button: Button = %CountIncrementButton
 @onready var count_decrement_button: Button = %CountDecrementButton
 @onready var info_button: Button = %InfoButton
-@onready var shell_name_label: Label = %ShellName
 
 @onready var ammo_count_container: HBoxContainer = %AmmoCountContainer
 @onready var unlock_container: HBoxContainer = %UnlockContainer
@@ -26,7 +25,6 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_spec: ShellSpec)
 	var tank_spec := TankManager.TANK_SPECS[player_tank_config.tank_id]
 	var is_locked: bool = not player_tank_config.shell_amounts.has(shell_spec)
 	var max_allowed_count := tank_spec.shell_capacity
-	shell_name_label.text = shell_spec.shell_name
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
 	count_slider.max_value = max_allowed_count
 	count_slider.tick_count = clamp(max_allowed_count + 1, 2, MAX_TICK_COUNT)

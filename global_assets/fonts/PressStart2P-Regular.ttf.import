@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://cqi0v32jaffcv"
-path="res://.godot/imported/Military_March_Monospaced.ttf-35f5015c48cf2b761bf967e07badbd3c.fontdata"
+uid="uid://noeufyw3eg0r"
+path="res://.godot/imported/PressStart2P-Regular.ttf-6781d96cf01e2212ea76737dad3e7c95.fontdata"
 
 [deps]
 
-source_file="res://global_assets/fonts/Military_March_Monospaced.ttf"
-dest_files=["res://.godot/imported/Military_March_Monospaced.ttf-35f5015c48cf2b761bf967e07badbd3c.fontdata"]
+source_file="res://global_assets/fonts/PressStart2P-Regular.ttf"
+dest_files=["res://.godot/imported/PressStart2P-Regular.ttf-6781d96cf01e2212ea76737dad3e7c95.fontdata"]
 
 [params]
 

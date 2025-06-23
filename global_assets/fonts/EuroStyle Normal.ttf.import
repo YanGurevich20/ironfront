@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dh827gleiwdyi"
-path="res://.godot/imported/Military_March_Nospace_Cutout.ttf-a1db178040e01695329f4b338c66cda3.fontdata"
+uid="uid://blgu7fvp281v5"
+path="res://.godot/imported/EuroStyle Normal.ttf-a8f17dcaddbafe07f88b89ec7739e506.fontdata"
 
 [deps]
 
-source_file="res://global_assets/fonts/Military_March_Nospace_Cutout.ttf"
-dest_files=["res://.godot/imported/Military_March_Nospace_Cutout.ttf-a1db178040e01695329f4b338c66cda3.fontdata"]
+source_file="res://global_assets/fonts/EuroStyle Normal.ttf"
+dest_files=["res://.godot/imported/EuroStyle Normal.ttf-a8f17dcaddbafe07f88b89ec7739e506.fontdata"]
 
 [params]
 

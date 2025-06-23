@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://bnb03wyhh820o"
-path="res://.godot/imported/Military_March_Cutout.ttf-74ec68280afed579488f1ffffcaf1826.fontdata"
+uid="uid://c7ylwv5qmjeid"
+path="res://.godot/imported/eurostile.TTF-883f3ba73ca4108c81c83ea1ab75321a.fontdata"
 
 [deps]
 
-source_file="res://global_assets/fonts/Military_March_Cutout.ttf"
-dest_files=["res://.godot/imported/Military_March_Cutout.ttf-74ec68280afed579488f1ffffcaf1826.fontdata"]
+source_file="res://global_assets/fonts/eurostile.TTF"
+dest_files=["res://.godot/imported/eurostile.TTF-883f3ba73ca4108c81c83ea1ab75321a.fontdata"]
 
 [params]
 

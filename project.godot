@@ -51,6 +51,7 @@ tank="just a tank"
 [gui]
 
 theme/custom="uid://dhe3ageaikkit"
+theme/default_font_hinting=2
 timers/warnings/function_used_as_property=0
 timers/warnings/return_value_discarded=0
 timers/warnings/unused_local_constant=1

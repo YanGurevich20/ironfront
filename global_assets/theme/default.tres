@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=27 format=3 uid="uid://dhe3ageaikkit"]
 
-[ext_resource type="FontFile" uid="uid://bnyngcuqbpdwa" path="res://global_assets/fonts/Military_March.ttf" id="2_mx1a8"]
+[ext_resource type="FontFile" uid="uid://noeufyw3eg0r" path="res://global_assets/fonts/PressStart2P-Regular.ttf" id="2_mx1a8"]
 [ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="2_plmku"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qgxfu"]
@@ -168,7 +168,7 @@ region_rect = Rect2(129, 200, 62, 48)
 
 [resource]
 default_font = ExtResource("2_mx1a8")
-default_font_size = 9
+default_font_size = 12
 Button/colors/font_color = Color(0.984314, 0.964706, 0.92549, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)
@@ -201,7 +201,6 @@ HSlider/styles/grabber_area_highlight = SubResource("StyleBoxTexture_4y6nw")
 HSlider/styles/slider = SubResource("StyleBoxTexture_ugk4n")
 Label/colors/font_color = Color(0.983556, 0.966256, 0.92475, 1)
 Label/constants/outline_size = 2
-Label/fonts/font = ExtResource("2_mx1a8")
 LineEdit/constants/outline_size = 2
 LineEdit/styles/focus = SubResource("StyleBoxEmpty_plmku")
 LineEdit/styles/normal = SubResource("StyleBoxEmpty_864tc")

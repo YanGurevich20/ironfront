@@ -34,6 +34,5 @@ value = 4.0
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 8
 text = "UPGRADE
 50,000 $"
