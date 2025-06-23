@@ -31,8 +31,10 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_spec: ShellSpec)
 	if not is_locked:
 		ammo_count_container.show()
 		unlock_container.hide()
-		current_allowed_count = max_allowed_count
 		var loaded_count := player_tank_config.get_shell_amount(shell_spec)
+		var current_total_count := player_tank_config.get_total_shell_count()
+		var unallocated_count := max_allowed_count - current_total_count
+		current_allowed_count = loaded_count + unallocated_count
 		update_count(loaded_count)
 	else:
 		ammo_count_container.hide()
