@@ -1,6 +1,6 @@
 # Godot 4+ specific ignores
+.godot/
 /android/
-.godot/editor
 .vscode
 *.apk
 misc/android/build/
@@ -8,5 +8,4 @@ misc/android/build/
 */.DS_Store
 uid_cache.bin
 *.cache
-.godot/imported
 test
