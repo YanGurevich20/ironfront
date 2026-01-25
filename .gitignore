@@ -3,6 +3,8 @@
 /android/
 .vscode
 *.apk
+*.aab
+*.keystore
 misc/android/build/
 .DS_Store
 */.DS_Store
