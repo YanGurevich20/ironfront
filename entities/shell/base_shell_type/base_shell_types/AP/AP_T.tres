@@ -13,16 +13,9 @@ region = Rect2(16, 80, 32, 32)
 
 [resource]
 script = ExtResource("2_6jb83")
-shell_type = 0
-is_kinetic = true
 is_tracer = true
-is_subcaliber = false
-is_explosive_damage = false
-subcaliber_ratio = 1.0
-standard_damage_deviation = 0.05
 ricochet_angle_soft = 55.0
 ricochet_angle_hard = 70.0
-ricochet_ease_curve = 2.0
 round_texture = SubResource("AtlasTexture_hdfl3")
 projectile_texture = SubResource("AtlasTexture_64s4n")
 metadata/_custom_type_script = "uid://0m20y2pnl21p"

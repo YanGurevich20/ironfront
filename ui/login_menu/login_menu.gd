@@ -4,6 +4,7 @@ class_name LoginMenu extends Control
 @onready var login_button: Button = %LoginButton
 @onready var username_input: LineEdit = %UsernameInput
 @onready var quit_button: Button = %QuitButton
+@onready var discord_link_button: Button = %DiscordLinkButton
 
 var player_data: PlayerData = PlayerData.get_instance()
 
@@ -18,6 +19,7 @@ func _ready() -> void:
 	username_input.text_changed.connect(_handle_username_input)
 	login_button.pressed.connect(_on_login_button_pressed)
 	quit_button.pressed.connect(func() -> void: SignalBus.quit_pressed.emit())
+	discord_link_button.pressed.connect(func() -> void: OS.shell_open("https://discord.gg/SDBEpSu9DA"))
 
 func _handle_username_input(text: String) -> void:
 	login_button.disabled = text.is_empty()

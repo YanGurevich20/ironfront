@@ -12,7 +12,7 @@ config_version=5
 
 config/name="IronFront"
 run/main_scene="uid://cl8p28cnuvfp6"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.5", "GL Compatibility")
 run/max_fps=60
 boot_splash/image="uid://5ol3lvf3h7nr"
 boot_splash/minimum_display_time=1000
@@ -27,7 +27,8 @@ gdscript/warnings/unused_signal=0
 gdscript/warnings/untyped_declaration=1
 gdscript/warnings/unsafe_property_access=1
 gdscript/warnings/unsafe_method_access=1
-shapes/navigation/geometry_face_color=Color(0.501961, 1, 1, 0.211765)
+shapes/navigation/3d/geometry_face_color=Color(0.501961, 1, 1, 0.211765)
+shapes/navigation/2d/geometry_face_color=Color(0.501961, 1, 1, 0.211765)
 
 [display]
 
@@ -36,6 +37,7 @@ window/size/viewport_height=360
 window/size/mode=2
 window/size/initial_position_type=3
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [editor]
 
@@ -50,8 +52,8 @@ tank="just a tank"
 
 [gui]
 
-theme/custom="uid://dhe3ageaikkit"
 theme/default_font_hinting=2
+theme/custom="uid://dhe3ageaikkit"
 timers/warnings/function_used_as_property=0
 timers/warnings/return_value_discarded=0
 timers/warnings/unused_local_constant=1

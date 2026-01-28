@@ -66,7 +66,6 @@ region = Rect2(0, 192, 64, 64)
 
 [resource]
 script = ExtResource("4_k8vc1")
-health = 0
 hull_armor = Dictionary[int, float]({
 0: 80.0,
 1: 40.0,
@@ -87,7 +86,6 @@ id = "debug_tank"
 display_name = "DEBUG"
 full_name = "DEBUG TANK"
 nation = "space"
-dollar_cost = 0
 turret_sprite = SubResource("AtlasTexture_q8dw0")
 cannon_sprite = SubResource("AtlasTexture_ihbcg")
 hull_sprite = SubResource("AtlasTexture_p2men")
@@ -103,5 +101,4 @@ track_offset = Vector2(0, 10)
 turret_pivot_offset = Vector2(-1, 0)
 cannon_offset = Vector2(16, 0)
 muzzle_offset = Vector2(11, 0)
-engine_size_class = 1
 metadata/_custom_type_script = "uid://c013xw6wq4kgl"

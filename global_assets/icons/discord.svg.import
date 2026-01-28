@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5ol3lvf3h7nr"
-path="res://.godot/imported/logo_cover_art_720p.png-c282796fddc88da3378ba63dd951e236.ctex"
+uid="uid://br02men0xxxvv"
+path="res://.godot/imported/discord.svg-1096b804d0737d3ab810493d7cd2b155.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://global_assets/splash_screen/logo_cover_art_720p.png"
-dest_files=["res://.godot/imported/logo_cover_art_720p.png-c282796fddc88da3378ba63dd951e236.ctex"]
+source_file="res://global_assets/icons/discord.svg"
+dest_files=["res://.godot/imported/discord.svg-1096b804d0737d3ab810493d7cd2b155.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false
