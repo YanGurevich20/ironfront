@@ -8,12 +8,8 @@ atlas = ExtResource("2_jrw7b")
 region = Rect2(0, 16, 16, 16)
 
 [node name="HeaderPanel" type="PanelContainer"]
-custom_minimum_size = Vector2(640, 48)
-anchors_preset = -1
-anchor_right = 1.0
-anchor_bottom = 0.222
-offset_bottom = -29.92
-grow_horizontal = 2
+custom_minimum_size = Vector2(0, 48)
+size_flags_horizontal = 3
 theme_type_variation = &"PanelContainerDark"
 script = ExtResource("1_nnyat")
 

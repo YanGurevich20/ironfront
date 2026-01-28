@@ -22,6 +22,7 @@ visible = false
 visible = false
 
 [node name="BattleInterface" parent="." instance=ExtResource("2_w7alx")]
+visible = false
 
 [node name="GarageMenuOverlay" parent="." instance=ExtResource("2_30b5s")]
 visible = false

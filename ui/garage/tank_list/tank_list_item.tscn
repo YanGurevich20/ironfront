@@ -14,10 +14,6 @@ region = Rect2(256, 448, 64, 64)
 
 [node name="TankListItem" type="VBoxContainer"]
 custom_minimum_size = Vector2(0, 94)
-anchors_preset = -1
-anchor_right = 0.2
-anchor_bottom = 0.178
-offset_bottom = 31.92
 theme_override_constants/separation = 0
 script = ExtResource("1_3gs4r")
 

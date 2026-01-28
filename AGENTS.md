@@ -34,3 +34,4 @@
 
 ## Rules
 - Always run `just fix` after making changes to the codebase.
+- Avoid using leading-underscore parameter names (e.g., `_visible`) as a workaround for shadowing base class members; rename to a more specific, descriptive name instead.

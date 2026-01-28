@@ -53,13 +53,13 @@ func set_button_properties(disabled: bool, toggle_mode: bool, button_pressed: bo
 	_button.button_pressed = button_pressed
 
 
-func set_price_label_properties(_visible: bool, _theme_type_variation: String) -> void:
-	_price_label.visible = _visible
+func set_price_label_properties(show_price_label: bool, _theme_type_variation: String) -> void:
+	_price_label.visible = show_price_label
 	_price_label.theme_type_variation = _theme_type_variation
 
 
-func set_unlockable_overlay_visibility(_visible: bool) -> void:
-	_unlockable_overlay.visible = _visible
+func set_unlockable_overlay_visibility(show_unlockable_overlay: bool) -> void:
+	_unlockable_overlay.visible = show_unlockable_overlay
 
 
 func display_tank(_tank_id: TankManager.TankId) -> void:
@@ -71,7 +71,7 @@ func display_tank(_tank_id: TankManager.TankId) -> void:
 	_name_label.text = tank_spec.display_name
 
 
-func lock_visible(_visible: bool) -> void:
-	_lock_overlay.visible = _visible
-	_lock_color_overlay.visible = _visible
-	_name_lock_color_overlay.visible = _visible
+func lock_visible(show_lock_overlay: bool) -> void:
+	_lock_overlay.visible = show_lock_overlay
+	_lock_color_overlay.visible = show_lock_overlay
+	_name_lock_color_overlay.visible = show_lock_overlay

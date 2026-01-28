@@ -192,6 +192,7 @@ GoldLabel/base_type = &"Label"
 GoldLabel/colors/font_color = Color(0.929412, 0.701961, 0.105882, 1)
 GreenLabel/base_type = &"Label"
 GreenLabel/colors/font_color = Color(0.682903, 0.994333, 0.341138, 1)
+HSlider/constants/tick_offset = -15
 HSlider/icons/grabber = SubResource("AtlasTexture_plmku")
 HSlider/icons/grabber_disabled = SubResource("AtlasTexture_mx1a8")
 HSlider/icons/grabber_highlight = SubResource("AtlasTexture_nfmsu")

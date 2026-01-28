@@ -100,10 +100,10 @@ func _world_to_screen(camera: Camera2D, world_pos: Vector2) -> Vector2:
 	return canvas_transform * world_pos
 
 
-func _set_arrow_visible(enemy: Tank, visible: bool) -> void:
+func _set_arrow_visible(enemy: Tank, show_arrow: bool) -> void:
 	if not _arrows.has(enemy):
 		return
-	_arrows[enemy].visible = visible
+	_arrows[enemy].visible = show_arrow
 
 
 func _hide_all_arrows() -> void:
