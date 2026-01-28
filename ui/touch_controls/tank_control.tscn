@@ -49,6 +49,12 @@ script = ExtResource("1_t160p")
 
 [node name="LeftLever" parent="." instance=ExtResource("2_7ylqn")]
 layout_mode = 1
+anchors_preset = 4
+anchor_left = 0.0
+anchor_right = 0.0
+offset_left = 0.0
+offset_right = 180.0
+grow_horizontal = 1
 
 [node name="RightLever" parent="." instance=ExtResource("2_7ylqn")]
 layout_mode = 1
@@ -59,17 +65,13 @@ lever_side = 1
 
 [node name="TraverseWheel" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = 51.0
-offset_right = -32.0
-offset_bottom = 179.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 180.0
+offset_top = -128.0
+offset_right = 308.0
+grow_vertical = 0
 script = ExtResource("3_2g8rm")
 
 [node name="TraverseWheelBaseSprite" type="Sprite2D" parent="TraverseWheel"]
@@ -83,24 +85,25 @@ centered = false
 offset = Vector2(-64, -64)
 
 [node name="FireButton" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 64.0
-offset_top = -72.0
-offset_right = 128.0
-offset_bottom = -8.0
-grow_horizontal = 2
+offset_left = -257.0
+offset_top = -97.0
+offset_right = -193.0
+offset_bottom = -33.0
+grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("6_xyrtp")
 
 [node name="ButtonSprite" type="AnimatedSprite2D" parent="FireButton"]
-position = Vector2(32, 32)
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_b262a")
+centered = false
 
 [node name="ButtonClick" type="AudioStreamPlayer" parent="FireButton"]
 stream = ExtResource("8_qrisr")

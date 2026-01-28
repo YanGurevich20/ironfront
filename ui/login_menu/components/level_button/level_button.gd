@@ -1,7 +1,6 @@
-class_name LevelButton extends Button
+class_name LevelButton
+extends Button
 
-var _level: int
-var _stars: int
 @export var level: int:
 	get:
 		return _level
@@ -15,6 +14,9 @@ var _stars: int
 		_stars = value
 		update_text()
 
+var _level: int
+var _stars: int
+
+
 func update_text() -> void:
 	text = "LEVEL %d (%d/3)" % [_level, _stars]
-

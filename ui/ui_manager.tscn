@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dfdooe5mh6vby" path="res://ui/ui_manager.gd" id="1_yp0ob"]
 [ext_resource type="PackedScene" uid="uid://s5td064aaxj4" path="res://ui/overlays/garage_menu_overlay/garage_menu_overlay.tscn" id="2_30b5s"]
-[ext_resource type="PackedScene" uid="uid://fbdhh7erijnq" path="res://ui/touch_controls/tank_control.tscn" id="2_ybivm"]
+[ext_resource type="PackedScene" uid="uid://b1d2c8q0t8m4b" path="res://ui/battle_interface/battle_interface.tscn" id="2_w7alx"]
 [ext_resource type="PackedScene" uid="uid://doykr13uqyd0t" path="res://ui/overlays/pause_overlay/pause_overlay.tscn" id="5_iquxp"]
 [ext_resource type="PackedScene" uid="uid://doxr5ti5rl2ly" path="res://ui/overlays/result_overlay/result_overlay.tscn" id="6_o5bsg"]
 [ext_resource type="PackedScene" uid="uid://y7yy28xv8gj6" path="res://ui/overlays/settings_overlay/settings_overlay.tscn" id="7_q5581"]
@@ -16,13 +16,12 @@
 script = ExtResource("1_yp0ob")
 
 [node name="LoginMenu" parent="." instance=ExtResource("10_30b5s")]
+visible = false
 
 [node name="Garage" parent="." instance=ExtResource("9_nymso")]
 visible = false
 
-[node name="TankControl" parent="." instance=ExtResource("2_ybivm")]
-visible = false
-pivot_offset = Vector2(230, 250)
+[node name="BattleInterface" parent="." instance=ExtResource("2_w7alx")]
 
 [node name="GarageMenuOverlay" parent="." instance=ExtResource("2_30b5s")]
 visible = false

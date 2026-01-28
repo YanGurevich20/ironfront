@@ -1,0 +1,36 @@
+# Repository Guidelines
+
+## Project Structure & Module Organization
+- `project.godot` is the root Godot 4 project file (edit via the Godot editor UI when possible).
+- `core/` holds game-wide systems, singletons, and managers.
+- `entities/` contains gameplay entities (tanks, shells, specs, shared assets).
+- `controllers/` provides player/AI controller scenes and scripts.
+- `levels/` stores playable level scenes and related logic.
+- `ui/` contains UI scenes, widgets, and HUD elements.
+- `global_assets/` is for shared art, audio, and UI resources.
+- `game_data/` includes data resources and configuration assets.
+- `android/` houses Android export/build artifacts and templates.
+
+## Build, Test, and Development Commands
+- `godot --editor --path .` opens the project in the Godot editor.
+- `godot --path .` runs the project using the configured main scene.
+- Exports use presets in `export_presets.cfg`; use **Project → Export** in the editor to build platform packages (e.g., Android).
+- `just build` performs a headless load to catch parse/resource errors.
+- `just lint` runs `gdlint` recursively.
+- `just fmt` runs `gdformat` recursively.
+- `just fmt-check` runs `gdformat --check` recursively.
+- `just fix` runs `just build`, `just fmt`, and `just lint` in sequence.
+
+## Coding Style & Naming Conventions
+- GDScript uses tabs for indentation (Godot default).
+- Functions and variables are `snake_case`; classes declared with `class_name` use `PascalCase` (see `core/game.gd`).
+- Scene files are `snake_case.tscn`; resources typically use `snake_case.tres`.
+- Prefer editor-driven changes for `.tscn`, `.tres`, and `project.godot` to avoid format drift.
+
+## Security & Configuration Tips
+- Treat `ironfront.keystore` as sensitive; don’t rotate or replace it without explicit maintainer approval.
+- Avoid committing new secrets or local export settings. Use local overrides where possible.
+
+
+## Rules
+- Always run `just fix` after making changes to the codebase.

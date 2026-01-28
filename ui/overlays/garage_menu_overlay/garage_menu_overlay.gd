@@ -1,16 +1,20 @@
 class_name GarageMenuOverlay extends BaseOverlay
 
+@warning_ignore("unused_signal")
 signal settings_pressed
+@warning_ignore("unused_signal")
 signal metrics_pressed
 
 @onready var settings_button: Button = %SettingsButton
 @onready var metrics_button: Button = %MetricsButton
 @onready var log_out_button: Button = %LogOutButton
 @onready var quit_button: Button = %QuitButton
+
+
 func _ready() -> void:
 	super._ready()
-	
-	settings_button.pressed.connect(func() -> void: settings_pressed.emit())
-	metrics_button.pressed.connect(func() -> void: metrics_pressed.emit())
-	log_out_button.pressed.connect(func() -> void: SignalBus.log_out_pressed.emit())
-	quit_button.pressed.connect(func() -> void: SignalBus.quit_pressed.emit())
+
+	Utils.connect_checked(settings_button.pressed, func() -> void: settings_pressed.emit())
+	Utils.connect_checked(metrics_button.pressed, func() -> void: metrics_pressed.emit())
+	Utils.connect_checked(log_out_button.pressed, func() -> void: SignalBus.log_out_pressed.emit())
+	Utils.connect_checked(quit_button.pressed, func() -> void: SignalBus.quit_pressed.emit())

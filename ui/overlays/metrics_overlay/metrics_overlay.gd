@@ -1,11 +1,16 @@
 class_name MetricsOverlay extends BaseOverlay
 
 @onready var metrics_list := $%MetricsList
-@onready var MetricDisplayScene := preload("res://ui/overlays/metrics_overlay/metric_display/metric_display.tscn")
+@onready var MetricDisplayScene := preload(
+	"res://ui/overlays/metrics_overlay/metric_display/metric_display.tscn"
+)
+
+
 func _ready() -> void:
 	super._ready()
 
-func display_metrics(metrics:Dictionary) -> void:
+
+func display_metrics(metrics: Dictionary) -> void:
 	for child: Node in metrics_list.get_children():
 		metrics_list.remove_child(child)
 		child.queue_free()

@@ -1,5 +1,7 @@
 class_name SettingsData extends LoadableData
 
+const FILE_NAME: String = "settings_data"
+
 @export_group("Audio")
 @export_range(0.0, 1.0, 0.05) var master_volume: float = 1.0:
 	set(value):
@@ -30,10 +32,10 @@ class_name SettingsData extends LoadableData
 		save()
 		SignalBus.settings_changed.emit()
 
-const FILE_NAME: String = "settings_data"
 
 func get_file_name() -> String:
 	return FILE_NAME
+
 
 static func get_instance() -> SettingsData:
 	return LoadableData.get_loadable_instance(SettingsData)

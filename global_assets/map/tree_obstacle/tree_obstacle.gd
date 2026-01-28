@@ -2,24 +2,28 @@ class_name TreeObstacle extends Area2D
 
 @export var tree_configs: Array[TreeConfig] = []
 
-@onready var sprite: Sprite2D = $Sprite2D
 var slow_ratio: float
 
+@onready var sprite: Sprite2D = $Sprite2D
+
+
 func _ready() -> void:
-	body_entered.connect(_on_body_entered)
+	Utils.connect_checked(body_entered, _on_body_entered)
 	_random_tree()
+
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is Tank:
 		var tank: Tank = body
-		
+
 		# Resist linear motion
 		var forward_dir: Vector2 = tank.transform.x.normalized()
 		var forward_speed: float = tank.linear_velocity.dot(forward_dir)
 		var linear_impulse_mag: float = tank.mass * forward_speed * (1.0 - slow_ratio)
 		tank.apply_impulse(-forward_dir * linear_impulse_mag)
-		
+
 		queue_free()
+
 
 func _random_tree() -> void:
 	if tree_configs.is_empty():

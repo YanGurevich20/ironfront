@@ -1,8 +1,10 @@
 # objective_manager.gd
 class_name ObjectiveManager extends Resource
+
+enum ObjectiveResult { SCORE = 0, COUNT = 1 }
+
 @export var objectives: Array[Objective]
 
-enum ObjectiveResult {SCORE=0, COUNT=1}
 
 func evaluate_objectives(level_metrics: Dictionary[Metrics.Metric, int]) -> void:
 	if objectives.size() == 0:
@@ -15,7 +17,8 @@ func evaluate_objectives(level_metrics: Dictionary[Metrics.Metric, int]) -> void
 		var level_value: int = level_metrics[objective.metric]
 		objective.evaluate(level_value)
 
-func get_objective_evaluation_result()-> Dictionary:
+
+func get_objective_evaluation_result() -> Dictionary:
 	if objectives.size() == 0:
 		push_warning("Empty objective array on current level")
 		return {ObjectiveResult.SCORE: 0, ObjectiveResult.COUNT: 0}

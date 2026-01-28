@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://b1d2c8q0t8m4b"]
+
+[ext_resource type="Script" uid="uid://c2b3pyj3edax2" path="res://ui/battle_interface/battle_interface.gd" id="1_s3x1n"]
+[ext_resource type="PackedScene" uid="uid://fbdhh7erijnq" path="res://ui/touch_controls/tank_control.tscn" id="2_1nqak"]
+[ext_resource type="PackedScene" uid="uid://dxf3b7nuy8xyq" path="res://ui/battle_interface/enemy_indicators.tscn" id="3_6i3on"]
+
+[node name="BattleInterface" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s3x1n")
+
+[node name="TankControl" parent="." instance=ExtResource("2_1nqak")]
+layout_mode = 1
+
+[node name="EnemyIndicators" parent="." instance=ExtResource("3_6i3on")]
+layout_mode = 1

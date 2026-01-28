@@ -1,14 +1,18 @@
-class_name TankListPanel extends Control
+class_name TankListPanel
+extends Control
 
-@onready var tank_list: HBoxContainer = %TankList
-@onready var _tank_list_item_scene: PackedScene = preload("res://ui/garage/tank_list/tank_list_item.tscn")
-
-# Signals
+@warning_ignore("unused_signal")
 signal unlock_tank_requested(tank_id: TankManager.TankId)
+@warning_ignore("unused_signal")
 signal tank_selected(tank_id: TankManager.TankId)
 
 var _player_dollars: int = 0
 var _unlocked_tank_ids: Array[TankManager.TankId] = []
+
+@onready var tank_list: HBoxContainer = %TankList
+@onready
+var _tank_list_item_scene: PackedScene = preload("res://ui/garage/tank_list/tank_list_item.tscn")
+
 
 #TODO: Convert the tank list panel to use a display_player_data() method instead of _ready()
 func _ready() -> void:
@@ -31,7 +35,9 @@ func _ready() -> void:
 
 	for tank_id in all_tank_ids:
 		var tank_list_item: TankListItem = _tank_list_item_scene.instantiate()
-		tank_list_item.item_pressed.connect(func()->void: _on_item_pressed(tank_list_item))
+		Utils.connect_checked(
+			tank_list_item.item_pressed, func() -> void: _on_item_pressed(tank_list_item)
+		)
 		tank_list.add_child(tank_list_item)
 		tank_list_item.display_tank(tank_id)
 
@@ -49,6 +55,7 @@ func _ready() -> void:
 	elif latest_unlocked_item != null:
 		_select_tank(latest_unlocked_item)
 
+
 func _update_item_states() -> void:
 	for item: TankListItem in tank_list.get_children():
 		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
@@ -65,6 +72,7 @@ func _update_item_states() -> void:
 			else:
 				item.state = item.State.LOCKED
 
+
 func _on_item_pressed(item: TankListItem) -> void:
 	match item.state:
 		item.State.UNLOCKABLE:
@@ -74,13 +82,17 @@ func _on_item_pressed(item: TankListItem) -> void:
 		_:
 			pass
 
+
 func _select_tank(item: TankListItem) -> void:
 	if item.state in [item.State.LOCKED, item.State.UNLOCKABLE]:
 		return
 	for other: TankListItem in tank_list.get_children():
-		if other == item: other.state = other.State.SELECTED
-		elif other.state == other.State.SELECTED: other.state = other.State.UNLOCKED
+		if other == item:
+			other.state = other.State.SELECTED
+		elif other.state == other.State.SELECTED:
+			other.state = other.State.UNLOCKED
 	tank_selected.emit(item.tank_id)
+
 
 # Allow parent node to programmatically select a tank by its ID.
 func select_tank_by_id(tank_id: TankManager.TankId) -> void:
@@ -88,6 +100,7 @@ func select_tank_by_id(tank_id: TankManager.TankId) -> void:
 		if item.tank_id == tank_id:
 			_select_tank(item)
 			return
+
 
 # Public API for parent to provide latest player data.
 func display_player_data(player_data: PlayerData) -> void:

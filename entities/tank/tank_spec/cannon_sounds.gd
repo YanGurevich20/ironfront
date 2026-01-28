@@ -1,12 +1,16 @@
 class_name CannonSounds extends Resource
 
-const CaliberClass = Enums.GunCaliberClass
+const CALIBER_CLASS = Enums.GunCaliberClass
 
-const CANNON_SOUND_MAP: Dictionary[CaliberClass, AudioStream] = {
-	CaliberClass.SMALL: preload("res://entities/tank/shared_assets/sounds/cannon_fire/cannon_fire_small.ogg"),
-	CaliberClass.MEDIUM: preload("res://entities/tank/shared_assets/sounds/cannon_fire/cannon_fire_medium.ogg"),
-	CaliberClass.LARGE: preload("res://entities/tank/shared_assets/sounds/cannon_fire/cannon_fire_large.ogg")
+const CANNON_SOUND_MAP: Dictionary[CALIBER_CLASS, AudioStream] = {
+	CALIBER_CLASS.SMALL:
+	preload("res://entities/tank/shared_assets/sounds/cannon_fire/cannon_fire_small.ogg"),
+	CALIBER_CLASS.MEDIUM:
+	preload("res://entities/tank/shared_assets/sounds/cannon_fire/cannon_fire_medium.ogg"),
+	CALIBER_CLASS.LARGE:
+	preload("res://entities/tank/shared_assets/sounds/cannon_fire/cannon_fire_large.ogg")
 }
 
-static func get_cannon_sound(caliber_class: CaliberClass) -> AudioStream:
-	return CANNON_SOUND_MAP[caliber_class]
+
+static func get_cannon_sound(caliber: CALIBER_CLASS) -> AudioStream:
+	return CANNON_SOUND_MAP[caliber]

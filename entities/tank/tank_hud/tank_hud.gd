@@ -1,26 +1,29 @@
 class_name TankHUD extends Control
 
-@onready var player_name_label :Label = %PlayerName
-@onready var tank_name_label :Label = %TankName
-@onready var health_bar :TextureProgressBar = %HealthBar
-@onready var health_value_label :Label = %HealthValue
-@onready var impact_result_type_label :Label = %ImpactResultType
-@onready var damage_ticker_label :Label = %DamageTicker
+const IMPACT_RESULT_TYPE := ShellSpec.ImpactResultType
 
 var tank_reference: Tank
 var impact_timer: SceneTreeTimer
-const ImpactResultType := ShellSpec.ImpactResultType
-
 var settings_data: SettingsData
+
+@onready var player_name_label: Label = %PlayerName
+@onready var tank_name_label: Label = %TankName
+@onready var health_bar: TextureProgressBar = %HealthBar
+@onready var health_value_label: Label = %HealthValue
+@onready var impact_result_type_label: Label = %ImpactResultType
+@onready var damage_ticker_label: Label = %DamageTicker
+
 
 func _ready() -> void:
 	_hide_impact_result()
 	settings_data = SettingsData.get_instance()
-	SignalBus.settings_changed.connect(_apply_settings)
+	Utils.connect_checked(SignalBus.settings_changed, _apply_settings)
 	_apply_settings()
+
 
 func _apply_settings() -> void:
 	modulate.a = settings_data.tank_hud_opacity
+
 
 func initialize(tank: Tank) -> void:
 	tank_reference = tank
@@ -33,30 +36,37 @@ func initialize(tank: Tank) -> void:
 	health_bar.max_value = tank.tank_spec.health
 	update_health_bar(tank.tank_spec.health)
 
+
 func update_health_bar(health: int) -> void:
 	health_bar.value = health
 	health_value_label.text = str(health)
 
+
 func update_hud_position() -> void:
 	assert(tank_reference != null, "Tank reference is not set")
-	var biggest_dimension :float= max(tank_reference.tank_spec.hull_size.x, tank_reference.tank_spec.hull_size.y)
+	var biggest_dimension: float = max(
+		tank_reference.tank_spec.hull_size.x, tank_reference.tank_spec.hull_size.y
+	)
 	global_position = tank_reference.global_position - Vector2(size.x / 2, biggest_dimension)
 	rotation = -tank_reference.global_rotation
+
 
 func handle_impact_result(impact_result: ShellSpec.ImpactResult) -> void:
 	var result_type := impact_result.result_type
 	if impact_timer != null and impact_timer.timeout.is_connected(_hide_impact_result):
 		impact_timer.timeout.disconnect(_hide_impact_result)
 
-	var result_name: String = ImpactResultType.find_key(result_type)
+	var result_name: String = IMPACT_RESULT_TYPE.find_key(result_type)
 	impact_result_type_label.text = result_name.capitalize() + "!"
 	impact_result_type_label.show()
 
 	damage_ticker_label.text = "-" + str(impact_result.damage)
-	if impact_result.damage > 0: damage_ticker_label.show()
+	if impact_result.damage > 0:
+		damage_ticker_label.show()
 
 	impact_timer = get_tree().create_timer(1.0)
-	impact_timer.timeout.connect(_hide_impact_result)
+	Utils.connect_checked(impact_timer.timeout, _hide_impact_result)
+
 
 func _hide_impact_result() -> void:
 	impact_result_type_label.hide()

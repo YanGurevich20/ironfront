@@ -1,19 +1,16 @@
 class_name Lever
 extends Control
 
-enum LeverSide { LEFT=0, RIGHT=1 }
+@warning_ignore("unused_signal")
+signal lever_moved(lever_side: LeverSide, value: float)
+
+enum LeverSide { LEFT = 0, RIGHT = 1 }
+
+const TOTAL_FRAMES: int = 7
+const CENTER_FRAME: int = 3
+const LOCK_THRESHOLD: float = 100.0
+
 @export var lever_side: LeverSide
-
-@onready var lever_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var click_small: AudioStreamPlayer = $LeverClickSmall
-@onready var click_large: AudioStreamPlayer = $LeverClickLarge
-
-const TOTAL_FRAMES :int = 7
-const CENTER_FRAME :int = 3
-const LOCK_THRESHOLD :float = 100.0
-
-@onready var control_field_height := size.y
-@onready var step_size := control_field_height / TOTAL_FRAMES
 
 var should_lock_last_value := false
 var touch_y_position := 0.0
@@ -21,9 +18,14 @@ var lever_value := 0.0
 var last_value := 0.0
 var start_position: Vector2
 
-signal lever_moved(lever_side: LeverSide, value: float)
+@onready var lever_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var click_small: AudioStreamPlayer = $LeverClickSmall
+@onready var click_large: AudioStreamPlayer = $LeverClickLarge
+@onready var control_field_height := size.y
+@onready var step_size := control_field_height / TOTAL_FRAMES
 
-func _gui_input(event:InputEvent) -> void:
+
+func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		_handle_touch(event)
 	elif event is InputEventScreenDrag:
@@ -31,6 +33,7 @@ func _gui_input(event:InputEvent) -> void:
 	else:
 		return
 	update_lever()
+
 
 func _handle_touch(event: InputEventScreenTouch) -> void:
 	if event.pressed:
@@ -42,6 +45,7 @@ func _handle_touch(event: InputEventScreenTouch) -> void:
 		var should_lock: bool = abs(start_position.x - event.position.x) > LOCK_THRESHOLD
 		touch_y_position = event.position.y if should_lock else control_field_height / 2
 
+
 func _handle_drag(event: InputEventScreenDrag) -> void:
 	var should_lock: bool = abs(start_position.x - event.position.x) > LOCK_THRESHOLD
 	if should_lock != should_lock_last_value:
@@ -49,9 +53,11 @@ func _handle_drag(event: InputEventScreenDrag) -> void:
 		should_lock_last_value = should_lock
 	touch_y_position = event.position.y
 
+
 func play_large_click(pitch: float) -> void:
 	click_large.pitch_scale = pitch
 	click_large.play()
+
 
 func update_lever() -> void:
 	var step: int = clamp(floor(touch_y_position / step_size), 0, TOTAL_FRAMES - 1)
@@ -65,6 +71,7 @@ func update_lever() -> void:
 		click_small.play()
 		last_value = lever_value
 		SignalBus.lever_input.emit(lever_side, lever_value)
+
 
 func reset_input() -> void:
 	touch_y_position = control_field_height / 2

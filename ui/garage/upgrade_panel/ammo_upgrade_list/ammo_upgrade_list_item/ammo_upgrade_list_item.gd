@@ -1,16 +1,8 @@
-class_name AmmoUpgradeListItem extends HBoxContainer
+class_name AmmoUpgradeListItem
+extends HBoxContainer
 
-@onready var unlock_button: Button = %UnlockButton
-
-@onready var shell_icon: TextureRect = %ShellIcon
-@onready var count_slider: HSlider = %CountSlider
-@onready var count_input: LineEdit = %CountInput
-@onready var count_increment_button: Button = %CountIncrementButton
-@onready var count_decrement_button: Button = %CountDecrementButton
-@onready var info_button: Button = %InfoButton
-
-@onready var ammo_count_container: HBoxContainer = %AmmoCountContainer
-@onready var unlock_container: HBoxContainer = %UnlockContainer
+@warning_ignore("unused_signal")
+signal count_updated
 
 const MAX_TICK_COUNT: int = 20
 
@@ -18,11 +10,20 @@ var shell_spec: ShellSpec
 var current_count: int
 var current_allowed_count: int
 
-signal count_updated()
+@onready var unlock_button: Button = %UnlockButton
+@onready var shell_icon: TextureRect = %ShellIcon
+@onready var count_slider: HSlider = %CountSlider
+@onready var count_input: LineEdit = %CountInput
+@onready var count_increment_button: Button = %CountIncrementButton
+@onready var count_decrement_button: Button = %CountDecrementButton
+@onready var info_button: Button = %InfoButton
+@onready var ammo_count_container: HBoxContainer = %AmmoCountContainer
+@onready var unlock_container: HBoxContainer = %UnlockContainer
+
 
 func display_shell(player_tank_config: PlayerTankConfig, _shell_spec: ShellSpec) -> void:
 	shell_spec = _shell_spec
-	var tank_spec := TankManager.TANK_SPECS[player_tank_config.tank_id]
+	var tank_spec := TankManager.tank_specs[player_tank_config.tank_id]
 	var is_locked: bool = not player_tank_config.shell_amounts.has(shell_spec)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
@@ -33,7 +34,7 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_spec: ShellSpec)
 		unlock_container.hide()
 		var loaded_count := player_tank_config.get_shell_amount(shell_spec)
 		var current_total_count := player_tank_config.get_total_shell_count()
-		var unallocated_count := max_allowed_count - current_total_count
+		var unallocated_count: int = max_allowed_count - current_total_count
 		current_allowed_count = loaded_count + unallocated_count
 		update_count(loaded_count)
 	else:
@@ -42,25 +43,41 @@ func display_shell(player_tank_config: PlayerTankConfig, _shell_spec: ShellSpec)
 		update_count(0)
 		unlock_button.text = "UNLOCK\n" + Utils.format_dollars(shell_spec.unlock_cost)
 
+
 func _ready() -> void:
-	unlock_button.pressed.connect(func()->void:SignalBus.shell_unlock_requested.emit(shell_spec))
-	count_decrement_button.pressed.connect(func()->void:update_count(current_count - 1))
-	count_increment_button.pressed.connect(func()->void:update_count(current_count + 1))
-	count_slider.value_changed.connect(func(value: float)->void:update_count(int(value)))
-	count_input.text_submitted.connect(func(text: String)->void:update_count(int(text)))
-	info_button.pressed.connect(func()->void:SignalBus.shell_info_requested.emit(shell_spec))
+	Utils.connect_checked(
+		unlock_button.pressed, func() -> void: SignalBus.shell_unlock_requested.emit(shell_spec)
+	)
+	Utils.connect_checked(
+		count_decrement_button.pressed, func() -> void: update_count(current_count - 1)
+	)
+	Utils.connect_checked(
+		count_increment_button.pressed, func() -> void: update_count(current_count + 1)
+	)
+	Utils.connect_checked(
+		count_slider.value_changed, func(value: float) -> void: update_count(int(value))
+	)
+	Utils.connect_checked(
+		count_input.text_submitted, func(text: String) -> void: update_count(int(text))
+	)
+	Utils.connect_checked(
+		info_button.pressed, func() -> void: SignalBus.shell_info_requested.emit(shell_spec)
+	)
+
 
 func update_count(new_count: int) -> void:
-	current_count = clamp(new_count,0,current_allowed_count)
+	current_count = clamp(new_count, 0, current_allowed_count)
 	count_slider.value = current_count
 	count_input.text = str(current_count)
 	update_buttons()
 	save_count()
 	count_updated.emit()
 
+
 func update_buttons() -> void:
 	count_decrement_button.disabled = current_count == 0
 	count_increment_button.disabled = current_count == current_allowed_count
+
 
 func save_count() -> void:
 	var player_data := PlayerData.get_instance()

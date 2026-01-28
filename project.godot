@@ -23,12 +23,16 @@ SignalBus="*res://core/singletons/signal_bus.gd"
 
 [debug]
 
+gdscript/warnings/unused_variable=0
 gdscript/warnings/unused_signal=0
-gdscript/warnings/untyped_declaration=1
-gdscript/warnings/unsafe_property_access=1
-gdscript/warnings/unsafe_method_access=1
+gdscript/warnings/shadowed_variable=0
+gdscript/warnings/untyped_declaration=2
+gdscript/warnings/unsafe_property_access=2
+gdscript/warnings/unsafe_method_access=2
+gdscript/warnings/return_value_discarded=0
 shapes/navigation/3d/geometry_face_color=Color(0.501961, 1, 1, 0.211765)
 shapes/navigation/2d/geometry_face_color=Color(0.501961, 1, 1, 0.211765)
+gdscript/warnings/unused_argument=0
 
 [display]
 

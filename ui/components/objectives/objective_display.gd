@@ -1,10 +1,13 @@
-#objective_display.gd
-class_name ObjectiveDisplay extends Control
+class_name ObjectiveDisplay
+extends Control
 
-@onready var description_label :Label= $%DescriptionLabel
-@onready var progress_bar : ProgressBar= $%ProgressBar
-var progress_style := preload("res://ui/components/objectives/progress_bar_fill_box_yellow.tres")
 @export var objective: Objective
+
+var progress_style := preload("res://ui/components/objectives/progress_bar_fill_box_yellow.tres")
+
+@onready var description_label: Label = $%DescriptionLabel
+@onready var progress_bar: ProgressBar = $%ProgressBar
+
 
 func _ready() -> void:
 	description_label.text = objective.generate_description()

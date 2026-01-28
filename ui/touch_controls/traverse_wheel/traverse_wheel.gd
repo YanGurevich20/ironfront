@@ -1,20 +1,21 @@
 class_name TraverseWheel
 extends Control
 
-@export var max_turn_speed: float = 20.0  # Radians/sec for full input
-@export var acceleration: float = 10.0  # How quickly it interpolates
+@export var max_turn_speed: float = 20.0
+@export var acceleration: float = 10.0
+
+var last_angle := 0.0
+var last_time := 0.0
+var target_speed := 0.0
+var current_speed := 0.0
 
 @onready var wheel: Sprite2D = $TraverseWheelSprite
 @onready var middle_point: Vector2 = size / 2
 
-var last_angle := 0.0
-var last_time := 0.0
-
-var target_speed := 0.0
-var current_speed := 0.0
 
 func _ready() -> void:
 	set_process(true)
+
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -37,6 +38,7 @@ func _gui_input(event: InputEvent) -> void:
 		last_angle = angle
 		last_time = now
 
+
 func _process(delta: float) -> void:
 	# Smoothly approach target speed
 	current_speed = lerp(current_speed, target_speed, clamp(acceleration * delta, 0, 1))
@@ -46,6 +48,7 @@ func _process(delta: float) -> void:
 
 	# Emit signal
 	SignalBus.wheel_input.emit(current_speed)
+
 
 func reset_input() -> void:
 	target_speed = 0.0
