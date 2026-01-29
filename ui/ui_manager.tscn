@@ -16,7 +16,6 @@
 script = ExtResource("1_yp0ob")
 
 [node name="LoginMenu" parent="." instance=ExtResource("10_30b5s")]
-visible = false
 
 [node name="Garage" parent="." instance=ExtResource("9_nymso")]
 visible = false

@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://d0xyaf7obfc1q"]
+[gd_scene load_steps=9 format=3 uid="uid://d0xyaf7obfc1q"]
 
 [ext_resource type="Script" uid="uid://dh1v2oiq0xbhq" path="res://ui/garage/upgrade_panel/ammo_upgrade_list/ammo_upgrade_list_item/ammo_upgrade_list_item.gd" id="1_q44e7"]
 [ext_resource type="Texture2D" uid="uid://mjiuy27e2xfx" path="res://global_assets/theme/icons.png" id="3_qbox6"]
+[ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="4_lock"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tr4hg"]
 atlas = ExtResource("3_qbox6")
@@ -15,19 +16,113 @@ region = Rect2(33, 19, 14, 10)
 atlas = ExtResource("3_qbox6")
 region = Rect2(0, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_lock"]
+atlas = ExtResource("4_lock")
+region = Rect2(192, 448, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_unlockable"]
+atlas = ExtResource("4_lock")
+region = Rect2(256, 448, 64, 64)
+
 [node name="AmmoUpgradeListItem" type="HBoxContainer"]
 custom_minimum_size = Vector2(424, 0)
 script = ExtResource("1_q44e7")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="ShellButton" type="Button" parent="."]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
+clip_contents = true
+theme_type_variation = &"SelectablePanel"
 
-[node name="ShellIcon" type="TextureRect" parent="PanelContainer"]
+[node name="ShellIcon" type="TextureRect" parent="ShellButton"]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="LockColorOverlay" type="ColorRect" parent="ShellButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0, 0, 0, 0.54902)
+
+[node name="LockOverlay" type="TextureRect" parent="ShellButton"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+texture = SubResource("AtlasTexture_lock")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="UnlockableOverlay" type="TextureRect" parent="ShellButton"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+texture = SubResource("AtlasTexture_unlockable")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PriceLabel" type="Label" parent="ShellButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 40.0
+offset_right = -6.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_type_variation = &"GoldLabel"
+theme_override_font_sizes/font_size = 6
+text = "0 $"
+horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -40,12 +135,33 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer"]
+[node name="DetailsContainer" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="CountSlider" type="HSlider" parent="HBoxContainer/AmmoCountContainer/VBoxContainer"]
+[node name="TopBand" type="HBoxContainer" parent="HBoxContainer/AmmoCountContainer/DetailsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="InfoButton" type="Button" parent="HBoxContainer/AmmoCountContainer/DetailsContainer/TopBand"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+icon = SubResource("AtlasTexture_u4n65")
+icon_alignment = 1
+expand_icon = true
+
+[node name="ShellNameLabel" type="Label" parent="HBoxContainer/AmmoCountContainer/DetailsContainer/TopBand"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Shell Name"
+vertical_alignment = 1
+
+[node name="CountSlider" type="HSlider" parent="HBoxContainer/AmmoCountContainer/DetailsContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 20.0
@@ -54,15 +170,24 @@ scrollable = false
 tick_count = 21
 ticks_on_borders = true
 
+[node name="ShellStatsLabel" type="Label" parent="HBoxContainer/AmmoCountContainer/DetailsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "D: 0HP | P: 0mm"
+
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/AmmoCountContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="PanelContainer2" type="PanelContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 
-[node name="CountInput" type="LineEdit" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/PanelContainer2"]
+[node name="CountInput" type="LineEdit" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2/PanelContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -70,47 +195,20 @@ size_flags_vertical = 4
 text = "10"
 alignment = 1
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer"]
+[node name="ButtonRow" type="HBoxContainer" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
-theme_override_constants/separation = 2
-alignment = 1
+theme_override_constants/separation = 4
 
-[node name="CountIncrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
+[node name="CountIncrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2/ButtonRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(32, 20)
 layout_mode = 2
 icon = SubResource("AtlasTexture_tr4hg")
 icon_alignment = 1
 
-[node name="CountDecrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2"]
+[node name="CountDecrementButton" type="Button" parent="HBoxContainer/AmmoCountContainer/HBoxContainer/VBoxContainer2/ButtonRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(32, 20)
 layout_mode = 2
 icon = SubResource("AtlasTexture_2mxw0")
 icon_alignment = 1
-
-[node name="UnlockContainer" type="HBoxContainer" parent="HBoxContainer"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-alignment = 2
-
-[node name="UnlockButton" type="Button" parent="HBoxContainer/UnlockContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 4
-text = "UNLOCK
-20,000 $"
-
-[node name="InfoButton" type="Button" parent="HBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-icon = SubResource("AtlasTexture_u4n65")
-icon_alignment = 1
-expand_icon = true

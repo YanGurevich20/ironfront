@@ -9,7 +9,7 @@
 script = ExtResource("2_v81mq")
 
 [node name="RootSection" parent="PanelContainer/SectionsContainer" index="0"]
-back_button_label = "RETURN"
+back_button_label = "RETURN TO GARAGE"
 
 [node name="PanelContainer" type="PanelContainer" parent="PanelContainer/SectionsContainer/RootSection" index="0"]
 layout_mode = 2

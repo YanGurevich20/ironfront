@@ -54,7 +54,7 @@ func show_menu(menu: Control) -> void:
 func show_game_ui() -> void:
 	_hide_all()
 	Utils.show_nodes(_control_nodes)
-	battle_interface.display_controls()
+	battle_interface.start_level()
 
 
 func show_overlay(overlay: Control) -> void:
@@ -81,8 +81,8 @@ func display_result(
 	show_overlay(result_overlay)
 
 
-func reset_input() -> void:
-	battle_interface.reset_input()
+func finish_level() -> void:
+	battle_interface.finish_level()
 
 
 func update_objectives(objectives: Array) -> void:

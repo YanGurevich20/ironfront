@@ -15,8 +15,8 @@ var player_data: PlayerData
 )
 
 
-func display_ammo_upgrade_list(_player_data: PlayerData) -> void:
-	player_data = _player_data
+func display_ammo_upgrade_list(player_data_input: PlayerData) -> void:
+	player_data = player_data_input
 	var tank_config: PlayerTankConfig = player_data.get_current_tank_config()
 	for child in get_children():
 		child.queue_free()
@@ -25,7 +25,7 @@ func display_ammo_upgrade_list(_player_data: PlayerData) -> void:
 	for shell_spec: ShellSpec in tank_spec.allowed_shells:
 		var list_item: AmmoUpgradeListItem = ammo_upgrade_list_item_scene.instantiate()
 		add_child(list_item)
-		list_item.display_shell(tank_config, shell_spec)
+		list_item.display_shell(tank_config, shell_spec, player_data.dollars)
 		Utils.connect_checked(list_item.count_updated, _on_count_updated)
 
 

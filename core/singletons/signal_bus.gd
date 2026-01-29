@@ -43,6 +43,7 @@ signal shell_info_requested(shell_spec: ShellSpec)
 # Tank signals
 @warning_ignore("unused_signal")
 signal shell_fired(shell: Shell, tank: Tank)
+signal tank_destroyed(tank: Tank)
 
 # Settings signals
 @warning_ignore("unused_signal")

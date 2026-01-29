@@ -1,10 +1,7 @@
 class_name Tank
 extends RigidBody2D
 
-@warning_ignore("unused_signal")
 signal damage_taken(amount: int, tank: Tank)
-@warning_ignore("unused_signal")
-signal tank_destroyed(tank: Tank)
 
 @export var tank_spec: TankSpec
 
@@ -91,10 +88,10 @@ func handle_tank_destroyed() -> void:
 		controller.queue_free()
 	reset_input()
 	hull.stop_sounds()
-	tank_destroyed.emit(self)
 	remove_from_group("tank")
 	add_to_group("projectile_blocker")
 	apply_destruction_effects()
+	SignalBus.tank_destroyed.emit(self)
 
 
 func apply_destruction_effects() -> void:

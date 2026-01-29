@@ -3,35 +3,57 @@ class_name EnemyIndicators extends Control
 @export var arrow_texture: Texture2D
 @export var edge_padding: float = 16.0
 
-var _arrows: Dictionary = {}
+var _arrows: Dictionary[Tank, TextureRect] = {}
+var _enemies: Array[Tank] = []
 
 
-func _process(_delta: float) -> void:
-	var camera := get_viewport().get_camera_2d()
-	if camera == null:
-		_hide_all_arrows()
+func _ready() -> void:
+	Utils.connect_checked(SignalBus.tank_destroyed, _on_tank_destroyed)
+
+
+func _process(delta: float) -> void:
+	if delta < 0.0:
 		return
-
+	var camera := get_viewport().get_camera_2d()
 	var viewport_rect := Rect2(Vector2.ZERO, get_viewport_rect().size)
-	var enemies: Array[Tank] = _get_enemy_tanks()
-	_prune_missing_arrows(enemies)
+	var enemies: Array[Tank] = _arrows.keys()
 
-	for enemy in enemies:
+	for enemy: Tank in enemies:
 		if not is_instance_valid(enemy):
+			_remove_arrow(enemy)
 			continue
 		var screen_pos := _world_to_screen(camera, enemy.global_position)
 		if viewport_rect.has_point(screen_pos):
-			_set_arrow_visible(enemy, false)
+			var existing_arrow := _arrows[enemy]
+			if existing_arrow != null:
+				existing_arrow.hide()
 			continue
 		var direction := screen_pos - viewport_rect.size * 0.5
-		if direction.length_squared() < 0.001:
-			_set_arrow_visible(enemy, false)
-			continue
-		var arrow := _get_or_create_arrow(enemy)
+		var arrow: TextureRect = _arrows[enemy]
 		var edge_pos := _get_edge_position(viewport_rect, direction)
 		arrow.rotation = direction.angle() + PI * 0.5
 		arrow.position = edge_pos - arrow.pivot_offset
 		arrow.show()
+
+
+func _on_tank_destroyed(tank: Tank) -> void:
+	if not _enemies.has(tank):
+		return
+	_remove_arrow(tank)
+	_enemies.erase(tank)
+
+
+func reset_indicators() -> void:
+	var enemies: Array[Tank] = _arrows.keys()
+	for enemy: Tank in enemies:
+		_remove_arrow(enemy)
+	_enemies.clear()
+
+
+func display_indicators() -> void:
+	_enemies = _get_enemy_tanks()
+	for enemy: Tank in _enemies:
+		_get_or_create_arrow(enemy)
 
 
 func _get_enemy_tanks() -> Array[Tank]:
@@ -63,17 +85,11 @@ func _get_or_create_arrow(enemy: Tank) -> TextureRect:
 	return arrow
 
 
-func _prune_missing_arrows(enemies: Array[Tank]) -> void:
-	var alive: Dictionary = {}
-	for enemy in enemies:
-		alive[enemy] = true
-	for key: Tank in _arrows.keys():
-		if not alive.has(key) or not is_instance_valid(key):
-			var arrow: TextureRect = _arrows[key]
-			arrow.queue_free()
-			var removed := _arrows.erase(key)
-			if not removed:
-				pass
+func _remove_arrow(enemy: Tank) -> void:
+	var arrow := _arrows.get(enemy) as TextureRect
+	if arrow != null:
+		arrow.queue_free()
+	_arrows.erase(enemy)
 
 
 func _get_edge_position(viewport_rect: Rect2, direction: Vector2) -> Vector2:
@@ -98,14 +114,3 @@ func _get_edge_position(viewport_rect: Rect2, direction: Vector2) -> Vector2:
 func _world_to_screen(camera: Camera2D, world_pos: Vector2) -> Vector2:
 	var canvas_transform := camera.get_canvas_transform()
 	return canvas_transform * world_pos
-
-
-func _set_arrow_visible(enemy: Tank, show_arrow: bool) -> void:
-	if not _arrows.has(enemy):
-		return
-	_arrows[enemy].visible = show_arrow
-
-
-func _hide_all_arrows() -> void:
-	for arrow: TextureRect in _arrows.values():
-		arrow.visible = false

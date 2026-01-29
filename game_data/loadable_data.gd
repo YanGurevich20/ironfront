@@ -14,7 +14,12 @@ static func get_loadable_instance(cls: GDScript) -> LoadableData:
 	var path: String = instance._get_path()
 
 	if ResourceLoader.exists(path):
-		instance = load(path)
+		var loaded := ResourceLoader.load(path)
+		if loaded == null:
+			push_warning("Failed to load %s, recreating resource." % path)
+			instance.save()
+		else:
+			instance = loaded
 	else:
 		instance.save()
 

@@ -67,7 +67,7 @@ func _abort_level() -> void:
 func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> void:
 	var reward_info: RewardInfo = calculate_level_reward(metrics, current_level_key)
 	ui_manager.display_result(success, metrics, objectives, reward_info)
-	ui_manager.reset_input()
+	ui_manager.finish_level()
 	_save_player_metrics(metrics)
 	_save_game_progress(metrics, current_level_key, reward_info.total_reward)
 
