@@ -14,6 +14,7 @@ config/name="IronFront"
 run/main_scene="uid://cl8p28cnuvfp6"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 run/max_fps=60
+boot_splash/use_filter=false
 boot_splash/image="uid://5ol3lvf3h7nr"
 boot_splash/minimum_display_time=1000
 

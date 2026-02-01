@@ -15,8 +15,13 @@ func _process(delta: float) -> void:
 	if delta < 0.0:
 		return
 	var camera := get_viewport().get_camera_2d()
+	if camera == null:
+		return
 	var viewport_rect := Rect2(Vector2.ZERO, get_viewport_rect().size)
 	var enemies: Array[Tank] = _arrows.keys()
+
+	if enemies.is_empty():
+		return
 
 	for enemy: Tank in enemies:
 		if not is_instance_valid(enemy):
@@ -30,6 +35,8 @@ func _process(delta: float) -> void:
 			continue
 		var direction := screen_pos - viewport_rect.size * 0.5
 		var arrow: TextureRect = _arrows[enemy]
+		if arrow == null:
+			continue
 		var edge_pos := _get_edge_position(viewport_rect, direction)
 		arrow.rotation = direction.angle() + PI * 0.5
 		arrow.position = edge_pos - arrow.pivot_offset
@@ -48,9 +55,11 @@ func reset_indicators() -> void:
 	for enemy: Tank in enemies:
 		_remove_arrow(enemy)
 	_enemies.clear()
+	visible = false
 
 
 func display_indicators() -> void:
+	visible = true
 	_enemies = _get_enemy_tanks()
 	for enemy: Tank in _enemies:
 		_get_or_create_arrow(enemy)
