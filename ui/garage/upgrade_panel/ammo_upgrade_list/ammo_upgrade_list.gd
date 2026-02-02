@@ -1,7 +1,6 @@
 class_name AmmoUpgradeList
 extends VBoxContainer
 
-@warning_ignore("unused_signal")
 signal shell_unlock_requested(shell_spec: ShellSpec)
 
 var max_allowed_count: int

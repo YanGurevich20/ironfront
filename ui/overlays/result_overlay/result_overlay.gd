@@ -1,7 +1,6 @@
 class_name ResultOverlay
 extends BaseOverlay
 
-@warning_ignore("unused_signal")
 signal retry_pressed
 
 var _stored_objectives: Array[Objective] = []

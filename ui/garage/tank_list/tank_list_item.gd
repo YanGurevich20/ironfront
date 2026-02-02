@@ -1,7 +1,6 @@
 class_name TankListItem
 extends Control
 
-@warning_ignore("unused_signal")
 signal item_pressed
 
 enum State { LOCKED = 0, UNLOCKABLE = 1, UNLOCKED = 2, SELECTED = 3 }

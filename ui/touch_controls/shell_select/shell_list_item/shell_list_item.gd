@@ -1,9 +1,8 @@
 class_name ShellListItem
 extends Control
 
-@warning_ignore("unused_signal")
 signal shell_selected(shell_spec: ShellSpec)
-@warning_ignore("unused_signal")
+
 signal shell_expand_requested
 
 var shell_spec: ShellSpec

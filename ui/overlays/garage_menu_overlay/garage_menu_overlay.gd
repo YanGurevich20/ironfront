@@ -1,8 +1,7 @@
 class_name GarageMenuOverlay extends BaseOverlay
 
-@warning_ignore("unused_signal")
 signal settings_pressed
-@warning_ignore("unused_signal")
+
 signal metrics_pressed
 
 @onready var settings_button: Button = %SettingsButton

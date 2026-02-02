@@ -1,7 +1,6 @@
 class_name Lever
 extends Control
 
-@warning_ignore("unused_signal")
 signal lever_moved(lever_side: LeverSide, value: float)
 
 enum LeverSide { LEFT = 0, RIGHT = 1 }

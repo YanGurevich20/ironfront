@@ -1,9 +1,8 @@
 class_name TankListPanel
 extends Control
 
-@warning_ignore("unused_signal")
 signal unlock_tank_requested(tank_id: TankManager.TankId)
-@warning_ignore("unused_signal")
+
 signal tank_selected(tank_id: TankManager.TankId)
 
 var _player_dollars: int = 0

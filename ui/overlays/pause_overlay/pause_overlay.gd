@@ -1,9 +1,8 @@
 class_name PauseOverlay
 extends BaseOverlay
 
-@warning_ignore("unused_signal")
 signal settings_pressed
-@warning_ignore("unused_signal")
+
 signal abort_pressed
 
 var _pending_objectives: Array[Objective] = []

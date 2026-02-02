@@ -1,7 +1,6 @@
 class_name AmmoUpgradeListItem
 extends HBoxContainer
 
-@warning_ignore("unused_signal")
 signal count_updated
 
 enum State { LOCKED = 0, UNLOCKABLE = 1, UNLOCKED = 2 }

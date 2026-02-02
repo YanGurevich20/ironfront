@@ -1,7 +1,6 @@
 class_name BaseSection
 extends VBoxContainer
 
-@warning_ignore("unused_signal")
 signal back_pressed(is_root: bool)
 
 @export var is_root: bool = false

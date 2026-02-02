@@ -1,7 +1,6 @@
 class_name FireButton
 extends Control
 
-@warning_ignore("unused_signal")
 signal fire_button_pressed
 
 var is_pressed: bool = false

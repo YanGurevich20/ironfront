@@ -1,11 +1,11 @@
 class_name BaseLevel extends Node2D
 
 #region Declarations
-@warning_ignore("unused_signal")
+
 signal level_finished(
 	success: bool, metrics: Dictionary[Metrics.Metric, int], objectives: Array[Objective]
 )
-@warning_ignore("unused_signal")
+
 signal objectives_updated(objectives: Array[Objective])
 
 const TANK_CONTROLLER_TYPE := TankManager.TankControllerType

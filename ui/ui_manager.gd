@@ -1,15 +1,14 @@
 class_name UIManager
 extends CanvasLayer
 
-@warning_ignore("unused_signal")
 signal resume_game
-@warning_ignore("unused_signal")
+
 signal restart_level
-@warning_ignore("unused_signal")
+
 signal abort_level
-@warning_ignore("unused_signal")
+
 signal return_to_menu
-@warning_ignore("unused_signal")
+
 signal log_out_pressed
 
 var _menu_nodes: Array[Control]

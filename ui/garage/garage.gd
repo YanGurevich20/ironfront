@@ -1,7 +1,6 @@
 class_name Garage
 extends Control
 
-@warning_ignore("unused_signal")
 signal garage_menu_pressed
 
 var player_data: PlayerData = PlayerData.get_instance()

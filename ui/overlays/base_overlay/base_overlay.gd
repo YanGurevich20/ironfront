@@ -1,7 +1,6 @@
 class_name BaseOverlay
 extends Control
 
-@warning_ignore("unused_signal")
 signal exit_overlay_pressed
 
 var all_sections: Array[Node]
