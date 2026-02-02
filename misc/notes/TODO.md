@@ -1,3 +1,0 @@
-- [ ] Shell tracer variants can be simplified, perhaps a flag and a run-time generated file
-- [ ] Shell manager is unscalable. Consider making shells handled by the parent.
-- [ ] Overlay system is unscalable, should use array pop in and out for opening new overlays (linked list behaviour)
