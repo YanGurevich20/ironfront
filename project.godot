@@ -25,7 +25,7 @@ boot_splash/minimum_display_time=1000
 
 [autoload]
 
-SignalBus="*res://core/singletons/signal_bus.gd"
+SignalBus="*res://singletons/signal_bus.gd"
 
 [debug]
 

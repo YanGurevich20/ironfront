@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BaseShellType" load_steps=5 format=3 uid="uid://dhf222dc7t1o5"]
+[gd_resource type="Resource" script_class="BaseShellType" format=3 uid="uid://dhf222dc7t1o5"]
 
 [ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://entities/shell/base_shell_type/rounds.png" id="1_kn8bl"]
 [ext_resource type="Script" uid="uid://0m20y2pnl21p" path="res://entities/shell/base_shell_type/base_shell_type.gd" id="2_pgkbb"]

@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://roonsgr5u26r"]
+[gd_resource type="TileSet" format=3 uid="uid://roonsgr5u26r"]
 
 [ext_resource type="Texture2D" uid="uid://cb0dg2l7v3sns" path="res://global_assets/map/tileset.png" id="1_vtkug"]
 [ext_resource type="PackedScene" uid="uid://c06nra7itenvy" path="res://global_assets/map/tree_obstacle/tree_obstacle.tscn" id="2_pixht"]

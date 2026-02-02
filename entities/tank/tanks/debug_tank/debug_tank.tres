@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="TankSpec" load_steps=21 format=3 uid="uid://kygony75sbjt"]
+[gd_resource type="Resource" script_class="TankSpec" format=3 uid="uid://kygony75sbjt"]
 
 [ext_resource type="Texture2D" uid="uid://8hxjpbfoe7w7" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.png" id="1_053aj"]
 [ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://entities/shell/shell_spec.gd" id="1_nbn4u"]

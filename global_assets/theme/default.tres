@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=27 format=3 uid="uid://dhe3ageaikkit"]
+[gd_resource type="Theme" format=3 uid="uid://dhe3ageaikkit"]
 
 [ext_resource type="FontFile" uid="uid://noeufyw3eg0r" path="res://global_assets/fonts/PressStart2P-Regular.ttf" id="2_mx1a8"]
 [ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://global_assets/theme/main.png" id="2_plmku"]
