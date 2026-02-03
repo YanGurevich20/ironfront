@@ -1,84 +1,66 @@
-[gd_scene load_steps=4 format=3 uid="uid://y7yy28xv8gj6"]
+[gd_scene format=3 uid="uid://y7yy28xv8gj6"]
 
 [ext_resource type="PackedScene" uid="uid://b2ndbkv4et6g1" path="res://ui/overlays/base_overlay/base_overlay.tscn" id="1_7c0on"]
 [ext_resource type="Script" uid="uid://dus1gtshapvxw" path="res://ui/overlays/settings_overlay/settings_overlay.gd" id="2_n1qli"]
-[ext_resource type="PackedScene" uid="uid://byocrfp5gbeii" path="res://ui/overlays/base_overlay/base_section/base_section.tscn" id="3_n1qli"]
 
-[node name="SettingsOverlay" instance=ExtResource("1_7c0on")]
+[node name="SettingsOverlay" unique_id=538198038 instance=ExtResource("1_7c0on")]
 script = ExtResource("2_n1qli")
 metadata/_edit_vertical_guides_ = [320.0]
 metadata/_edit_horizontal_guides_ = [180.0]
 
-[node name="RootSection" parent="PanelContainer/SectionsContainer" index="0"]
-visible = false
+[node name="PanelContainer" parent="." index="1"]
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 25.0
+offset_right = -40.0
+offset_bottom = -28.0
 
-[node name="SettingsLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection" index="0"]
+[node name="SettingsScroll" type="ScrollContainer" parent="PanelContainer/SectionsContainer/RootSection" index="0" unique_id=568260856]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SettingsContent" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll" index="0" unique_id=900561648]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="SettingsLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="0" unique_id=1903944515]
 layout_mode = 2
 text = "SETTINGS"
 horizontal_alignment = 1
 
-[node name="FeedbackButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="1"]
+[node name="FeedbackLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="1" unique_id=2014276024]
+layout_mode = 2
+text = "FEEDBACK"
+
+[node name="FeedbackButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="2" unique_id=692723534]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"GoldButton"
-text = "FEEDBACK FORM"
+text = "OPEN FEEDBACK FORM"
 
-[node name="VideoButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="2"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "VIDEO"
-
-[node name="AudioButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="3"]
-unique_name_in_owner = true
+[node name="AudioLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="3" unique_id=1994073905]
 layout_mode = 2
 text = "AUDIO"
 
-[node name="HUDButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="4"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "HUD"
-
-[node name="AboutButton" type="Button" parent="PanelContainer/SectionsContainer/RootSection" index="5"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "ABOUT"
-
-[node name="VideoSection" parent="PanelContainer/SectionsContainer" index="1" instance=ExtResource("3_n1qli")]
-unique_name_in_owner = true
-visible = false
+[node name="MasterVolume" type="PanelContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="4" unique_id=332980864]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/VideoSection" index="0"]
-layout_mode = 2
-text = "VIDEO"
-horizontal_alignment = 1
-
-[node name="ComingSonnButton" type="Button" parent="PanelContainer/SectionsContainer/VideoSection" index="1"]
-layout_mode = 2
-disabled = true
-text = "COMING SOON"
-
-[node name="AudioSection" parent="PanelContainer/SectionsContainer" index="2" instance=ExtResource("3_n1qli")]
-unique_name_in_owner = true
-visible = false
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/MasterVolume" index="0" unique_id=1041952070]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/AudioSection" index="0"]
-layout_mode = 2
-text = "AUDIO"
-horizontal_alignment = 1
-
-[node name="MasterVolume" type="PanelContainer" parent="PanelContainer/SectionsContainer/AudioSection" index="1"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/AudioSection/MasterVolume" index="0"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/AudioSection/MasterVolume/VBoxContainer" index="0"]
+[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/MasterVolume/VBoxContainer" index="0" unique_id=255231913]
 layout_mode = 2
 text = "MASTER VOLUME"
 
-[node name="MasterVolumeSlider" type="HSlider" parent="PanelContainer/SectionsContainer/AudioSection/MasterVolume/VBoxContainer" index="1"]
+[node name="MasterVolumeSlider" type="HSlider" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/MasterVolume/VBoxContainer" index="1" unique_id=1792204387]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
@@ -87,27 +69,22 @@ value = 1.0
 tick_count = 21
 ticks_on_borders = true
 
-[node name="HUDSection" parent="PanelContainer/SectionsContainer" index="3" instance=ExtResource("3_n1qli")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/HUDSection" index="0"]
+[node name="HudLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="5" unique_id=200747023]
 layout_mode = 2
 text = "HUD"
-horizontal_alignment = 1
 
-[node name="ControlsOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="1"]
+[node name="HudPanel" type="PanelContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="6" unique_id=1486643627]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity" index="0"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel" index="0" unique_id=177116284]
 layout_mode = 2
+theme_override_constants/separation = 6
 
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity/VBoxContainer" index="0"]
+[node name="ControlsOpacityLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel/VBoxContainer" index="0" unique_id=931076563]
 layout_mode = 2
 text = "CONTROLS OPACITY"
 
-[node name="ControlsOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/HUDSection/ControlsOpacity/VBoxContainer" index="1"]
+[node name="ControlsOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel/VBoxContainer" index="1" unique_id=1834205422]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
@@ -116,17 +93,11 @@ value = 1.0
 tick_count = 21
 ticks_on_borders = true
 
-[node name="TankHUDOpacity" type="PanelContainer" parent="PanelContainer/SectionsContainer/HUDSection" index="2"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity" index="0"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity/VBoxContainer" index="0"]
+[node name="TankHUDOpacityLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel/VBoxContainer" index="2" unique_id=425580607]
 layout_mode = 2
 text = "TANK HUD OPACITY"
 
-[node name="TankHUDOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/HUDSection/TankHUDOpacity/VBoxContainer" index="1"]
+[node name="TankHUDOpacitySlider" type="HSlider" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel/VBoxContainer" index="3" unique_id=1487294624]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
@@ -135,12 +106,30 @@ value = 1.0
 tick_count = 21
 ticks_on_borders = true
 
-[node name="AboutSection" parent="PanelContainer/SectionsContainer" index="4" instance=ExtResource("3_n1qli")]
-unique_name_in_owner = true
-visible = false
+[node name="VideoLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="8" unique_id=205686315]
+layout_mode = 2
+text = "VIDEO"
+
+[node name="VideoPanel" type="PanelContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="9" unique_id=298324143]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/SectionsContainer/AboutSection" index="0"]
+[node name="VideoBox" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/VideoPanel" index="0" unique_id=963182404]
+layout_mode = 2
+
+[node name="VideoComingSoon" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/VideoPanel/VideoBox" index="0" unique_id=571520320]
+layout_mode = 2
+text = "COMING SOON"
+
+[node name="AboutLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="10" unique_id=346788896]
 layout_mode = 2
 text = "ABOUT"
-horizontal_alignment = 1
+
+[node name="AboutPanel" type="PanelContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="11" unique_id=977981252]
+layout_mode = 2
+
+[node name="AboutBox" type="VBoxContainer" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/AboutPanel" index="0" unique_id=1453870205]
+layout_mode = 2
+
+[node name="AboutComingSoon" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/AboutPanel/AboutBox" index="0" unique_id=1479224198]
+layout_mode = 2
+text = "COMING SOON"
