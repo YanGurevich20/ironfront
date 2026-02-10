@@ -1,8 +1,6 @@
 class_name Garage
 extends Control
 
-signal garage_menu_pressed
-
 var player_data: PlayerData = PlayerData.get_instance()
 
 @onready var header_panel: HeaderPanel = %HeaderPanel
@@ -12,13 +10,10 @@ var player_data: PlayerData = PlayerData.get_instance()
 
 
 func _ready() -> void:
-	Utils.connect_checked(
-		header_panel.garage_menu_pressed, func() -> void: garage_menu_pressed.emit()
-	)
 	Utils.connect_checked(tank_list_panel.unlock_tank_requested, _on_tank_unlock_requested)
 	Utils.connect_checked(tank_list_panel.tank_selected, _on_tank_selected)
-	Utils.connect_checked(SignalBus.shell_unlock_requested, _on_shell_unlock_requested)
-	Utils.connect_checked(SignalBus.level_finished_and_saved, display_player_data)
+	Utils.connect_checked(UiBus.shell_unlock_requested, _on_shell_unlock_requested)
+	Utils.connect_checked(GameplayBus.level_finished_and_saved, display_player_data)
 	display_player_data()
 
 

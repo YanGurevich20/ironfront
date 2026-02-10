@@ -1,8 +1,6 @@
 class_name HeaderPanel
 extends PanelContainer
 
-signal garage_menu_pressed
-
 var player_data: PlayerData = PlayerData.get_instance()
 var feedback_display_token: int = 0
 
@@ -16,7 +14,9 @@ var feedback_display_token: int = 0
 
 
 func _ready() -> void:
-	Utils.connect_checked(garage_menu_button.pressed, func() -> void: garage_menu_pressed.emit())
+	Utils.connect_checked(
+		garage_menu_button.pressed, func() -> void: UiBus.garage_menu_pressed.emit()
+	)
 	Utils.connect_checked(play_button.pressed, _on_play_pressed)
 	Utils.connect_checked(play_online_button.pressed, _on_play_online_pressed)
 
@@ -29,7 +29,7 @@ func display_player_data() -> void:
 
 
 func _on_play_pressed() -> void:
-	SignalBus.play_pressed.emit()
+	UiBus.play_pressed.emit()
 
 
 func _on_play_online_pressed() -> void:
@@ -40,7 +40,7 @@ func _on_play_online_pressed() -> void:
 	if tank_config.get_total_shell_count() == 0:
 		_display_warning("NOT ENOUGH AMMO")
 		return
-	SignalBus.play_online_pressed.emit()
+	UiBus.play_online_pressed.emit()
 
 
 func _display_warning(text: String) -> void:

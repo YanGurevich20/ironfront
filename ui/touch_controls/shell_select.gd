@@ -14,8 +14,10 @@ var tank_spec: TankSpec
 
 
 func _ready() -> void:
-	Utils.connect_checked(SignalBus.shell_fired, _on_shell_fired)
-	Utils.connect_checked(SignalBus.reload_progress_left_updated, _on_reload_progress_left_updated)
+	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
+	Utils.connect_checked(
+		GameplayBus.reload_progress_left_updated, _on_reload_progress_left_updated
+	)
 
 
 func initialize() -> void:
@@ -54,7 +56,7 @@ func _on_shell_selected(shell_spec: ShellSpec) -> void:
 		else:
 			child.hide()
 	_reset_loading_progress_bars()
-	SignalBus.shell_selected.emit(shell_spec, shell_counts[shell_spec])
+	GameplayBus.shell_selected.emit(shell_spec, shell_counts[shell_spec])
 
 
 func _on_shell_expand_requested() -> void:
@@ -77,7 +79,7 @@ func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 	if shell_counts[shell.shell_spec] == 0:
 		_on_shell_expand_requested()
 	update_counts()
-	SignalBus.update_remaining_shell_count.emit(shell_counts[shell.shell_spec])
+	GameplayBus.update_remaining_shell_count.emit(shell_counts[shell.shell_spec])
 
 
 func _on_reload_progress_left_updated(progress: float, tank: Tank) -> void:

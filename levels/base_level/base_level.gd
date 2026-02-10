@@ -28,8 +28,8 @@ var player_tank: Tank
 #endregion
 #region Lifecycle
 func _ready() -> void:
-	Utils.connect_checked(SignalBus.shell_fired, _on_shell_fired)
-	Utils.connect_checked(SignalBus.tank_destroyed, _on_tank_destroyed)
+	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
+	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
 	_initialize_spawn_points()
 
 

@@ -14,18 +14,20 @@ var current_level_key: int = 0
 
 # === Built-in Methods ===
 func _ready() -> void:
-	Utils.connect_checked(SignalBus.quit_pressed, func() -> void: get_tree().quit())
-	Utils.connect_checked(SignalBus.play_online_pressed, _connect_to_online_server)
-	Utils.connect_checked(SignalBus.level_pressed, _start_level)
-	Utils.connect_checked(SignalBus.pause_input, _pause_game)
-	Utils.connect_checked(ui_manager.resume_game, _resume_game)
-	Utils.connect_checked(ui_manager.restart_level, _restart_level)
-	Utils.connect_checked(ui_manager.abort_level, _abort_level)
-	Utils.connect_checked(ui_manager.return_to_menu, _quit_level)
+	Utils.connect_checked(UiBus.quit_pressed, func() -> void: get_tree().quit())
+	Utils.connect_checked(UiBus.play_online_pressed, _connect_to_online_server)
+	Utils.connect_checked(UiBus.level_pressed, _start_level)
+	Utils.connect_checked(UiBus.pause_input, _pause_game)
+	Utils.connect_checked(UiBus.resume_requested, _resume_game)
+	Utils.connect_checked(UiBus.restart_level_requested, _restart_level)
+	Utils.connect_checked(UiBus.abort_level_requested, _abort_level)
+	Utils.connect_checked(UiBus.return_to_menu_requested, _quit_level)
 	Utils.connect_checked(network_client.join_status_changed, _on_join_status_changed)
 	Utils.connect_checked(network_client.join_arena_completed, _on_join_arena_completed)
-	Utils.connect_checked(ui_manager.online_join_retry_requested, _connect_to_online_server)
-	Utils.connect_checked(ui_manager.online_join_cancel_requested, _on_online_join_cancel_requested)
+	Utils.connect_checked(MultiplayerBus.online_join_retry_requested, _connect_to_online_server)
+	Utils.connect_checked(
+		MultiplayerBus.online_join_cancel_requested, _on_online_join_cancel_requested
+	)
 	_save_player_metrics()
 
 
@@ -79,7 +81,7 @@ func _start_level(level_key: int) -> void:
 	Utils.connect_checked(current_level.objectives_updated, _on_objectives_updated)
 	level_container.add_child(current_level)
 	current_level.start_level()
-	SignalBus.level_started.emit()
+	GameplayBus.level_started.emit()
 
 
 func _restart_level() -> void:
@@ -131,7 +133,7 @@ func _save_game_progress(new_metrics: Dictionary, level_key: int, dollar_reward:
 
 	game_progress.update_progress(level_key, current_run_stars, dollars_to_award_this_run)
 	game_progress.save()
-	SignalBus.level_finished_and_saved.emit()
+	GameplayBus.level_finished_and_saved.emit()
 
 
 #endregion

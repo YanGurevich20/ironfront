@@ -8,7 +8,7 @@ var _enemies: Array[Tank] = []
 
 
 func _ready() -> void:
-	Utils.connect_checked(SignalBus.tank_destroyed, _on_tank_destroyed)
+	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
 
 
 func _process(delta: float) -> void:

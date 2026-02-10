@@ -12,14 +12,14 @@ extends Control
 
 func _ready() -> void:
 	Utils.connect_checked(
-		fire_button.fire_button_pressed, func() -> void: SignalBus.fire_input.emit()
+		fire_button.fire_button_pressed, func() -> void: GameplayBus.fire_input.emit()
 	)
-	Utils.connect_checked(pause_button.pressed, func() -> void: SignalBus.pause_input.emit())
+	Utils.connect_checked(pause_button.pressed, func() -> void: UiBus.pause_input.emit())
 	Utils.connect_checked(
 		zoom_slider.value_changed, func(value: float) -> void: _set_zoom_level(value)
 	)
 	_apply_settings()
-	Utils.connect_checked(SignalBus.settings_changed, _apply_settings)
+	Utils.connect_checked(GameplayBus.settings_changed, _apply_settings)
 
 
 func _apply_settings() -> void:

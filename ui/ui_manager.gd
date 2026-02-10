@@ -1,19 +1,6 @@
 class_name UIManager
 extends CanvasLayer
 
-signal resume_game
-
-signal restart_level
-
-signal abort_level
-
-signal return_to_menu
-
-signal log_out_pressed
-
-signal online_join_retry_requested
-signal online_join_cancel_requested
-
 var _menu_nodes: Array[Control]
 var _control_nodes: Array[Control]
 var _overlay_nodes: Array[Control]
@@ -75,7 +62,7 @@ func show_overlay(overlay: Control) -> void:
 func hide_overlays() -> void:
 	Utils.hide_nodes(_overlay_nodes)
 	# TODO: temporary fix for sub-menu back press.
-	resume_game.emit()
+	UiBus.resume_requested.emit()
 
 
 func display_result(
@@ -142,7 +129,6 @@ func _on_pause_pressed() -> void:
 
 func _on_resume_pressed() -> void:
 	hide_overlays()
-	resume_game.emit()
 
 
 func _on_settings_pressed() -> void:
@@ -159,18 +145,18 @@ func _on_close_settings_pressed() -> void:
 
 func _on_return_pressed() -> void:
 	show_menu(garage)
-	return_to_menu.emit()
+	UiBus.return_to_menu_requested.emit()
 
 
 func _on_retry_pressed() -> void:
 	print("retry pressed ui manager")
 	hide_overlays()
-	restart_level.emit()
+	UiBus.restart_level_requested.emit()
 
 
 func _on_abort_pressed() -> void:
 	hide_overlays()
-	abort_level.emit()
+	UiBus.abort_level_requested.emit()
 
 
 func _on_login_pressed() -> void:
@@ -188,23 +174,23 @@ func _on_garage_menu_pressed() -> void:
 #endregion
 #region Helpers
 func _connect_signals() -> void:
-	Utils.connect_checked(SignalBus.login_pressed, _on_login_pressed)
+	Utils.connect_checked(UiBus.login_pressed, _on_login_pressed)
 
-	Utils.connect_checked(SignalBus.play_pressed, _on_play_pressed)
-	Utils.connect_checked(SignalBus.shell_info_requested, _on_shell_info_requested)
-	Utils.connect_checked(garage.garage_menu_pressed, _on_garage_menu_pressed)
+	Utils.connect_checked(UiBus.play_pressed, _on_play_pressed)
+	Utils.connect_checked(UiBus.shell_info_requested, _on_shell_info_requested)
+	Utils.connect_checked(UiBus.garage_menu_pressed, _on_garage_menu_pressed)
 	Utils.connect_checked(garage_menu_overlay.exit_overlay_pressed, hide_overlays)
 	Utils.connect_checked(garage_menu_overlay.settings_pressed, _on_settings_pressed)
 	Utils.connect_checked(garage_menu_overlay.metrics_pressed, _on_metrics_pressed)
 
-	Utils.connect_checked(SignalBus.log_out_pressed, _on_log_out_pressed)
+	Utils.connect_checked(UiBus.log_out_pressed, _on_log_out_pressed)
 
-	Utils.connect_checked(SignalBus.level_started, _on_level_started)
+	Utils.connect_checked(GameplayBus.level_started, _on_level_started)
 	Utils.connect_checked(level_select_overlay.exit_overlay_pressed, hide_overlays)
 
 	Utils.connect_checked(shell_info_overlay.exit_overlay_pressed, hide_overlays)
 
-	Utils.connect_checked(SignalBus.pause_input, _on_pause_pressed)
+	Utils.connect_checked(UiBus.pause_input, _on_pause_pressed)
 
 	Utils.connect_checked(pause_overlay.exit_overlay_pressed, _on_resume_pressed)
 	Utils.connect_checked(pause_overlay.settings_pressed, _on_settings_pressed)
@@ -221,8 +207,7 @@ func _connect_signals() -> void:
 	Utils.connect_checked(metrics_overlay.exit_overlay_pressed, hide_overlays)
 
 	#* online join overlay *#
-	Utils.connect_checked(online_join_overlay.retry_requested, _on_online_join_retry_pressed)
-	Utils.connect_checked(online_join_overlay.cancel_requested, _on_online_join_cancel_pressed)
+	Utils.connect_checked(MultiplayerBus.online_join_cancel_requested, hide_online_join_overlay)
 	Utils.connect_checked(online_join_overlay.close_requested, hide_online_join_overlay)
 
 
@@ -231,12 +216,4 @@ func _hide_all() -> void:
 	Utils.hide_nodes(_control_nodes)
 	Utils.hide_nodes(_overlay_nodes)
 
-
-func _on_online_join_retry_pressed() -> void:
-	online_join_retry_requested.emit()
-
-
-func _on_online_join_cancel_pressed() -> void:
-	hide_online_join_overlay()
-	online_join_cancel_requested.emit()
 #endregion

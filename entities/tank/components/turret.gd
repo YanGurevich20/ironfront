@@ -17,7 +17,8 @@ var current_shell_spec: ShellSpec
 func _ready() -> void:
 	Utils.connect_checked(flash.animation_finished, func() -> void: flash.visible = false)
 	Utils.connect_checked(
-		reload_timer.timeout, func() -> void: SignalBus.reload_progress_left_updated.emit(1.0, tank)
+		reload_timer.timeout,
+		func() -> void: GameplayBus.reload_progress_left_updated.emit(1.0, tank)
 	)
 	if tank.tank_spec.allowed_shells.size() > 0:
 		current_shell_spec = tank.tank_spec.allowed_shells[0]
@@ -30,7 +31,7 @@ func _ready() -> void:
 func process(delta: float, rotation_input: float) -> void:
 	rotation_degrees += rotation_input * tank.tank_spec.max_turret_traverse_speed * delta
 	if not reload_timer.is_stopped():
-		SignalBus.reload_progress_left_updated.emit(get_reload_progress(), tank)
+		GameplayBus.reload_progress_left_updated.emit(get_reload_progress(), tank)
 
 
 #endregion
@@ -57,8 +58,8 @@ func fire_shell() -> void:
 		return
 	var shell: Shell = shell_scene.instantiate()
 	shell.initialize(current_shell_spec, muzzle, tank)
-	SignalBus.shell_fired.emit(shell, tank)
-	SignalBus.reload_progress_left_updated.emit(0.0, tank)
+	GameplayBus.shell_fired.emit(shell, tank)
+	GameplayBus.reload_progress_left_updated.emit(0.0, tank)
 
 	reload_timer.start(tank.tank_spec.reload_time)
 	cannon_sound.play()

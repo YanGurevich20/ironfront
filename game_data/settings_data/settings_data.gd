@@ -9,20 +9,20 @@ const FILE_NAME: String = "settings_data"
 		var bus_index := AudioServer.get_bus_index("Master")
 		AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))
 		save()
-		SignalBus.settings_changed.emit()
+		GameplayBus.settings_changed.emit()
 
 @export_group("HUD")
 @export_range(0.0, 1.0, 0.05) var controls_opacity: float = 0.8:
 	set(value):
 		controls_opacity = value
 		save()
-		SignalBus.settings_changed.emit()
+		GameplayBus.settings_changed.emit()
 
 @export_range(0.0, 1.0, 0.05) var tank_hud_opacity: float = 0.8:
 	set(value):
 		tank_hud_opacity = value
 		save()
-		SignalBus.settings_changed.emit()
+		GameplayBus.settings_changed.emit()
 
 # settings that are not controlled from the settings menu
 @export_group("Dynamic")
@@ -30,7 +30,7 @@ const FILE_NAME: String = "settings_data"
 	set(value):
 		zoom_level = value
 		save()
-		SignalBus.settings_changed.emit()
+		GameplayBus.settings_changed.emit()
 
 
 func get_file_name() -> String:

@@ -3,11 +3,13 @@ extends Node
 
 
 func _ready() -> void:
-	Utils.connect_checked(SignalBus.lever_input, _on_lever_input)
-	Utils.connect_checked(SignalBus.wheel_input, _on_wheel_input)
-	Utils.connect_checked(SignalBus.fire_input, _on_fire_input)
-	Utils.connect_checked(SignalBus.shell_selected, _on_shell_selected)
-	Utils.connect_checked(SignalBus.update_remaining_shell_count, _on_update_remaining_shell_count)
+	Utils.connect_checked(GameplayBus.lever_input, _on_lever_input)
+	Utils.connect_checked(GameplayBus.wheel_input, _on_wheel_input)
+	Utils.connect_checked(GameplayBus.fire_input, _on_fire_input)
+	Utils.connect_checked(GameplayBus.shell_selected, _on_shell_selected)
+	Utils.connect_checked(
+		GameplayBus.update_remaining_shell_count, _on_update_remaining_shell_count
+	)
 
 
 func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:

@@ -17,7 +17,7 @@ var settings_data: SettingsData
 func _ready() -> void:
 	_hide_impact_result()
 	settings_data = SettingsData.get_instance()
-	Utils.connect_checked(SignalBus.settings_changed, _apply_settings)
+	Utils.connect_checked(GameplayBus.settings_changed, _apply_settings)
 	_apply_settings()
 
 

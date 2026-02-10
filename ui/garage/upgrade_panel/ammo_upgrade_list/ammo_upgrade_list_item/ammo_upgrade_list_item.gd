@@ -98,7 +98,7 @@ func _ready() -> void:
 		count_input.text_submitted, func(text: String) -> void: update_count(int(text))
 	)
 	Utils.connect_checked(
-		info_button.pressed, func() -> void: SignalBus.shell_info_requested.emit(shell_spec)
+		info_button.pressed, func() -> void: UiBus.shell_info_requested.emit(shell_spec)
 	)
 
 
@@ -123,7 +123,7 @@ func _set_unlockable_overlay_visibility(show_unlockable_overlay: bool) -> void:
 
 func _on_shell_button_pressed() -> void:
 	if state == State.UNLOCKABLE:
-		SignalBus.shell_unlock_requested.emit(shell_spec)
+		UiBus.shell_unlock_requested.emit(shell_spec)
 
 
 func _set_ammo_controls_enabled(enabled: bool) -> void:

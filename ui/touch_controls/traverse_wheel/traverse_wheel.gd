@@ -47,7 +47,7 @@ func _process(delta: float) -> void:
 	wheel.rotation += current_speed * max_turn_speed * delta
 
 	# Emit signal
-	SignalBus.wheel_input.emit(current_speed)
+	GameplayBus.wheel_input.emit(current_speed)
 
 
 func reset_input() -> void:

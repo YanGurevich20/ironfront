@@ -11,15 +11,15 @@ build:
 
 # Lint all GDScript files (static checks).
 lint:
-	"${GDLINT_BIN:-/Users/yan/Library/Python/3.12/bin/gdlint}" .
+	rg --files -g '*.gd' | xargs "${GDLINT_BIN:-/Users/yan/Library/Python/3.12/bin/gdlint}"
 
 # Check formatting without modifying files.
 fmt-check:
-	"${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}" --check .
+	rg --files -g '*.gd' | xargs "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}" --check
 
 # Auto-format GDScript files.
 fmt:
-	"${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}" .
+	rg --files -g '*.gd' | xargs "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}"
 
 # Run formatter then lint.
 fix: build fmt lint

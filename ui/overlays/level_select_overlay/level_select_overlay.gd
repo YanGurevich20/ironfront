@@ -23,7 +23,5 @@ func display_levels() -> void:
 			lock_next_level = true
 		level_button.level = level
 		level_button.stars = level_stars
-		Utils.connect_checked(
-			level_button.pressed, func() -> void: SignalBus.level_pressed.emit(level)
-		)
+		Utils.connect_checked(level_button.pressed, func() -> void: UiBus.level_pressed.emit(level))
 		levels_container.add_child(level_button)

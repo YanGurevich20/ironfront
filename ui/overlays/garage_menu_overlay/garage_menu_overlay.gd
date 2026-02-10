@@ -15,5 +15,5 @@ func _ready() -> void:
 
 	Utils.connect_checked(settings_button.pressed, func() -> void: settings_pressed.emit())
 	Utils.connect_checked(metrics_button.pressed, func() -> void: metrics_pressed.emit())
-	Utils.connect_checked(log_out_button.pressed, func() -> void: SignalBus.log_out_pressed.emit())
-	Utils.connect_checked(quit_button.pressed, func() -> void: SignalBus.quit_pressed.emit())
+	Utils.connect_checked(log_out_button.pressed, func() -> void: UiBus.log_out_pressed.emit())
+	Utils.connect_checked(quit_button.pressed, func() -> void: UiBus.quit_pressed.emit())

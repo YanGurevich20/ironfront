@@ -45,7 +45,7 @@ func _ready() -> void:
 	if is_player:
 		audio_listener.make_current()
 		camera_2d.make_current()
-		Utils.connect_checked(SignalBus.settings_changed, _apply_settings)
+		Utils.connect_checked(GameplayBus.settings_changed, _apply_settings)
 		_apply_settings()
 
 
@@ -91,7 +91,7 @@ func handle_tank_destroyed() -> void:
 	remove_from_group("tank")
 	add_to_group("projectile_blocker")
 	apply_destruction_effects()
-	SignalBus.tank_destroyed.emit(self)
+	GameplayBus.tank_destroyed.emit(self)
 
 
 func apply_destruction_effects() -> void:

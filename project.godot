@@ -25,7 +25,9 @@ boot_splash/minimum_display_time=1000
 
 [autoload]
 
-SignalBus="*res://singletons/signal_bus.gd"
+UiBus="*res://singletons/ui_bus.gd"
+GameplayBus="*res://singletons/gameplay_bus.gd"
+MultiplayerBus="*res://singletons/multiplayer_bus.gd"
 
 [debug]
 

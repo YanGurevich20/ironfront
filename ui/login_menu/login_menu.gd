@@ -10,7 +10,7 @@ var player_data: PlayerData = PlayerData.get_instance()
 
 
 func _ready() -> void:
-	Utils.connect_checked(SignalBus.log_out_pressed, _on_log_out_pressed)
+	Utils.connect_checked(UiBus.log_out_pressed, _on_log_out_pressed)
 
 	if player_data.player_name:
 		username_input.text = player_data.player_name
@@ -19,7 +19,7 @@ func _ready() -> void:
 
 	Utils.connect_checked(username_input.text_changed, _handle_username_input)
 	Utils.connect_checked(login_button.pressed, _on_login_button_pressed)
-	Utils.connect_checked(quit_button.pressed, func() -> void: SignalBus.quit_pressed.emit())
+	Utils.connect_checked(quit_button.pressed, func() -> void: UiBus.quit_pressed.emit())
 	Utils.connect_checked(
 		discord_link_button.pressed,
 		func() -> void:
@@ -40,7 +40,7 @@ func _on_login_button_pressed() -> void:
 	if player_data.player_name == "DEVELOPER":
 		player_data.is_developer = true
 	player_data.save()
-	SignalBus.login_pressed.emit()
+	UiBus.login_pressed.emit()
 
 
 func _on_log_out_pressed() -> void:

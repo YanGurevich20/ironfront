@@ -1,9 +1,7 @@
 class_name OnlineJoinOverlay
 extends BaseOverlay
 
-signal retry_requested
 signal close_requested
-signal cancel_requested
 
 enum JoinUiState {
 	JOINING,
@@ -31,13 +29,13 @@ func _ready() -> void:
 		retry_button.pressed,
 		func() -> void:
 			print("[ui][online_join_overlay] retry_pressed")
-			retry_requested.emit()
+			MultiplayerBus.online_join_retry_requested.emit()
 	)
 	Utils.connect_checked(
 		cancel_button.pressed,
 		func() -> void:
 			print("[ui][online_join_overlay] cancel_pressed")
-			cancel_requested.emit()
+			MultiplayerBus.online_join_cancel_requested.emit()
 	)
 	Utils.connect_checked(
 		close_button.pressed,
