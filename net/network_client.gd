@@ -10,6 +10,8 @@ var default_connect_port: int = 7000
 var protocol_version: int = 1
 var cancel_join_requested: bool = false
 var join_attempt_id: int = 0
+var assigned_spawn_position: Vector2 = Vector2.ZERO
+var assigned_spawn_rotation: float = 0.0
 
 
 func _ready() -> void:
@@ -52,7 +54,9 @@ func connect_to_server() -> void:
 	var create_error: int = client_peer.create_client(host, port)
 	if create_error != OK:
 		_log_join("create_client_failed host=%s port=%d error=%d" % [host, port, create_error])
-		push_error("[client] failed create_client %s:%d error=%d" % [host, port, create_error])
+		push_error(
+			"%s failed create_client %s:%d error=%d" % [_log_prefix(), host, port, create_error]
+		)
 		return
 
 	multiplayer.multiplayer_peer = client_peer
@@ -80,7 +84,7 @@ func _on_connection_failed() -> void:
 		cancel_join_requested = false
 		return
 	_log_join("connection_failed")
-	push_warning("[client] connection_failed")
+	push_warning("%s connection_failed" % _log_prefix())
 	join_status_changed.emit("ONLINE JOIN FAILED: CONNECTION FAILED", true)
 	join_arena_completed.emit(false, "CONNECTION FAILED")
 	_reset_connection()
@@ -92,7 +96,7 @@ func _on_server_disconnected() -> void:
 		cancel_join_requested = false
 		return
 	_log_join("server_disconnected")
-	push_warning("[client] server_disconnected")
+	push_warning("%s server_disconnected" % _log_prefix())
 	join_status_changed.emit("ONLINE JOIN FAILED: SERVER DISCONNECTED", true)
 	join_arena_completed.emit(false, "SERVER DISCONNECTED")
 	_reset_connection()
@@ -148,6 +152,8 @@ func _reset_connection() -> void:
 		client_peer.close()
 		client_peer = null
 	multiplayer.multiplayer_peer = null
+	assigned_spawn_position = Vector2.ZERO
+	assigned_spawn_rotation = 0.0
 	_log_join("reset_connection complete")
 
 
@@ -181,8 +187,8 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 	# This method exists so RPC path signatures stay valid on both peers.
 	push_warning(
 		(
-			"[client] unexpected client_hello protocol=%d player=%s"
-			% [client_protocol_version, player_name]
+			"%s unexpected client_hello protocol=%d player=%s"
+			% [_log_prefix(), client_protocol_version, player_name]
 		)
 	)
 
@@ -191,20 +197,35 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 func _join_arena(player_name: String) -> void:
 	# This method exists so RPC path signatures stay valid on both peers.
 	_log_join("unexpected_join_arena player=%s" % player_name)
-	push_warning("[client] unexpected join_arena player=%s" % player_name)
+	push_warning("%s unexpected join_arena player=%s" % [_log_prefix(), player_name])
 
 
 @rpc("authority", "reliable")
-func _join_arena_ack(success: bool, message: String) -> void:
+func _join_arena_ack(
+	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
+) -> void:
 	if multiplayer.is_server():
 		return
 	if cancel_join_requested:
-		_log_join("join_arena_ack_ignored_due_to_cancel success=%s message=%s" % [success, message])
+		_log_join(
+			(
+				(
+					"join_arena_ack_ignored_due_to_cancel success=%s message=%s "
+					+ "spawn_position=%s spawn_rotation=%.4f"
+				)
+				% [success, message, spawn_position, spawn_rotation]
+			)
+		)
 		cancel_join_requested = false
 		return
-	var log_message: String = "[client] join_arena_ack success=%s message=%s" % [success, message]
+	var log_message: String = (
+		("%s join_arena_ack success=%s message=%s " + "spawn_position=%s spawn_rotation=%.4f")
+		% [_log_prefix(), success, message, spawn_position, spawn_rotation]
+	)
 	_log_join("received_%s" % log_message)
 	if success:
+		assigned_spawn_position = spawn_position
+		assigned_spawn_rotation = spawn_rotation
 		print(log_message)
 		join_status_changed.emit("ONLINE JOIN SUCCESS: %s" % message, false)
 	else:
@@ -215,4 +236,14 @@ func _join_arena_ack(success: bool, message: String) -> void:
 
 
 func _log_join(message: String) -> void:
-	print("[client][join:%d] %s" % [join_attempt_id, message])
+	print("%s[join:%d] %s" % [_log_prefix(), join_attempt_id, message])
+
+
+func _log_prefix() -> String:
+	return "[client pid=%d peer=%d]" % [OS.get_process_id(), _get_safe_peer_id()]
+
+
+func _get_safe_peer_id() -> int:
+	if multiplayer.multiplayer_peer == null:
+		return 0
+	return multiplayer.get_unique_id()

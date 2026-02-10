@@ -115,6 +115,8 @@ This already aligns with Godot's recommended model:
 - Spawn markers use explicit stable IDs via `ArenaSpawnMarker.spawn_id` (e.g., `spawn_01`..`spawn_10`).
 - On server startup, load/instantiate arena scene, validate marker config, then cache `spawn_id -> Transform2D`.
 - Phase 3 random assignment should consume this cached spawn pool rather than scanning scene files at join time.
+- On successful join, server responds with spawn assignment via `join_arena_ack(success, message, spawn_position, spawn_rotation)`.
+- If no free spawn exists, server rejects join with `NO SPAWN AVAILABLE` rather than spawning at random coordinates.
 
 ## Security and robustness notes from docs
 

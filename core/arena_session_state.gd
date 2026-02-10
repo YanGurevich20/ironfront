@@ -22,13 +22,31 @@ func try_join_peer(peer_id: int, player_name: String) -> Dictionary:
 		"peer_id": peer_id,
 		"player_name": player_name,
 		"joined_unix_time": Time.get_unix_time_from_system(),
+		"assigned_spawn_id": StringName(),
 	}
 	return {"success": true, "message": "JOINED GLOBAL ARENA"}
 
 
-func remove_peer(peer_id: int, reason: String = "UNKNOWN") -> bool:
+func set_peer_spawn_id(peer_id: int, spawn_id: StringName) -> bool:
 	if not players_by_peer_id.has(peer_id):
 		return false
+	var peer_state: Dictionary = players_by_peer_id[peer_id]
+	peer_state["assigned_spawn_id"] = spawn_id
+	players_by_peer_id[peer_id] = peer_state
+	return true
+
+
+func get_peer_spawn_id(peer_id: int) -> StringName:
+	if not players_by_peer_id.has(peer_id):
+		return StringName()
+	var peer_state: Dictionary = players_by_peer_id[peer_id]
+	return peer_state.get("assigned_spawn_id", StringName())
+
+
+func remove_peer(peer_id: int, reason: String = "UNKNOWN") -> Dictionary:
+	if not players_by_peer_id.has(peer_id):
+		return {"removed": false, "spawn_id": StringName()}
+	var spawn_id: StringName = get_peer_spawn_id(peer_id)
 	players_by_peer_id.erase(peer_id)
 	print(
 		(
@@ -36,7 +54,7 @@ func remove_peer(peer_id: int, reason: String = "UNKNOWN") -> bool:
 			% [peer_id, reason, players_by_peer_id.size(), max_players]
 		)
 	)
-	return true
+	return {"removed": true, "spawn_id": spawn_id}
 
 
 func get_player_count() -> int:

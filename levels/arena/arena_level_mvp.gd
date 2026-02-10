@@ -1,8 +1,6 @@
 class_name ArenaLevelMvp
 extends Node2D
 
-const ArenaSpawnMarker = preload("res://levels/arena/arena_spawn_marker.gd")
-
 @onready var arena_spawn_points: Node2D = %ArenaSpawnPoints
 
 

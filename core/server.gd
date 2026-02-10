@@ -1,9 +1,6 @@
 class_name Server
 extends Node
 
-const ArenaSessionState = preload("res://core/arena_session_state.gd")
-const ArenaLevelMvp = preload("res://levels/arena/arena_level_mvp.gd")
-
 @export var listen_port: int = 7000
 @export var max_clients: int = 32
 @export var tick_rate_hz: int = 30
@@ -26,6 +23,7 @@ func _ready() -> void:
 		return
 	arena_session_state = ArenaSessionState.new(arena_max_players)
 	network_server.configure_arena_session(arena_session_state)
+	network_server.configure_arena_spawn_pool(arena_spawn_transforms_by_id)
 	var server_started: bool = network_server.start_server(listen_port, max_clients)
 	if not server_started:
 		get_tree().quit(1)

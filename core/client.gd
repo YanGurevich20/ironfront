@@ -32,24 +32,33 @@ func _ready() -> void:
 
 
 func _connect_to_online_server() -> void:
-	print("[client][ui] play_online_pressed -> show_online_join_overlay + connect_to_server")
+	print(
+		"%s[ui] play_online_pressed -> show_online_join_overlay + connect_to_server" % _log_prefix()
+	)
 	ui_manager.show_online_join_overlay()
 	network_client.connect_to_server()
 
 
 func _on_join_status_changed(message: String, is_error: bool) -> void:
-	print("[client][ui] join_status_changed is_error=%s message=%s" % [is_error, message])
+	print("%s[ui] join_status_changed is_error=%s message=%s" % [_log_prefix(), is_error, message])
 	ui_manager.update_online_join_overlay(message, is_error)
 
 
 func _on_join_arena_completed(success: bool, message: String) -> void:
-	print("[client][ui] join_arena_completed success=%s message=%s" % [success, message])
+	print("%s[ui] join_arena_completed success=%s message=%s" % [_log_prefix(), success, message])
 	ui_manager.complete_online_join_overlay(success, message)
 
 
 func _on_online_join_cancel_requested() -> void:
-	print("[client][ui] online_join_cancel_requested -> cancel_join_request")
+	print("%s[ui] online_join_cancel_requested -> cancel_join_request" % _log_prefix())
 	network_client.cancel_join_request()
+
+
+func _log_prefix() -> String:
+	var peer_id: int = 0
+	if multiplayer.multiplayer_peer != null:
+		peer_id = multiplayer.get_unique_id()
+	return "[client pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
 
 
 #region level lifecycle

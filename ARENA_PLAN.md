@@ -36,14 +36,16 @@
 - Server boot loads this scene, validates spawn markers, and caches `spawn_id -> Transform2D` for Phase 3 assignment.
 
 ## Phase 3: Random Spawn Assignment
-- [ ] Pick one arena map for the MVP.
-- [ ] Load/use spawn points as the player spawn pool.
-- [ ] Assign random spawn on successful join.
-- [ ] Send assigned spawn transform to joining client.
-- [ ] Add fallback behavior when all spawns are occupied.
+- [x] Pick one arena map for the MVP.
+- [x] Load/use spawn points as the player spawn pool.
+- [x] Assign random spawn on successful join.
+- [x] Send assigned spawn transform to joining client.
+- [x] Add fallback behavior when all spawns are occupied.
 
 ### Notes
-- 
+- `join_arena_ack` now carries `spawn_position` and `spawn_rotation` from server-authoritative assignment.
+- Spawn occupancy is tracked by `spawn_id` and released on disconnect.
+- Fallback when no free spawn exists is explicit join rejection (`NO SPAWN AVAILABLE`).
 
 ## Phase 4: Client Arena Bootstrap
 - [ ] Load arena level on successful `join_arena_ack`.
