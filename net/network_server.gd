@@ -1,8 +1,15 @@
 class_name NetworkServer
 extends Node
 
+const ArenaSessionState = preload("res://core/arena_session_state.gd")
+
 var server_peer: ENetMultiplayerPeer
 var protocol_version: int = 1
+var arena_session_state: ArenaSessionState
+
+
+func configure_arena_session(session_state: ArenaSessionState) -> void:
+	arena_session_state = session_state
 
 
 func start_server(listen_port: int, max_clients: int) -> bool:
@@ -29,6 +36,12 @@ func _on_peer_connected(peer_id: int) -> void:
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	print("[server] peer_disconnected id=%d peers=%d" % [peer_id, multiplayer.get_peers().size()])
+	if arena_session_state == null:
+		push_warning("[server][arena] missing session state during disconnect")
+		return
+	var was_removed: bool = arena_session_state.remove_peer(peer_id, "PEER_DISCONNECTED")
+	if was_removed:
+		print("[server][arena] peer_disconnected_cleanup peer=%d" % peer_id)
 
 
 func _on_connected_to_server() -> void:
@@ -67,6 +80,11 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 func _join_arena(player_name: String) -> void:
 	if not multiplayer.is_server():
 		return
+	if arena_session_state == null:
+		push_error("[server][arena] join requested before session initialization")
+		var missing_session_peer_id: int = multiplayer.get_remote_sender_id()
+		_join_arena_ack.rpc_id(missing_session_peer_id, false, "ARENA SESSION UNAVAILABLE")
+		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	var cleaned_player_name: String = player_name.strip_edges()
 	print(
@@ -79,9 +97,25 @@ func _join_arena(player_name: String) -> void:
 		print("[server][join] reject_join_arena peer=%d reason=INVALID_PLAYER_NAME" % peer_id)
 		_join_arena_ack.rpc_id(peer_id, false, "INVALID PLAYER NAME")
 		return
-	print("[server] join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
-	print("[server][join] ack_join_arena peer=%d success=true" % peer_id)
-	_join_arena_ack.rpc_id(peer_id, true, "JOINED GLOBAL ARENA")
+	var join_result: Dictionary = arena_session_state.try_join_peer(peer_id, cleaned_player_name)
+	var join_success: bool = bool(join_result.get("success", false))
+	var join_message: String = str(join_result.get("message", "JOIN FAILED"))
+	if join_success:
+		print("[server] join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
+		print(
+			(
+				"[server][arena] player_joined peer=%d active_players=%d/%d"
+				% [
+					peer_id,
+					arena_session_state.get_player_count(),
+					arena_session_state.max_players,
+				]
+			)
+		)
+	else:
+		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
+	print("[server][join] ack_join_arena peer=%d success=%s" % [peer_id, join_success])
+	_join_arena_ack.rpc_id(peer_id, join_success, join_message)
 
 
 @rpc("authority", "reliable")

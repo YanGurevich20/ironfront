@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://levels/arena/arena_level_mvp.gd" id="1_00j3b"]
+[ext_resource type="Script" path="res://levels/arena/arena_spawn_marker.gd" id="2_t3m2w"]
+
+[node name="ArenaLevelMvp" type="Node2D"]
+script = ExtResource("1_00j3b")
+
+[node name="ArenaBounds" type="Line2D" parent="."]
+points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+closed = true
+width = 2.0
+default_color = Color(1, 0.356863, 0, 1)
+joint_mode = 1
+
+[node name="ArenaSpawnPoints" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Spawn01" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(-720, -720)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_01"
+
+[node name="Spawn02" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(0, -720)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_02"
+
+[node name="Spawn03" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(720, -720)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_03"
+
+[node name="Spawn04" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(720, -180)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_04"
+
+[node name="Spawn05" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(720, 360)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_05"
+
+[node name="Spawn06" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(360, 720)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_06"
+
+[node name="Spawn07" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(-180, 720)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_07"
+
+[node name="Spawn08" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(-720, 720)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_08"
+
+[node name="Spawn09" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(-720, 180)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_09"
+
+[node name="Spawn10" type="Marker2D" parent="ArenaSpawnPoints"]
+position = Vector2(-720, -360)
+script = ExtResource("2_t3m2w")
+spawn_id = &"spawn_10"

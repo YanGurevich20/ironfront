@@ -1,4 +1,10 @@
 # Arena Plan
+## Concept
+- Currently the game is local only, with a few offline levels.
+- as a first stage to introduce online multiplayer, we will implement an arena mode.
+- the server run a single, persistent global arena room, with a fixed player limit of 10.
+- players will join the arena room by pressing 'play online' button in the garage.
+- the server will assign a random spawn point to the player and spawn them there.
 
 ## Phase 1: Online Join Flow (Client <-> Server)
 - [x] Keep transport handshake (`hello` / `ack`) working.
@@ -11,13 +17,23 @@
 - 
 
 ## Phase 2: Server Arena Session (Single Global Room)
-- [ ] Create a server-owned arena session state object.
-- [ ] Keep one always-running global arena session.
-- [ ] Track players by `peer_id` in session state.
-- [ ] Handle disconnect cleanup and player removal.
+- [x] Create a server-owned arena session state object.
+- [x] Keep one always-running global arena session.
+- [x] Track players by `peer_id` in session state.
+- [x] Handle disconnect cleanup and player removal.
 
 ### Notes
 - 
+
+## Phase 2.5: Arena Level Authoring (MVP Content Baseline)
+- [x] Create/select one arena level scene for online play.
+- [x] Define spawn markers in-scene with stable IDs/names.
+- [x] Add a small spawn-point validation pass (count, uniqueness, transform sanity).
+- [x] Document how server loads/references this level's spawn pool.
+
+### Notes
+- Arena scene path: `res://levels/arena/arena_level_mvp.tscn`.
+- Server boot loads this scene, validates spawn markers, and caches `spawn_id -> Transform2D` for Phase 3 assignment.
 
 ## Phase 3: Random Spawn Assignment
 - [ ] Pick one arena map for the MVP.
@@ -45,7 +61,9 @@
 - [ ] Sync key gameplay events (fire/hit/death) across peers.
 
 ### Notes
-- 
+- Movement model: clients send input intents, server remains authoritative for simulation state.
+- Local player uses client-side prediction + server reconciliation from periodic authoritative snapshots.
+- Client-originated position data may be sent only as optional diagnostics and must never be trusted as authority.
 
 ## Phase 6: Validation and Hardening
 - [ ] Verify join/leave behavior with multiple clients.

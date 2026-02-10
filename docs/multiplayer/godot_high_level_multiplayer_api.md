@@ -62,6 +62,60 @@ This already aligns with Godot's recommended model:
 5. Introduce `MultiplayerSynchronizer` only for state that must continuously mirror, and avoid syncing derivable values.
 6. Keep per-feature bandwidth budgets and channel assignments documented to avoid accidental reliable-channel saturation.
 
+## Movement Replication Contract (Phase 5 target)
+
+### Data ownership split
+- Server authoritative state: tank transform/velocity/heading, collision outcomes, damage/hit/death, ammo validity, cooldowns.
+- Client local-only state: raw input sampling, camera, HUD, non-authoritative VFX/audio.
+- Client telemetry state: optional predicted-position/error diagnostics; never authoritative.
+
+### Upstream (client -> server)
+- Send input intent only, never authoritative transforms.
+- Minimum input packet fields:
+- `peer_id` (implicit via sender)
+- `input_tick` (monotonic sequence)
+- `throttle`, `steer`, `turret_aim`, `fire_pressed`, `ability_flags`
+- Transfer mode: `unreliable_ordered` on a dedicated input channel.
+- Server validation:
+- reject stale or far-future `input_tick`
+- clamp analog ranges
+- rate-limit action flags (fire/reload/use)
+- apply cooldown/ammo/vehicle-state checks server-side
+
+### Simulation and snapshot cadence
+- Server sim tick: fixed tick (initial target 30 Hz, tune later).
+- Server snapshot tick: fixed periodic snapshots (initial target 10-20 Hz, tune by bandwidth budget).
+- Snapshot payload baseline:
+- `server_tick`
+- per-player authoritative state (`position`, `rotation`, `linear_velocity`, optional `angular_velocity`)
+- for owning player: `last_processed_input_tick`
+
+### Reconciliation (owning client)
+- Client predicts immediately from local inputs.
+- On authoritative snapshot for local tank:
+- rewind to authoritative state at `last_processed_input_tick`
+- replay unacknowledged local inputs
+- smooth small residual error over short window
+- hard snap if error exceeds configured threshold
+- Keep correction thresholds explicit and versioned in protocol constants.
+
+### Remote entity presentation
+- Remote tanks are rendered from snapshot history.
+- Interpolate across buffered snapshots by render delay.
+- Use bounded extrapolation only for short gaps; clamp and recover to next snapshot.
+
+### Reliability policy
+- Reliable channel: join/leave, spawn/despawn, death/hit confirmations, match/session lifecycle.
+- Unreliable ordered channel(s): movement inputs and state snapshots.
+- Keep movement off reliable channel to avoid head-of-line blocking.
+
+## Arena Spawn Source (Phase 2.5)
+
+- Arena scene source for server spawn pool: `res://levels/arena/arena_level_mvp.tscn`.
+- Spawn markers use explicit stable IDs via `ArenaSpawnMarker.spawn_id` (e.g., `spawn_01`..`spawn_10`).
+- On server startup, load/instantiate arena scene, validate marker config, then cache `spawn_id -> Transform2D`.
+- Phase 3 random assignment should consume this cached spawn pool rather than scanning scene files at join time.
+
 ## Security and robustness notes from docs
 
 - Do not trust client input by default. Validate all client-originated RPC payloads on server.
