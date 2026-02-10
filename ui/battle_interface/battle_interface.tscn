@@ -1,10 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1d2c8q0t8m4b"]
+[gd_scene format=3 uid="uid://b1d2c8q0t8m4b"]
 
 [ext_resource type="Script" uid="uid://c2b3pyj3edax2" path="res://ui/battle_interface/battle_interface.gd" id="1_s3x1n"]
 [ext_resource type="PackedScene" uid="uid://fbdhh7erijnq" path="res://ui/touch_controls/tank_control.tscn" id="2_1nqak"]
 [ext_resource type="PackedScene" uid="uid://dxf3b7nuy8xyq" path="res://ui/battle_interface/enemy_indicators.tscn" id="3_6i3on"]
 
-[node name="BattleInterface" type="Control"]
+[node name="BattleInterface" type="Control" unique_id=1816836008]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,8 +13,25 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_s3x1n")
 
-[node name="TankControl" parent="." instance=ExtResource("2_1nqak")]
+[node name="TankControl" parent="." unique_id=1718937172 instance=ExtResource("2_1nqak")]
+unique_name_in_owner = true
 layout_mode = 1
 
-[node name="EnemyIndicators" parent="." instance=ExtResource("3_6i3on")]
+[node name="EnemyIndicators" parent="." unique_id=135093621 instance=ExtResource("3_6i3on")]
+unique_name_in_owner = true
 layout_mode = 1
+
+[node name="PingLabel" type="Label" parent="." unique_id=544953376]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -16.0
+offset_right = 100.0
+offset_bottom = -4.0
+grow_vertical = 0
+text = "PING --"
+horizontal_alignment = 1
+vertical_alignment = 1

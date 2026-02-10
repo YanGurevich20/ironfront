@@ -7,7 +7,7 @@
 script = ExtResource("1_00j3b")
 
 [node name="ArenaBounds" type="Line2D" parent="." unique_id=2025998295]
-points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 777.452, 1024, 1024, -1024, 1024)
 closed = true
 width = 2.0
 default_color = Color(1, 0.356863, 0, 1)

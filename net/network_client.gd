@@ -24,8 +24,6 @@ var input_send_elapsed_seconds: float = 0.0
 var local_input_tick: int = 0
 var pending_left_track_input: float = 0.0
 var pending_right_track_input: float = 0.0
-var pending_throttle: float = 0.0
-var pending_steer: float = 0.0
 var pending_turret_aim: float = 0.0
 var pending_fire_pressed: bool = false
 
@@ -46,8 +44,8 @@ func _process(delta: float) -> void:
 	_receive_input_intent.rpc_id(
 		1,
 		local_input_tick,
-		pending_throttle,
-		pending_steer,
+		pending_left_track_input,
+		pending_right_track_input,
 		pending_turret_aim,
 		pending_fire_pressed
 	)
@@ -193,8 +191,6 @@ func set_arena_input_enabled(enabled: bool) -> void:
 	if not arena_input_enabled:
 		pending_left_track_input = 0.0
 		pending_right_track_input = 0.0
-		pending_throttle = 0.0
-		pending_steer = 0.0
 		pending_turret_aim = 0.0
 		pending_fire_pressed = false
 		input_send_elapsed_seconds = 0.0
@@ -265,13 +261,24 @@ func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
 func _receive_input_intent(
-	input_tick: int, throttle: float, steer: float, turret_aim: float, fire_pressed: bool
+	input_tick: int,
+	left_track_input: float,
+	right_track_input: float,
+	turret_aim: float,
+	fire_pressed: bool
 ) -> void:
 	# This method exists so RPC path signatures stay valid on both peers.
 	push_warning(
 		(
-			"%s unexpected input_intent tick=%d throttle=%.3f steer=%.3f turret=%.3f fire=%s"
-			% [_log_prefix(), input_tick, throttle, steer, turret_aim, fire_pressed]
+			("%s unexpected input_intent tick=%d " + "left=%.3f right=%.3f turret=%.3f fire=%s")
+			% [
+				_log_prefix(),
+				input_tick,
+				left_track_input,
+				right_track_input,
+				turret_aim,
+				fire_pressed
+			]
 		)
 	)
 
@@ -316,10 +323,6 @@ func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
 		pending_left_track_input = clamp(value, -1.0, 1.0)
 	elif lever_side == Lever.LeverSide.RIGHT:
 		pending_right_track_input = clamp(value, -1.0, 1.0)
-	pending_throttle = clamp(
-		(pending_left_track_input + pending_right_track_input) * 0.5, -1.0, 1.0
-	)
-	pending_steer = clamp((pending_right_track_input - pending_left_track_input) * 0.5, -1.0, 1.0)
 
 
 func _on_wheel_input(value: float) -> void:
@@ -349,6 +352,28 @@ func _get_safe_peer_id() -> int:
 func _can_send_input_intents() -> bool:
 	if not arena_input_enabled:
 		return false
+	return _is_connected_to_server()
+
+
+func should_show_ping_indicator() -> bool:
+	if not arena_input_enabled:
+		return false
+	return _is_connected_to_server()
+
+
+func get_connection_ping_msec() -> int:
+	if not should_show_ping_indicator():
+		return -1
+	var enet_peer: ENetMultiplayerPeer = multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	if enet_peer == null:
+		return -1
+	var server_packet_peer: ENetPacketPeer = enet_peer.get_peer(1)
+	if server_packet_peer == null:
+		return -1
+	return int(server_packet_peer.get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME))
+
+
+func _is_connected_to_server() -> bool:
 	if multiplayer.multiplayer_peer == null:
 		return false
 	if multiplayer.is_server():

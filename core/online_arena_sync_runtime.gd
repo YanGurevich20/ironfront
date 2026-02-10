@@ -6,12 +6,12 @@ var local_player_tank: Tank
 var runtime_active: bool = false
 
 var latest_snapshot_server_tick: int = 0
-var snapshot_render_delay_ticks: int = 2
+var snapshot_render_delay_ticks: int = 1
 var remote_tanks_by_peer_id: Dictionary = {}
 var remote_snapshot_history_by_peer_id: Dictionary = {}
 var max_snapshot_history_per_peer: int = 24
 var reconciliation_hard_snap_distance: float = 48.0
-var reconciliation_soft_blend: float = 0.35
+var reconciliation_soft_blend: float = 0.5
 
 
 func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:

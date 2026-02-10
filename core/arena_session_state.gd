@@ -26,8 +26,8 @@ func try_join_peer(peer_id: int, player_name: String) -> Dictionary:
 		"state_position": Vector2.ZERO,
 		"state_rotation": 0.0,
 		"state_linear_velocity": Vector2.ZERO,
-		"input_throttle": 0.0,
-		"input_steer": 0.0,
+		"input_left_track": 0.0,
+		"input_right_track": 0.0,
 		"input_turret_aim": 0.0,
 		"input_fire_pressed": false,
 		"last_input_tick": 0,
@@ -92,8 +92,8 @@ func get_peer_last_input_tick(peer_id: int) -> int:
 func set_peer_input_intent(
 	peer_id: int,
 	input_tick: int,
-	throttle: float,
-	steer: float,
+	left_track_input: float,
+	right_track_input: float,
 	turret_aim: float,
 	fire_pressed: bool,
 	received_msec: int
@@ -104,8 +104,8 @@ func set_peer_input_intent(
 	var last_input_tick: int = int(peer_state.get("last_input_tick", 0))
 	if input_tick <= last_input_tick:
 		return false
-	peer_state["input_throttle"] = throttle
-	peer_state["input_steer"] = steer
+	peer_state["input_left_track"] = left_track_input
+	peer_state["input_right_track"] = right_track_input
 	peer_state["input_turret_aim"] = turret_aim
 	peer_state["input_fire_pressed"] = fire_pressed
 	peer_state["last_input_tick"] = input_tick

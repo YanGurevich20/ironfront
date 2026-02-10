@@ -26,7 +26,7 @@ var _health: int
 @onready var death_explosion_sprite: AnimatedSprite2D = %DeathExploisonSprite
 @onready var death_explosion_sound: AudioStreamPlayer2D = %DeathExplosionSound
 @onready var cannon_sound: AudioStreamPlayer2D = %CannonSound
-@onready var tank_destruction_shader: ShaderMaterial = preload(
+@onready var tank_destruction_shader_resource: Resource = preload(
 	"res://entities/tank/shaders/tank_destruction_shader_material.tres"
 )
 @onready var tank_hud: TankHUD = %TankHUD
@@ -95,10 +95,12 @@ func handle_tank_destroyed() -> void:
 
 
 func apply_destruction_effects() -> void:
-	var destruction_material: ShaderMaterial = tank_destruction_shader.duplicate()
-	hull.material = destruction_material
-	turret.material = destruction_material
-	cannon.material = destruction_material
+	var duplicated_resource: Resource = tank_destruction_shader_resource.duplicate()
+	var destruction_material: Material = duplicated_resource as Material
+	if destruction_material != null:
+		hull.material = destruction_material
+		turret.material = destruction_material
+		cannon.material = destruction_material
 
 	# Randomize turret rotation and position
 	var rand_rot: float = randf_range(-10, 10)

@@ -23,6 +23,7 @@ var online_arena_scene: PackedScene = preload("res://levels/arena/arena_level_mv
 # === Built-in Methods ===
 func _ready() -> void:
 	add_child(online_sync_runtime as Node)
+	ui_manager.set_network_client(network_client)
 	Utils.connect_checked(UiBus.quit_pressed, func() -> void: get_tree().quit())
 	Utils.connect_checked(UiBus.play_online_pressed, _connect_to_online_server)
 	Utils.connect_checked(UiBus.level_pressed, _start_level)

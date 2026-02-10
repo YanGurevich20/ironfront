@@ -1,6 +1,11 @@
 class_name NetworkServer
 extends Node
 
+signal arena_join_succeeded(
+	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
+)
+signal arena_peer_removed(peer_id: int, reason: String)
+
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const RPC_CHANNEL_INPUT: int = 1
 const RPC_CHANNEL_STATE: int = 2
@@ -19,6 +24,7 @@ var total_input_messages_received: int = 0
 var total_input_messages_applied: int = 0
 var total_snapshots_broadcast: int = 0
 var last_snapshot_tick: int = -1
+var authoritative_player_states: Array[Dictionary] = []
 
 
 func configure_arena_session(session_state: ArenaSessionState) -> void:
@@ -76,6 +82,7 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		var released_spawn_id: StringName = remove_result.get("spawn_id", StringName())
 		if released_spawn_id != StringName():
 			_release_spawn_id(released_spawn_id, peer_id)
+		arena_peer_removed.emit(peer_id, "PEER_DISCONNECTED")
 		print("[server][arena] peer_disconnected_cleanup peer=%d" % peer_id)
 
 
@@ -158,6 +165,9 @@ func _join_arena(player_name: String) -> void:
 		arena_session_state.set_peer_authoritative_state(
 			peer_id, assigned_spawn_position, assigned_spawn_rotation, Vector2.ZERO
 		)
+		arena_join_succeeded.emit(
+			peer_id, cleaned_player_name, assigned_spawn_id, assigned_spawn_transform
+		)
 		print("[server] join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
 		print(
 			(
@@ -217,45 +227,34 @@ func on_server_tick(server_tick: int, tick_delta_seconds: float) -> void:
 	total_on_server_tick_calls += 1
 	if not multiplayer.is_server():
 		return
+	if tick_delta_seconds <= 0.0:
+		return
 	if arena_session_state == null:
 		return
 	if arena_session_state.get_player_count() == 0:
 		return
 	total_on_server_tick_active_calls += 1
-	_simulate_authoritative_state(tick_delta_seconds)
 	if server_tick % snapshot_interval_ticks == 0:
 		total_snapshot_gate_hits += 1
 		_broadcast_state_snapshot(server_tick)
 
 
-func _simulate_authoritative_state(delta_seconds: float) -> void:
-	var peer_ids: Array[int] = arena_session_state.get_peer_ids()
-	for peer_id: int in peer_ids:
-		var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
-		if peer_state.is_empty():
-			continue
-		var throttle: float = float(peer_state.get("input_throttle", 0.0))
-		var steer: float = float(peer_state.get("input_steer", 0.0))
-		var current_rotation: float = float(peer_state.get("state_rotation", 0.0))
-		var current_velocity: Vector2 = peer_state.get("state_linear_velocity", Vector2.ZERO)
-		var current_position: Vector2 = peer_state.get("state_position", Vector2.ZERO)
-
-		current_rotation += steer * MultiplayerProtocolData.SIM_TURN_RATE_RADIANS * delta_seconds
-		var forward_direction: Vector2 = Vector2.RIGHT.rotated(current_rotation)
-		var target_velocity: Vector2 = (
-			forward_direction * throttle * MultiplayerProtocolData.SIM_MAX_LINEAR_SPEED
-		)
-		current_velocity = current_velocity.move_toward(
-			target_velocity, MultiplayerProtocolData.SIM_ACCELERATION * delta_seconds
-		)
-		current_position += current_velocity * delta_seconds
-
-		arena_session_state.set_peer_authoritative_state(
-			peer_id, current_position, current_rotation, current_velocity
-		)
+func set_authoritative_player_states(player_states: Array[Dictionary]) -> void:
+	authoritative_player_states.clear()
+	for player_state: Dictionary in player_states:
+		authoritative_player_states.append(player_state.duplicate(true))
 
 
 func _build_player_state_snapshot() -> Array[Dictionary]:
+	if (
+		not authoritative_player_states.is_empty()
+		and authoritative_player_states.size() == arena_session_state.get_player_count()
+	):
+		var runtime_snapshot_player_states: Array[Dictionary] = []
+		for player_state: Dictionary in authoritative_player_states:
+			runtime_snapshot_player_states.append(player_state.duplicate(true))
+		return runtime_snapshot_player_states
+
 	var snapshot_player_states: Array[Dictionary] = []
 	var peer_ids: Array[int] = arena_session_state.get_peer_ids()
 	for peer_id: int in peer_ids:
@@ -308,7 +307,11 @@ func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
 func _receive_input_intent(
-	input_tick: int, throttle: float, steer: float, turret_aim: float, fire_pressed: bool
+	input_tick: int,
+	left_track_input: float,
+	right_track_input: float,
+	turret_aim: float,
+	fire_pressed: bool
 ) -> void:
 	if not multiplayer.is_server():
 		return
@@ -334,8 +337,8 @@ func _receive_input_intent(
 	var accepted: bool = arena_session_state.set_peer_input_intent(
 		peer_id,
 		input_tick,
-		clamp(throttle, -1.0, 1.0),
-		clamp(steer, -1.0, 1.0),
+		clamp(left_track_input, -1.0, 1.0),
+		clamp(right_track_input, -1.0, 1.0),
 		clamp(turret_aim, -1.0, 1.0),
 		fire_pressed,
 		current_server_tick

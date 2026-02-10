@@ -80,6 +80,10 @@ func update_objectives(objectives: Array) -> void:
 	pause_overlay.set_objectives(objectives)
 
 
+func set_network_client(network_client: NetworkClient) -> void:
+	battle_interface.set_network_client(network_client)
+
+
 func show_online_join_overlay() -> void:
 	online_join_overlay.begin()
 	show_overlay(online_join_overlay)
