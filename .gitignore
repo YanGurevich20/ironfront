@@ -11,4 +11,4 @@ misc/android/build/
 uid_cache.bin
 *.cache
 test
-dist/
+dist
