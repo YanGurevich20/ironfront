@@ -25,11 +25,11 @@ size_flags_horizontal = 3
 
 [node name="PlayButton" type="Button" parent="HBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(168, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"GoldButton"
-text = "PLAY"
+text = "PLAY ONLINE"
 
 [node name="WarningLabelContainer" type="PanelContainer" parent="HBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true

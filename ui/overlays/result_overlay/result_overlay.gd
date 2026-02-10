@@ -32,23 +32,24 @@ func display_result(
 	success: bool,
 	metrics: Dictionary[Metrics.Metric, int],
 	objectives: Array[Objective],
-	reward_info: Game.RewardInfo
+	reward_info: Dictionary
 ) -> void:
 	result_label.text = "VICTORY!" if success else "DEFEAT!"
 	score_label.text = "SCORE: %d POINTS" % metrics[Metrics.Metric.SCORE_EARNED]
 	stars_label.text = "STARS: %d/3" % metrics[Metrics.Metric.STARS_EARNED]
 	time_label.text = "TIME: " + Utils.format_seconds(metrics[Metrics.Metric.RUN_TIME])
-	reward_label.text = "REWARD: %s" % Utils.format_dollars(reward_info.total_reward)
+	var total_reward: int = int(reward_info.get("total_reward", 0))
+	var doubled_stars: Array[int] = reward_info.get("doubled_stars", [])
+	reward_label.text = "REWARD: %s" % Utils.format_dollars(total_reward)
 
 	# Display doubled reward information
-	if reward_info.doubled_stars.size() > 0:
+	if doubled_stars.size() > 0:
 		var doubled_text := "FIRST TIME BONUS! 2X REWARD FOR STAR"
-		if reward_info.doubled_stars.size() == 1:
-			doubled_text += " %d" % reward_info.doubled_stars[0]
+		if doubled_stars.size() == 1:
+			doubled_text += " %d" % doubled_stars[0]
 		else:
 			doubled_text += (
-				"S: "
-				+ ", ".join(reward_info.doubled_stars.map(func(s: int) -> String: return str(s)))
+				"S: " + ", ".join(doubled_stars.map(func(s: int) -> String: return str(s)))
 			)
 		high_score_label.text = doubled_text
 		high_score_label.visible = true

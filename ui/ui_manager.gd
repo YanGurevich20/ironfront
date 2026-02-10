@@ -74,7 +74,7 @@ func hide_overlays() -> void:
 
 
 func display_result(
-	success: bool, metrics: Dictionary, objectives: Array, reward_info: Game.RewardInfo
+	success: bool, metrics: Dictionary, objectives: Array, reward_info: Dictionary
 ) -> void:
 	result_overlay.display_result(success, metrics, objectives, reward_info)
 	show_overlay(result_overlay)
@@ -91,8 +91,9 @@ func update_objectives(objectives: Array) -> void:
 #endregion
 #region Signal handlers
 func _on_play_pressed() -> void:
-	show_overlay(level_select_overlay)
-	level_select_overlay.display_levels()
+	# Online arena flow now starts network connect from the client runtime.
+	# Keep garage visible while connection/join feedback is implemented.
+	return
 
 
 func _on_shell_info_requested(shell_spec: ShellSpec) -> void:

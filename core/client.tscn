@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://core/client.gd" id="1_y2g12"]
+[ext_resource type="PackedScene" uid="uid://bbwbe6voggknh" path="res://ui/ui_manager.tscn" id="2_0p37h"]
+[ext_resource type="Script" path="res://net/network_client.gd" id="3_nw0w8"]
+
+[node name="Runtime" type="Node2D"]
+script = ExtResource("1_y2g12")
+
+[node name="UIManager" parent="." instance=ExtResource("2_0p37h")]
+unique_name_in_owner = true
+
+[node name="LevelContainer" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Network" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_nw0w8")

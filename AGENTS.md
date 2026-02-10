@@ -2,7 +2,8 @@
 
 ## Project Structure & Module Organization
 - `project.godot` is the root Godot 4 project file (edit via the Godot editor UI when possible).
-- `core/` holds game-wide systems, singletons, and managers.
+- `core/` holds runtime orchestration and app entrypoints (`main`, `client`, `server`).
+- `net/` contains networking transport/protocol handlers (`network_client`, `network_server`).
 - `entities/` contains gameplay entities (tanks, shells, specs, shared assets).
 - `controllers/` provides player/AI controller scenes and scripts.
 - `levels/` stores playable level scenes and related logic.
@@ -23,9 +24,15 @@
 
 ## Coding Style & Naming Conventions
 - GDScript uses tabs for indentation (Godot default).
-- Functions and variables are `snake_case`; classes declared with `class_name` use `PascalCase` (see `core/game.gd`).
+- Functions and variables are `snake_case`; classes declared with `class_name` use `PascalCase` (see `core/client.gd` and `core/server.gd`).
 - Scene files are `snake_case.tscn`; resources typically use `snake_case.tres`.
 - Prefer editor-driven changes for `.tscn`, `.tres`, and `project.godot` to avoid format drift.
+
+## Networking Architecture
+- `core/main.gd` selects runtime mode (client vs dedicated server).
+- `core/client.gd` owns client game flow and composes `%Network` (`net/network_client.gd`).
+- `core/server.gd` owns server tick/runtime loop and composes `%Network` (`net/network_server.gd`).
+- Keep transport/protocol logic inside `net/`; avoid mixing server logic back into client runtime scripts.
 
 ## Security & Configuration Tips
 - Treat `ironfront.keystore` as sensitive; don’t rotate or replace it without explicit maintainer approval.
