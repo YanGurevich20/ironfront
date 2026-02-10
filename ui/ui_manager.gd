@@ -11,6 +11,9 @@ signal return_to_menu
 
 signal log_out_pressed
 
+signal online_join_retry_requested
+signal online_join_cancel_requested
+
 var _menu_nodes: Array[Control]
 var _control_nodes: Array[Control]
 var _overlay_nodes: Array[Control]
@@ -25,6 +28,7 @@ var _overlay_nodes: Array[Control]
 @onready var garage_menu_overlay: GarageMenuOverlay = $GarageMenuOverlay
 @onready var level_select_overlay: LevelSelectOverlay = $LevelSelectOverlay
 @onready var shell_info_overlay: ShellInfoOverlay = $ShellInfoOverlay
+@onready var online_join_overlay: OnlineJoinOverlay = $OnlineJoinOverlay
 
 
 func _ready() -> void:
@@ -38,7 +42,8 @@ func _ready() -> void:
 		metrics_overlay,
 		garage_menu_overlay,
 		level_select_overlay,
-		shell_info_overlay
+		shell_info_overlay,
+		online_join_overlay
 	]
 	_connect_signals()
 	show_menu(login_menu)
@@ -88,12 +93,32 @@ func update_objectives(objectives: Array) -> void:
 	pause_overlay.set_objectives(objectives)
 
 
+func show_online_join_overlay() -> void:
+	online_join_overlay.begin()
+	show_overlay(online_join_overlay)
+
+
+func update_online_join_overlay(message: String, is_error: bool) -> void:
+	if not online_join_overlay.visible:
+		return
+	online_join_overlay.set_status(message, is_error)
+
+
+func complete_online_join_overlay(success: bool, message: String) -> void:
+	if not online_join_overlay.visible:
+		return
+	online_join_overlay.complete(success, message)
+
+
+func hide_online_join_overlay() -> void:
+	online_join_overlay.visible = false
+
+
 #endregion
 #region Signal handlers
 func _on_play_pressed() -> void:
-	# Online arena flow now starts network connect from the client runtime.
-	# Keep garage visible while connection/join feedback is implemented.
-	return
+	show_overlay(level_select_overlay)
+	level_select_overlay.display_levels()
 
 
 func _on_shell_info_requested(shell_spec: ShellSpec) -> void:
@@ -195,9 +220,23 @@ func _connect_signals() -> void:
 	#* metrics overlay *#
 	Utils.connect_checked(metrics_overlay.exit_overlay_pressed, hide_overlays)
 
+	#* online join overlay *#
+	Utils.connect_checked(online_join_overlay.retry_requested, _on_online_join_retry_pressed)
+	Utils.connect_checked(online_join_overlay.cancel_requested, _on_online_join_cancel_pressed)
+	Utils.connect_checked(online_join_overlay.close_requested, hide_online_join_overlay)
+
 
 func _hide_all() -> void:
 	Utils.hide_nodes(_menu_nodes)
 	Utils.hide_nodes(_control_nodes)
 	Utils.hide_nodes(_overlay_nodes)
+
+
+func _on_online_join_retry_pressed() -> void:
+	online_join_retry_requested.emit()
+
+
+func _on_online_join_cancel_pressed() -> void:
+	hide_online_join_overlay()
+	online_join_cancel_requested.emit()
 #endregion

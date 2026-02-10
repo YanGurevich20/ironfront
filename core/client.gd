@@ -9,25 +9,45 @@ var current_level_key: int = 0
 @onready var root: SceneTree = get_tree()
 @onready var ui_manager: UIManager = %UIManager
 @onready var level_container: Node2D = %LevelContainer
-@onready var network_client: Node = %Network
+@onready var network_client: NetworkClient = %Network
 
 
 # === Built-in Methods ===
 func _ready() -> void:
 	Utils.connect_checked(SignalBus.quit_pressed, func() -> void: get_tree().quit())
-	Utils.connect_checked(SignalBus.play_pressed, _connect_to_online_server)
+	Utils.connect_checked(SignalBus.play_online_pressed, _connect_to_online_server)
 	Utils.connect_checked(SignalBus.level_pressed, _start_level)
 	Utils.connect_checked(SignalBus.pause_input, _pause_game)
 	Utils.connect_checked(ui_manager.resume_game, _resume_game)
 	Utils.connect_checked(ui_manager.restart_level, _restart_level)
 	Utils.connect_checked(ui_manager.abort_level, _abort_level)
 	Utils.connect_checked(ui_manager.return_to_menu, _quit_level)
+	Utils.connect_checked(network_client.join_status_changed, _on_join_status_changed)
+	Utils.connect_checked(network_client.join_arena_completed, _on_join_arena_completed)
+	Utils.connect_checked(ui_manager.online_join_retry_requested, _connect_to_online_server)
+	Utils.connect_checked(ui_manager.online_join_cancel_requested, _on_online_join_cancel_requested)
 	_save_player_metrics()
 
 
 func _connect_to_online_server() -> void:
-	if network_client.has_method("connect_to_server"):
-		network_client.call("connect_to_server")
+	print("[client][ui] play_online_pressed -> show_online_join_overlay + connect_to_server")
+	ui_manager.show_online_join_overlay()
+	network_client.connect_to_server()
+
+
+func _on_join_status_changed(message: String, is_error: bool) -> void:
+	print("[client][ui] join_status_changed is_error=%s message=%s" % [is_error, message])
+	ui_manager.update_online_join_overlay(message, is_error)
+
+
+func _on_join_arena_completed(success: bool, message: String) -> void:
+	print("[client][ui] join_arena_completed success=%s message=%s" % [success, message])
+	ui_manager.complete_online_join_overlay(success, message)
+
+
+func _on_online_join_cancel_requested() -> void:
+	print("[client][ui] online_join_cancel_requested -> cancel_join_request")
+	network_client.cancel_join_request()
 
 
 #region level lifecycle

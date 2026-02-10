@@ -54,3 +54,7 @@ func display_player_data() -> void:
 	tank_list_panel.display_player_data(player_data)
 	tank_display_panel.display_tank(player_data)
 	upgrade_panel.display_player_data(player_data)
+
+
+func show_online_join_feedback(message: String, is_error: bool) -> void:
+	header_panel.display_online_feedback(message, is_error)

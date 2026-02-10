@@ -50,11 +50,38 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	print(
 		(
+			"[server][join] receive_client_hello peer=%d server_protocol=%d client_protocol=%d"
+			% [peer_id, protocol_version, client_protocol_version]
+		)
+	)
+	print(
+		(
 			"[server] client_hello peer=%d protocol=%d player=%s"
 			% [peer_id, client_protocol_version, player_name]
 		)
 	)
 	_receive_server_hello_ack.rpc_id(peer_id, protocol_version, Time.get_unix_time_from_system())
+
+
+@rpc("any_peer", "reliable")
+func _join_arena(player_name: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var peer_id: int = multiplayer.get_remote_sender_id()
+	var cleaned_player_name: String = player_name.strip_edges()
+	print(
+		(
+			"[server][join] receive_join_arena peer=%d raw_player=%s cleaned_player=%s"
+			% [peer_id, player_name, cleaned_player_name]
+		)
+	)
+	if cleaned_player_name.is_empty():
+		print("[server][join] reject_join_arena peer=%d reason=INVALID_PLAYER_NAME" % peer_id)
+		_join_arena_ack.rpc_id(peer_id, false, "INVALID PLAYER NAME")
+		return
+	print("[server] join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
+	print("[server][join] ack_join_arena peer=%d success=true" % peer_id)
+	_join_arena_ack.rpc_id(peer_id, true, "JOINED GLOBAL ARENA")
 
 
 @rpc("authority", "reliable")
@@ -66,3 +93,9 @@ func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: i
 			% [server_protocol_version, server_unix_time]
 		)
 	)
+
+
+@rpc("authority", "reliable")
+func _join_arena_ack(success: bool, message: String) -> void:
+	# This method exists so RPC path signatures stay valid on both peers.
+	push_warning("[server] unexpected join_arena_ack success=%s message=%s" % [success, message])

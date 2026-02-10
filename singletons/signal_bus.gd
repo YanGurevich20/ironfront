@@ -15,6 +15,7 @@ signal quit_pressed
 signal level_pressed(level: int)
 signal level_started
 signal play_pressed
+signal play_online_pressed
 signal level_finished_and_saved
 
 # Garage signals
