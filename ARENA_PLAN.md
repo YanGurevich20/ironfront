@@ -48,24 +48,41 @@
 - Fallback when no free spawn exists is explicit join rejection (`NO SPAWN AVAILABLE`).
 
 ## Phase 4: Client Arena Bootstrap
-- [ ] Load arena level on successful `join_arena_ack`.
-- [ ] Spawn local player at server-assigned transform.
-- [ ] Ensure local input/HUD work in arena runtime.
+- [x] Load arena level on successful `join_arena_ack`.
+- [x] Spawn local player at server-assigned transform.
+- [x] Ensure local input/HUD work in arena runtime.
 - [ ] Keep local campaign flow (`PLAY` -> level select) untouched.
 
 ### Notes
-- 
+- Both clients can connect, receive `join_arena_ack`, load the map, and start local tank runtime at server-assigned spawns.
 
 ## Phase 5: Multiplayer Visibility and Replication
-- [ ] Spawn/despawn remote players on all clients.
-- [ ] Add server-authoritative state snapshots.
-- [ ] Interpolate/extrapolate remote movement client-side.
+- [x] Spawn/despawn remote players on all clients.
+- [x] Add server-authoritative state snapshots.
+- [x] Interpolate/extrapolate remote movement client-side.
 - [ ] Sync key gameplay events (fire/hit/death) across peers.
 
 ### Notes
 - Movement model: clients send input intents, server remains authoritative for simulation state.
 - Local player uses client-side prediction + server reconciliation from periodic authoritative snapshots.
 - Client-originated position data may be sent only as optional diagnostics and must never be trusted as authority.
+
+### Current Hurdle (Phase 5)
+- Resolved blocker: snapshot gate was firing but broadcast path failed due to typed peer list mismatch (`Array[int]` vs `PackedInt32Array`) in `net/network_server.gd`.
+- Current behavior: both clients can see each other and receive ongoing replicated movement.
+- Remaining quality gap: movement feel is jittery/too fast compared to offline due to simulation mismatch and basic reconciliation.
+
+## Phase 5.5: Authoritative Simulation Alignment
+- [ ] Extract a server-safe shared simulation core (no UI/audio/VFX dependencies).
+- [ ] Run the same tank movement/combat simulation rules on server authority and client prediction paths.
+- [ ] Replace blend-only local correction with rollback + input replay reconciliation.
+- [ ] Keep remote entities interpolation-only with a fixed render delay buffer.
+- [ ] Move movement snapshots and input intents to `unreliable_ordered`; keep critical events reliable.
+
+### Notes
+- Goal: preserve offline gameplay feel while keeping server authority.
+- Server should run gameplay simulation as source of truth, with peripherals (UI/audio/VFX) decoupled.
+- Clients send intent only; server owns outcomes for combat-critical events.
 
 ## Phase 6: Validation and Hardening
 - [ ] Verify join/leave behavior with multiple clients.

@@ -3,19 +3,55 @@ extends Node
 
 signal join_status_changed(message: String, is_error: bool)
 signal join_arena_completed(success: bool, message: String)
+signal state_snapshot_received(server_tick: int, player_states: Array)
+
+const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
+const RPC_CHANNEL_INPUT: int = 1
+const RPC_CHANNEL_STATE: int = 2
+const VERBOSE_JOIN_LOGS: bool = false
 
 var client_peer: ENetMultiplayerPeer
 var default_connect_host: String = "ironfront.vikng.dev"
 var default_connect_port: int = 7000
-var protocol_version: int = 1
+var protocol_version: int = MultiplayerProtocolData.PROTOCOL_VERSION
 var cancel_join_requested: bool = false
 var join_attempt_id: int = 0
 var assigned_spawn_position: Vector2 = Vector2.ZERO
 var assigned_spawn_rotation: float = 0.0
+var arena_input_enabled: bool = false
+var input_send_interval_seconds: float = 1.0 / float(MultiplayerProtocolData.INPUT_SEND_RATE_HZ)
+var input_send_elapsed_seconds: float = 0.0
+var local_input_tick: int = 0
+var pending_left_track_input: float = 0.0
+var pending_right_track_input: float = 0.0
+var pending_throttle: float = 0.0
+var pending_steer: float = 0.0
+var pending_turret_aim: float = 0.0
+var pending_fire_pressed: bool = false
 
 
 func _ready() -> void:
 	_setup_client_network_logging()
+	_setup_gameplay_input_capture()
+
+
+func _process(delta: float) -> void:
+	if not _can_send_input_intents():
+		return
+	input_send_elapsed_seconds += delta
+	if input_send_elapsed_seconds < input_send_interval_seconds:
+		return
+	input_send_elapsed_seconds = 0.0
+	local_input_tick += 1
+	_receive_input_intent.rpc_id(
+		1,
+		local_input_tick,
+		pending_throttle,
+		pending_steer,
+		pending_turret_aim,
+		pending_fire_pressed
+	)
+	pending_fire_pressed = false
 
 
 func connect_to_server() -> void:
@@ -70,6 +106,12 @@ func _setup_client_network_logging() -> void:
 	Utils.connect_checked(multiplayer.server_disconnected, _on_server_disconnected)
 	Utils.connect_checked(multiplayer.peer_connected, _on_peer_connected)
 	Utils.connect_checked(multiplayer.peer_disconnected, _on_peer_disconnected)
+
+
+func _setup_gameplay_input_capture() -> void:
+	Utils.connect_checked(GameplayBus.lever_input, _on_lever_input)
+	Utils.connect_checked(GameplayBus.wheel_input, _on_wheel_input)
+	Utils.connect_checked(GameplayBus.fire_input, _on_fire_input)
 
 
 func _on_connected_to_server() -> void:
@@ -146,6 +188,19 @@ func cancel_join_request() -> void:
 	join_arena_completed.emit(false, "CANCELED")
 
 
+func set_arena_input_enabled(enabled: bool) -> void:
+	arena_input_enabled = enabled
+	if not arena_input_enabled:
+		pending_left_track_input = 0.0
+		pending_right_track_input = 0.0
+		pending_throttle = 0.0
+		pending_steer = 0.0
+		pending_turret_aim = 0.0
+		pending_fire_pressed = false
+		input_send_elapsed_seconds = 0.0
+		local_input_tick = 0
+
+
 func _reset_connection() -> void:
 	_log_join("reset_connection begin")
 	if client_peer != null:
@@ -154,6 +209,7 @@ func _reset_connection() -> void:
 	multiplayer.multiplayer_peer = null
 	assigned_spawn_position = Vector2.ZERO
 	assigned_spawn_rotation = 0.0
+	set_arena_input_enabled(false)
 	_log_join("reset_connection complete")
 
 
@@ -201,6 +257,26 @@ func _join_arena(player_name: String) -> void:
 
 
 @rpc("authority", "reliable")
+func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
+	if multiplayer.is_server():
+		return
+	state_snapshot_received.emit(server_tick, player_states)
+
+
+@rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
+func _receive_input_intent(
+	input_tick: int, throttle: float, steer: float, turret_aim: float, fire_pressed: bool
+) -> void:
+	# This method exists so RPC path signatures stay valid on both peers.
+	push_warning(
+		(
+			"%s unexpected input_intent tick=%d throttle=%.3f steer=%.3f turret=%.3f fire=%s"
+			% [_log_prefix(), input_tick, throttle, steer, turret_aim, fire_pressed]
+		)
+	)
+
+
+@rpc("authority", "reliable")
 func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
@@ -235,7 +311,28 @@ func _join_arena_ack(
 	join_arena_completed.emit(success, message)
 
 
+func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
+	if lever_side == Lever.LeverSide.LEFT:
+		pending_left_track_input = clamp(value, -1.0, 1.0)
+	elif lever_side == Lever.LeverSide.RIGHT:
+		pending_right_track_input = clamp(value, -1.0, 1.0)
+	pending_throttle = clamp(
+		(pending_left_track_input + pending_right_track_input) * 0.5, -1.0, 1.0
+	)
+	pending_steer = clamp((pending_right_track_input - pending_left_track_input) * 0.5, -1.0, 1.0)
+
+
+func _on_wheel_input(value: float) -> void:
+	pending_turret_aim = clamp(value, -1.0, 1.0)
+
+
+func _on_fire_input() -> void:
+	pending_fire_pressed = true
+
+
 func _log_join(message: String) -> void:
+	if not VERBOSE_JOIN_LOGS:
+		return
 	print("%s[join:%d] %s" % [_log_prefix(), join_attempt_id, message])
 
 
@@ -247,3 +344,16 @@ func _get_safe_peer_id() -> int:
 	if multiplayer.multiplayer_peer == null:
 		return 0
 	return multiplayer.get_unique_id()
+
+
+func _can_send_input_intents() -> bool:
+	if not arena_input_enabled:
+		return false
+	if multiplayer.multiplayer_peer == null:
+		return false
+	if multiplayer.is_server():
+		return false
+	var connection_status: MultiplayerPeer.ConnectionStatus = (
+		multiplayer.multiplayer_peer.get_connection_status()
+	)
+	return connection_status == MultiplayerPeer.CONNECTION_CONNECTED

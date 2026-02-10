@@ -24,6 +24,7 @@ func _ready() -> void:
 	arena_session_state = ArenaSessionState.new(arena_max_players)
 	network_server.configure_arena_session(arena_session_state)
 	network_server.configure_arena_spawn_pool(arena_spawn_transforms_by_id)
+	network_server.configure_tick_rate(tick_rate_hz)
 	var server_started: bool = network_server.start_server(listen_port, max_clients)
 	if not server_started:
 		get_tree().quit(1)
@@ -100,14 +101,31 @@ func _start_tick_loop() -> void:
 
 func _on_tick() -> void:
 	tick_count += 1
-	if tick_count % tick_rate_hz == 0:
+	network_server.on_server_tick(tick_count, 1.0 / float(tick_rate_hz))
+	if tick_count % (tick_rate_hz * 5) == 0:
 		var uptime_seconds: int = int(tick_count / float(tick_rate_hz))
 		var arena_player_count: int = 0
 		if arena_session_state != null:
 			arena_player_count = arena_session_state.get_player_count()
+		var sync_metrics: Dictionary = network_server.get_debug_sync_metrics()
 		print(
 			(
-				"[server] uptime=%ds peers=%d arena_players=%d"
-				% [uptime_seconds, multiplayer.get_peers().size(), arena_player_count]
+				(
+					"[server] uptime=%ds peers=%d arena_players=%d "
+					+ "sync{interval=%d active_tick_calls=%d gate_hits=%d "
+					+ "rx=%d applied=%d snapshots=%d last_tick=%d}"
+				)
+				% [
+					uptime_seconds,
+					multiplayer.get_peers().size(),
+					arena_player_count,
+					int(sync_metrics.get("snapshot_interval_ticks", -1)),
+					int(sync_metrics.get("total_on_server_tick_active_calls", -1)),
+					int(sync_metrics.get("total_snapshot_gate_hits", -1)),
+					int(sync_metrics.get("total_input_messages_received", -1)),
+					int(sync_metrics.get("total_input_messages_applied", -1)),
+					int(sync_metrics.get("total_snapshots_broadcast", -1)),
+					int(sync_metrics.get("last_snapshot_tick", -1)),
+				]
 			)
 		)

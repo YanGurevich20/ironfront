@@ -40,7 +40,7 @@ server-ship instance=default_instance zone=default_zone remote_dir=default_remot
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && : > server.log && rm -f server.pid"
 	gcloud compute scp ./dist/server/ironfront_server.x86_64 {{instance}}:{{remote_dir}}/ironfront_server.x86_64.new --zone {{zone}}
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && mv ironfront_server.x86_64.new ironfront_server.x86_64 && chmod +x ironfront_server.x86_64"
-	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && nohup stdbuf -oL -eL ./ironfront_server.x86_64 --headless -- --port={{port}} > server.log 2>&1 < /dev/null & sleep 1 && pgrep -n -f 'ironfront_server.x86_64 --headless -- --port={{port}}' > server.pid && cat server.pid"
+	gcloud compute ssh {{instance}} --zone {{zone}} --command "bash -lc 'cd {{remote_dir}} && nohup stdbuf -oL -eL ./ironfront_server.x86_64 --headless -- --port={{port}} > server.log 2>&1 < /dev/null & echo \$! > server.pid; disown \$(cat server.pid) >/dev/null 2>&1 || true; sleep 1; cat server.pid'"
 
 # Upload server executable to a GCP VM.
 server-upload instance=default_instance zone=default_zone remote_dir=default_remote_dir:
@@ -51,7 +51,7 @@ server-upload instance=default_instance zone=default_zone remote_dir=default_rem
 
 # Start server executable on a GCP VM (background process).
 server-run instance=default_instance zone=default_zone remote_dir=default_remote_dir port=default_server_port:
-	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && nohup stdbuf -oL -eL ./ironfront_server.x86_64 --headless -- --port={{port}} > server.log 2>&1 < /dev/null & sleep 1 && pgrep -n -f 'ironfront_server.x86_64 --headless -- --port={{port}}' > server.pid && cat server.pid"
+	gcloud compute ssh {{instance}} --zone {{zone}} --command "bash -lc 'cd {{remote_dir}} && nohup stdbuf -oL -eL ./ironfront_server.x86_64 --headless -- --port={{port}} > server.log 2>&1 < /dev/null & echo \$! > server.pid; disown \$(cat server.pid) >/dev/null 2>&1 || true; sleep 1; cat server.pid'"
 
 # Stop server process on a GCP VM.
 server-stop instance=default_instance zone=default_zone remote_dir=default_remote_dir:

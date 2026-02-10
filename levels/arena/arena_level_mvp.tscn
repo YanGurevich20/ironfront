@@ -1,67 +1,67 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://uqcvq2f7br62"]
 
-[ext_resource type="Script" path="res://levels/arena/arena_level_mvp.gd" id="1_00j3b"]
-[ext_resource type="Script" path="res://levels/arena/arena_spawn_marker.gd" id="2_t3m2w"]
+[ext_resource type="Script" uid="uid://bu3mh8r1jxevv" path="res://levels/arena/arena_level_mvp.gd" id="1_00j3b"]
+[ext_resource type="Script" uid="uid://cjqncdcnj6c35" path="res://levels/arena/arena_spawn_marker.gd" id="2_t3m2w"]
 
-[node name="ArenaLevelMvp" type="Node2D"]
+[node name="ArenaLevelMvp" type="Node2D" unique_id=1038239592]
 script = ExtResource("1_00j3b")
 
-[node name="ArenaBounds" type="Line2D" parent="."]
+[node name="ArenaBounds" type="Line2D" parent="." unique_id=2025998295]
 points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
 closed = true
 width = 2.0
 default_color = Color(1, 0.356863, 0, 1)
 joint_mode = 1
 
-[node name="ArenaSpawnPoints" type="Node2D" parent="."]
+[node name="ArenaSpawnPoints" type="Node2D" parent="." unique_id=1410934186]
 unique_name_in_owner = true
 
-[node name="Spawn01" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(-720, -720)
+[node name="Spawn01" type="Marker2D" parent="ArenaSpawnPoints" unique_id=2064773102]
+position = Vector2(696, 800)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_01"
 
-[node name="Spawn02" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(0, -720)
+[node name="Spawn02" type="Marker2D" parent="ArenaSpawnPoints" unique_id=635224868]
+position = Vector2(656, 673)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_02"
 
-[node name="Spawn03" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(720, -720)
+[node name="Spawn03" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1434972762]
+position = Vector2(885, 760)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_03"
 
-[node name="Spawn04" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(720, -180)
+[node name="Spawn04" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1123856318]
+position = Vector2(851, 839)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_04"
 
-[node name="Spawn05" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(720, 360)
+[node name="Spawn05" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1112928178]
+position = Vector2(737, 632)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_05"
 
-[node name="Spawn06" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(360, 720)
+[node name="Spawn06" type="Marker2D" parent="ArenaSpawnPoints" unique_id=847016834]
+position = Vector2(636, 710)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_06"
 
-[node name="Spawn07" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(-180, 720)
+[node name="Spawn07" type="Marker2D" parent="ArenaSpawnPoints" unique_id=280379255]
+position = Vector2(627, 858)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_07"
 
-[node name="Spawn08" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(-720, 720)
+[node name="Spawn08" type="Marker2D" parent="ArenaSpawnPoints" unique_id=2103236088]
+position = Vector2(585, 804)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_08"
 
-[node name="Spawn09" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(-720, 180)
+[node name="Spawn09" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1817104775]
+position = Vector2(763, 890)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_09"
 
-[node name="Spawn10" type="Marker2D" parent="ArenaSpawnPoints"]
-position = Vector2(-720, -360)
+[node name="Spawn10" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1107806991]
+position = Vector2(817, 726)
 script = ExtResource("2_t3m2w")
 spawn_id = &"spawn_10"
