@@ -12,7 +12,7 @@ const ServerArenaRuntimeScript := preload("res://core/server_arena_runtime.gd")
 var tick_count: int = 0
 var arena_session_state: ArenaSessionState
 var server_arena_runtime: ServerArenaRuntime
-var arena_spawn_transforms_by_id: Dictionary = {}
+var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
 var metrics_logger: ServerMetricsLogger
 
 @onready var network_server: NetworkServer = %Network
@@ -24,10 +24,17 @@ func _ready() -> void:
 	if not runtime_started:
 		get_tree().quit(1)
 		return
+	arena_spawn_transforms_by_id = server_arena_runtime.get_spawn_transforms_by_id()
+	if arena_spawn_transforms_by_id.is_empty():
+		push_error("[server][arena] startup aborted: spawn pool empty after runtime initialization")
+		get_tree().quit(1)
+		return
 	arena_session_state = ArenaSessionState.new(arena_max_players)
 	network_server.configure_arena_session(arena_session_state)
 	network_server.configure_arena_spawn_pool(arena_spawn_transforms_by_id)
+	print("[server][arena] startup_spawn_pool count=%d" % arena_spawn_transforms_by_id.size())
 	network_server.configure_tick_rate(tick_rate_hz)
+	server_arena_runtime.configure_network_server(network_server)
 	Utils.connect_checked(network_server.arena_join_succeeded, _on_arena_join_succeeded)
 	Utils.connect_checked(network_server.arena_peer_removed, _on_arena_peer_removed)
 	var server_started: bool = network_server.start_server(listen_port, max_clients)
@@ -51,7 +58,6 @@ func _start_arena_runtime() -> bool:
 		server_arena_runtime.queue_free()
 		server_arena_runtime = null
 		return false
-	arena_spawn_transforms_by_id = server_arena_runtime.get_spawn_transforms_by_id()
 	return true
 
 

@@ -72,6 +72,21 @@
 - Current behavior: both clients can see each other and receive ongoing replicated movement.
 - Remaining quality gap: movement feel is jittery/too fast compared to offline due to simulation mismatch and basic reconciliation.
 
+## Phase 5.1: Stage-1 Firing Replication (No Impact Authority Yet)
+- [x] Add dedicated reliable fire request RPC from client to server.
+- [x] Queue fire requests in arena session state and consume them in server runtime.
+- [x] Keep client local muzzle flash/knockback on fire input.
+- [x] Broadcast server-authored shell spawn payloads (`shot_id`, firing peer, shell spec path, transform, velocity).
+- [x] Spawn online arena shells client-side from server shell spawn events.
+- [x] Make online arena shells cosmetic-only (no local gameplay damage application).
+- [ ] Add shot dedupe/reconciliation policy on shooter client (currently spawn is server-authored for all peers).
+
+### Notes
+- Implemented February 11, 2026.
+- Reliable fire transport now uses a separate RPC from movement input RPC.
+- Server runtime now captures `GameplayBus.shell_fired` from authoritative tank fire and emits shell spawn events via `NetworkServer`.
+- Client no longer adds locally-instantiated online shell nodes from `GameplayBus.shell_fired`; server shell spawn events are the source for visible online projectiles.
+
 ## Phase 5.5: Authoritative Simulation Alignment
 - [x] Run server runtime from dedicated-server export preset.
 - [ ] Keep standard gameplay flow on server.

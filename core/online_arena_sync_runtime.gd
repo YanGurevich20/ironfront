@@ -87,6 +87,23 @@ func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 	_remove_stale_remote_tanks(seen_peer_ids)
 
 
+func play_remote_fire_effect(peer_id: int) -> void:
+	if not runtime_active:
+		return
+	var remote_tank: Tank = remote_tanks_by_peer_id.get(peer_id)
+	if remote_tank == null:
+		return
+	remote_tank.play_fire_effect()
+
+
+func get_tank_by_peer_id(peer_id: int) -> Tank:
+	if not runtime_active:
+		return null
+	if peer_id == multiplayer.get_unique_id():
+		return local_player_tank
+	return remote_tanks_by_peer_id.get(peer_id)
+
+
 func _process(_delta: float) -> void:
 	if not runtime_active:
 		return

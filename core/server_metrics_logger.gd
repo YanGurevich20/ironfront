@@ -13,12 +13,12 @@ func _init(server: Server) -> void:
 
 
 func log_periodic() -> void:
+	var network_server: NetworkServer = _server.network_server
 	var tick_count: int = _server.tick_count
 	var tick_rate_hz: int = _server.tick_rate_hz
 	var arena_player_count: int = 0
 	if _server.arena_session_state != null:
 		arena_player_count = _server.arena_session_state.get_player_count()
-	var sync_metrics: Dictionary = _server.network_server.get_debug_sync_metrics()
 	var physics_step_ms: float = Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
 	var peers_count: int = _server.get_multiplayer().get_peers().size()
 
@@ -27,9 +27,11 @@ func log_periodic() -> void:
 	var achieved_physics_hz: float = (
 		tick_delta / 5.0 if _last_log_tick_count > 0 else float(tick_rate_hz)
 	)
-	var rx: int = int(sync_metrics.get("total_input_messages_received", 0))
-	var applied: int = int(sync_metrics.get("total_input_messages_applied", 0))
-	var snapshots: int = int(sync_metrics.get("total_snapshots_broadcast", 0))
+	var rx: int = network_server.total_input_messages_received
+	var applied: int = network_server.total_input_messages_applied
+	var fire_rx: int = network_server.total_fire_requests_received
+	var fire_applied: int = network_server.total_fire_requests_applied
+	var snapshots: int = network_server.total_snapshots_broadcast
 	var rx_delta: int = rx - _last_rx
 	var applied_delta: int = applied - _last_applied
 	var snapshots_delta: int = snapshots - _last_snapshots
@@ -40,8 +42,8 @@ func log_periodic() -> void:
 	var rejection_rate_pct: float = (
 		(rejected_delta / float(rx_delta) * 100.0) if rx_delta > 0 else 0.0
 	)
-	var interval: int = int(sync_metrics.get("snapshot_interval_ticks", -1))
-	var last_snapshot_tick: int = int(sync_metrics.get("last_snapshot_tick", -1))
+	var interval: int = network_server.snapshot_interval_ticks
+	var last_snapshot_tick: int = network_server.last_snapshot_tick
 
 	print(
 		(
@@ -59,7 +61,8 @@ func log_periodic() -> void:
 		(
 			(
 				"[server][sync] interval=%d rx_per_sec=%.1f applied_per_sec=%.1f "
-				+ "rejection_rate_pct=%.1f snapshots_per_sec=%.1f last_tick=%d"
+				+ "rejection_rate_pct=%.1f snapshots_per_sec=%.1f fire_rx=%d fire_applied=%d "
+				+ "last_tick=%d"
 			)
 			% [
 				interval,
@@ -67,6 +70,8 @@ func log_periodic() -> void:
 				applied_per_sec,
 				rejection_rate_pct,
 				snapshots_per_sec,
+				fire_rx,
+				fire_applied,
 				last_snapshot_tick,
 			]
 		)
@@ -84,8 +89,8 @@ func log_periodic() -> void:
 					rx,
 					applied,
 					snapshots,
-					int(sync_metrics.get("total_on_server_tick_active_calls", -1)),
-					int(sync_metrics.get("total_snapshot_gate_hits", -1)),
+					network_server.total_on_server_tick_active_calls,
+					network_server.total_snapshot_gate_hits,
 				]
 			)
 		)
