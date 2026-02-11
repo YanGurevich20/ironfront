@@ -65,8 +65,8 @@ func spawn_peer_tank(
 	var spawned_tank: Tank = TankManager.create_tank(
 		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
 	)
-	spawned_tank.global_transform = spawn_transform
 	arena_level.add_child(spawned_tank)
+	spawned_tank.apply_spawn_state(spawn_transform.origin, spawn_transform.get_rotation())
 	player_tanks_by_peer_id[peer_id] = spawned_tank
 	spawn_ids_by_peer_id[peer_id] = spawn_id
 	last_consumed_input_tick_by_peer_id[peer_id] = 0
@@ -110,8 +110,9 @@ func step_authoritative_runtime(arena_session_state: ArenaSessionState) -> Array
 		var tank_position: Vector2 = spawned_tank.global_position
 		var tank_rotation: float = spawned_tank.global_rotation
 		var tank_linear_velocity: Vector2 = spawned_tank.linear_velocity
+		var turret_rotation: float = spawned_tank.turret.rotation
 		arena_session_state.set_peer_authoritative_state(
-			peer_id, tank_position, tank_rotation, tank_linear_velocity
+			peer_id, tank_position, tank_rotation, tank_linear_velocity, turret_rotation
 		)
 		(
 			snapshot_player_states
@@ -122,6 +123,7 @@ func step_authoritative_runtime(arena_session_state: ArenaSessionState) -> Array
 					"position": tank_position,
 					"rotation": tank_rotation,
 					"linear_velocity": tank_linear_velocity,
+					"turret_rotation": turret_rotation,
 					"last_processed_input_tick": int(peer_state.get("last_input_tick", 0)),
 				}
 			)

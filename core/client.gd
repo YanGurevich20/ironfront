@@ -173,9 +173,10 @@ func _start_online_arena() -> bool:
 	if player_tank == null:
 		_quit_online_arena()
 		return false
-	player_tank.global_position = network_client.assigned_spawn_position
-	player_tank.global_rotation = network_client.assigned_spawn_rotation
 	online_arena_level.add_child(player_tank)
+	player_tank.apply_spawn_state(
+		network_client.assigned_spawn_position, network_client.assigned_spawn_rotation
+	)
 	online_player_tank = player_tank
 	is_online_arena_active = true
 	online_sync_runtime.call("start_runtime", online_arena_level, online_player_tank)

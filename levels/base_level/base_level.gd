@@ -116,10 +116,9 @@ func evaluate_metrics_and_objectives(is_level_finished: bool) -> void:
 #region Tank Spawning
 func _spawn_tank(tank: Tank, spawn_point: Marker2D) -> void:
 	print("BaseLevel: spawn_tank (tank=%s id=%s)" % [tank.name, str(tank.get_instance_id())])
-	tank.global_position = spawn_point.global_position
-	tank.global_rotation = spawn_point.global_rotation
 	Utils.connect_checked(tank.damage_taken, _on_damage_taken)
 	entities.add_child(tank)
+	tank.apply_spawn_state(spawn_point.global_position, spawn_point.global_rotation)
 
 
 func _spawn_player() -> void:

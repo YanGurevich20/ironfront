@@ -89,7 +89,7 @@ func log_periodic() -> void:
 				]
 			)
 		)
-		print("")
+	print("")
 
 	_last_log_tick_count = tick_count
 	_last_rx = rx

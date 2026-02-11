@@ -62,6 +62,12 @@ func set_remaining_shell_count(count: int) -> void:
 	turret.remaining_shell_count = count
 
 
+func apply_spawn_state(global_pos: Vector2, global_rot: float, turret_rot: float = 0.0) -> void:
+	global_position = global_pos
+	global_rotation = global_rot
+	turret.rotation = turret_rot
+
+
 func fire_shell() -> void:
 	turret.fire_shell()
 

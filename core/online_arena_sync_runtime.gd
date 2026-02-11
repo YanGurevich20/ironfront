@@ -64,6 +64,7 @@ func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 		var authoritative_linear_velocity: Vector2 = player_state.get(
 			"linear_velocity", Vector2.ZERO
 		)
+		var authoritative_turret_rotation: float = float(player_state.get("turret_rotation", 0.0))
 		var last_processed_input_tick: int = int(player_state.get("last_processed_input_tick", 0))
 		if peer_id == multiplayer.get_unique_id():
 			_apply_local_reconciliation(
@@ -79,7 +80,8 @@ func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 			server_tick,
 			authoritative_position,
 			authoritative_rotation,
-			authoritative_linear_velocity
+			authoritative_linear_velocity,
+			authoritative_turret_rotation
 		)
 		_ensure_remote_tank(peer_id, player_state)
 	_remove_stale_remote_tanks(seen_peer_ids)
@@ -130,7 +132,8 @@ func _record_remote_snapshot(
 	server_tick: int,
 	state_position: Vector2,
 	state_rotation: float,
-	state_linear_velocity: Vector2
+	state_linear_velocity: Vector2,
+	state_turret_rotation: float
 ) -> void:
 	var history: Array = remote_snapshot_history_by_peer_id.get(peer_id, [])
 	(
@@ -141,6 +144,7 @@ func _record_remote_snapshot(
 				"position": state_position,
 				"rotation": state_rotation,
 				"linear_velocity": state_linear_velocity,
+				"turret_rotation": state_turret_rotation,
 			}
 		)
 	)
@@ -161,9 +165,9 @@ func _ensure_remote_tank(peer_id: int, player_state: Dictionary) -> void:
 	remote_tank.sleeping = true
 	var spawn_position: Vector2 = player_state.get("position", Vector2.ZERO)
 	var spawn_rotation: float = float(player_state.get("rotation", 0.0))
-	remote_tank.global_position = spawn_position
-	remote_tank.global_rotation = spawn_rotation
+	var spawn_turret_rotation: float = float(player_state.get("turret_rotation", 0.0))
 	arena_level.add_child(remote_tank)
+	remote_tank.apply_spawn_state(spawn_position, spawn_rotation, spawn_turret_rotation)
 	remote_tanks_by_peer_id[peer_id] = remote_tank
 	print(
 		(
@@ -230,8 +234,17 @@ func _update_remote_tank_interpolation() -> void:
 		var newer_position: Vector2 = newer_sample.get("position", older_position)
 		var older_rotation: float = float(older_sample.get("rotation", remote_tank.global_rotation))
 		var newer_rotation: float = float(newer_sample.get("rotation", older_rotation))
+		var older_turret_rotation: float = float(
+			older_sample.get("turret_rotation", remote_tank.turret.rotation)
+		)
+		var newer_turret_rotation: float = float(
+			newer_sample.get("turret_rotation", older_turret_rotation)
+		)
 		remote_tank.global_position = older_position.lerp(newer_position, blend_t)
 		remote_tank.global_rotation = lerp_angle(older_rotation, newer_rotation, blend_t)
+		remote_tank.turret.rotation = lerp_angle(
+			older_turret_rotation, newer_turret_rotation, blend_t
+		)
 
 
 func _log_prefix() -> String:

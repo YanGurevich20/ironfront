@@ -26,6 +26,7 @@ func try_join_peer(peer_id: int, player_name: String) -> Dictionary:
 		"state_position": Vector2.ZERO,
 		"state_rotation": 0.0,
 		"state_linear_velocity": Vector2.ZERO,
+		"state_turret_rotation": 0.0,
 		"input_left_track": 0.0,
 		"input_right_track": 0.0,
 		"input_turret_aim": 0.0,
@@ -67,7 +68,11 @@ func get_peer_state(peer_id: int) -> Dictionary:
 
 
 func set_peer_authoritative_state(
-	peer_id: int, position: Vector2, rotation: float, linear_velocity: Vector2
+	peer_id: int,
+	position: Vector2,
+	rotation: float,
+	linear_velocity: Vector2,
+	turret_rotation: float = 0.0
 ) -> bool:
 	if not players_by_peer_id.has(peer_id):
 		return false
@@ -75,6 +80,7 @@ func set_peer_authoritative_state(
 	peer_state["state_position"] = position
 	peer_state["state_rotation"] = rotation
 	peer_state["state_linear_velocity"] = linear_velocity
+	peer_state["state_turret_rotation"] = turret_rotation
 	players_by_peer_id[peer_id] = peer_state
 	return true
 

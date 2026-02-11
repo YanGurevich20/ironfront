@@ -264,6 +264,7 @@ func _build_player_state_snapshot() -> Array[Dictionary]:
 					"position": peer_state.get("state_position", Vector2.ZERO),
 					"rotation": float(peer_state.get("state_rotation", 0.0)),
 					"linear_velocity": peer_state.get("state_linear_velocity", Vector2.ZERO),
+					"turret_rotation": float(peer_state.get("state_turret_rotation", 0.0)),
 					"last_processed_input_tick": int(peer_state.get("last_input_tick", 0)),
 				}
 			)
