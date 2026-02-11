@@ -4,11 +4,14 @@ extends CanvasLayer
 var _menu_nodes: Array[Control]
 var _control_nodes: Array[Control]
 var _overlay_nodes: Array[Control]
+var _online_session_active: bool = false
 
 @onready var battle_interface: BattleInterface = $BattleInterface
 @onready var garage: Garage = $Garage
 @onready var login_menu: Control = $LoginMenu
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
+@onready var online_pause_overlay: OnlinePauseOverlay = %OnlinePauseOverlay
+@onready var online_match_result_overlay: OnlineMatchResultOverlay = %OnlineMatchResultOverlay
 @onready var result_overlay: ResultOverlay = $ResultOverlay
 @onready var settings_overlay: SettingsOverlay = $SettingsOverlay
 @onready var metrics_overlay: MetricsOverlay = $MetricsOverlay
@@ -24,6 +27,8 @@ func _ready() -> void:
 	_control_nodes = [battle_interface]
 	_overlay_nodes = [
 		pause_overlay,
+		online_pause_overlay,
+		online_match_result_overlay,
 		result_overlay,
 		settings_overlay,
 		metrics_overlay,
@@ -84,6 +89,10 @@ func set_network_client(network_client: NetworkClient) -> void:
 	battle_interface.set_network_client(network_client)
 
 
+func set_online_session_active(is_active: bool) -> void:
+	_online_session_active = is_active
+
+
 func show_online_join_overlay() -> void:
 	online_join_overlay.begin()
 	show_overlay(online_join_overlay)
@@ -99,6 +108,11 @@ func complete_online_join_overlay(success: bool, message: String) -> void:
 	if not online_join_overlay.visible:
 		return
 	online_join_overlay.complete(success, message)
+
+
+func display_online_match_end(status_message: String) -> void:
+	online_match_result_overlay.display_match_end(status_message)
+	show_overlay(online_match_result_overlay)
 
 
 func hide_online_join_overlay() -> void:
@@ -128,6 +142,9 @@ func _on_level_started() -> void:
 
 
 func _on_pause_pressed() -> void:
+	if _online_session_active:
+		show_overlay(online_pause_overlay)
+		return
 	show_overlay(pause_overlay)
 
 
@@ -161,6 +178,10 @@ func _on_retry_pressed() -> void:
 func _on_abort_pressed() -> void:
 	hide_overlays()
 	UiBus.abort_level_requested.emit()
+
+
+func _on_online_abort_pressed() -> void:
+	UiBus.online_match_abort_requested.emit()
 
 
 func _on_login_pressed() -> void:
@@ -199,6 +220,11 @@ func _connect_signals() -> void:
 	Utils.connect_checked(pause_overlay.exit_overlay_pressed, _on_resume_pressed)
 	Utils.connect_checked(pause_overlay.settings_pressed, _on_settings_pressed)
 	Utils.connect_checked(pause_overlay.abort_pressed, _on_abort_pressed)
+	Utils.connect_checked(online_pause_overlay.exit_overlay_pressed, _on_resume_pressed)
+	Utils.connect_checked(online_pause_overlay.settings_pressed, _on_settings_pressed)
+	Utils.connect_checked(online_pause_overlay.abort_pressed, _on_online_abort_pressed)
+	Utils.connect_checked(online_match_result_overlay.exit_overlay_pressed, _on_return_pressed)
+	Utils.connect_checked(online_match_result_overlay.return_pressed, _on_return_pressed)
 
 	#* result overlay *#
 	Utils.connect_checked(result_overlay.exit_overlay_pressed, _on_return_pressed)

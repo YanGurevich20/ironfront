@@ -15,4 +15,5 @@ signal shell_info_requested(shell_spec: ShellSpec)
 signal resume_requested
 signal restart_level_requested
 signal abort_level_requested
+signal online_match_abort_requested
 signal return_to_menu_requested

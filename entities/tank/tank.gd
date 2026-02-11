@@ -2,6 +2,8 @@ class_name Tank
 extends RigidBody2D
 
 signal damage_taken(amount: int, tank: Tank)
+signal health_updated(health: int, tank: Tank)
+signal impact_result_received(impact_result: ShellSpec.ImpactResult, tank: Tank)
 
 @export var tank_spec: TankSpec
 
@@ -29,7 +31,6 @@ var _health: int
 @onready var tank_destruction_shader_resource: Resource = preload(
 	"res://entities/tank/shaders/tank_destruction_shader_material.tres"
 )
-@onready var tank_hud: TankHUD = %TankHUD
 @onready var _last_position: Vector2 = global_position
 
 
@@ -39,7 +40,6 @@ func _ready() -> void:
 	self.angular_damp = tank_spec.angular_damping
 	tank_spec.initialize_tank_from_spec(self)
 	hull.setup_sounds(tank_spec.engine_size_class)
-	tank_hud.initialize(self)
 	if controller:
 		add_child(controller)
 	if is_player:
@@ -77,7 +77,7 @@ func play_fire_effect(play_sound: bool = true, apply_knockback_impulse: bool = t
 
 
 func handle_impact_result(result: ShellSpec.ImpactResult) -> void:
-	tank_hud.handle_impact_result(result)
+	impact_result_received.emit(result, self)
 	take_damage(result.damage)
 
 
@@ -88,7 +88,7 @@ func setup_controller(controller_node: Node) -> void:
 func take_damage(amount: int) -> void:
 	damage_taken.emit(amount, self)
 	_health = clamp(_health - amount, 0, tank_spec.health)
-	tank_hud.update_health_bar(_health)
+	health_updated.emit(_health, self)
 	if _health <= 0:
 		handle_tank_destroyed()
 
@@ -157,9 +157,6 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	distance_traveled += global_position.distance_to(_last_position)
 	_last_position = global_position
 
-	# === HUD Positioning ===
-	tank_hud.update_hud_position()
-
 
 func get_forward_speed(velocity: Vector2) -> float:
 	var forward := transform.x.normalized()
@@ -170,3 +167,8 @@ func reset_input() -> void:
 	right_track_input = 0.0
 	left_track_input = 0.0
 	turret_rotation_input = 0.0
+
+
+func set_health(health: int) -> void:
+	_health = clamp(health, 0, tank_spec.health)
+	health_updated.emit(_health, self)

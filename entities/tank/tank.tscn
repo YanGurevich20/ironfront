@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://cnsy87eymywb0"]
+[gd_scene load_steps=38 format=3 uid="uid://cnsy87eymywb0"]
 
 [ext_resource type="Script" uid="uid://dore72xdttiqc" path="res://entities/tank/tank.gd" id="1_dsgy6"]
 [ext_resource type="Resource" uid="uid://cyhjue8xu1nc6" path="res://entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres" id="2_eykj3"]
@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://bf7waln3elljp" path="res://entities/tank/tanks/debug_tank/debug_tank.png" id="3_cxr3h"]
 [ext_resource type="Script" uid="uid://bwhyg2mhvr4k5" path="res://entities/tank/components/turret.gd" id="4_eykj3"]
 [ext_resource type="Texture2D" uid="uid://mfftpfnk0gyh" path="res://entities/tank/shared_assets/sprites/muzzle_flash.png" id="5_eykj3"]
-[ext_resource type="PackedScene" uid="uid://bal81er17r4dc" path="res://entities/tank/tank_hud/tank_hud.tscn" id="7_lx22l"]
 [ext_resource type="Texture2D" uid="uid://obj5nglso4jh" path="res://entities/tank/shared_assets/sprites/tank_explosion.png" id="10_17p3m"]
 [ext_resource type="AudioStream" uid="uid://brjqg23ouox5k" path="res://entities/tank/shared_assets/sounds/explosion/death_explosion.ogg" id="10_f0hnj"]
 
@@ -298,12 +297,6 @@ one_shot = true
 [node name="CannonSound" type="AudioStreamPlayer2D" parent="Turret"]
 unique_name_in_owner = true
 stream = SubResource("AudioStreamRandomizer_f0hnj")
-
-[node name="TankHUD" parent="." instance=ExtResource("7_lx22l")]
-unique_name_in_owner = true
-z_index = 1023
-offset_top = -46.0
-offset_bottom = -25.0
 
 [node name="AudioListener2D" type="AudioListener2D" parent="."]
 unique_name_in_owner = true

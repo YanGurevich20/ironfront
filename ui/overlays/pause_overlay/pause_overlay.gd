@@ -16,6 +16,8 @@ var _pending_objectives: Array[Objective] = []
 
 func _ready() -> void:
 	super._ready()
+	Utils.connect_checked(root_section.back_pressed, _on_section_back_pressed)
+	Utils.connect_checked(objectives_section.back_pressed, _on_section_back_pressed)
 	# Show the objectives section and populate it when the user clicks the button
 	Utils.connect_checked(
 		objectives_button.pressed,
@@ -34,3 +36,10 @@ func set_objectives(new_objectives: Array[Objective]) -> void:
 	# If the objectives section is currently visible (user already opened it), refresh it immediately.
 	if objectives_section.visible:
 		objectives_container.display_objectives(_pending_objectives)
+
+
+func _on_section_back_pressed(is_root_section: bool) -> void:
+	if is_root_section:
+		exit_overlay_pressed.emit()
+		return
+	show_only([root_section])

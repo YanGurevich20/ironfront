@@ -3,28 +3,20 @@ extends Control
 
 signal exit_overlay_pressed
 
-var all_sections: Array[Node]
+var all_sections: Array[Control] = []
 
-@onready var sections_container := $%SectionsContainer
-@onready var root_section := $%RootSection
+@onready var sections_container: VBoxContainer = %SectionsContainer
+@onready var root_section: BaseSection = %RootSection
 
 
 func _ready() -> void:
-	all_sections = sections_container.get_children()
+	all_sections.clear()
+	for section: Node in sections_container.get_children():
+		if section is Control:
+			all_sections.append(section)
 	show_only([root_section])
-	for section in all_sections:
-		if not section is BaseSection:
-			continue
-		Utils.connect_checked((section as BaseSection).back_pressed, _handle_back_pressed)
 
 
-func show_only(sections_to_show: Array[Node]) -> void:
+func show_only(sections_to_show: Array[Control]) -> void:
 	for section: Control in all_sections:
 		section.visible = section in sections_to_show
-
-
-func _handle_back_pressed(is_root: bool) -> void:
-	if is_root:
-		exit_overlay_pressed.emit()
-	else:
-		show_only([root_section])

@@ -24,8 +24,9 @@ func _ready() -> void:
 func _setup_navigation() -> void:
 	Utils.connect_checked(advanced_info_button.pressed, _show_advanced_info_section)
 	Utils.connect_checked(penetration_simulator_button.pressed, _show_penetration_simulator_section)
-	Utils.connect_checked(advanced_info_section.back_pressed, _show_root_section)
-	Utils.connect_checked(penetration_simulator_section.back_pressed, _show_root_section)
+	Utils.connect_checked(shell_root_section.back_pressed, _on_section_back_pressed)
+	Utils.connect_checked(advanced_info_section.back_pressed, _on_section_back_pressed)
+	Utils.connect_checked(penetration_simulator_section.back_pressed, _on_section_back_pressed)
 
 
 func display_shell_info(shell_spec: ShellSpec) -> void:
@@ -38,10 +39,10 @@ func display_shell_info(shell_spec: ShellSpec) -> void:
 	_update_basic_stats(shell_spec)
 	_update_shell_stats(shell_spec)
 	_update_base_shell_stats(shell_spec)
-	_show_root_section(false)
+	_show_root_section()
 
 
-func _show_root_section(_is_root: bool = false) -> void:
+func _show_root_section() -> void:
 	shell_root_section.visible = true
 	advanced_info_section.visible = false
 	penetration_simulator_section.visible = false
@@ -57,6 +58,13 @@ func _show_penetration_simulator_section() -> void:
 	shell_root_section.visible = false
 	advanced_info_section.visible = false
 	penetration_simulator_section.visible = true
+
+
+func _on_section_back_pressed(is_root_section: bool) -> void:
+	if is_root_section:
+		exit_overlay_pressed.emit()
+		return
+	_show_root_section()
 
 
 func _update_basic_stats(shell_spec: ShellSpec) -> void:

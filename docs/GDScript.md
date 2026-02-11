@@ -48,4 +48,7 @@ for spawn_id: StringName in arena_spawn_transforms_by_id.keys():
 - Apply low-risk type/cast cleanup incrementally in touched areas rather than broad churn across unrelated systems.
 - Extract self-contained logic into focused helpers when a script grows large or mixes responsibilities.
 - Good extraction targets are pure data transforms (for example, snapshot builders) that take typed inputs and return typed outputs.
+- When scripts approach lint file-size limits, extract cohesive utility modules (for example, CLI parsing or match-result builders) instead of compressing readability with dense in-file edits.
+- Keep online and offline UX lifecycle paths separate when product behavior diverges (for example, match-end flow vs offline mission result flow).
+- Keep shared UI base classes presentational (layout/panel helpers) and wire navigation/back-routing explicitly in each concrete overlay.
 - After each optimization pass, run `just fix`.

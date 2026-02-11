@@ -9,6 +9,11 @@ extends BaseOverlay
 )
 
 
+func _ready() -> void:
+	super._ready()
+	Utils.connect_checked(root_section.back_pressed, _on_root_back_pressed)
+
+
 func display_levels() -> void:
 	for child in levels_container.get_children():
 		levels_container.remove_child(child)
@@ -25,3 +30,8 @@ func display_levels() -> void:
 		level_button.stars = level_stars
 		Utils.connect_checked(level_button.pressed, func() -> void: UiBus.level_pressed.emit(level))
 		levels_container.add_child(level_button)
+
+
+func _on_root_back_pressed(is_root_section: bool) -> void:
+	if is_root_section:
+		exit_overlay_pressed.emit()

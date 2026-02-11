@@ -2,6 +2,7 @@ class_name Client
 extends Node2D
 
 const OnlineArenaSyncRuntimeScript := preload("res://core/online_arena_sync_runtime.gd")
+const ClientMatchResultsData := preload("res://core/client_match_results.gd")
 const ShellScene: PackedScene = preload("res://entities/shell/shell.tscn")
 
 var current_level: BaseLevel
@@ -31,6 +32,7 @@ func _ready() -> void:
 	Utils.connect_checked(UiBus.resume_requested, _resume_game)
 	Utils.connect_checked(UiBus.restart_level_requested, _restart_level)
 	Utils.connect_checked(UiBus.abort_level_requested, _abort_level)
+	Utils.connect_checked(UiBus.online_match_abort_requested, _abort_online_match)
 	Utils.connect_checked(UiBus.return_to_menu_requested, _quit_level)
 	Utils.connect_checked(network_client.join_status_changed, ui_manager.update_online_join_overlay)
 	Utils.connect_checked(network_client.join_arena_completed, _on_join_arena_completed)
@@ -78,7 +80,6 @@ func _log_prefix() -> String:
 #region level lifecycle
 func _pause_game() -> void:
 	if is_online_arena_active:
-		root.set_pause(true)
 		return
 	if current_level == null:
 		return
@@ -96,6 +97,7 @@ func _resume_game() -> void:
 func _start_level(level_key: int) -> void:
 	if is_online_arena_active:
 		_quit_online_arena()
+	ui_manager.set_online_session_active(false)
 	_resume_game()
 	current_level_key = level_key
 	current_level = LevelManager.LEVEL_SCENES[level_key].instantiate()
@@ -122,8 +124,18 @@ func _abort_level() -> void:
 		current_level.finish_level(false)
 
 
+func _abort_online_match() -> void:
+	if not is_online_arena_active:
+		return
+	_quit_online_arena()
+	ui_manager.finish_level()
+	ui_manager.display_online_match_end("MATCH ABORTED")
+
+
 func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> void:
-	var reward_info: Dictionary = calculate_level_reward(metrics, current_level_key)
+	var reward_info: Dictionary = ClientMatchResultsData.calculate_level_reward(
+		metrics, current_level_key
+	)
 	ui_manager.display_result(success, metrics, objectives, reward_info)
 	ui_manager.finish_level()
 	_save_player_metrics(metrics)
@@ -168,6 +180,7 @@ func _start_online_arena() -> bool:
 	)
 	online_player_tank = player_tank
 	is_online_arena_active = true
+	ui_manager.set_online_session_active(true)
 	active_online_shells_by_shot_id.clear()
 	online_sync_runtime.call("start_runtime", online_arena_level, online_player_tank)
 	network_client.set_arena_input_enabled(true)
@@ -188,6 +201,7 @@ func _start_online_arena() -> bool:
 
 func _quit_online_arena() -> void:
 	active_online_shells_by_shot_id.clear()
+	ui_manager.set_online_session_active(false)
 	online_sync_runtime.call("stop_runtime")
 	if online_player_tank != null:
 		online_player_tank.queue_free()
@@ -299,12 +313,11 @@ func _on_arena_shell_impact_received(
 		return
 	var target_max_health: int = target_tank.tank_spec.health
 	var expected_pre_hit_health: int = clamp(remaining_health + damage, 0, target_max_health)
-	target_tank._health = expected_pre_hit_health
+	target_tank.set_health(expected_pre_hit_health)
 	var impact_result: ShellSpec.ImpactResult = ShellSpec.ImpactResult.new(damage, result_type)
 	target_tank.handle_impact_result(impact_result)
 	if target_tank._health != remaining_health:
-		target_tank._health = remaining_health
-		target_tank.tank_hud.update_health_bar(remaining_health)
+		target_tank.set_health(remaining_health)
 
 
 func _reconcile_authoritative_shell_impact(
@@ -365,33 +378,4 @@ func _save_game_progress(new_metrics: Dictionary, level_key: int, dollar_reward:
 	game_progress.save()
 	GameplayBus.level_finished_and_saved.emit()
 
-
-#endregion
-#region reward calculation
-func calculate_level_reward(new_metrics: Dictionary, level_key: int) -> Dictionary:
-	var current_run_stars: int = new_metrics.get(Metrics.Metric.STARS_EARNED, 0)
-	var game_progress := PlayerData.get_instance()
-	var previous_max_stars: int = game_progress.get_stars_for_level(level_key)
-	var dollars_to_award_this_run: int = 0
-	var doubled_stars: Array[int] = []
-
-	var star_dollar_values: Dictionary = {
-		1: 5_000,
-		2: 15_000,
-		3: 30_000,
-	}
-
-	# Award base rewards for all stars earned in this run
-	for star_level in range(1, current_run_stars + 1):
-		var base_dollars: int = star_dollar_values.get(star_level, 0)
-		var dollars_for_this_star: int = base_dollars
-
-		# Double the reward if this star is being earned for the first time
-		if star_level > previous_max_stars:
-			dollars_for_this_star = base_dollars * 2
-			doubled_stars.append(star_level)
-
-		dollars_to_award_this_run += dollars_for_this_star
-
-	return {"total_reward": dollars_to_award_this_run, "doubled_stars": doubled_stars}
 #endregion

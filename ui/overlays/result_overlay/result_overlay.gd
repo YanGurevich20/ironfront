@@ -14,11 +14,13 @@ var _stored_objectives: Array[Objective] = []
 @onready var retry_button: Button = %RetryButton
 @onready var objectives_button: Button = %ObjectivesButton
 @onready var objectives_container: ObjectivesContainer = $%ObjectivesContainer
-@onready var objectives_section := $"PanelContainer/SectionsContainer/ObjectivesSection"
+@onready var objectives_section: BaseSection = %ObjectivesSection
 
 
 func _ready() -> void:
 	super._ready()
+	Utils.connect_checked(root_section.back_pressed, _on_section_back_pressed)
+	Utils.connect_checked(objectives_section.back_pressed, _on_section_back_pressed)
 	Utils.connect_checked(
 		retry_button.pressed,
 		func() -> void:
@@ -39,7 +41,10 @@ func display_result(
 	stars_label.text = "STARS: %d/3" % metrics[Metrics.Metric.STARS_EARNED]
 	time_label.text = "TIME: " + Utils.format_seconds(metrics[Metrics.Metric.RUN_TIME])
 	var total_reward: int = int(reward_info.get("total_reward", 0))
-	var doubled_stars: Array[int] = reward_info.get("doubled_stars", [])
+	var doubled_stars_raw: Array = reward_info.get("doubled_stars", [])
+	var doubled_stars: Array[int] = []
+	for doubled_star_variant: Variant in doubled_stars_raw:
+		doubled_stars.append(int(doubled_star_variant))
 	reward_label.text = "REWARD: %s" % Utils.format_dollars(total_reward)
 
 	# Display doubled reward information
@@ -67,3 +72,10 @@ func _on_objectives_button_pressed() -> void:
 func display_objectives(objectives: Array[Objective]) -> void:
 	objectives_container.display_objectives(objectives)
 	show_only([objectives_section])
+
+
+func _on_section_back_pressed(is_root_section: bool) -> void:
+	if is_root_section:
+		exit_overlay_pressed.emit()
+		return
+	show_only([root_section])

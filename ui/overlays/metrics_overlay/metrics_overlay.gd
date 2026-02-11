@@ -8,6 +8,7 @@ class_name MetricsOverlay extends BaseOverlay
 
 func _ready() -> void:
 	super._ready()
+	Utils.connect_checked(root_section.back_pressed, _on_root_back_pressed)
 
 
 func display_metrics(metrics: Dictionary) -> void:
@@ -20,3 +21,8 @@ func display_metrics(metrics: Dictionary) -> void:
 		metric_display.metric_text = metric_name
 		metric_display.value_text = str(metrics[metric])
 		metrics_list.add_child(metric_display)
+
+
+func _on_root_back_pressed(is_root_section: bool) -> void:
+	if is_root_section:
+		exit_overlay_pressed.emit()

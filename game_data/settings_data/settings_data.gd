@@ -26,7 +26,7 @@ const FILE_NAME: String = "settings_data"
 
 # settings that are not controlled from the settings menu
 @export_group("Dynamic")
-@export_range(0.5, 1.5, 0.1) var zoom_level: float = 1.0:
+@export_range(0.5, 1.5, 0.05) var zoom_level: float = 1.0:
 	set(value):
 		zoom_level = value
 		save()

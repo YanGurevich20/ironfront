@@ -76,6 +76,7 @@ size_flags_horizontal = 3
 text = "RETRY LEVEL"
 
 [node name="ObjectivesSection" parent="PanelContainer/SectionsContainer" index="1" instance=ExtResource("3_v81mq")]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
 

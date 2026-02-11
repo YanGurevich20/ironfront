@@ -121,6 +121,11 @@ func _join_arena(player_name: String) -> void:
 		)
 		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
+	if arena_session_state.has_peer(peer_id):
+		var previous_spawn_id: StringName = arena_session_state.get_peer_spawn_id(peer_id)
+		arena_session_state.remove_peer(peer_id, "REJOIN_REQUEST")
+		if previous_spawn_id != StringName():
+			_release_spawn_id(previous_spawn_id, peer_id)
 	var cleaned_player_name: String = player_name.strip_edges()
 	print("[server][join] receive_join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
 	if cleaned_player_name.is_empty():

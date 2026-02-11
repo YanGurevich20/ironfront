@@ -106,6 +106,20 @@ value = 1.0
 tick_count = 21
 ticks_on_borders = true
 
+[node name="ZoomLevelLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel/VBoxContainer"]
+layout_mode = 2
+text = "ZOOM LEVEL"
+
+[node name="ZoomLevelSlider" type="HSlider" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent/HudPanel/VBoxContainer" unique_id=209180754]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.5
+max_value = 1.5
+step = 0.05
+value = 1.0
+tick_count = 21
+ticks_on_borders = true
+
 [node name="VideoLabel" type="Label" parent="PanelContainer/SectionsContainer/RootSection/SettingsScroll/SettingsContent" index="8" unique_id=205686315]
 layout_mode = 2
 text = "VIDEO"

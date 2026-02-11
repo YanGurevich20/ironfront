@@ -365,23 +365,11 @@ func _on_fire_input() -> void:
 
 
 func _apply_cli_overrides() -> void:
-	var user_args: PackedStringArray = OS.get_cmdline_user_args()
-	print("[client][cli] user_args=%s" % str(user_args))
-	for user_arg: String in user_args:
-		if user_arg.begins_with("--host="):
-			var host_value: String = user_arg.trim_prefix("--host=").strip_edges()
-			if not host_value.is_empty():
-				default_connect_host = host_value
-		elif user_arg.begins_with("--port="):
-			var port_value: int = int(user_arg.trim_prefix("--port="))
-			if port_value > 0:
-				default_connect_port = port_value
-	print(
-		(
-			"[client][cli] resolved_host=%s resolved_port=%d"
-			% [default_connect_host, default_connect_port]
-		)
+	var resolved_target: Dictionary = NetworkClientConnectionUtilsData.resolve_cli_connect_target(
+		default_connect_host, default_connect_port
 	)
+	default_connect_host = resolved_target.get("host", default_connect_host)
+	default_connect_port = resolved_target.get("port", default_connect_port)
 
 
 func _log_join(message: String) -> void:

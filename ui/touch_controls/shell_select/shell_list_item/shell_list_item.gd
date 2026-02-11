@@ -5,23 +5,26 @@ signal shell_selected(shell_spec: ShellSpec)
 
 signal shell_expand_requested
 
+const DAMAGE_COLOR_HEX: String = "ff4d4d"
+const PENETRATION_COLOR_HEX: String = "4da3ff"
+
 var shell_spec: ShellSpec
 var shell_amount: int
 var is_expanded: bool = false
 
 @onready var shell_button: Button = %ShellButton
-@onready var stats_container: PanelContainer = %StatsContainer
-@onready var stats_label: Label = %StatsLabel
+@onready var count_label: Label = %CountLabel
+@onready var stats_label: RichTextLabel = %StatsLabel
 @onready var shell_load_progress_bar: TextureProgressBar = %ShellLoadProgressBar
 
 
 func _ready() -> void:
-	stats_container.hide()
+	stats_label.hide()
 	Utils.connect_checked(shell_button.pressed, _on_shell_button_pressed)
 
 
-func display_shell(_shell_spec: ShellSpec) -> void:
-	shell_spec = _shell_spec
+func display_shell(shell_spec_input: ShellSpec) -> void:
+	shell_spec = shell_spec_input
 	shell_button.icon = shell_spec.base_shell_type.round_texture
 
 
@@ -37,15 +40,14 @@ func _on_shell_button_pressed() -> void:
 
 
 func update_shell_amount(amount: int) -> void:
-	if amount == 0:
-		shell_button.disabled = true
+	shell_button.disabled = amount == 0
 	shell_amount = amount
 	update_stats_label(shell_amount)
 
 
 func update_is_expanded(expand: bool) -> void:
 	is_expanded = expand
-	stats_container.visible = is_expanded
+	stats_label.visible = is_expanded
 
 
 func update_progress_bar(progress: float) -> void:
@@ -54,10 +56,15 @@ func update_progress_bar(progress: float) -> void:
 	shell_load_progress_bar.value = 1 - progress
 
 
-func update_stats_label(_amount_left: int) -> void:
-	shell_amount = _amount_left
-	var text: String = ""
-	text += "D: %d\n" % shell_spec.damage
-	text += "P: %d\n" % shell_spec.penetration
-	text += "L: %d" % shell_amount
-	stats_label.text = text
+func update_stats_label(amount_left: int) -> void:
+	shell_amount = amount_left
+	count_label.text = str(shell_amount)
+	stats_label.text = (
+		"[center][color=#%s]%d[/color]\n[color=#%s]%d[/color][/center]"
+		% [
+			DAMAGE_COLOR_HEX,
+			shell_spec.damage,
+			PENETRATION_COLOR_HEX,
+			roundi(shell_spec.penetration)
+		]
+	)
