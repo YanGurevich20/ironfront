@@ -58,11 +58,11 @@ This already aligns with Godot's recommended model:
 - transfer mode
 - channel
 - validation rules
-4. Introduce `MultiplayerSpawner` for networked tank/shell lifecycle when server-side entity spawning is added.
+4. Introduce `MultiplayerSpawner` primarily for shell/combat entity lifecycle; player tanks are currently spawned by server arena runtime.
 5. Introduce `MultiplayerSynchronizer` only for state that must continuously mirror, and avoid syncing derivable values.
 6. Keep per-feature bandwidth budgets and channel assignments documented to avoid accidental reliable-channel saturation.
 
-## Movement Replication Contract (Phase 5 target)
+## Movement Replication Contract (Phase 5.5 baseline)
 
 ### Data ownership split
 - Server authoritative state: tank transform/velocity/heading, collision outcomes, damage/hit/death, ammo validity, cooldowns.
@@ -74,7 +74,7 @@ This already aligns with Godot's recommended model:
 - Minimum input packet fields:
 - `peer_id` (implicit via sender)
 - `input_tick` (monotonic sequence)
-- `throttle`, `steer`, `turret_aim`, `fire_pressed`, `ability_flags`
+- `left_track_input`, `right_track_input`, `turret_aim`, `fire_pressed`, `ability_flags`
 - Transfer mode: `unreliable_ordered` on a dedicated input channel.
 - Server validation:
 - reject stale or far-future `input_tick`
@@ -83,8 +83,8 @@ This already aligns with Godot's recommended model:
 - apply cooldown/ammo/vehicle-state checks server-side
 
 ### Simulation and snapshot cadence
-- Server sim tick: fixed tick (initial target 30 Hz, tune later).
-- Server snapshot tick: fixed periodic snapshots (initial target 10-20 Hz, tune by bandwidth budget).
+- Server sim tick: fixed tick (`_physics_process`, current target 30 Hz).
+- Server snapshot tick: fixed periodic snapshots (current target 30 Hz; input cadence currently 60 Hz).
 - Snapshot payload baseline:
 - `server_tick`
 - per-player authoritative state (`position`, `rotation`, `linear_velocity`, optional `angular_velocity`)

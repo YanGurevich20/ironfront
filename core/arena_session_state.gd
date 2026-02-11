@@ -3,7 +3,7 @@ extends RefCounted
 
 var max_players: int = 10
 var created_unix_time: float = 0.0
-var players_by_peer_id: Dictionary = {}
+var players_by_peer_id: Dictionary[int, Dictionary] = {}
 
 
 func _init(max_player_count: int = 10) -> void:
@@ -57,10 +57,7 @@ func has_peer(peer_id: int) -> bool:
 
 
 func get_peer_ids() -> Array[int]:
-	var peer_ids: Array[int] = []
-	for peer_id_variant: Variant in players_by_peer_id.keys():
-		peer_ids.append(int(peer_id_variant))
-	return peer_ids
+	return players_by_peer_id.keys()
 
 
 func get_peer_state(peer_id: int) -> Dictionary:

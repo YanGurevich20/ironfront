@@ -73,12 +73,12 @@
 - Remaining quality gap: movement feel is jittery/too fast compared to offline due to simulation mismatch and basic reconciliation.
 
 ## Phase 5.5: Authoritative Simulation Alignment
-- [ ] Run server runtime from dedicated-server export preset.
+- [x] Run server runtime from dedicated-server export preset.
 - [ ] Keep standard gameplay flow on server.
 - [ ] Defer peripheral gating (UI/audio/VFX/camera/input) until after gameplay parity is stable.
 - [ ] Reuse existing movement/combat logic server-side as authority source.
 - [ ] Keep client prediction/reconciliation but consume server-authored gameplay states.
-- [ ] Move movement snapshots and input intents to `unreliable_ordered`; keep critical events reliable.
+- [x] Move movement snapshots and input intents to `unreliable_ordered`; keep critical events reliable.
 
 ### Notes
 - Goal: preserve offline gameplay feel while keeping server authority.
@@ -122,7 +122,7 @@ Implementation notes (February 10, 2026):
 - [x] Keep transport/validation inside `net/`; keep gameplay state mutation in server runtime.
 
 Implementation notes (February 10, 2026):
-- `core/server_arena_runtime.gd` now applies per-peer validated input intents (`throttle`, `steer`, `turret_aim`, `fire`) directly onto spawned server tank nodes each tick.
+- `core/server_arena_runtime.gd` now applies per-peer validated input intents (`left_track_input`, `right_track_input`, `turret_aim`, `fire`) directly onto spawned server tank nodes each tick.
 - Runtime now writes authoritative state from live tank nodes (`global_position`, `global_rotation`, `linear_velocity`) back into `ArenaSessionState` and returns snapshot-ready player dictionaries.
 - `core/server.gd` tick flow now executes runtime authority step first, then hands runtime-authored snapshot states to `NetworkServer`.
 - `net/network_server.gd` no longer runs `_simulate_authoritative_state`; it only validates/accepts inputs and handles snapshot broadcast transport.
@@ -131,7 +131,7 @@ Implementation notes (February 10, 2026):
 - Runtime validation (February 10, 2026): fresh dedicated server bundle tested with local clients; join/visibility remains correct and movement feel is notably improved versus prior simplified sim path.
 - Known quality gap after validation: movement feels slightly sluggish. Next pass should focus on responsiveness tuning (input/snapshot cadence and reconciliation gains) before or alongside Step 3 controller migration.
 
-### Step 2.1: Responsiveness and Tick Loop Pass (implemented February 10, 2026; validation pending)
+### Step 2.1: Responsiveness and Tick Loop Pass (validated February 11, 2026)
 - [x] Replace manual server timer tick loop with `_physics_process`-driven fixed-step loop.
 - [x] Keep explicit server tick counter and existing sync metrics.
 - [x] Increase input send cadence and snapshot cadence for lower perceived latency.
@@ -143,7 +143,8 @@ Implementation notes (February 10, 2026):
 - `core/online_arena_sync_runtime.gd` updated interpolation/reconciliation defaults: `snapshot_render_delay_ticks=1` and `reconciliation_soft_blend=0.5`.
 - Follow-up control parity fix: online input transport now sends direct `left_track_input`/`right_track_input` and server applies those directly, matching `mobile_player_tank_controller` semantics instead of reconstructing from throttle/steer.
 - Client HUD visibility add-on: battle interface now includes a small bottom ping indicator shown during online arena sessions, using ENet RTT stats from `NetworkClient`.
-- Pending validation: run dedicated server export + local clients and confirm improved responsiveness without introducing jitter or desync regressions.
+- Validation complete (February 11, 2026): dedicated server bundle tested with local clients; joins remained stable, movement responsiveness improved, and server sync counters (`rx/applied/snapshots`) advanced consistently under live play.
+- Follow-up validation result (February 11, 2026): left/right control parity issue was fixed by direct track-input transport, and battle HUD ping indicator was confirmed visible during online arena sessions.
 
 ### Step 3: Per-Peer Network Controller (planned)
 - [ ] Add a server-side network controller that consumes peer-scoped input intents.

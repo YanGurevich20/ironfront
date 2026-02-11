@@ -100,8 +100,6 @@ func _on_server_disconnected() -> void:
 
 @rpc("any_peer", "reliable")
 func _receive_client_hello(client_protocol_version: int, player_name: String) -> void:
-	if not multiplayer.is_server():
-		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	print(
 		(
@@ -120,8 +118,6 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 
 @rpc("any_peer", "reliable")
 func _join_arena(player_name: String) -> void:
-	if not multiplayer.is_server():
-		return
 	if arena_session_state == null:
 		push_error("[server][arena] join requested before session initialization")
 		var missing_session_peer_id: int = multiplayer.get_remote_sender_id()
@@ -225,8 +221,6 @@ func _release_spawn_id(spawn_id: StringName, peer_id: int) -> void:
 
 func on_server_tick(server_tick: int, tick_delta_seconds: float) -> void:
 	total_on_server_tick_calls += 1
-	if not multiplayer.is_server():
-		return
 	if tick_delta_seconds <= 0.0:
 		return
 	if arena_session_state == null:
@@ -287,22 +281,13 @@ func _broadcast_state_snapshot(server_tick: int) -> void:
 
 
 @rpc("authority", "reliable")
-func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: int) -> void:
-	# This method exists so RPC path signatures stay valid on both peers.
-	push_warning(
-		(
-			"[server] unexpected server_hello_ack protocol=%d server_time=%d"
-			% [server_protocol_version, server_unix_time]
-		)
-	)
+func _receive_server_hello_ack(_server_protocol_version: int, _server_unix_time: int) -> void:
+	push_warning("[server] unexpected RPC: _receive_server_hello_ack")
 
 
 @rpc("authority", "reliable")
-func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
-	# This method exists so RPC path signatures stay valid on both peers.
-	push_warning(
-		"[server] unexpected state_snapshot tick=%d states=%d" % [server_tick, player_states.size()]
-	)
+func _receive_state_snapshot(_server_tick: int, _player_states: Array) -> void:
+	push_warning("[server] unexpected RPC: _receive_state_snapshot")
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
@@ -313,8 +298,6 @@ func _receive_input_intent(
 	turret_aim: float,
 	fire_pressed: bool
 ) -> void:
-	if not multiplayer.is_server():
-		return
 	if arena_session_state == null:
 		return
 	total_input_messages_received += 1
@@ -364,12 +347,6 @@ func get_debug_sync_metrics() -> Dictionary:
 
 @rpc("authority", "reliable")
 func _join_arena_ack(
-	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
+	_success: bool, _message: String, _spawn_position: Vector2, _spawn_rotation: float
 ) -> void:
-	# This method exists so RPC path signatures stay valid on both peers.
-	push_warning(
-		(
-			"[server] unexpected join_arena_ack success=%s message=%s spawn_position=%s spawn_rotation=%.4f"
-			% [success, message, spawn_position, spawn_rotation]
-		)
-	)
+	push_warning("[server] unexpected RPC: _join_arena_ack")

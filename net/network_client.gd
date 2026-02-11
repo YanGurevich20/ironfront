@@ -154,9 +154,6 @@ func _send_client_hello() -> void:
 	if multiplayer.multiplayer_peer == null:
 		_log_join("skip_send_client_hello no_multiplayer_peer")
 		return
-	if multiplayer.is_server():
-		_log_join("skip_send_client_hello running_as_server")
-		return
 	var player_data: PlayerData = PlayerData.get_instance()
 	var player_name: String = player_data.player_name
 	_receive_client_hello.rpc_id(1, protocol_version, player_name)
@@ -166,9 +163,6 @@ func _send_client_hello() -> void:
 func _send_join_arena() -> void:
 	if multiplayer.multiplayer_peer == null:
 		_log_join("skip_send_join_arena no_multiplayer_peer")
-		return
-	if multiplayer.is_server():
-		_log_join("skip_send_join_arena running_as_server")
 		return
 	var player_data: PlayerData = PlayerData.get_instance()
 	var player_name: String = player_data.player_name
@@ -211,8 +205,6 @@ func _reset_connection() -> void:
 
 @rpc("authority", "reliable")
 func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: int) -> void:
-	if multiplayer.is_server():
-		return
 	_log_join(
 		(
 			"received_server_hello_ack protocol=%d server_time=%d"
@@ -235,60 +227,35 @@ func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: i
 
 
 @rpc("any_peer", "reliable")
-func _receive_client_hello(client_protocol_version: int, player_name: String) -> void:
-	# This method exists so RPC path signatures stay valid on both peers.
-	push_warning(
-		(
-			"%s unexpected client_hello protocol=%d player=%s"
-			% [_log_prefix(), client_protocol_version, player_name]
-		)
-	)
+func _receive_client_hello(_client_protocol_version: int, _player_name: String) -> void:
+	push_warning("[client] unexpected RPC: _receive_client_hello")
 
 
 @rpc("any_peer", "reliable")
-func _join_arena(player_name: String) -> void:
-	# This method exists so RPC path signatures stay valid on both peers.
-	_log_join("unexpected_join_arena player=%s" % player_name)
-	push_warning("%s unexpected join_arena player=%s" % [_log_prefix(), player_name])
+func _join_arena(_player_name: String) -> void:
+	push_warning("[client] unexpected RPC: _join_arena")
 
 
 @rpc("authority", "reliable")
 func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
-	if multiplayer.is_server():
-		return
 	state_snapshot_received.emit(server_tick, player_states)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
 func _receive_input_intent(
-	input_tick: int,
-	left_track_input: float,
-	right_track_input: float,
-	turret_aim: float,
-	fire_pressed: bool
+	_input_tick: int,
+	_left_track_input: float,
+	_right_track_input: float,
+	_turret_aim: float,
+	_fire_pressed: bool
 ) -> void:
-	# This method exists so RPC path signatures stay valid on both peers.
-	push_warning(
-		(
-			("%s unexpected input_intent tick=%d " + "left=%.3f right=%.3f turret=%.3f fire=%s")
-			% [
-				_log_prefix(),
-				input_tick,
-				left_track_input,
-				right_track_input,
-				turret_aim,
-				fire_pressed
-			]
-		)
-	)
+	push_warning("[client] unexpected RPC: _receive_input_intent")
 
 
 @rpc("authority", "reliable")
 func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
-	if multiplayer.is_server():
-		return
 	if cancel_join_requested:
 		_log_join(
 			(
@@ -375,8 +342,6 @@ func get_connection_ping_msec() -> int:
 
 func _is_connected_to_server() -> bool:
 	if multiplayer.multiplayer_peer == null:
-		return false
-	if multiplayer.is_server():
 		return false
 	var connection_status: MultiplayerPeer.ConnectionStatus = (
 		multiplayer.multiplayer_peer.get_connection_status()
