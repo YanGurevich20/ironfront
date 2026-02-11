@@ -29,6 +29,7 @@ var pending_fire_pressed: bool = false
 
 
 func _ready() -> void:
+	_apply_cli_overrides()
 	_setup_client_network_logging()
 	_setup_gameplay_input_capture()
 
@@ -298,6 +299,26 @@ func _on_wheel_input(value: float) -> void:
 
 func _on_fire_input() -> void:
 	pending_fire_pressed = true
+
+
+func _apply_cli_overrides() -> void:
+	var user_args: PackedStringArray = OS.get_cmdline_user_args()
+	print("[client][cli] user_args=%s" % str(user_args))
+	for user_arg: String in user_args:
+		if user_arg.begins_with("--host="):
+			var host_value: String = user_arg.trim_prefix("--host=").strip_edges()
+			if not host_value.is_empty():
+				default_connect_host = host_value
+		elif user_arg.begins_with("--port="):
+			var port_value: int = int(user_arg.trim_prefix("--port="))
+			if port_value > 0:
+				default_connect_port = port_value
+	print(
+		(
+			"[client][cli] resolved_host=%s resolved_port=%d"
+			% [default_connect_host, default_connect_port]
+		)
+	)
 
 
 func _log_join(message: String) -> void:

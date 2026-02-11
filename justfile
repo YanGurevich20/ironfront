@@ -9,6 +9,10 @@ default_server_port := "7000"
 build:
 	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --verbose --path . --quit
 
+# Run local dedicated server runtime.
+server-local port=default_server_port:
+	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . -- --server --port={{port}}
+
 # Lint all GDScript files (static checks).
 lint:
 	rg --files -g '*.gd' | xargs "${GDLINT_BIN:-/Users/yan/Library/Python/3.12/bin/gdlint}"
