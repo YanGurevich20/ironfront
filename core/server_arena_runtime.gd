@@ -100,6 +100,23 @@ func spawn_peer_tank(
 	)
 
 
+func is_peer_tank_dead(peer_id: int) -> bool:
+	var spawned_tank: Tank = player_tanks_by_peer_id.get(peer_id)
+	if spawned_tank == null:
+		return false
+	return spawned_tank._health <= 0
+
+
+func respawn_peer_tank(
+	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
+) -> bool:
+	if not is_peer_tank_dead(peer_id):
+		return false
+	spawn_peer_tank(peer_id, player_name, spawn_id, spawn_transform)
+	print("[server][arena-runtime] tank_respawned peer=%d spawn_id=%s" % [peer_id, spawn_id])
+	return true
+
+
 func despawn_peer_tank(peer_id: int, reason: String) -> void:
 	var spawned_tank: Tank = player_tanks_by_peer_id.get(peer_id)
 	if spawned_tank != null:

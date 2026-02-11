@@ -37,6 +37,7 @@ func _ready() -> void:
 	server_arena_runtime.configure_network_server(network_server)
 	Utils.connect_checked(network_server.arena_join_succeeded, _on_arena_join_succeeded)
 	Utils.connect_checked(network_server.arena_peer_removed, _on_arena_peer_removed)
+	Utils.connect_checked(network_server.arena_respawn_requested, _on_arena_respawn_requested)
 	var server_started: bool = network_server.start_server(listen_port, max_clients)
 	if not server_started:
 		get_tree().quit(1)
@@ -88,6 +89,57 @@ func _on_arena_peer_removed(peer_id: int, reason: String) -> void:
 	if server_arena_runtime == null:
 		return
 	server_arena_runtime.despawn_peer_tank(peer_id, reason)
+
+
+func _on_arena_respawn_requested(peer_id: int) -> void:
+	var respawn_context: Dictionary = _build_respawn_context(peer_id)
+	if not respawn_context.get("valid", false):
+		return
+	var spawn_id: StringName = respawn_context.get("spawn_id", StringName())
+	var spawn_transform: Transform2D = respawn_context.get("spawn_transform", Transform2D.IDENTITY)
+	var player_name: String = respawn_context.get("player_name", "")
+	var respawned: bool = server_arena_runtime.respawn_peer_tank(
+		peer_id, player_name, spawn_id, spawn_transform
+	)
+	if not respawned:
+		return
+	arena_session_state.clear_peer_control_intent(peer_id)
+	arena_session_state.set_peer_authoritative_state(
+		peer_id, spawn_transform.origin, spawn_transform.get_rotation(), Vector2.ZERO, 0.0
+	)
+	network_server.broadcast_arena_respawn(
+		peer_id, spawn_transform.origin, spawn_transform.get_rotation()
+	)
+	print("[server][arena] player_respawned peer=%d spawn_id=%s" % [peer_id, spawn_id])
+
+
+func _build_respawn_context(peer_id: int) -> Dictionary:
+	if arena_session_state == null or server_arena_runtime == null:
+		return {"valid": false}
+	if not arena_session_state.has_peer(peer_id):
+		return {"valid": false}
+	if not server_arena_runtime.is_peer_tank_dead(peer_id):
+		return {"valid": false}
+	var spawn_id: StringName = arena_session_state.get_peer_spawn_id(peer_id)
+	if spawn_id == StringName():
+		push_warning("[server][arena] respawn rejected peer=%d reason=MISSING_SPAWN_ID" % peer_id)
+		return {"valid": false}
+	if not arena_spawn_transforms_by_id.has(spawn_id):
+		push_warning(
+			(
+				"[server][arena] respawn rejected peer=%d reason=SPAWN_ID_NOT_FOUND spawn_id=%s"
+				% [peer_id, spawn_id]
+			)
+		)
+		return {"valid": false}
+	var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
+	var spawn_transform: Transform2D = arena_spawn_transforms_by_id[spawn_id]
+	return {
+		"valid": true,
+		"spawn_id": spawn_id,
+		"spawn_transform": spawn_transform,
+		"player_name": str(peer_state.get("player_name", "")),
+	}
 
 
 func _physics_process(delta: float) -> void:

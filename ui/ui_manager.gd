@@ -12,6 +12,7 @@ var _online_session_active: bool = false
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
 @onready var online_pause_overlay: OnlinePauseOverlay = %OnlinePauseOverlay
 @onready var online_match_result_overlay: OnlineMatchResultOverlay = %OnlineMatchResultOverlay
+@onready var online_death_overlay: Control = %OnlineDeathOverlay
 @onready var result_overlay: ResultOverlay = $ResultOverlay
 @onready var settings_overlay: SettingsOverlay = $SettingsOverlay
 @onready var metrics_overlay: MetricsOverlay = $MetricsOverlay
@@ -29,6 +30,7 @@ func _ready() -> void:
 		pause_overlay,
 		online_pause_overlay,
 		online_match_result_overlay,
+		online_death_overlay,
 		result_overlay,
 		settings_overlay,
 		metrics_overlay,
@@ -115,6 +117,14 @@ func display_online_match_end(status_message: String) -> void:
 	show_overlay(online_match_result_overlay)
 
 
+func show_online_death_overlay() -> void:
+	show_overlay(online_death_overlay)
+
+
+func hide_online_death_overlay() -> void:
+	online_death_overlay.visible = false
+
+
 func hide_online_join_overlay() -> void:
 	online_join_overlay.visible = false
 
@@ -142,6 +152,8 @@ func _on_level_started() -> void:
 
 
 func _on_pause_pressed() -> void:
+	if online_death_overlay.visible:
+		return
 	if _online_session_active:
 		show_overlay(online_pause_overlay)
 		return
@@ -182,6 +194,10 @@ func _on_abort_pressed() -> void:
 
 func _on_online_abort_pressed() -> void:
 	UiBus.online_match_abort_requested.emit()
+
+
+func _on_online_respawn_pressed() -> void:
+	UiBus.online_respawn_requested.emit()
 
 
 func _on_login_pressed() -> void:
@@ -225,6 +241,8 @@ func _connect_signals() -> void:
 	Utils.connect_checked(online_pause_overlay.abort_pressed, _on_online_abort_pressed)
 	Utils.connect_checked(online_match_result_overlay.exit_overlay_pressed, _on_return_pressed)
 	Utils.connect_checked(online_match_result_overlay.return_pressed, _on_return_pressed)
+	online_death_overlay.connect("respawn_pressed", Callable(self, "_on_online_respawn_pressed"))
+	online_death_overlay.connect("return_pressed", Callable(self, "_on_return_pressed"))
 
 	#* result overlay *#
 	Utils.connect_checked(result_overlay.exit_overlay_pressed, _on_return_pressed)

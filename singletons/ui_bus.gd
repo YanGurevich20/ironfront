@@ -16,4 +16,5 @@ signal resume_requested
 signal restart_level_requested
 signal abort_level_requested
 signal online_match_abort_requested
+signal online_respawn_requested
 signal return_to_menu_requested

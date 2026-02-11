@@ -6,9 +6,13 @@ signal join_arena_completed(success: bool, message: String)
 signal state_snapshot_received(server_tick: int, player_states: Array)
 signal arena_shell_spawn_received
 signal arena_shell_impact_received
+signal arena_respawn_received(peer_id: int, spawn_position: Vector2, spawn_rotation: float)
 
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const NetworkClientConnectionUtilsData := preload("res://net/network_client_connection_utils.gd")
+const NetworkClientInputCaptureUtilsData := preload(
+	"res://net/network_client_input_capture_utils.gd"
+)
 const RPC_CHANNEL_INPUT: int = 1
 const VERBOSE_JOIN_LOGS: bool = false
 
@@ -109,28 +113,7 @@ func _setup_client_network_logging() -> void:
 
 
 func _setup_gameplay_input_capture() -> void:
-	Utils.connect_checked(
-		GameplayBus.lever_input,
-		func(lever_side: Lever.LeverSide, value: float) -> void:
-			if lever_side == Lever.LeverSide.LEFT:
-				pending_left_track_input = clamp(value, -1.0, 1.0)
-			elif lever_side == Lever.LeverSide.RIGHT:
-				pending_right_track_input = clamp(value, -1.0, 1.0)
-	)
-	Utils.connect_checked(
-		GameplayBus.wheel_input,
-		func(value: float) -> void: pending_turret_aim = clamp(value, -1.0, 1.0)
-	)
-	Utils.connect_checked(
-		GameplayBus.fire_input,
-		func() -> void:
-			if not NetworkClientConnectionUtilsData.can_send_input_intents(
-				multiplayer, arena_input_enabled
-			):
-				return
-			local_fire_request_seq += 1
-			_request_fire.rpc_id(1, local_fire_request_seq)
-	)
+	NetworkClientInputCaptureUtilsData.setup_for_client(self)
 
 
 func _on_connected_to_server() -> void:
@@ -206,15 +189,24 @@ func leave_arena() -> void:
 	_log_join("sent_leave_arena")
 
 
-func set_arena_input_enabled(enabled: bool) -> void:
+func request_arena_respawn() -> void:
+	if not arena_membership_active:
+		return
+	if not NetworkClientConnectionUtilsData.is_connected_to_server(multiplayer):
+		return
+	_request_respawn.rpc_id(1)
+
+
+func set_arena_input_enabled(enabled: bool, reset_sequence_state: bool = true) -> void:
 	arena_input_enabled = enabled
 	if not arena_input_enabled:
 		pending_left_track_input = 0.0
 		pending_right_track_input = 0.0
 		pending_turret_aim = 0.0
 		input_send_elapsed_seconds = 0.0
-		local_input_tick = 0
-		local_fire_request_seq = 0
+		if reset_sequence_state:
+			local_input_tick = 0
+			local_fire_request_seq = 0
 
 
 func _reset_connection() -> void:
@@ -298,6 +290,11 @@ func _request_fire(fire_request_seq: int) -> void:
 	push_warning("[client] unexpected RPC: _request_fire seq=%d" % fire_request_seq)
 
 
+@rpc("any_peer", "reliable")
+func _request_respawn() -> void:
+	push_warning("[client] unexpected RPC: _request_respawn")
+
+
 @rpc("authority", "reliable")
 func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
@@ -377,6 +374,11 @@ func _receive_arena_shell_impact(
 		post_impact_rotation,
 		continue_simulation
 	)
+
+
+@rpc("authority", "reliable")
+func _receive_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
+	arena_respawn_received.emit(peer_id, spawn_position, spawn_rotation)
 
 
 func _log_join(message: String) -> void:

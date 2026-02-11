@@ -145,6 +145,18 @@ func consume_peer_fire_request_seq(peer_id: int) -> int:
 	return pending_fire_request_seq
 
 
+func clear_peer_control_intent(peer_id: int) -> bool:
+	if not players_by_peer_id.has(peer_id):
+		return false
+	var peer_state: Dictionary = players_by_peer_id[peer_id]
+	peer_state["input_left_track"] = 0.0
+	peer_state["input_right_track"] = 0.0
+	peer_state["input_turret_aim"] = 0.0
+	peer_state["pending_fire_request_seq"] = 0
+	players_by_peer_id[peer_id] = peer_state
+	return true
+
+
 func remove_peer(peer_id: int, reason: String = "UNKNOWN") -> Dictionary:
 	if not players_by_peer_id.has(peer_id):
 		return {"removed": false, "spawn_id": StringName()}

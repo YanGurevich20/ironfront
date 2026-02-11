@@ -5,6 +5,7 @@ signal arena_join_succeeded(
 	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
 )
 signal arena_peer_removed(peer_id: int, reason: String)
+signal arena_respawn_requested(peer_id: int)
 
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const NetworkServerSnapshotBuilderData := preload("res://net/network_server_snapshot_builder.gd")
@@ -307,6 +308,16 @@ func _request_fire(fire_request_seq: int) -> void:
 	total_fire_requests_applied += 1
 
 
+@rpc("any_peer", "reliable")
+func _request_respawn() -> void:
+	if arena_session_state == null:
+		return
+	var peer_id: int = multiplayer.get_remote_sender_id()
+	if not arena_session_state.has_peer(peer_id):
+		return
+	arena_respawn_requested.emit(peer_id)
+
+
 @rpc("authority", "reliable")
 func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
@@ -362,3 +373,14 @@ func _receive_arena_shell_impact(
 			continue_simulation
 		]
 	)
+
+
+@rpc("authority", "reliable")
+func _receive_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
+	_warn_unexpected_rpc("_receive_arena_respawn", [peer_id, spawn_position, spawn_rotation])
+
+
+func broadcast_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
+	var connected_peers: PackedInt32Array = multiplayer.get_peers()
+	for connected_peer_id: int in connected_peers:
+		_receive_arena_respawn.rpc_id(connected_peer_id, peer_id, spawn_position, spawn_rotation)

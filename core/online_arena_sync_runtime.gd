@@ -96,6 +96,23 @@ func play_remote_fire_effect(peer_id: int) -> void:
 	remote_tank.play_fire_effect()
 
 
+func replace_local_player_tank(next_local_player_tank: Tank) -> void:
+	local_player_tank = next_local_player_tank
+
+
+func respawn_remote_tank(
+	peer_id: int, spawn_position: Vector2, spawn_rotation: float, spawn_turret_rotation: float = 0.0
+) -> void:
+	if not runtime_active:
+		return
+	var remote_tank: Tank = remote_tanks_by_peer_id.get(peer_id)
+	if remote_tank != null:
+		remote_tank.queue_free()
+	remote_tanks_by_peer_id.erase(peer_id)
+	remote_snapshot_history_by_peer_id.erase(peer_id)
+	_spawn_remote_tank(peer_id, "", spawn_position, spawn_rotation, spawn_turret_rotation)
+
+
 func get_tank_by_peer_id(peer_id: int) -> Tank:
 	if not runtime_active:
 		return null
@@ -175,29 +192,11 @@ func _ensure_remote_tank(peer_id: int, player_state: Dictionary) -> void:
 		return
 	if arena_level == null:
 		return
-	var remote_tank: Tank = TankManager.create_tank(
-		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
-	)
-	remote_tank.freeze = true
-	remote_tank.sleeping = true
+	var player_name: String = str(player_state.get("player_name", ""))
 	var spawn_position: Vector2 = player_state.get("position", Vector2.ZERO)
 	var spawn_rotation: float = float(player_state.get("rotation", 0.0))
 	var spawn_turret_rotation: float = float(player_state.get("turret_rotation", 0.0))
-	arena_level.add_child(remote_tank)
-	remote_tank.apply_spawn_state(spawn_position, spawn_rotation, spawn_turret_rotation)
-	remote_tanks_by_peer_id[peer_id] = remote_tank
-	print(
-		(
-			"%s[sync][remote] spawned peer=%d player=%s pos=%s rot=%.3f"
-			% [
-				_log_prefix(),
-				peer_id,
-				str(player_state.get("player_name", "")),
-				spawn_position,
-				spawn_rotation
-			]
-		)
-	)
+	_spawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation, spawn_turret_rotation)
 
 
 func _remove_stale_remote_tanks(seen_peer_ids: Dictionary) -> void:
@@ -262,6 +261,31 @@ func _update_remote_tank_interpolation() -> void:
 		remote_tank.turret.rotation = lerp_angle(
 			older_turret_rotation, newer_turret_rotation, blend_t
 		)
+
+
+func _spawn_remote_tank(
+	peer_id: int,
+	player_name: String,
+	spawn_position: Vector2,
+	spawn_rotation: float,
+	spawn_turret_rotation: float
+) -> void:
+	if arena_level == null:
+		return
+	var remote_tank: Tank = TankManager.create_tank(
+		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
+	)
+	remote_tank.freeze = true
+	remote_tank.sleeping = true
+	arena_level.add_child(remote_tank)
+	remote_tank.apply_spawn_state(spawn_position, spawn_rotation, spawn_turret_rotation)
+	remote_tanks_by_peer_id[peer_id] = remote_tank
+	print(
+		(
+			"%s[sync][remote] spawned peer=%d player=%s pos=%s rot=%.3f"
+			% [_log_prefix(), peer_id, player_name, spawn_position, spawn_rotation]
+		)
+	)
 
 
 func _log_prefix() -> String:

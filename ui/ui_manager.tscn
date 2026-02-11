@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bbwbe6voggknh"]
+[gd_scene load_steps=16 format=3 uid="uid://bbwbe6voggknh"]
 
 [ext_resource type="Script" uid="uid://dfdooe5mh6vby" path="res://ui/ui_manager.gd" id="1_yp0ob"]
 [ext_resource type="PackedScene" uid="uid://s5td064aaxj4" path="res://ui/overlays/garage_menu_overlay/garage_menu_overlay.tscn" id="2_30b5s"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://ui/overlays/online_join_overlay/online_join_overlay.tscn" id="12_tjgmx"]
 [ext_resource type="PackedScene" path="res://ui/overlays/online_pause_overlay/online_pause_overlay.tscn" id="13_slq0t"]
 [ext_resource type="PackedScene" path="res://ui/overlays/online_match_result_overlay/online_match_result_overlay.tscn" id="14_6mbh0"]
+[ext_resource type="PackedScene" path="res://ui/overlays/online_death_overlay/online_death_overlay.tscn" id="15_mot3v"]
 
 [node name="UIManager" type="CanvasLayer"]
 script = ExtResource("1_yp0ob")
@@ -37,6 +38,10 @@ unique_name_in_owner = true
 visible = false
 
 [node name="OnlineMatchResultOverlay" parent="." instance=ExtResource("14_6mbh0")]
+unique_name_in_owner = true
+visible = false
+
+[node name="OnlineDeathOverlay" parent="." instance=ExtResource("15_mot3v")]
 unique_name_in_owner = true
 visible = false
 
