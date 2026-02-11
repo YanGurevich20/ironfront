@@ -4,28 +4,28 @@ extends Node2D
 @onready var arena_spawn_points: Node2D = %ArenaSpawnPoints
 
 
-func get_spawn_markers() -> Array[ArenaSpawnMarker]:
-	var markers: Array[ArenaSpawnMarker] = []
+func get_spawn_markers() -> Array[Marker2D]:
+	var markers: Array[Marker2D] = []
 	for child: Node in arena_spawn_points.get_children():
-		var spawn_marker: ArenaSpawnMarker = child as ArenaSpawnMarker
+		var spawn_marker: Marker2D = child as Marker2D
 		if spawn_marker == null:
 			continue
 		markers.append(spawn_marker)
 	markers.sort_custom(
-		func(marker_a: ArenaSpawnMarker, marker_b: ArenaSpawnMarker) -> bool:
-			return str(marker_a.spawn_id) < str(marker_b.spawn_id)
+		func(marker_a: Marker2D, marker_b: Marker2D) -> bool:
+			return str(_resolve_marker_spawn_id(marker_a)) < str(_resolve_marker_spawn_id(marker_b))
 	)
 	return markers
 
 
 func validate_spawn_markers() -> Dictionary:
-	var markers: Array[ArenaSpawnMarker] = get_spawn_markers()
+	var markers: Array[Marker2D] = get_spawn_markers()
 	var used_spawn_ids: Dictionary = {}
 	var duplicate_spawn_ids: PackedStringArray = []
 	var empty_spawn_id_count: int = 0
 
-	for marker: ArenaSpawnMarker in markers:
-		var marker_spawn_id: String = str(marker.spawn_id)
+	for marker: Marker2D in markers:
+		var marker_spawn_id: String = str(_resolve_marker_spawn_id(marker))
 		if marker_spawn_id.is_empty():
 			empty_spawn_id_count += 1
 			continue
@@ -43,10 +43,19 @@ func validate_spawn_markers() -> Dictionary:
 	}
 
 
-func get_spawn_transforms_by_id() -> Dictionary:
-	var spawn_transforms_by_id: Dictionary = {}
-	for marker: ArenaSpawnMarker in get_spawn_markers():
-		if marker.spawn_id == StringName():
+func get_spawn_transforms_by_id() -> Dictionary[StringName, Transform2D]:
+	var spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
+	for marker: Marker2D in get_spawn_markers():
+		var marker_spawn_id: StringName = _resolve_marker_spawn_id(marker)
+		if marker_spawn_id == StringName():
 			continue
-		spawn_transforms_by_id[marker.spawn_id] = marker.global_transform
+		spawn_transforms_by_id[marker_spawn_id] = marker.global_transform
 	return spawn_transforms_by_id
+
+
+func _resolve_marker_spawn_id(marker: Marker2D) -> StringName:
+	var property_spawn_id: Variant = marker.get("spawn_id")
+	if property_spawn_id is StringName:
+		var typed_spawn_id: StringName = property_spawn_id
+		return typed_spawn_id
+	return StringName()

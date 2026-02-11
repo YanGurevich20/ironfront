@@ -62,34 +62,41 @@ func fire_shell() -> void:
 	GameplayBus.reload_progress_left_updated.emit(0.0, tank)
 
 	reload_timer.start(tank.tank_spec.reload_time)
-	cannon_sound.play()
+	play_fire_effect()
 
-	# Muzzle Flash
+
+func play_fire_effect(play_sound: bool = true, apply_knockback_impulse: bool = true) -> void:
+	if play_sound:
+		cannon_sound.play()
+
 	flash.visible = true
 	flash.play("flash")
+	_play_recoil_animation()
 
-	# Recoil Animation
-	var tween := get_tree().create_tween()
-	var original_cannon_x: float = tank.tank_spec.cannon_offset.x
-	var recoil_tween := (
-		tween
-		. tween_property(cannon, "position:x", original_cannon_x - 10.0, 0.02)
-		. set_trans(Tween.TRANS_EXPO)
-		. set_ease(Tween.EASE_OUT)
-	)
-	recoil_tween = (
-		tween
-		. tween_property(cannon, "position:x", original_cannon_x, 0.4)
-		. set_trans(Tween.TRANS_QUAD)
-		. set_ease(Tween.EASE_IN)
-	)
-
-	# Knockback Impulse
+	if not apply_knockback_impulse:
+		return
 	var recoil_vector: Vector2 = (
 		-muzzle.global_transform.x * 10.0 * (tank.tank_spec.cannon_caliber / 100)
 	)
 	var recoil_position: Vector2 = position.rotated(tank.rotation)
 	tank.apply_impulse(recoil_vector, recoil_position)
+
+
+func _play_recoil_animation() -> void:
+	var tween := get_tree().create_tween()
+	var original_cannon_x: float = tank.tank_spec.cannon_offset.x
+	(
+		tween
+		. tween_property(cannon, "position:x", original_cannon_x - 10.0, 0.02)
+		. set_trans(Tween.TRANS_EXPO)
+		. set_ease(Tween.EASE_OUT)
+	)
+	(
+		tween
+		. tween_property(cannon, "position:x", original_cannon_x, 0.4)
+		. set_trans(Tween.TRANS_QUAD)
+		. set_ease(Tween.EASE_IN)
+	)
 
 
 #endregion

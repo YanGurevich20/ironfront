@@ -8,6 +8,17 @@
 #* Cons - can miss the tank even when it looks like the sides of the shell should hit
 class_name Shell extends Area2D
 
+signal impact_resolved(
+	shell: Shell,
+	target_tank: Tank,
+	result_type: ShellSpec.ImpactResultType,
+	damage: int,
+	hit_position: Vector2,
+	post_impact_velocity: Vector2,
+	post_impact_rotation: float,
+	continue_simulation: bool
+)
+
 const TANK_SIDE_TYPE = Enums.TankSideType
 
 var shell_spec: ShellSpec
@@ -17,6 +28,7 @@ var firing_tank: Node2D
 var damage: int
 var shell_texture: Texture2D
 var is_tracer: bool
+var is_cosmetic_only: bool = false
 
 @onready var sprite: Sprite2D = %Sprite2D
 @onready var fire_particles: GPUParticles2D = %FireParticles
@@ -28,14 +40,22 @@ func _ready() -> void:
 	if shell_spec != null:
 		sprite.texture = shell_spec.base_shell_type.projectile_texture
 	Utils.connect_checked(body_entered, _on_body_entered)
+	monitoring = not is_cosmetic_only
+	monitorable = not is_cosmetic_only
 	fire_particles.emitting = !is_tracer
 	tracer_particles.emitting = is_tracer
 	starting_global_position = global_position
 
 
-func initialize(_shell_spec: ShellSpec, muzzle: Marker2D, _firing_tank: Node2D) -> void:
-	shell_spec = _shell_spec
-	firing_tank = _firing_tank
+func initialize(
+	next_shell_spec: ShellSpec,
+	muzzle: Marker2D,
+	next_firing_tank: Node2D,
+	cosmetic_only: bool = false
+) -> void:
+	shell_spec = next_shell_spec
+	firing_tank = next_firing_tank
+	is_cosmetic_only = cosmetic_only
 
 	velocity = (muzzle.global_transform.x * shell_spec.muzzle_velocity)
 	global_position = muzzle.global_position
@@ -46,11 +66,34 @@ func initialize(_shell_spec: ShellSpec, muzzle: Marker2D, _firing_tank: Node2D) 
 	is_tracer = shell_spec.base_shell_type.is_tracer
 
 
+func initialize_from_spawn(
+	next_shell_spec: ShellSpec,
+	spawn_position: Vector2,
+	shell_velocity: Vector2,
+	shell_rotation: float = 0.0,
+	next_firing_tank: Node2D = null,
+	cosmetic_only: bool = false
+) -> void:
+	shell_spec = next_shell_spec
+	firing_tank = next_firing_tank
+	is_cosmetic_only = cosmetic_only
+
+	velocity = shell_velocity
+	global_position = spawn_position
+	starting_global_position = spawn_position
+	rotation = shell_rotation
+	damage = shell_spec.damage
+	shell_texture = shell_spec.base_shell_type.projectile_texture
+	is_tracer = shell_spec.base_shell_type.is_tracer
+
+
 func _physics_process(delta: float) -> void:
 	position += velocity * delta
 
 
 func _on_body_entered(body: Node2D) -> void:
+	if is_cosmetic_only:
+		return
 	if body == firing_tank:
 		return
 	if body.is_in_group("projectile_blocker"):
@@ -72,13 +115,26 @@ func handle_impact_result(
 	var global_hit_point: Vector2 = tank.to_global(hit_params.hit_point)
 	impact_result.damage = clamp(impact_result.damage, 0, tank._health)
 	tank.handle_impact_result(impact_result)
-	if impact_result.result_type == ShellSpec.ImpactResultType.BOUNCED:
+	var should_continue_simulation: bool = (
+		impact_result.result_type == ShellSpec.ImpactResultType.BOUNCED
+	)
+	if should_continue_simulation:
 		starting_global_position = global_hit_point
 		global_position = global_hit_point
 		var surface_normal: Vector2 = get_surface_normal(hit_params.hit_side, tank)
 		velocity = velocity.bounce(surface_normal)
 		rotation = velocity.angle()
-	else:
+	impact_resolved.emit(
+		self,
+		tank,
+		impact_result.result_type,
+		impact_result.damage,
+		global_hit_point,
+		velocity,
+		rotation,
+		should_continue_simulation
+	)
+	if not should_continue_simulation:
 		queue_free()
 
 

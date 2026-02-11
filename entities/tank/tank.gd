@@ -72,6 +72,10 @@ func fire_shell() -> void:
 	turret.fire_shell()
 
 
+func play_fire_effect(play_sound: bool = true, apply_knockback_impulse: bool = true) -> void:
+	turret.play_fire_effect(play_sound, apply_knockback_impulse)
+
+
 func handle_impact_result(result: ShellSpec.ImpactResult) -> void:
 	tank_hud.handle_impact_result(result)
 	take_damage(result.damage)

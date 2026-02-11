@@ -4,8 +4,29 @@ extends Node
 signal join_status_changed(message: String, is_error: bool)
 signal join_arena_completed(success: bool, message: String)
 signal state_snapshot_received(server_tick: int, player_states: Array)
+signal arena_shell_spawn_received(
+	shot_id: int,
+	firing_peer_id: int,
+	shell_spec_path: String,
+	spawn_position: Vector2,
+	shell_velocity: Vector2,
+	shell_rotation: float
+)
+signal arena_shell_impact_received(
+	shot_id: int,
+	firing_peer_id: int,
+	target_peer_id: int,
+	result_type: int,
+	damage: int,
+	remaining_health: int,
+	hit_position: Vector2,
+	post_impact_velocity: Vector2,
+	post_impact_rotation: float,
+	continue_simulation: bool
+)
 
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
+const NetworkClientConnectionUtilsData := preload("res://net/network_client_connection_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
 const RPC_CHANNEL_STATE: int = 2
 const VERBOSE_JOIN_LOGS: bool = false
@@ -22,10 +43,10 @@ var arena_input_enabled: bool = false
 var input_send_interval_seconds: float = 1.0 / float(MultiplayerProtocolData.INPUT_SEND_RATE_HZ)
 var input_send_elapsed_seconds: float = 0.0
 var local_input_tick: int = 0
+var local_fire_request_seq: int = 0
 var pending_left_track_input: float = 0.0
 var pending_right_track_input: float = 0.0
 var pending_turret_aim: float = 0.0
-var pending_fire_pressed: bool = false
 
 
 func _ready() -> void:
@@ -43,14 +64,8 @@ func _process(delta: float) -> void:
 	input_send_elapsed_seconds = 0.0
 	local_input_tick += 1
 	_receive_input_intent.rpc_id(
-		1,
-		local_input_tick,
-		pending_left_track_input,
-		pending_right_track_input,
-		pending_turret_aim,
-		pending_fire_pressed
+		1, local_input_tick, pending_left_track_input, pending_right_track_input, pending_turret_aim
 	)
-	pending_fire_pressed = false
 
 
 func connect_to_server() -> void:
@@ -103,8 +118,6 @@ func _setup_client_network_logging() -> void:
 	Utils.connect_checked(multiplayer.connected_to_server, _on_connected_to_server)
 	Utils.connect_checked(multiplayer.connection_failed, _on_connection_failed)
 	Utils.connect_checked(multiplayer.server_disconnected, _on_server_disconnected)
-	Utils.connect_checked(multiplayer.peer_connected, _on_peer_connected)
-	Utils.connect_checked(multiplayer.peer_disconnected, _on_peer_disconnected)
 
 
 func _setup_gameplay_input_capture() -> void:
@@ -143,14 +156,6 @@ func _on_server_disconnected() -> void:
 	_reset_connection()
 
 
-func _on_peer_connected(peer_id: int) -> void:
-	_log_join("peer_connected id=%d" % peer_id)
-
-
-func _on_peer_disconnected(peer_id: int) -> void:
-	_log_join("peer_disconnected id=%d" % peer_id)
-
-
 func _send_client_hello() -> void:
 	if multiplayer.multiplayer_peer == null:
 		_log_join("skip_send_client_hello no_multiplayer_peer")
@@ -187,9 +192,9 @@ func set_arena_input_enabled(enabled: bool) -> void:
 		pending_left_track_input = 0.0
 		pending_right_track_input = 0.0
 		pending_turret_aim = 0.0
-		pending_fire_pressed = false
 		input_send_elapsed_seconds = 0.0
 		local_input_tick = 0
+		local_fire_request_seq = 0
 
 
 func _reset_connection() -> void:
@@ -228,13 +233,18 @@ func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: i
 
 
 @rpc("any_peer", "reliable")
-func _receive_client_hello(_client_protocol_version: int, _player_name: String) -> void:
-	push_warning("[client] unexpected RPC: _receive_client_hello")
+func _receive_client_hello(client_protocol_version: int, player_name: String) -> void:
+	push_warning(
+		(
+			"[client] unexpected RPC: _receive_client_hello protocol=%d player=%s"
+			% [client_protocol_version, player_name]
+		)
+	)
 
 
 @rpc("any_peer", "reliable")
-func _join_arena(_player_name: String) -> void:
-	push_warning("[client] unexpected RPC: _join_arena")
+func _join_arena(player_name: String) -> void:
+	push_warning("[client] unexpected RPC: _join_arena player=%s" % player_name)
 
 
 @rpc("authority", "reliable")
@@ -244,13 +254,22 @@ func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
 func _receive_input_intent(
-	_input_tick: int,
-	_left_track_input: float,
-	_right_track_input: float,
-	_turret_aim: float,
-	_fire_pressed: bool
+	input_tick: int, left_track_input: float, right_track_input: float, turret_aim: float
 ) -> void:
-	push_warning("[client] unexpected RPC: _receive_input_intent")
+	push_warning(
+		(
+			(
+				"[client] unexpected RPC: _receive_input_intent tick=%d left=%.4f "
+				+ "right=%.4f turret=%.4f"
+			)
+			% [input_tick, left_track_input, right_track_input, turret_aim]
+		)
+	)
+
+
+@rpc("any_peer", "reliable")
+func _request_fire(fire_request_seq: int) -> void:
+	push_warning("[client] unexpected RPC: _request_fire seq=%d" % fire_request_seq)
 
 
 @rpc("authority", "reliable")
@@ -286,6 +305,47 @@ func _join_arena_ack(
 	join_arena_completed.emit(success, message)
 
 
+@rpc("authority", "reliable")
+func _receive_arena_shell_spawn(
+	shot_id: int,
+	firing_peer_id: int,
+	shell_spec_path: String,
+	spawn_position: Vector2,
+	shell_velocity: Vector2,
+	shell_rotation: float
+) -> void:
+	arena_shell_spawn_received.emit(
+		shot_id, firing_peer_id, shell_spec_path, spawn_position, shell_velocity, shell_rotation
+	)
+
+
+@rpc("authority", "reliable")
+func _receive_arena_shell_impact(
+	shot_id: int,
+	firing_peer_id: int,
+	target_peer_id: int,
+	result_type: int,
+	damage: int,
+	remaining_health: int,
+	hit_position: Vector2,
+	post_impact_velocity: Vector2,
+	post_impact_rotation: float,
+	continue_simulation: bool
+) -> void:
+	arena_shell_impact_received.emit(
+		shot_id,
+		firing_peer_id,
+		target_peer_id,
+		result_type,
+		damage,
+		remaining_health,
+		hit_position,
+		post_impact_velocity,
+		post_impact_rotation,
+		continue_simulation
+	)
+
+
 func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
 	if lever_side == Lever.LeverSide.LEFT:
 		pending_left_track_input = clamp(value, -1.0, 1.0)
@@ -298,7 +358,10 @@ func _on_wheel_input(value: float) -> void:
 
 
 func _on_fire_input() -> void:
-	pending_fire_pressed = true
+	if not _can_send_input_intents():
+		return
+	local_fire_request_seq += 1
+	_request_fire.rpc_id(1, local_fire_request_seq)
 
 
 func _apply_cli_overrides() -> void:
@@ -332,39 +395,18 @@ func _log_prefix() -> String:
 
 
 func _get_safe_peer_id() -> int:
-	if multiplayer.multiplayer_peer == null:
-		return 0
-	return multiplayer.get_unique_id()
+	return NetworkClientConnectionUtilsData.get_safe_peer_id(multiplayer)
 
 
 func _can_send_input_intents() -> bool:
-	if not arena_input_enabled:
-		return false
-	return _is_connected_to_server()
+	return NetworkClientConnectionUtilsData.can_send_input_intents(multiplayer, arena_input_enabled)
 
 
 func should_show_ping_indicator() -> bool:
-	if not arena_input_enabled:
-		return false
-	return _is_connected_to_server()
+	return _can_send_input_intents()
 
 
 func get_connection_ping_msec() -> int:
-	if not should_show_ping_indicator():
-		return -1
-	var enet_peer: ENetMultiplayerPeer = multiplayer.multiplayer_peer as ENetMultiplayerPeer
-	if enet_peer == null:
-		return -1
-	var server_packet_peer: ENetPacketPeer = enet_peer.get_peer(1)
-	if server_packet_peer == null:
-		return -1
-	return int(server_packet_peer.get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME))
-
-
-func _is_connected_to_server() -> bool:
-	if multiplayer.multiplayer_peer == null:
-		return false
-	var connection_status: MultiplayerPeer.ConnectionStatus = (
-		multiplayer.multiplayer_peer.get_connection_status()
+	return NetworkClientConnectionUtilsData.get_connection_ping_msec(
+		multiplayer, arena_input_enabled
 	)
-	return connection_status == MultiplayerPeer.CONNECTION_CONNECTED

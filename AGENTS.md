@@ -43,3 +43,4 @@
 - Always run `just fix` after making changes to the codebase.
 - Avoid using leading-underscore parameter names (e.g., `_visible`) as a workaround for shadowing base class members; rename to a more specific, descriptive name instead.
 - When nodes need to be referenced in a script, always set a Unique Name for the node and reference it via the `%NodeName` syntax.
+- When you discover a new, more efficient GDScript coding pattern in this repo, document it in `docs/GDScript.md`.
