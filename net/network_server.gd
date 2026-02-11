@@ -15,7 +15,6 @@ var server_peer: ENetMultiplayerPeer
 var protocol_version: int = MultiplayerProtocolData.PROTOCOL_VERSION
 var arena_session_state: ArenaSessionState
 var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
-var occupied_spawn_peer_by_id: Dictionary[StringName, int] = {}
 var server_tick_rate_hz: int = 30
 var snapshot_interval_ticks: int = 2
 var total_on_server_tick_calls: int = 0
@@ -36,7 +35,6 @@ func configure_arena_session(session_state: ArenaSessionState) -> void:
 
 func configure_arena_spawn_pool(spawn_transforms_by_id: Dictionary) -> void:
 	arena_spawn_transforms_by_id = spawn_transforms_by_id.duplicate(true)
-	occupied_spawn_peer_by_id.clear()
 	print("[server][arena] configured_spawn_pool count=%d" % arena_spawn_transforms_by_id.size())
 
 
@@ -84,9 +82,6 @@ func _remove_arena_peer(peer_id: int, reason: String) -> bool:
 	var remove_result: Dictionary = arena_session_state.remove_peer(peer_id, reason)
 	if not remove_result.get("removed", false):
 		return false
-	var released_spawn_id: StringName = remove_result.get("spawn_id", StringName())
-	if released_spawn_id != StringName():
-		_release_spawn_id(released_spawn_id, peer_id)
 	arena_peer_removed.emit(peer_id, reason)
 	print("[server][arena] peer_removed_cleanup peer=%d reason=%s" % [peer_id, reason])
 	_broadcast_state_snapshot(0)
@@ -140,14 +135,16 @@ func _join_arena(player_name: String) -> void:
 	var join_success: bool = join_result.get("success", false)
 	var join_message: String = join_result.get("message", "JOIN FAILED")
 	if join_success:
-		var assigned_spawn_id: StringName = _assign_random_available_spawn_id(peer_id)
-		if assigned_spawn_id == StringName():
+		var random_spawn: Dictionary = _pick_random_spawn()
+		if random_spawn.is_empty():
 			print("[server][join] reject_join_arena peer=%d reason=NO_SPAWN_AVAILABLE" % peer_id)
 			arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
 			_join_arena_ack.rpc_id(peer_id, false, "NO SPAWN AVAILABLE", Vector2.ZERO, 0.0)
 			return
-		arena_session_state.set_peer_spawn_id(peer_id, assigned_spawn_id)
-		var assigned_spawn_transform: Transform2D = arena_spawn_transforms_by_id[assigned_spawn_id]
+		var assigned_spawn_id: StringName = random_spawn.get("spawn_id", StringName())
+		var assigned_spawn_transform: Transform2D = random_spawn.get(
+			"spawn_transform", Transform2D.IDENTITY
+		)
 		var assigned_spawn_position: Vector2 = assigned_spawn_transform.origin
 		var assigned_spawn_rotation: float = assigned_spawn_transform.get_rotation()
 		arena_session_state.set_peer_authoritative_state(
@@ -190,30 +187,16 @@ func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
 	_warn_unexpected_rpc("_receive_state_snapshot", [server_tick, player_states])
 
 
-func _assign_random_available_spawn_id(peer_id: int) -> StringName:
-	var available_spawn_ids: Array[StringName] = []
-	for spawn_id: StringName in arena_spawn_transforms_by_id.keys():
-		if occupied_spawn_peer_by_id.has(spawn_id):
-			continue
-		available_spawn_ids.append(spawn_id)
-
+func _pick_random_spawn() -> Dictionary:
+	var available_spawn_ids: Array[StringName] = arena_spawn_transforms_by_id.keys()
 	if available_spawn_ids.is_empty():
-		return StringName()
-
+		return {}
 	available_spawn_ids.shuffle()
 	var selected_spawn_id: StringName = available_spawn_ids[0]
-	occupied_spawn_peer_by_id[selected_spawn_id] = peer_id
-	return selected_spawn_id
-
-
-func _release_spawn_id(spawn_id: StringName, peer_id: int) -> void:
-	if not occupied_spawn_peer_by_id.has(spawn_id):
-		return
-	var occupied_peer_id: int = occupied_spawn_peer_by_id[spawn_id]
-	if occupied_peer_id != peer_id:
-		return
-	occupied_spawn_peer_by_id.erase(spawn_id)
-	print("[server][arena] released_spawn spawn_id=%s peer=%d" % [spawn_id, peer_id])
+	return {
+		"spawn_id": selected_spawn_id,
+		"spawn_transform": arena_spawn_transforms_by_id[selected_spawn_id],
+	}
 
 
 func on_server_tick(server_tick: int, tick_delta_seconds: float) -> void:

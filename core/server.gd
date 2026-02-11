@@ -116,29 +116,35 @@ func _on_arena_respawn_requested(peer_id: int) -> void:
 func _build_respawn_context(peer_id: int) -> Dictionary:
 	if arena_session_state == null or server_arena_runtime == null:
 		return {"valid": false}
-	if not arena_session_state.has_peer(peer_id):
+	if (
+		not arena_session_state.has_peer(peer_id)
+		or not server_arena_runtime.is_peer_tank_dead(peer_id)
+	):
 		return {"valid": false}
-	if not server_arena_runtime.is_peer_tank_dead(peer_id):
+	var random_spawn: Dictionary = _pick_random_spawn()
+	if random_spawn.is_empty():
+		push_warning("[server][arena] respawn rejected peer=%d reason=NO_SPAWN_AVAILABLE" % peer_id)
 		return {"valid": false}
-	var spawn_id: StringName = arena_session_state.get_peer_spawn_id(peer_id)
-	if spawn_id == StringName():
-		push_warning("[server][arena] respawn rejected peer=%d reason=MISSING_SPAWN_ID" % peer_id)
-		return {"valid": false}
-	if not arena_spawn_transforms_by_id.has(spawn_id):
-		push_warning(
-			(
-				"[server][arena] respawn rejected peer=%d reason=SPAWN_ID_NOT_FOUND spawn_id=%s"
-				% [peer_id, spawn_id]
-			)
-		)
-		return {"valid": false}
+	var spawn_id: StringName = random_spawn.get("spawn_id", StringName())
+	var spawn_transform: Transform2D = random_spawn.get("spawn_transform", Transform2D.IDENTITY)
 	var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
-	var spawn_transform: Transform2D = arena_spawn_transforms_by_id[spawn_id]
 	return {
 		"valid": true,
 		"spawn_id": spawn_id,
 		"spawn_transform": spawn_transform,
 		"player_name": str(peer_state.get("player_name", "")),
+	}
+
+
+func _pick_random_spawn() -> Dictionary:
+	var available_spawn_ids: Array[StringName] = arena_spawn_transforms_by_id.keys()
+	if available_spawn_ids.is_empty():
+		return {}
+	available_spawn_ids.shuffle()
+	var selected_spawn_id: StringName = available_spawn_ids[0]
+	return {
+		"spawn_id": selected_spawn_id,
+		"spawn_transform": arena_spawn_transforms_by_id[selected_spawn_id],
 	}
 
 
