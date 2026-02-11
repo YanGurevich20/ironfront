@@ -43,9 +43,6 @@ func _refresh_ping_indicator() -> void:
 	if network_client == null:
 		ping_label.visible = false
 		return
-	if not network_client.should_show_ping_indicator():
-		ping_label.visible = false
-		return
 	var ping_msec: int = network_client.get_connection_ping_msec()
 	if ping_msec < 0:
 		ping_label.visible = false

@@ -4,31 +4,12 @@ extends Node
 signal join_status_changed(message: String, is_error: bool)
 signal join_arena_completed(success: bool, message: String)
 signal state_snapshot_received(server_tick: int, player_states: Array)
-signal arena_shell_spawn_received(
-	shot_id: int,
-	firing_peer_id: int,
-	shell_spec_path: String,
-	spawn_position: Vector2,
-	shell_velocity: Vector2,
-	shell_rotation: float
-)
-signal arena_shell_impact_received(
-	shot_id: int,
-	firing_peer_id: int,
-	target_peer_id: int,
-	result_type: int,
-	damage: int,
-	remaining_health: int,
-	hit_position: Vector2,
-	post_impact_velocity: Vector2,
-	post_impact_rotation: float,
-	continue_simulation: bool
-)
+signal arena_shell_spawn_received
+signal arena_shell_impact_received
 
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const NetworkClientConnectionUtilsData := preload("res://net/network_client_connection_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
-const RPC_CHANNEL_STATE: int = 2
 const VERBOSE_JOIN_LOGS: bool = false
 
 var client_peer: ENetMultiplayerPeer
@@ -39,6 +20,7 @@ var cancel_join_requested: bool = false
 var join_attempt_id: int = 0
 var assigned_spawn_position: Vector2 = Vector2.ZERO
 var assigned_spawn_rotation: float = 0.0
+var arena_membership_active: bool = false
 var arena_input_enabled: bool = false
 var input_send_interval_seconds: float = 1.0 / float(MultiplayerProtocolData.INPUT_SEND_RATE_HZ)
 var input_send_elapsed_seconds: float = 0.0
@@ -50,13 +32,19 @@ var pending_turret_aim: float = 0.0
 
 
 func _ready() -> void:
-	_apply_cli_overrides()
+	var resolved_target: Dictionary = NetworkClientConnectionUtilsData.resolve_cli_connect_target(
+		default_connect_host, default_connect_port
+	)
+	default_connect_host = resolved_target.get("host", default_connect_host)
+	default_connect_port = resolved_target.get("port", default_connect_port)
 	_setup_client_network_logging()
 	_setup_gameplay_input_capture()
 
 
 func _process(delta: float) -> void:
-	if not _can_send_input_intents():
+	if not NetworkClientConnectionUtilsData.can_send_input_intents(
+		multiplayer, arena_input_enabled
+	):
 		return
 	input_send_elapsed_seconds += delta
 	if input_send_elapsed_seconds < input_send_interval_seconds:
@@ -121,9 +109,28 @@ func _setup_client_network_logging() -> void:
 
 
 func _setup_gameplay_input_capture() -> void:
-	Utils.connect_checked(GameplayBus.lever_input, _on_lever_input)
-	Utils.connect_checked(GameplayBus.wheel_input, _on_wheel_input)
-	Utils.connect_checked(GameplayBus.fire_input, _on_fire_input)
+	Utils.connect_checked(
+		GameplayBus.lever_input,
+		func(lever_side: Lever.LeverSide, value: float) -> void:
+			if lever_side == Lever.LeverSide.LEFT:
+				pending_left_track_input = clamp(value, -1.0, 1.0)
+			elif lever_side == Lever.LeverSide.RIGHT:
+				pending_right_track_input = clamp(value, -1.0, 1.0)
+	)
+	Utils.connect_checked(
+		GameplayBus.wheel_input,
+		func(value: float) -> void: pending_turret_aim = clamp(value, -1.0, 1.0)
+	)
+	Utils.connect_checked(
+		GameplayBus.fire_input,
+		func() -> void:
+			if not NetworkClientConnectionUtilsData.can_send_input_intents(
+				multiplayer, arena_input_enabled
+			):
+				return
+			local_fire_request_seq += 1
+			_request_fire.rpc_id(1, local_fire_request_seq)
+	)
 
 
 func _on_connected_to_server() -> void:
@@ -186,6 +193,19 @@ func cancel_join_request() -> void:
 	join_arena_completed.emit(false, "CANCELED")
 
 
+func leave_arena() -> void:
+	if not arena_membership_active:
+		return
+	arena_membership_active = false
+	assigned_spawn_position = Vector2.ZERO
+	assigned_spawn_rotation = 0.0
+	set_arena_input_enabled(false)
+	if not NetworkClientConnectionUtilsData.is_connected_to_server(multiplayer):
+		return
+	_leave_arena.rpc_id(1)
+	_log_join("sent_leave_arena")
+
+
 func set_arena_input_enabled(enabled: bool) -> void:
 	arena_input_enabled = enabled
 	if not arena_input_enabled:
@@ -205,6 +225,7 @@ func _reset_connection() -> void:
 	multiplayer.multiplayer_peer = null
 	assigned_spawn_position = Vector2.ZERO
 	assigned_spawn_rotation = 0.0
+	arena_membership_active = false
 	set_arena_input_enabled(false)
 	_log_join("reset_connection complete")
 
@@ -245,6 +266,11 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 @rpc("any_peer", "reliable")
 func _join_arena(player_name: String) -> void:
 	push_warning("[client] unexpected RPC: _join_arena player=%s" % player_name)
+
+
+@rpc("any_peer", "reliable")
+func _leave_arena() -> void:
+	push_warning("[client] unexpected RPC: _leave_arena")
 
 
 @rpc("authority", "reliable")
@@ -296,13 +322,20 @@ func _join_arena_ack(
 	if success:
 		assigned_spawn_position = spawn_position
 		assigned_spawn_rotation = spawn_rotation
+		arena_membership_active = true
 		print(log_message)
 		join_status_changed.emit("ONLINE JOIN SUCCESS: %s" % message, false)
 	else:
+		arena_membership_active = false
 		push_warning(log_message)
 		join_status_changed.emit("ONLINE JOIN FAILED: %s" % message, true)
 		_reset_connection()
 	join_arena_completed.emit(success, message)
+
+
+@rpc("authority", "reliable")
+func _leave_arena_ack(success: bool, message: String) -> void:
+	_log_join("received_leave_arena_ack success=%s message=%s" % [success, message])
 
 
 @rpc("authority", "reliable")
@@ -346,32 +379,6 @@ func _receive_arena_shell_impact(
 	)
 
 
-func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
-	if lever_side == Lever.LeverSide.LEFT:
-		pending_left_track_input = clamp(value, -1.0, 1.0)
-	elif lever_side == Lever.LeverSide.RIGHT:
-		pending_right_track_input = clamp(value, -1.0, 1.0)
-
-
-func _on_wheel_input(value: float) -> void:
-	pending_turret_aim = clamp(value, -1.0, 1.0)
-
-
-func _on_fire_input() -> void:
-	if not _can_send_input_intents():
-		return
-	local_fire_request_seq += 1
-	_request_fire.rpc_id(1, local_fire_request_seq)
-
-
-func _apply_cli_overrides() -> void:
-	var resolved_target: Dictionary = NetworkClientConnectionUtilsData.resolve_cli_connect_target(
-		default_connect_host, default_connect_port
-	)
-	default_connect_host = resolved_target.get("host", default_connect_host)
-	default_connect_port = resolved_target.get("port", default_connect_port)
-
-
 func _log_join(message: String) -> void:
 	if not VERBOSE_JOIN_LOGS:
 		return
@@ -379,19 +386,10 @@ func _log_join(message: String) -> void:
 
 
 func _log_prefix() -> String:
-	return "[client pid=%d peer=%d]" % [OS.get_process_id(), _get_safe_peer_id()]
-
-
-func _get_safe_peer_id() -> int:
-	return NetworkClientConnectionUtilsData.get_safe_peer_id(multiplayer)
-
-
-func _can_send_input_intents() -> bool:
-	return NetworkClientConnectionUtilsData.can_send_input_intents(multiplayer, arena_input_enabled)
-
-
-func should_show_ping_indicator() -> bool:
-	return _can_send_input_intents()
+	return (
+		"[client pid=%d peer=%d]"
+		% [OS.get_process_id(), NetworkClientConnectionUtilsData.get_safe_peer_id(multiplayer)]
+	)
 
 
 func get_connection_ping_msec() -> int:

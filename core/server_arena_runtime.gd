@@ -1,6 +1,8 @@
 class_name ServerArenaRuntime
 extends Node
 
+const NetworkServerBroadcastUtilsData := preload("res://net/network_server_broadcast_utils.gd")
+
 var arena_level: ArenaLevelMvp
 var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
 var player_tanks_by_peer_id: Dictionary[int, Tank] = {}
@@ -193,7 +195,9 @@ func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 	var shell_spec_path: String = ""
 	if shell.shell_spec != null:
 		shell_spec_path = shell.shell_spec.resource_path
-	network_server.broadcast_arena_shell_spawn(
+	NetworkServerBroadcastUtilsData.broadcast_arena_shell_spawn(
+		network_server,
+		network_server.multiplayer.get_peers(),
 		shot_id,
 		firing_peer_id,
 		shell_spec_path,
@@ -227,7 +231,9 @@ func _on_shell_impact_resolved(
 	var shot_id: int = shot_id_by_shell_instance_id[shell_instance_id]
 	var firing_peer_id: int = firing_peer_id_by_shell_instance_id.get(shell_instance_id, 0)
 	var remaining_health: int = target_tank._health
-	network_server.broadcast_arena_shell_impact(
+	NetworkServerBroadcastUtilsData.broadcast_arena_shell_impact(
+		network_server,
+		network_server.multiplayer.get_peers(),
 		shot_id,
 		firing_peer_id,
 		target_peer_id,

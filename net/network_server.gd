@@ -9,7 +9,6 @@ signal arena_peer_removed(peer_id: int, reason: String)
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const NetworkServerSnapshotBuilderData := preload("res://net/network_server_snapshot_builder.gd")
 const RPC_CHANNEL_INPUT: int = 1
-const RPC_CHANNEL_STATE: int = 2
 
 var server_peer: ENetMultiplayerPeer
 var protocol_version: int = MultiplayerProtocolData.PROTOCOL_VERSION
@@ -69,21 +68,28 @@ func start_server(listen_port: int, max_clients: int) -> bool:
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	print("[server] peer_disconnected id=%d peers=%d" % [peer_id, multiplayer.get_peers().size()])
-	if arena_session_state == null:
-		push_warning("[server][arena] missing session state during disconnect")
-		return
-	var remove_result: Dictionary = arena_session_state.remove_peer(peer_id, "PEER_DISCONNECTED")
-	if remove_result.get("removed", false):
-		var released_spawn_id: StringName = remove_result.get("spawn_id", StringName())
-		if released_spawn_id != StringName():
-			_release_spawn_id(released_spawn_id, peer_id)
-		arena_peer_removed.emit(peer_id, "PEER_DISCONNECTED")
-		print("[server][arena] peer_disconnected_cleanup peer=%d" % peer_id)
+	_remove_arena_peer(peer_id, "PEER_DISCONNECTED")
 
 
 func _warn_unexpected_rpc(method_name: String, rpc_args: Array) -> void:
 	if not rpc_args.is_empty():
 		push_warning("[server] unexpected RPC: %s" % method_name)
+
+
+func _remove_arena_peer(peer_id: int, reason: String) -> bool:
+	if arena_session_state == null:
+		push_warning("[server][arena] missing session state during remove reason=%s" % reason)
+		return false
+	var remove_result: Dictionary = arena_session_state.remove_peer(peer_id, reason)
+	if not remove_result.get("removed", false):
+		return false
+	var released_spawn_id: StringName = remove_result.get("spawn_id", StringName())
+	if released_spawn_id != StringName():
+		_release_spawn_id(released_spawn_id, peer_id)
+	arena_peer_removed.emit(peer_id, reason)
+	print("[server][arena] peer_removed_cleanup peer=%d reason=%s" % [peer_id, reason])
+	_broadcast_state_snapshot(0)
+	return true
 
 
 @rpc("authority", "reliable")
@@ -122,10 +128,7 @@ func _join_arena(player_name: String) -> void:
 		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	if arena_session_state.has_peer(peer_id):
-		var previous_spawn_id: StringName = arena_session_state.get_peer_spawn_id(peer_id)
-		arena_session_state.remove_peer(peer_id, "REJOIN_REQUEST")
-		if previous_spawn_id != StringName():
-			_release_spawn_id(previous_spawn_id, peer_id)
+		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
 	var cleaned_player_name: String = player_name.strip_edges()
 	print("[server][join] receive_join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
 	if cleaned_player_name.is_empty():
@@ -171,6 +174,14 @@ func _join_arena(player_name: String) -> void:
 	else:
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
+
+
+@rpc("any_peer", "reliable")
+func _leave_arena() -> void:
+	var peer_id: int = multiplayer.get_remote_sender_id()
+	var removed: bool = _remove_arena_peer(peer_id, "CLIENT_REQUEST")
+	var leave_message: String = "LEFT ARENA" if removed else "NOT IN ARENA"
+	_leave_arena_ack.rpc_id(peer_id, true, leave_message)
 
 
 @rpc("authority", "reliable")
@@ -234,58 +245,6 @@ func _broadcast_state_snapshot(server_tick: int) -> void:
 	last_snapshot_tick = server_tick
 	for peer_id: int in connected_peers:
 		_receive_state_snapshot.rpc_id(peer_id, server_tick, snapshot_player_states)
-
-
-func broadcast_arena_shell_spawn(
-	shot_id: int,
-	firing_peer_id: int,
-	shell_spec_path: String,
-	spawn_position: Vector2,
-	shell_velocity: Vector2,
-	shell_rotation: float
-) -> void:
-	var connected_peers: PackedInt32Array = multiplayer.get_peers()
-	for peer_id: int in connected_peers:
-		rpc_id(
-			peer_id,
-			"_receive_arena_shell_spawn",
-			shot_id,
-			firing_peer_id,
-			shell_spec_path,
-			spawn_position,
-			shell_velocity,
-			shell_rotation
-		)
-
-
-func broadcast_arena_shell_impact(
-	shot_id: int,
-	firing_peer_id: int,
-	target_peer_id: int,
-	result_type: int,
-	damage: int,
-	remaining_health: int,
-	hit_position: Vector2,
-	post_impact_velocity: Vector2,
-	post_impact_rotation: float,
-	continue_simulation: bool
-) -> void:
-	var connected_peers: PackedInt32Array = multiplayer.get_peers()
-	for peer_id: int in connected_peers:
-		rpc_id(
-			peer_id,
-			"_receive_arena_shell_impact",
-			shot_id,
-			firing_peer_id,
-			target_peer_id,
-			result_type,
-			damage,
-			remaining_health,
-			hit_position,
-			post_impact_velocity,
-			post_impact_rotation,
-			continue_simulation
-		)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
@@ -353,6 +312,11 @@ func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
 	_warn_unexpected_rpc("_join_arena_ack", [success, message, spawn_position, spawn_rotation])
+
+
+@rpc("authority", "reliable")
+func _leave_arena_ack(success: bool, message: String) -> void:
+	_warn_unexpected_rpc("_leave_arena_ack", [success, message])
 
 
 @rpc("authority", "reliable")

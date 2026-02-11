@@ -200,6 +200,7 @@ func _start_online_arena() -> bool:
 
 
 func _quit_online_arena() -> void:
+	network_client.leave_arena()
 	active_online_shells_by_shot_id.clear()
 	ui_manager.set_online_session_active(false)
 	online_sync_runtime.call("stop_runtime")
