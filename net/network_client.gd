@@ -7,12 +7,17 @@ signal state_snapshot_received(server_tick: int, player_states: Array)
 signal arena_shell_spawn_received
 signal arena_shell_impact_received
 signal arena_respawn_received(peer_id: int, spawn_position: Vector2, spawn_rotation: float)
+signal arena_fire_rejected_received(reason: String)
+signal arena_loadout_state_received(
+	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+)
 
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const NetworkClientConnectionUtilsData := preload("res://net/network_client_connection_utils.gd")
 const NetworkClientInputCaptureUtilsData := preload(
 	"res://net/network_client_input_capture_utils.gd"
 )
+const NetworkClientJoinPayloadUtilsData := preload("res://net/network_client_join_payload_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
 const VERBOSE_JOIN_LOGS: bool = false
 
@@ -30,6 +35,7 @@ var input_send_interval_seconds: float = 1.0 / float(MultiplayerProtocolData.INP
 var input_send_elapsed_seconds: float = 0.0
 var local_input_tick: int = 0
 var local_fire_request_seq: int = 0
+var local_shell_select_seq: int = 0
 var pending_left_track_input: float = 0.0
 var pending_right_track_input: float = 0.0
 var pending_turret_aim: float = 0.0
@@ -41,8 +47,10 @@ func _ready() -> void:
 	)
 	default_connect_host = resolved_target.get("host", default_connect_host)
 	default_connect_port = resolved_target.get("port", default_connect_port)
-	_setup_client_network_logging()
-	_setup_gameplay_input_capture()
+	Utils.connect_checked(multiplayer.connected_to_server, _on_connected_to_server)
+	Utils.connect_checked(multiplayer.connection_failed, _on_connection_failed)
+	Utils.connect_checked(multiplayer.server_disconnected, _on_server_disconnected)
+	NetworkClientInputCaptureUtilsData.setup_for_client(self)
 
 
 func _process(delta: float) -> void:
@@ -96,24 +104,12 @@ func connect_to_server() -> void:
 	var create_error: int = client_peer.create_client(host, port)
 	if create_error != OK:
 		_log_join("create_client_failed host=%s port=%d error=%d" % [host, port, create_error])
-		push_error(
-			"%s failed create_client %s:%d error=%d" % [_log_prefix(), host, port, create_error]
-		)
+		push_error("[client] failed create_client %s:%d error=%d" % [host, port, create_error])
 		return
 
 	multiplayer.multiplayer_peer = client_peer
 	_log_join("connecting_to=udp://%s:%d" % [host, port])
 	join_status_changed.emit("CONNECTING TO ONLINE SERVER...", false)
-
-
-func _setup_client_network_logging() -> void:
-	Utils.connect_checked(multiplayer.connected_to_server, _on_connected_to_server)
-	Utils.connect_checked(multiplayer.connection_failed, _on_connection_failed)
-	Utils.connect_checked(multiplayer.server_disconnected, _on_server_disconnected)
-
-
-func _setup_gameplay_input_capture() -> void:
-	NetworkClientInputCaptureUtilsData.setup_for_client(self)
 
 
 func _on_connected_to_server() -> void:
@@ -128,7 +124,7 @@ func _on_connection_failed() -> void:
 		cancel_join_requested = false
 		return
 	_log_join("connection_failed")
-	push_warning("%s connection_failed" % _log_prefix())
+	push_warning("[client] connection_failed")
 	join_status_changed.emit("ONLINE JOIN FAILED: CONNECTION FAILED", true)
 	join_arena_completed.emit(false, "CONNECTION FAILED")
 	_reset_connection()
@@ -140,7 +136,7 @@ func _on_server_disconnected() -> void:
 		cancel_join_requested = false
 		return
 	_log_join("server_disconnected")
-	push_warning("%s server_disconnected" % _log_prefix())
+	push_warning("[client] server_disconnected")
 	join_status_changed.emit("ONLINE JOIN FAILED: SERVER DISCONNECTED", true)
 	join_arena_completed.emit(false, "SERVER DISCONNECTED")
 	_reset_connection()
@@ -162,8 +158,16 @@ func _send_join_arena() -> void:
 		return
 	var player_data: PlayerData = PlayerData.get_instance()
 	var player_name: String = player_data.player_name
-	_join_arena.rpc_id(1, player_name)
-	_log_join("sent_join_arena player=%s" % player_name)
+	var join_loadout_payload: Dictionary = (
+		NetworkClientJoinPayloadUtilsData.build_join_loadout_payload(player_data)
+	)
+	var selected_tank_id: int = int(
+		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
+	)
+	var shell_loadout_by_path: Dictionary = join_loadout_payload.get("shell_loadout_by_path", {})
+	var selected_shell_path: String = str(join_loadout_payload.get("selected_shell_path", ""))
+	_join_arena.rpc_id(1, player_name, selected_tank_id, shell_loadout_by_path, selected_shell_path)
+	_log_join("sent_join_arena player=%s tank=%d" % [player_name, selected_tank_id])
 
 
 func cancel_join_request() -> void:
@@ -207,6 +211,7 @@ func set_arena_input_enabled(enabled: bool, reset_sequence_state: bool = true) -
 		if reset_sequence_state:
 			local_input_tick = 0
 			local_fire_request_seq = 0
+			local_shell_select_seq = 0
 
 
 func _reset_connection() -> void:
@@ -246,18 +251,18 @@ func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: i
 
 
 @rpc("any_peer", "reliable")
-func _receive_client_hello(client_protocol_version: int, player_name: String) -> void:
-	push_warning(
-		(
-			"[client] unexpected RPC: _receive_client_hello protocol=%d player=%s"
-			% [client_protocol_version, player_name]
-		)
-	)
+func _receive_client_hello(_client_protocol_version: int, _player_name: String) -> void:
+	push_warning("[client] unexpected RPC: _receive_client_hello")
 
 
 @rpc("any_peer", "reliable")
-func _join_arena(player_name: String) -> void:
-	push_warning("[client] unexpected RPC: _join_arena player=%s" % player_name)
+func _join_arena(
+	_player_name: String,
+	_requested_tank_id: int,
+	_requested_shell_loadout_by_path: Dictionary,
+	_requested_selected_shell_path: String
+) -> void:
+	push_warning("[client] unexpected RPC: _join_arena")
 
 
 @rpc("any_peer", "reliable")
@@ -272,22 +277,19 @@ func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
 func _receive_input_intent(
-	input_tick: int, left_track_input: float, right_track_input: float, turret_aim: float
+	_input_tick: int, _left_track_input: float, _right_track_input: float, _turret_aim: float
 ) -> void:
-	push_warning(
-		(
-			(
-				"[client] unexpected RPC: _receive_input_intent tick=%d left=%.4f "
-				+ "right=%.4f turret=%.4f"
-			)
-			% [input_tick, left_track_input, right_track_input, turret_aim]
-		)
-	)
+	push_warning("[client] unexpected RPC: _receive_input_intent")
 
 
 @rpc("any_peer", "reliable")
-func _request_fire(fire_request_seq: int) -> void:
-	push_warning("[client] unexpected RPC: _request_fire seq=%d" % fire_request_seq)
+func _request_fire(_fire_request_seq: int) -> void:
+	push_warning("[client] unexpected RPC: _request_fire")
+
+
+@rpc("any_peer", "reliable")
+func _request_shell_select(_shell_select_seq: int, _shell_spec_path: String) -> void:
+	push_warning("[client] unexpected RPC: _request_shell_select")
 
 
 @rpc("any_peer", "reliable")
@@ -300,31 +302,18 @@ func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
 	if cancel_join_requested:
-		_log_join(
-			(
-				(
-					"join_arena_ack_ignored_due_to_cancel success=%s message=%s "
-					+ "spawn_position=%s spawn_rotation=%.4f"
-				)
-				% [success, message, spawn_position, spawn_rotation]
-			)
-		)
+		_log_join("join_arena_ack_ignored_due_to_cancel")
 		cancel_join_requested = false
 		return
-	var log_message: String = (
-		("%s join_arena_ack success=%s message=%s " + "spawn_position=%s spawn_rotation=%.4f")
-		% [_log_prefix(), success, message, spawn_position, spawn_rotation]
-	)
-	_log_join("received_%s" % log_message)
+	_log_join("join_arena_ack success=%s message=%s" % [success, message])
 	if success:
 		assigned_spawn_position = spawn_position
 		assigned_spawn_rotation = spawn_rotation
 		arena_membership_active = true
-		print(log_message)
 		join_status_changed.emit("ONLINE JOIN SUCCESS: %s" % message, false)
 	else:
 		arena_membership_active = false
-		push_warning(log_message)
+		push_warning("[client] join_arena_ack_failed message=%s" % message)
 		join_status_changed.emit("ONLINE JOIN FAILED: %s" % message, true)
 		_reset_connection()
 	join_arena_completed.emit(success, message)
@@ -381,17 +370,22 @@ func _receive_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotatio
 	arena_respawn_received.emit(peer_id, spawn_position, spawn_rotation)
 
 
+@rpc("authority", "reliable")
+func _receive_arena_fire_rejected(reason: String) -> void:
+	arena_fire_rejected_received.emit(reason)
+
+
+@rpc("authority", "reliable")
+func _receive_arena_loadout_state(
+	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+) -> void:
+	arena_loadout_state_received.emit(selected_shell_path, shell_counts_by_path, reload_time_left)
+
+
 func _log_join(message: String) -> void:
 	if not VERBOSE_JOIN_LOGS:
 		return
-	print("%s[join:%d] %s" % [_log_prefix(), join_attempt_id, message])
-
-
-func _log_prefix() -> String:
-	return (
-		"[client pid=%d peer=%d]"
-		% [OS.get_process_id(), NetworkClientConnectionUtilsData.get_safe_peer_id(multiplayer)]
-	)
+	print("[client][join:%d] %s" % [join_attempt_id, message])
 
 
 func get_connection_ping_msec() -> int:

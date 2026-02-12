@@ -27,3 +27,21 @@ static func setup_for_client(network_client: NetworkClient) -> void:
 			network_client.local_fire_request_seq += 1
 			network_client._request_fire.rpc_id(1, network_client.local_fire_request_seq)
 	)
+	Utils.connect_checked(
+		GameplayBus.shell_selected,
+		func(shell_spec: ShellSpec, remaining_shell_count: int) -> void:
+			if remaining_shell_count < 0:
+				return
+			if shell_spec == null:
+				return
+			if shell_spec.resource_path.is_empty():
+				return
+			if not NetworkClientConnectionUtilsData.can_send_input_intents(
+				network_client.multiplayer, network_client.arena_input_enabled
+			):
+				return
+			network_client.local_shell_select_seq += 1
+			network_client._request_shell_select.rpc_id(
+				1, network_client.local_shell_select_seq, shell_spec.resource_path
+			)
+	)

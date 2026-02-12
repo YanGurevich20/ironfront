@@ -18,6 +18,9 @@ func _ready() -> void:
 	Utils.connect_checked(
 		GameplayBus.reload_progress_left_updated, _on_reload_progress_left_updated
 	)
+	Utils.connect_checked(
+		GameplayBus.online_loadout_state_updated, _on_online_loadout_state_updated
+	)
 
 
 func initialize() -> void:
@@ -75,6 +78,8 @@ func _select_first_valid_shell() -> void:
 func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 	if not tank.is_player:
 		return
+	if not shell_counts.has(shell.shell_spec):
+		return
 	shell_counts[shell.shell_spec] -= 1
 	if shell_counts[shell.shell_spec] == 0:
 		_on_shell_expand_requested()
@@ -94,3 +99,29 @@ func _on_reload_progress_left_updated(progress: float, tank: Tank) -> void:
 func _reset_loading_progress_bars() -> void:
 	for child: ShellListItem in shell_list.get_children():
 		child.reset_progress_bar()
+
+
+func _on_online_loadout_state_updated(
+	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+) -> void:
+	if shell_counts.is_empty():
+		return
+	var selected_shell: ShellSpec = null
+	for shell_spec: ShellSpec in shell_counts.keys():
+		var shell_spec_path: String = shell_spec.resource_path
+		var server_count: int = max(0, int(shell_counts_by_path.get(shell_spec_path, 0)))
+		shell_counts[shell_spec] = server_count
+		if shell_spec_path == selected_shell_path:
+			selected_shell = shell_spec
+	update_counts()
+	if selected_shell == null:
+		return
+	current_shell_spec = selected_shell
+	GameplayBus.update_remaining_shell_count.emit(shell_counts[selected_shell])
+	if shell_counts[selected_shell] <= 0:
+		_on_shell_expand_requested()
+	if reload_time_left <= 0.0:
+		for child: ShellListItem in shell_list.get_children():
+			if child.shell_spec == selected_shell:
+				child.update_progress_bar(1.0)
+				break

@@ -2,6 +2,9 @@ class_name ServerArenaRuntime
 extends Node
 
 const NetworkServerBroadcastUtilsData := preload("res://net/network_server_broadcast_utils.gd")
+const ServerArenaLoadoutAuthorityUtilsData := preload(
+	"res://core/server_arena_loadout_authority_utils.gd"
+)
 
 var arena_level: ArenaLevelMvp
 var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
@@ -9,9 +12,11 @@ var player_tanks_by_peer_id: Dictionary[int, Tank] = {}
 var peer_id_by_tank_instance_id: Dictionary[int, int] = {}
 var spawn_ids_by_peer_id: Dictionary[int, StringName] = {}
 var network_server: NetworkServer
+var arena_session_state: ArenaSessionState
 var next_shell_shot_id: int = 1
 var shot_id_by_shell_instance_id: Dictionary[int, int] = {}
 var firing_peer_id_by_shell_instance_id: Dictionary[int, int] = {}
+var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
 
 
 func _ready() -> void:
@@ -20,6 +25,10 @@ func _ready() -> void:
 
 func configure_network_server(next_network_server: NetworkServer) -> void:
 	network_server = next_network_server
+
+
+func configure_arena_session(next_arena_session_state: ArenaSessionState) -> void:
+	arena_session_state = next_arena_session_state
 
 
 func initialize_runtime(arena_level_packed_scene: PackedScene) -> bool:
@@ -72,7 +81,11 @@ func get_spawn_transforms_by_id() -> Dictionary[StringName, Transform2D]:
 
 
 func spawn_peer_tank(
-	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
+	peer_id: int,
+	player_name: String,
+	tank_id: int,
+	spawn_id: StringName,
+	spawn_transform: Transform2D
 ) -> void:
 	if arena_level == null:
 		push_warning("[server][arena-runtime] spawn ignored: arena level missing")
@@ -80,14 +93,17 @@ func spawn_peer_tank(
 	if player_tanks_by_peer_id.has(peer_id):
 		despawn_peer_tank(peer_id, "REPLACED_EXISTING_TANK")
 
+	var validated_tank_id: int = ServerArenaLoadoutAuthorityUtilsData.resolve_valid_tank_id(tank_id)
 	var spawned_tank: Tank = TankManager.create_tank(
-		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
+		validated_tank_id, TankManager.TankControllerType.DUMMY
 	)
 	arena_level.add_child(spawned_tank)
 	spawned_tank.apply_spawn_state(spawn_transform.origin, spawn_transform.get_rotation())
 	player_tanks_by_peer_id[peer_id] = spawned_tank
 	peer_id_by_tank_instance_id[spawned_tank.get_instance_id()] = peer_id
 	spawn_ids_by_peer_id[peer_id] = spawn_id
+	ServerArenaLoadoutAuthorityUtilsData.sync_peer_tank_shell_state(self, peer_id, spawned_tank)
+	ServerArenaLoadoutAuthorityUtilsData.send_peer_loadout_state(self, peer_id, spawned_tank)
 
 	print(
 		(
@@ -108,11 +124,15 @@ func is_peer_tank_dead(peer_id: int) -> bool:
 
 
 func respawn_peer_tank(
-	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
+	peer_id: int,
+	player_name: String,
+	tank_id: int,
+	spawn_id: StringName,
+	spawn_transform: Transform2D
 ) -> bool:
 	if not is_peer_tank_dead(peer_id):
 		return false
-	spawn_peer_tank(peer_id, player_name, spawn_id, spawn_transform)
+	spawn_peer_tank(peer_id, player_name, tank_id, spawn_id, spawn_transform)
 	print("[server][arena-runtime] tank_respawned peer=%d spawn_id=%s" % [peer_id, spawn_id])
 	return true
 
@@ -180,9 +200,19 @@ func _apply_peer_input_intent_to_tank(
 	spawned_tank.right_track_input = right_track_input
 	spawned_tank.turret_rotation_input = turret_aim
 
+	var shell_select_request: Dictionary = arena_session_state.consume_peer_shell_select_request(
+		peer_id
+	)
+	if not shell_select_request.is_empty():
+		ServerArenaLoadoutAuthorityUtilsData.handle_peer_shell_select_request(
+			self, arena_session_state, peer_id, spawned_tank, shell_select_request
+		)
+
 	var fire_request_seq: int = arena_session_state.consume_peer_fire_request_seq(peer_id)
 	if fire_request_seq > 0:
-		spawned_tank.fire_shell()
+		ServerArenaLoadoutAuthorityUtilsData.handle_peer_fire_request(
+			self, arena_session_state, peer_id, spawned_tank
+		)
 
 
 func _on_shell_fired(shell: Shell, tank: Tank) -> void:
@@ -234,9 +264,7 @@ func _on_shell_impact_resolved(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	if network_server == null:
-		return
-	if shell == null or target_tank == null:
+	if network_server == null or shell == null or target_tank == null:
 		return
 	var shell_instance_id: int = shell.get_instance_id()
 	if not shot_id_by_shell_instance_id.has(shell_instance_id):
@@ -282,6 +310,7 @@ func _clear_runtime() -> void:
 	arena_spawn_transforms_by_id.clear()
 	shot_id_by_shell_instance_id.clear()
 	firing_peer_id_by_shell_instance_id.clear()
+	shell_spec_cache_by_path.clear()
 
 	if arena_level != null:
 		if arena_level.get_parent() == self:

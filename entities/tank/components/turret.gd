@@ -50,12 +50,15 @@ func has_line_of_sight(target: Node2D) -> bool:
 
 
 #region Shell Firing
-func fire_shell() -> void:
+func fire_shell() -> bool:
 	if remaining_shell_count <= 0:
 		reload_timer.stop()
-		return
+		return false
 	if not reload_timer.is_stopped():
-		return
+		return false
+	if current_shell_spec == null:
+		return false
+	remaining_shell_count = max(0, remaining_shell_count - 1)
 	var shell: Shell = shell_scene.instantiate()
 	shell.initialize(current_shell_spec, muzzle, tank)
 	GameplayBus.shell_fired.emit(shell, tank)
@@ -63,6 +66,7 @@ func fire_shell() -> void:
 
 	reload_timer.start(tank.tank_spec.reload_time)
 	play_fire_effect()
+	return true
 
 
 func play_fire_effect(play_sound: bool = true, apply_knockback_impulse: bool = true) -> void:
@@ -115,3 +119,21 @@ func set_current_shell_spec(shell_spec: ShellSpec) -> void:
 	if shell_spec != current_shell_spec:
 		current_shell_spec = shell_spec
 		reset_reload_timer()
+
+
+func get_reload_time_left() -> float:
+	return max(0.0, reload_timer.time_left)
+
+
+func apply_authoritative_shell_state(
+	shell_spec: ShellSpec, remaining_shell_amount: int, reload_time_left: float
+) -> void:
+	if shell_spec != null and shell_spec != current_shell_spec:
+		current_shell_spec = shell_spec
+	remaining_shell_count = max(0, remaining_shell_amount)
+	if reload_time_left <= 0.0:
+		reload_timer.stop()
+		GameplayBus.reload_progress_left_updated.emit(1.0, tank)
+		return
+	reload_timer.start(reload_time_left)
+	GameplayBus.reload_progress_left_updated.emit(get_reload_progress(), tank)

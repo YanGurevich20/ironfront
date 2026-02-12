@@ -68,8 +68,8 @@ func apply_spawn_state(global_pos: Vector2, global_rot: float, turret_rot: float
 	turret.rotation = turret_rot
 
 
-func fire_shell() -> void:
-	turret.fire_shell()
+func fire_shell() -> bool:
+	return turret.fire_shell()
 
 
 func play_fire_effect(play_sound: bool = true, apply_knockback_impulse: bool = true) -> void:
@@ -172,3 +172,9 @@ func reset_input() -> void:
 func set_health(health: int) -> void:
 	_health = clamp(health, 0, tank_spec.health)
 	health_updated.emit(_health, self)
+
+
+func apply_authoritative_shell_state(
+	shell_spec: ShellSpec, remaining_shell_count: int, reload_time_left: float
+) -> void:
+	turret.apply_authoritative_shell_state(shell_spec, remaining_shell_count, reload_time_left)

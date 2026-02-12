@@ -2,7 +2,11 @@ class_name NetworkServer
 extends Node
 
 signal arena_join_succeeded(
-	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
+	peer_id: int,
+	player_name: String,
+	tank_id: int,
+	spawn_id: StringName,
+	spawn_transform: Transform2D
 )
 signal arena_peer_removed(peer_id: int, reason: String)
 signal arena_respawn_requested(peer_id: int)
@@ -70,11 +74,6 @@ func _on_peer_disconnected(peer_id: int) -> void:
 	_remove_arena_peer(peer_id, "PEER_DISCONNECTED")
 
 
-func _warn_unexpected_rpc(method_name: String, rpc_args: Array) -> void:
-	if not rpc_args.is_empty():
-		push_warning("[server] unexpected RPC: %s" % method_name)
-
-
 func _remove_arena_peer(peer_id: int, reason: String) -> bool:
 	if arena_session_state == null:
 		push_warning("[server][arena] missing session state during remove reason=%s" % reason)
@@ -89,8 +88,8 @@ func _remove_arena_peer(peer_id: int, reason: String) -> bool:
 
 
 @rpc("authority", "reliable")
-func _receive_server_hello_ack(server_protocol_version: int, server_unix_time: int) -> void:
-	_warn_unexpected_rpc("_receive_server_hello_ack", [server_protocol_version, server_unix_time])
+func _receive_server_hello_ack(_server_protocol_version: int, _server_unix_time: int) -> void:
+	push_warning("[server] unexpected RPC: _receive_server_hello_ack")
 
 
 @rpc("any_peer", "reliable")
@@ -107,71 +106,63 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 
 
 @rpc("any_peer", "reliable")
-func _join_arena(player_name: String) -> void:
+func _join_arena(
+	player_name: String,
+	requested_tank_id: int,
+	requested_shell_loadout_by_path: Dictionary,
+	requested_selected_shell_path: String
+) -> void:
+	var peer_id: int = multiplayer.get_remote_sender_id()
 	if arena_session_state == null:
 		push_error("[server][arena] join requested before session initialization")
-		var missing_session_peer_id: int = multiplayer.get_remote_sender_id()
-		_join_arena_ack.rpc_id(
-			missing_session_peer_id, false, "ARENA SESSION UNAVAILABLE", Vector2.ZERO, 0.0
-		)
+		_join_arena_ack.rpc_id(peer_id, false, "ARENA SESSION UNAVAILABLE", Vector2.ZERO, 0.0)
 		return
 	if arena_spawn_transforms_by_id.is_empty():
 		push_error("[server][arena] join requested with empty spawn pool")
-		var missing_spawn_peer_id: int = multiplayer.get_remote_sender_id()
-		_join_arena_ack.rpc_id(
-			missing_spawn_peer_id, false, "ARENA SPAWNS UNAVAILABLE", Vector2.ZERO, 0.0
-		)
+		_join_arena_ack.rpc_id(peer_id, false, "ARENA SPAWNS UNAVAILABLE", Vector2.ZERO, 0.0)
 		return
-	var peer_id: int = multiplayer.get_remote_sender_id()
 	if arena_session_state.has_peer(peer_id):
 		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
 	var cleaned_player_name: String = player_name.strip_edges()
-	print("[server][join] receive_join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
 	if cleaned_player_name.is_empty():
 		print("[server][join] reject_join_arena peer=%d reason=INVALID_PLAYER_NAME" % peer_id)
 		_join_arena_ack.rpc_id(peer_id, false, "INVALID PLAYER NAME", Vector2.ZERO, 0.0)
 		return
-	var join_result: Dictionary = arena_session_state.try_join_peer(peer_id, cleaned_player_name)
-	var join_success: bool = join_result.get("success", false)
-	var join_message: String = join_result.get("message", "JOIN FAILED")
-	if join_success:
-		var random_spawn: Dictionary = _pick_random_spawn()
-		if random_spawn.is_empty():
-			print("[server][join] reject_join_arena peer=%d reason=NO_SPAWN_AVAILABLE" % peer_id)
-			arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
-			_join_arena_ack.rpc_id(peer_id, false, "NO SPAWN AVAILABLE", Vector2.ZERO, 0.0)
-			return
-		var assigned_spawn_id: StringName = random_spawn.get("spawn_id", StringName())
-		var assigned_spawn_transform: Transform2D = random_spawn.get(
-			"spawn_transform", Transform2D.IDENTITY
-		)
-		var assigned_spawn_position: Vector2 = assigned_spawn_transform.origin
-		var assigned_spawn_rotation: float = assigned_spawn_transform.get_rotation()
-		arena_session_state.set_peer_authoritative_state(
-			peer_id, assigned_spawn_position, assigned_spawn_rotation, Vector2.ZERO
-		)
-		arena_join_succeeded.emit(
-			peer_id, cleaned_player_name, assigned_spawn_id, assigned_spawn_transform
-		)
-		print("[server] join_arena peer=%d player=%s" % [peer_id, cleaned_player_name])
-		print(
-			(
-				"[server][arena] player_joined peer=%d spawn_id=%s active_players=%d/%d"
-				% [
-					peer_id,
-					assigned_spawn_id,
-					arena_session_state.get_player_count(),
-					arena_session_state.max_players
-				]
-			)
-		)
-		_join_arena_ack.rpc_id(
-			peer_id, true, join_message, assigned_spawn_position, assigned_spawn_rotation
-		)
-		_broadcast_state_snapshot(0)
-	else:
+	var join_result: Dictionary = arena_session_state.try_join_peer(
+		peer_id,
+		cleaned_player_name,
+		requested_tank_id,
+		requested_shell_loadout_by_path,
+		requested_selected_shell_path
+	)
+	var join_message: String = str(join_result.get("message", "JOIN FAILED"))
+	if not join_result.get("success", false):
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
+		return
+	var random_spawn: Dictionary = _pick_random_spawn()
+	if random_spawn.is_empty():
+		print("[server][join] reject_join_arena peer=%d reason=NO_SPAWN_AVAILABLE" % peer_id)
+		arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
+		_join_arena_ack.rpc_id(peer_id, false, "NO SPAWN AVAILABLE", Vector2.ZERO, 0.0)
+		return
+	var assigned_spawn_id: StringName = random_spawn.get("spawn_id", StringName())
+	var assigned_spawn_transform: Transform2D = random_spawn.get(
+		"spawn_transform", Transform2D.IDENTITY
+	)
+	var assigned_spawn_position: Vector2 = assigned_spawn_transform.origin
+	var assigned_spawn_rotation: float = assigned_spawn_transform.get_rotation()
+	var selected_tank_id: int = int(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
+	arena_session_state.set_peer_authoritative_state(
+		peer_id, assigned_spawn_position, assigned_spawn_rotation, Vector2.ZERO
+	)
+	arena_join_succeeded.emit(
+		peer_id, cleaned_player_name, selected_tank_id, assigned_spawn_id, assigned_spawn_transform
+	)
+	_join_arena_ack.rpc_id(
+		peer_id, true, join_message, assigned_spawn_position, assigned_spawn_rotation
+	)
+	_broadcast_state_snapshot(0)
 
 
 @rpc("any_peer", "reliable")
@@ -183,8 +174,8 @@ func _leave_arena() -> void:
 
 
 @rpc("authority", "reliable")
-func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
-	_warn_unexpected_rpc("_receive_state_snapshot", [server_tick, player_states])
+func _receive_state_snapshot(_server_tick: int, _player_states: Array) -> void:
+	push_warning("[server] unexpected RPC: _receive_state_snapshot")
 
 
 func _pick_random_spawn() -> Dictionary:
@@ -292,6 +283,29 @@ func _request_fire(fire_request_seq: int) -> void:
 
 
 @rpc("any_peer", "reliable")
+func _request_shell_select(shell_select_seq: int, shell_spec_path: String) -> void:
+	if arena_session_state == null:
+		return
+	var peer_id: int = multiplayer.get_remote_sender_id()
+	if not arena_session_state.has_peer(peer_id):
+		return
+	var received_msec: int = Time.get_ticks_msec()
+	var accepted: bool = arena_session_state.queue_peer_shell_select_request(
+		peer_id, shell_select_seq, shell_spec_path, received_msec
+	)
+	if not accepted:
+		print(
+			(
+				(
+					"[server][sync][shell_select] ignored_non_monotonic_or_invalid "
+					+ "peer=%d seq=%d path=%s"
+				)
+				% [peer_id, shell_select_seq, shell_spec_path]
+			)
+		)
+
+
+@rpc("any_peer", "reliable")
 func _request_respawn() -> void:
 	if arena_session_state == null:
 		return
@@ -303,67 +317,83 @@ func _request_respawn() -> void:
 
 @rpc("authority", "reliable")
 func _join_arena_ack(
-	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
+	_success: bool, _message: String, _spawn_position: Vector2, _spawn_rotation: float
 ) -> void:
-	_warn_unexpected_rpc("_join_arena_ack", [success, message, spawn_position, spawn_rotation])
+	push_warning("[server] unexpected RPC: _join_arena_ack")
 
 
 @rpc("authority", "reliable")
-func _leave_arena_ack(success: bool, message: String) -> void:
-	_warn_unexpected_rpc("_leave_arena_ack", [success, message])
+func _leave_arena_ack(_success: bool, _message: String) -> void:
+	push_warning("[server] unexpected RPC: _leave_arena_ack")
 
 
 @rpc("authority", "reliable")
 func _receive_arena_shell_spawn(
-	shot_id: int,
-	firing_peer_id: int,
-	shell_spec_path: String,
-	spawn_position: Vector2,
-	shell_velocity: Vector2,
-	shell_rotation: float
+	_shot_id: int,
+	_firing_peer_id: int,
+	_shell_spec_path: String,
+	_spawn_position: Vector2,
+	_shell_velocity: Vector2,
+	_shell_rotation: float
 ) -> void:
-	_warn_unexpected_rpc(
-		"_receive_arena_shell_spawn",
-		[shot_id, firing_peer_id, shell_spec_path, spawn_position, shell_velocity, shell_rotation]
-	)
+	push_warning("[server] unexpected RPC: _receive_arena_shell_spawn")
 
 
 @rpc("authority", "reliable")
 func _receive_arena_shell_impact(
-	shot_id: int,
-	firing_peer_id: int,
-	target_peer_id: int,
-	result_type: int,
-	damage: int,
-	remaining_health: int,
-	hit_position: Vector2,
-	post_impact_velocity: Vector2,
-	post_impact_rotation: float,
-	continue_simulation: bool
+	_shot_id: int,
+	_firing_peer_id: int,
+	_target_peer_id: int,
+	_result_type: int,
+	_damage: int,
+	_remaining_health: int,
+	_hit_position: Vector2,
+	_post_impact_velocity: Vector2,
+	_post_impact_rotation: float,
+	_continue_simulation: bool
 ) -> void:
-	_warn_unexpected_rpc(
-		"_receive_arena_shell_impact",
-		[
-			shot_id,
-			firing_peer_id,
-			target_peer_id,
-			result_type,
-			damage,
-			remaining_health,
-			hit_position,
-			post_impact_velocity,
-			post_impact_rotation,
-			continue_simulation
-		]
-	)
+	push_warning("[server] unexpected RPC: _receive_arena_shell_impact")
 
 
 @rpc("authority", "reliable")
-func _receive_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
-	_warn_unexpected_rpc("_receive_arena_respawn", [peer_id, spawn_position, spawn_rotation])
+func _receive_arena_respawn(
+	_peer_id: int, _spawn_position: Vector2, _spawn_rotation: float
+) -> void:
+	push_warning("[server] unexpected RPC: _receive_arena_respawn")
+
+
+@rpc("authority", "reliable")
+func _receive_arena_fire_rejected(_reason: String) -> void:
+	push_warning("[server] unexpected RPC: _receive_arena_fire_rejected")
+
+
+@rpc("authority", "reliable")
+func _receive_arena_loadout_state(
+	_selected_shell_path: String, _shell_counts_by_path: Dictionary, _reload_time_left: float
+) -> void:
+	push_warning("[server] unexpected RPC: _receive_arena_loadout_state")
 
 
 func broadcast_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
 	var connected_peers: PackedInt32Array = multiplayer.get_peers()
 	for connected_peer_id: int in connected_peers:
 		_receive_arena_respawn.rpc_id(connected_peer_id, peer_id, spawn_position, spawn_rotation)
+
+
+func send_arena_fire_rejected(peer_id: int, reason: String) -> void:
+	if not multiplayer.get_peers().has(peer_id):
+		return
+	_receive_arena_fire_rejected.rpc_id(peer_id, reason)
+
+
+func send_arena_loadout_state(
+	peer_id: int,
+	selected_shell_path: String,
+	shell_counts_by_path: Dictionary,
+	reload_time_left: float
+) -> void:
+	if not multiplayer.get_peers().has(peer_id):
+		return
+	_receive_arena_loadout_state.rpc_id(
+		peer_id, selected_shell_path, shell_counts_by_path, reload_time_left
+	)

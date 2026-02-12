@@ -31,6 +31,7 @@ func _ready() -> void:
 		return
 	arena_session_state = ArenaSessionState.new(arena_max_players)
 	network_server.configure_arena_session(arena_session_state)
+	server_arena_runtime.configure_arena_session(arena_session_state)
 	network_server.configure_arena_spawn_pool(arena_spawn_transforms_by_id)
 	print("[server][arena] startup_spawn_pool count=%d" % arena_spawn_transforms_by_id.size())
 	network_server.configure_tick_rate(tick_rate_hz)
@@ -78,11 +79,15 @@ func _configure_physics_tick_loop() -> void:
 
 
 func _on_arena_join_succeeded(
-	peer_id: int, player_name: String, spawn_id: StringName, spawn_transform: Transform2D
+	peer_id: int,
+	player_name: String,
+	tank_id: int,
+	spawn_id: StringName,
+	spawn_transform: Transform2D
 ) -> void:
 	if server_arena_runtime == null:
 		return
-	server_arena_runtime.spawn_peer_tank(peer_id, player_name, spawn_id, spawn_transform)
+	server_arena_runtime.spawn_peer_tank(peer_id, player_name, tank_id, spawn_id, spawn_transform)
 
 
 func _on_arena_peer_removed(peer_id: int, reason: String) -> void:
@@ -98,8 +103,12 @@ func _on_arena_respawn_requested(peer_id: int) -> void:
 	var spawn_id: StringName = respawn_context.get("spawn_id", StringName())
 	var spawn_transform: Transform2D = respawn_context.get("spawn_transform", Transform2D.IDENTITY)
 	var player_name: String = respawn_context.get("player_name", "")
+	var tank_id: int = int(respawn_context.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
+	var reset_loadout: bool = arena_session_state._reset_peer_loadout_to_entry_state(peer_id)
+	if not reset_loadout:
+		push_warning("[server][arena] respawn_loadout_reset_failed peer=%d" % peer_id)
 	var respawned: bool = server_arena_runtime.respawn_peer_tank(
-		peer_id, player_name, spawn_id, spawn_transform
+		peer_id, player_name, tank_id, spawn_id, spawn_transform
 	)
 	if not respawned:
 		return
@@ -133,6 +142,7 @@ func _build_respawn_context(peer_id: int) -> Dictionary:
 		"spawn_id": spawn_id,
 		"spawn_transform": spawn_transform,
 		"player_name": str(peer_state.get("player_name", "")),
+		"tank_id": arena_session_state.get_peer_tank_id(peer_id),
 	}
 
 

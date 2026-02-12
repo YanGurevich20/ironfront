@@ -5,7 +5,9 @@ const OnlineArenaSyncRuntimeScript := preload("res://core/online_arena_sync_runt
 const ClientMatchResultsData := preload("res://core/client_match_results.gd")
 const ClientPlayerProfileUtilsData := preload("res://core/client_player_profile_utils.gd")
 const ClientRuntimeUtilsData := preload("res://core/client_runtime_utils.gd")
-const ShellScene: PackedScene = preload("res://entities/shell/shell.tscn")
+const ClientOnlineShellAuthorityUtilsData := preload(
+	"res://core/client_online_shell_authority_utils.gd"
+)
 
 var current_level: BaseLevel
 var current_level_key: int = 0
@@ -50,6 +52,12 @@ func _ready() -> void:
 		network_client.arena_shell_impact_received, _on_arena_shell_impact_received
 	)
 	Utils.connect_checked(network_client.arena_respawn_received, _on_arena_respawn_received)
+	Utils.connect_checked(
+		network_client.arena_fire_rejected_received, _on_arena_fire_rejected_received
+	)
+	Utils.connect_checked(
+		network_client.arena_loadout_state_received, _on_arena_loadout_state_received
+	)
 	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
 	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
 	Utils.connect_checked(MultiplayerBus.online_join_retry_requested, _connect_to_online_server)
@@ -253,6 +261,47 @@ func _on_arena_respawn_received(
 	online_sync_runtime.call("respawn_remote_tank", peer_id, spawn_position, spawn_rotation)
 
 
+func _on_arena_fire_rejected_received(reason: String) -> void:
+	if not is_online_arena_active:
+		return
+	push_warning("%s authoritative_fire_rejected reason=%s" % [_log_prefix(), reason])
+	GameplayBus.online_fire_rejected.emit(reason)
+
+
+func _on_arena_loadout_state_received(
+	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+) -> void:
+	if not is_online_arena_active:
+		return
+	if online_player_tank == null:
+		return
+	if selected_shell_path.is_empty():
+		online_player_tank.set_remaining_shell_count(0)
+		GameplayBus.online_loadout_state_updated.emit(
+			selected_shell_path, shell_counts_by_path, reload_time_left
+		)
+		return
+	var selected_shell_spec: ShellSpec = _get_cached_shell_spec(selected_shell_path)
+	if selected_shell_spec == null:
+		push_warning(
+			(
+				"%s authoritative_loadout_state_invalid_selected_shell path=%s"
+				% [_log_prefix(), selected_shell_path]
+			)
+		)
+		GameplayBus.online_loadout_state_updated.emit(
+			selected_shell_path, shell_counts_by_path, reload_time_left
+		)
+		return
+	var selected_shell_count: int = max(0, int(shell_counts_by_path.get(selected_shell_path, 0)))
+	online_player_tank.apply_authoritative_shell_state(
+		selected_shell_spec, selected_shell_count, reload_time_left
+	)
+	GameplayBus.online_loadout_state_updated.emit(
+		selected_shell_path, shell_counts_by_path, reload_time_left
+	)
+
+
 func _respawn_local_online_player_tank(spawn_position: Vector2, spawn_rotation: float) -> void:
 	if online_arena_level == null:
 		return
@@ -285,46 +334,15 @@ func _on_arena_shell_spawn_received(
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
-	if not is_online_arena_active:
-		return
-	if online_arena_level == null:
-		return
-	if firing_peer_id != multiplayer.get_unique_id():
-		online_sync_runtime.call("play_remote_fire_effect", firing_peer_id)
-	if shell_spec_path.is_empty():
-		push_warning(
-			(
-				"%s authoritative_shell_spawn_ignored_empty_spec shot_id=%d firing_peer=%d"
-				% [_log_prefix(), shot_id, firing_peer_id]
-			)
-		)
-		return
-	var shell_spec: ShellSpec = _get_cached_shell_spec(shell_spec_path)
-	if shell_spec == null:
-		push_warning(
-			(
-				"%s authoritative_shell_spawn_ignored_invalid_spec shot_id=%d spec=%s"
-				% [_log_prefix(), shot_id, shell_spec_path]
-			)
-		)
-		return
-	var shell: Shell = ShellScene.instantiate()
-	shell.initialize_from_spawn(
-		shell_spec, spawn_position, shell_velocity, shell_rotation, null, true
+	ClientOnlineShellAuthorityUtilsData.handle_shell_spawn_received(
+		self,
+		shot_id,
+		firing_peer_id,
+		shell_spec_path,
+		spawn_position,
+		shell_velocity,
+		shell_rotation
 	)
-	if active_online_shells_by_shot_id.has(shot_id):
-		var existing_shell: Shell = active_online_shells_by_shot_id[shot_id]
-		if existing_shell != null:
-			existing_shell.queue_free()
-	active_online_shells_by_shot_id[shot_id] = shell
-	Utils.connect_checked(
-		shell.tree_exiting,
-		func() -> void:
-			var tracked_shell: Shell = active_online_shells_by_shot_id.get(shot_id)
-			if tracked_shell == shell:
-				active_online_shells_by_shot_id.erase(shot_id)
-	)
-	online_arena_level.add_child(shell)
 
 
 func _on_arena_shell_impact_received(
@@ -339,53 +357,19 @@ func _on_arena_shell_impact_received(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	if not is_online_arena_active:
-		return
-	_reconcile_authoritative_shell_impact(
-		shot_id, hit_position, post_impact_velocity, post_impact_rotation, continue_simulation
+	ClientOnlineShellAuthorityUtilsData.handle_shell_impact_received(
+		self,
+		shot_id,
+		firing_peer_id,
+		target_peer_id,
+		result_type,
+		damage,
+		remaining_health,
+		hit_position,
+		post_impact_velocity,
+		post_impact_rotation,
+		continue_simulation
 	)
-	var target_tank: Tank = online_sync_runtime.call("get_tank_by_peer_id", target_peer_id)
-	if target_tank == null:
-		push_warning(
-			(
-				(
-					"%s authoritative_shell_impact_missing_target shot_id=%d "
-					+ "firing_peer=%d target_peer=%d hit_position=%s"
-				)
-				% [_log_prefix(), shot_id, firing_peer_id, target_peer_id, hit_position]
-			)
-		)
-		return
-	var target_max_health: int = target_tank.tank_spec.health
-	var expected_pre_hit_health: int = clamp(remaining_health + damage, 0, target_max_health)
-	target_tank.set_health(expected_pre_hit_health)
-	var impact_result: ShellSpec.ImpactResult = ShellSpec.ImpactResult.new(damage, result_type)
-	target_tank.handle_impact_result(impact_result)
-	if target_tank._health != remaining_health:
-		target_tank.set_health(remaining_health)
-
-
-func _reconcile_authoritative_shell_impact(
-	shot_id: int,
-	hit_position: Vector2,
-	post_impact_velocity: Vector2,
-	post_impact_rotation: float,
-	continue_simulation: bool
-) -> void:
-	if not active_online_shells_by_shot_id.has(shot_id):
-		return
-	var impacted_shell: Shell = active_online_shells_by_shot_id[shot_id]
-	if impacted_shell == null:
-		active_online_shells_by_shot_id.erase(shot_id)
-		return
-	impacted_shell.global_position = hit_position
-	if continue_simulation:
-		impacted_shell.starting_global_position = hit_position
-		impacted_shell.velocity = post_impact_velocity
-		impacted_shell.rotation = post_impact_rotation
-		return
-	active_online_shells_by_shot_id.erase(shot_id)
-	impacted_shell.queue_free()
 
 
 func _get_cached_shell_spec(shell_spec_path: String) -> ShellSpec:
