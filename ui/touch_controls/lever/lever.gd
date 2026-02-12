@@ -8,6 +8,12 @@ enum LeverSide { LEFT = 0, RIGHT = 1 }
 
 const TOTAL_FRAMES: int = 7
 const CENTER_FRAME: int = 3
+const FRAMES_PER_STATE: int = 7
+const SPRITE_COLUMNS: int = 4
+const LEFT_UNLOCKED_BASE_INDEX: int = 0
+const LEFT_LOCKED_BASE_INDEX: int = 7
+const RIGHT_LOCKED_BASE_INDEX: int = 14
+const RIGHT_UNLOCKED_BASE_INDEX: int = 21
 const LOCK_THRESHOLD: float = 100.0
 const DOUBLE_TAP_WINDOW_MSEC: int = 260
 const DOUBLE_TAP_MAX_DISTANCE: float = 48.0
@@ -22,11 +28,16 @@ var start_position: Vector2
 var last_touch_press_time_msec: int = -1
 var last_touch_press_position: Vector2 = Vector2.ZERO
 
-@onready var lever_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var click_small: AudioStreamPlayer = $LeverClickSmall
-@onready var click_large: AudioStreamPlayer = $LeverClickLarge
+@onready var lever_sprite: Sprite2D = %LeverSprite
+@onready var click_small: AudioStreamPlayer = %LeverClickSmall
+@onready var click_large: AudioStreamPlayer = %LeverClickLarge
 @onready var control_field_height := size.y
 @onready var step_size := control_field_height / TOTAL_FRAMES
+
+
+func _ready() -> void:
+	touch_y_position = control_field_height / 2
+	lever_sprite.frame = _resolve_sprite_frame(CENTER_FRAME)
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -48,6 +59,9 @@ func _handle_touch(event: InputEventScreenTouch) -> void:
 		touch_y_position = event.position.y
 	else:
 		var should_lock: bool = abs(start_position.x - event.position.x) > LOCK_THRESHOLD
+		if should_lock != should_lock_last_value:
+			play_large_click(1.0 if should_lock else 1.5)
+			should_lock_last_value = should_lock
 		touch_y_position = event.position.y if should_lock else control_field_height / 2
 
 
@@ -84,7 +98,7 @@ func _detect_double_tap(touch_position: Vector2) -> void:
 
 func update_lever() -> void:
 	var step: int = clamp(floor(touch_y_position / step_size), 0, TOTAL_FRAMES - 1)
-	lever_sprite.frame = step
+	lever_sprite.frame = _resolve_sprite_frame(step)
 
 	var relative_step: int = CENTER_FRAME - step
 	lever_value = float(relative_step) / float(CENTER_FRAME)
@@ -102,7 +116,22 @@ func reset_input() -> void:
 	should_lock_last_value = false
 	last_touch_press_time_msec = -1
 	last_touch_press_position = Vector2.ZERO
-	lever_sprite.frame = int(CENTER_FRAME)
+	lever_sprite.frame = _resolve_sprite_frame(CENTER_FRAME)
 	lever_value = 0.0
 	last_value = 0.0
 	GameplayBus.lever_input.emit(lever_side, lever_value)
+
+
+func _resolve_sprite_frame(step: int) -> int:
+	var clamped_step: int = clamp(step, 0, TOTAL_FRAMES - 1)
+	var logical_index: int = _resolve_state_base_index() + clamped_step
+	# Sheet is authored as 4 columns (state) x 7 rows (position).
+	var state_column: int = int(logical_index / FRAMES_PER_STATE)
+	var state_row: int = logical_index % FRAMES_PER_STATE
+	return state_row * SPRITE_COLUMNS + state_column
+
+
+func _resolve_state_base_index() -> int:
+	if lever_side == LeverSide.LEFT:
+		return LEFT_LOCKED_BASE_INDEX if should_lock_last_value else LEFT_UNLOCKED_BASE_INDEX
+	return RIGHT_LOCKED_BASE_INDEX if should_lock_last_value else RIGHT_UNLOCKED_BASE_INDEX

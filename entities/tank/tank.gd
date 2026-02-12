@@ -8,6 +8,7 @@ signal impact_result_received(impact_result: ShellSpec.ImpactResult, tank: Tank)
 @export var tank_spec: TankSpec
 
 var is_player: bool
+var display_player_name: String = ""
 var controller: Node
 var right_track_input := 0.0
 var left_track_input := 0.0

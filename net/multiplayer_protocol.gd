@@ -2,7 +2,7 @@ class_name MultiplayerProtocol
 extends RefCounted
 
 # Protocol versioning
-const PROTOCOL_VERSION: int = 2
+const PROTOCOL_VERSION: int = 3
 
 # ENet channel assignments
 const CHANNEL_RELIABLE: int = 0

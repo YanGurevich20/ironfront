@@ -11,7 +11,11 @@ static func create_local_player_tank() -> Tank:
 			selected_tank_id = unlocked_tank_ids[0]
 		else:
 			selected_tank_id = TankManager.TankId.TIGER_1
-	return TankManager.create_tank(selected_tank_id, TankManager.TankControllerType.PLAYER)
+	var player_tank: Tank = TankManager.create_tank(
+		selected_tank_id, TankManager.TankControllerType.PLAYER
+	)
+	player_tank.display_player_name = player_data.player_name.strip_edges()
+	return player_tank
 
 
 static func fetch_level_stars(level: int) -> int:

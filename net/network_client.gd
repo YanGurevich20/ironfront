@@ -3,10 +3,12 @@ extends Node
 
 signal join_status_changed(message: String, is_error: bool)
 signal join_arena_completed(success: bool, message: String)
-signal state_snapshot_received(server_tick: int, player_states: Array)
+signal state_snapshot_received(server_tick: int, player_states: Array, max_players: int)
 signal arena_shell_spawn_received
 signal arena_shell_impact_received
-signal arena_respawn_received(peer_id: int, spawn_position: Vector2, spawn_rotation: float)
+signal arena_respawn_received(
+	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+)
 signal arena_fire_rejected_received(reason: String)
 signal arena_loadout_state_received(
 	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
@@ -18,6 +20,8 @@ const NetworkClientInputCaptureUtilsData := preload(
 	"res://net/network_client_input_capture_utils.gd"
 )
 const NetworkClientJoinPayloadUtilsData := preload("res://net/network_client_join_payload_utils.gd")
+const NetworkClientJoinAckUtilsData := preload("res://net/network_client_join_ack_utils.gd")
+const NetworkClientKillFeedUtilsData := preload("res://net/network_client_kill_feed_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
 const VERBOSE_JOIN_LOGS: bool = false
 
@@ -271,8 +275,8 @@ func _leave_arena() -> void:
 
 
 @rpc("authority", "reliable")
-func _receive_state_snapshot(server_tick: int, player_states: Array) -> void:
-	state_snapshot_received.emit(server_tick, player_states)
+func _receive_state_snapshot(server_tick: int, player_states: Array, max_players: int) -> void:
+	state_snapshot_received.emit(server_tick, player_states, max_players)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
@@ -301,22 +305,9 @@ func _request_respawn() -> void:
 func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
-	if cancel_join_requested:
-		_log_join("join_arena_ack_ignored_due_to_cancel")
-		cancel_join_requested = false
-		return
-	_log_join("join_arena_ack success=%s message=%s" % [success, message])
-	if success:
-		assigned_spawn_position = spawn_position
-		assigned_spawn_rotation = spawn_rotation
-		arena_membership_active = true
-		join_status_changed.emit("ONLINE JOIN SUCCESS: %s" % message, false)
-	else:
-		arena_membership_active = false
-		push_warning("[client] join_arena_ack_failed message=%s" % message)
-		join_status_changed.emit("ONLINE JOIN FAILED: %s" % message, true)
-		_reset_connection()
-	join_arena_completed.emit(success, message)
+	NetworkClientJoinAckUtilsData.handle_join_arena_ack(
+		self, success, message, spawn_position, spawn_rotation
+	)
 
 
 @rpc("authority", "reliable")
@@ -366,8 +357,10 @@ func _receive_arena_shell_impact(
 
 
 @rpc("authority", "reliable")
-func _receive_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
-	arena_respawn_received.emit(peer_id, spawn_position, spawn_rotation)
+func _receive_arena_respawn(
+	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+) -> void:
+	arena_respawn_received.emit(peer_id, player_name, spawn_position, spawn_rotation)
 
 
 @rpc("authority", "reliable")
@@ -380,6 +373,11 @@ func _receive_arena_loadout_state(
 	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
 ) -> void:
 	arena_loadout_state_received.emit(selected_shell_path, shell_counts_by_path, reload_time_left)
+
+
+@rpc("authority", "reliable")
+func _receive_arena_kill_event(kill_event_payload: Dictionary) -> void:
+	NetworkClientKillFeedUtilsData.handle_kill_event_payload(kill_event_payload)
 
 
 func _log_join(message: String) -> void:

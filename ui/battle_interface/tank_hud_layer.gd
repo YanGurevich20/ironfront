@@ -36,6 +36,10 @@ func _sync_tank_huds() -> void:
 		var tank: Tank = node as Tank
 		if tank == null:
 			continue
+		if tank.is_player:
+			if tank_huds_by_tank.has(tank):
+				_remove_tank_hud(tank)
+			continue
 		if tank_huds_by_tank.has(tank):
 			continue
 		_create_tank_hud(tank)

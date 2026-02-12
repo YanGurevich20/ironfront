@@ -30,14 +30,14 @@ fix: build fmt lint
 
 # Export dedicated Linux server executable.
 server-export:
-	mkdir -p build/server
+	mkdir -p dist/server
 	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . --export-release "Linux Server" ./dist/server/ironfront_server.x86_64
 	chmod +x ./dist/server/ironfront_server.x86_64
 
 # Ship server in one command: truncate logs, export, stop, upload, run.
 server-ship instance=default_instance zone=default_zone remote_dir=default_remote_dir port=default_server_port:
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "mkdir -p {{remote_dir}}"
-	mkdir -p build/server
+	mkdir -p dist/server
 	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . --export-release "Linux Server" ./dist/server/ironfront_server.x86_64
 	chmod +x ./dist/server/ironfront_server.x86_64
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && if test -f server.pid; then kill \$(cat server.pid) 2>/dev/null || true; fi && pkill -f '[i]ronfront_server.x86_64 --headless' 2>/dev/null || true && rm -f server.pid"

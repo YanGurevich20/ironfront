@@ -54,3 +54,29 @@ static func broadcast_arena_shell_impact(
 			post_impact_rotation,
 			continue_simulation
 		)
+
+
+static func broadcast_arena_kill_event(
+	rpc_node: Node,
+	connected_peers: PackedInt32Array,
+	event_seq: int,
+	killer_peer_id: int,
+	killer_name: String,
+	killer_tank_name: String,
+	shell_short_name: String,
+	victim_peer_id: int,
+	victim_name: String,
+	victim_tank_name: String
+) -> void:
+	var kill_event_payload: Dictionary = {
+		"event_seq": event_seq,
+		"killer_peer_id": killer_peer_id,
+		"killer_name": killer_name,
+		"killer_tank_name": killer_tank_name,
+		"shell_short_name": shell_short_name,
+		"victim_peer_id": victim_peer_id,
+		"victim_name": victim_name,
+		"victim_tank_name": victim_tank_name,
+	}
+	for peer_id: int in connected_peers:
+		rpc_node.rpc_id(peer_id, "_receive_arena_kill_event", kill_event_payload)

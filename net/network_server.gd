@@ -13,6 +13,7 @@ signal arena_respawn_requested(peer_id: int)
 
 const MultiplayerProtocolData := preload("res://net/multiplayer_protocol.gd")
 const NetworkServerSnapshotBuilderData := preload("res://net/network_server_snapshot_builder.gd")
+const NetworkServerSpawnUtilsData := preload("res://net/network_server_spawn_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
 
 var server_peer: ENetMultiplayerPeer
@@ -95,12 +96,7 @@ func _receive_server_hello_ack(_server_protocol_version: int, _server_unix_time:
 @rpc("any_peer", "reliable")
 func _receive_client_hello(client_protocol_version: int, player_name: String) -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	print(
-		(
-			"[server][join] receive_client_hello peer=%d protocol=%d"
-			% [peer_id, client_protocol_version]
-		)
-	)
+	print("[server][join] client_hello peer=%d protocol=%d" % [peer_id, client_protocol_version])
 	print("[server] client_hello peer=%d player=%s" % [peer_id, player_name])
 	_receive_server_hello_ack.rpc_id(peer_id, protocol_version, Time.get_unix_time_from_system())
 
@@ -140,7 +136,9 @@ func _join_arena(
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
 		return
-	var random_spawn: Dictionary = _pick_random_spawn()
+	var random_spawn: Dictionary = NetworkServerSpawnUtilsData.pick_random_spawn(
+		arena_spawn_transforms_by_id
+	)
 	if random_spawn.is_empty():
 		print("[server][join] reject_join_arena peer=%d reason=NO_SPAWN_AVAILABLE" % peer_id)
 		arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
@@ -174,20 +172,8 @@ func _leave_arena() -> void:
 
 
 @rpc("authority", "reliable")
-func _receive_state_snapshot(_server_tick: int, _player_states: Array) -> void:
+func _receive_state_snapshot(_server_tick: int, _player_states: Array, _max_players: int) -> void:
 	push_warning("[server] unexpected RPC: _receive_state_snapshot")
-
-
-func _pick_random_spawn() -> Dictionary:
-	var available_spawn_ids: Array[StringName] = arena_spawn_transforms_by_id.keys()
-	if available_spawn_ids.is_empty():
-		return {}
-	available_spawn_ids.shuffle()
-	var selected_spawn_id: StringName = available_spawn_ids[0]
-	return {
-		"spawn_id": selected_spawn_id,
-		"spawn_transform": arena_spawn_transforms_by_id[selected_spawn_id],
-	}
 
 
 func on_server_tick(server_tick: int, tick_delta_seconds: float) -> void:
@@ -215,11 +201,16 @@ func _broadcast_state_snapshot(server_tick: int) -> void:
 		NetworkServerSnapshotBuilderData
 		. build_player_states_snapshot(arena_session_state, authoritative_player_states)
 	)
+	var arena_max_players: int = (
+		arena_session_state.max_players if arena_session_state != null else 0
+	)
 	var connected_peers: PackedInt32Array = multiplayer.get_peers()
 	total_snapshots_broadcast += 1
 	last_snapshot_tick = server_tick
 	for peer_id: int in connected_peers:
-		_receive_state_snapshot.rpc_id(peer_id, server_tick, snapshot_player_states)
+		_receive_state_snapshot.rpc_id(
+			peer_id, server_tick, snapshot_player_states, arena_max_players
+		)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
@@ -357,7 +348,7 @@ func _receive_arena_shell_impact(
 
 @rpc("authority", "reliable")
 func _receive_arena_respawn(
-	_peer_id: int, _spawn_position: Vector2, _spawn_rotation: float
+	_peer_id: int, _player_name: String, _spawn_position: Vector2, _spawn_rotation: float
 ) -> void:
 	push_warning("[server] unexpected RPC: _receive_arena_respawn")
 
@@ -374,10 +365,18 @@ func _receive_arena_loadout_state(
 	push_warning("[server] unexpected RPC: _receive_arena_loadout_state")
 
 
-func broadcast_arena_respawn(peer_id: int, spawn_position: Vector2, spawn_rotation: float) -> void:
-	var connected_peers: PackedInt32Array = multiplayer.get_peers()
-	for connected_peer_id: int in connected_peers:
-		_receive_arena_respawn.rpc_id(connected_peer_id, peer_id, spawn_position, spawn_rotation)
+@rpc("authority", "reliable")
+func _receive_arena_kill_event(_kill_event_payload: Dictionary) -> void:
+	push_warning("[server] unexpected RPC: _receive_arena_kill_event")
+
+
+func broadcast_arena_respawn(
+	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+) -> void:
+	for connected_peer_id: int in multiplayer.get_peers():
+		_receive_arena_respawn.rpc_id(
+			connected_peer_id, peer_id, player_name, spawn_position, spawn_rotation
+		)
 
 
 func send_arena_fire_rejected(peer_id: int, reason: String) -> void:

@@ -117,7 +117,7 @@ func _on_arena_respawn_requested(peer_id: int) -> void:
 		peer_id, spawn_transform.origin, spawn_transform.get_rotation(), Vector2.ZERO, 0.0
 	)
 	network_server.broadcast_arena_respawn(
-		peer_id, spawn_transform.origin, spawn_transform.get_rotation()
+		peer_id, player_name, spawn_transform.origin, spawn_transform.get_rotation()
 	)
 	print("[server][arena] player_respawned peer=%d spawn_id=%s" % [peer_id, spawn_id])
 

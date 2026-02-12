@@ -42,11 +42,7 @@ func _ready() -> void:
 	Utils.connect_checked(UiBus.return_to_menu_requested, _quit_level)
 	Utils.connect_checked(network_client.join_status_changed, ui_manager.update_online_join_overlay)
 	Utils.connect_checked(network_client.join_arena_completed, _on_join_arena_completed)
-	Utils.connect_checked(
-		network_client.state_snapshot_received,
-		func(server_tick: int, player_states: Array) -> void:
-			online_sync_runtime.call("on_state_snapshot_received", server_tick, player_states)
-	)
+	Utils.connect_checked(network_client.state_snapshot_received, _on_state_snapshot_received)
 	Utils.connect_checked(network_client.arena_shell_spawn_received, _on_arena_shell_spawn_received)
 	Utils.connect_checked(
 		network_client.arena_shell_impact_received, _on_arena_shell_impact_received
@@ -251,14 +247,16 @@ func _on_online_respawn_requested() -> void:
 
 
 func _on_arena_respawn_received(
-	peer_id: int, spawn_position: Vector2, spawn_rotation: float
+	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
 	if not is_online_arena_active:
 		return
 	if peer_id == multiplayer.get_unique_id():
 		_respawn_local_online_player_tank(spawn_position, spawn_rotation)
 		return
-	online_sync_runtime.call("respawn_remote_tank", peer_id, spawn_position, spawn_rotation)
+	online_sync_runtime.call(
+		"respawn_remote_tank", peer_id, player_name, spawn_position, spawn_rotation
+	)
 
 
 func _on_arena_fire_rejected_received(reason: String) -> void:
@@ -266,6 +264,13 @@ func _on_arena_fire_rejected_received(reason: String) -> void:
 		return
 	push_warning("%s authoritative_fire_rejected reason=%s" % [_log_prefix(), reason])
 	GameplayBus.online_fire_rejected.emit(reason)
+
+
+func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
+	online_sync_runtime.call("on_state_snapshot_received", server_tick, player_states)
+	if not is_online_arena_active:
+		return
+	GameplayBus.online_player_count_updated.emit(player_states.size(), max_players)
 
 
 func _on_arena_loadout_state_received(

@@ -101,7 +101,11 @@ func replace_local_player_tank(next_local_player_tank: Tank) -> void:
 
 
 func respawn_remote_tank(
-	peer_id: int, spawn_position: Vector2, spawn_rotation: float, spawn_turret_rotation: float = 0.0
+	peer_id: int,
+	player_name: String,
+	spawn_position: Vector2,
+	spawn_rotation: float,
+	spawn_turret_rotation: float = 0.0
 ) -> void:
 	if not runtime_active:
 		return
@@ -110,7 +114,7 @@ func respawn_remote_tank(
 		remote_tank.queue_free()
 	remote_tanks_by_peer_id.erase(peer_id)
 	remote_snapshot_history_by_peer_id.erase(peer_id)
-	_spawn_remote_tank(peer_id, "", spawn_position, spawn_rotation, spawn_turret_rotation)
+	_spawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation, spawn_turret_rotation)
 
 
 func get_tank_by_peer_id(peer_id: int) -> Tank:
@@ -275,6 +279,7 @@ func _spawn_remote_tank(
 	var remote_tank: Tank = TankManager.create_tank(
 		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
 	)
+	remote_tank.display_player_name = player_name.strip_edges()
 	remote_tank.freeze = true
 	remote_tank.sleeping = true
 	arena_level.add_child(remote_tank)

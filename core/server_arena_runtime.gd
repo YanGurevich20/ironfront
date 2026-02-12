@@ -14,6 +14,7 @@ var spawn_ids_by_peer_id: Dictionary[int, StringName] = {}
 var network_server: NetworkServer
 var arena_session_state: ArenaSessionState
 var next_shell_shot_id: int = 1
+var next_kill_event_seq: int = 1
 var shot_id_by_shell_instance_id: Dictionary[int, int] = {}
 var firing_peer_id_by_shell_instance_id: Dictionary[int, int] = {}
 var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
@@ -290,6 +291,22 @@ func _on_shell_impact_resolved(
 		post_impact_rotation,
 		continue_simulation
 	)
+	if remaining_health > 0 or damage <= 0:
+		return
+	var kill_event_seq: int = next_kill_event_seq
+	next_kill_event_seq += 1
+	NetworkServerBroadcastUtilsData.broadcast_arena_kill_event(
+		network_server,
+		network_server.multiplayer.get_peers(),
+		kill_event_seq,
+		firing_peer_id,
+		_get_player_name_for_peer(firing_peer_id),
+		_get_tank_display_name_for_peer(firing_peer_id),
+		_get_shell_short_name(shell),
+		target_peer_id,
+		_get_player_name_for_peer(target_peer_id),
+		_get_tank_display_name_for_peer(target_peer_id)
+	)
 
 
 func _on_server_shell_exited(shell_instance_id: int) -> void:
@@ -310,6 +327,8 @@ func _clear_runtime() -> void:
 	arena_spawn_transforms_by_id.clear()
 	shot_id_by_shell_instance_id.clear()
 	firing_peer_id_by_shell_instance_id.clear()
+	next_shell_shot_id = 1
+	next_kill_event_seq = 1
 	shell_spec_cache_by_path.clear()
 
 	if arena_level != null:
@@ -317,3 +336,45 @@ func _clear_runtime() -> void:
 			remove_child(arena_level)
 		arena_level.queue_free()
 	arena_level = null
+
+
+func _get_player_name_for_peer(peer_id: int) -> String:
+	if arena_session_state == null:
+		return str(peer_id)
+	var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
+	var player_name: String = str(peer_state.get("player_name", ""))
+	if player_name.is_empty():
+		return str(peer_id)
+	return player_name
+
+
+func _get_tank_display_name_for_peer(peer_id: int) -> String:
+	var live_tank: Tank = player_tanks_by_peer_id.get(peer_id)
+	var tank_spec: TankSpec = null
+	if live_tank != null:
+		tank_spec = live_tank.tank_spec
+	if tank_spec == null and arena_session_state != null:
+		var tank_id: int = arena_session_state.get_peer_tank_id(peer_id)
+		if TankManager.tank_specs.has(tank_id):
+			tank_spec = TankManager.tank_specs[tank_id]
+	if tank_spec == null:
+		return "TANK"
+	var display_name: String = tank_spec.display_name.strip_edges()
+	if not display_name.is_empty():
+		return display_name
+	var full_name: String = tank_spec.full_name.strip_edges()
+	if not full_name.is_empty():
+		return full_name
+	return "TANK"
+
+
+func _get_shell_short_name(shell: Shell) -> String:
+	if shell == null or shell.shell_spec == null:
+		return "SHELL"
+	var shell_name: String = shell.shell_spec.shell_name.strip_edges()
+	if shell_name.is_empty():
+		return "SHELL"
+	var shell_name_parts: PackedStringArray = shell_name.split(" ", false)
+	if shell_name_parts.is_empty():
+		return shell_name
+	return shell_name_parts[0]
