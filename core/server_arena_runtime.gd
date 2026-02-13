@@ -222,6 +222,7 @@ func step_authoritative_runtime(
 					"turret_rotation": actor_tank.turret.rotation,
 					"last_processed_input_tick": last_processed_input_tick,
 					"is_bot": is_bot,
+					"is_alive": actor_tank._health > 0,
 				}
 			)
 		)

@@ -3,6 +3,7 @@ extends Control
 
 const MAX_KILL_FEED_ITEMS: int = 5
 const PLAYER_COUNT_PLACEHOLDER_TEXT: String = "PLAYERS --/--"
+const BOT_COUNT_PLACEHOLDER_TEXT: String = "BOTS --"
 const PING_PLACEHOLDER_TEXT: String = "PING --"
 const PING_UPDATE_INTERVAL_SECONDS: float = 1.0
 
@@ -12,6 +13,7 @@ var ping_update_elapsed_seconds: float = 0.0
 var network_client: NetworkClient
 
 @onready var player_count_label: Label = %PlayerCountLabel
+@onready var bot_count_label: Label = %BotCountLabel
 @onready var ping_label: Label = %PingLabel
 @onready var kill_feed_list: VBoxContainer = %KillFeedList
 @onready
@@ -46,19 +48,23 @@ func set_online_session_active(is_active: bool) -> void:
 	latest_kill_event_seq = 0
 	ping_update_elapsed_seconds = 0.0
 	player_count_label.text = PLAYER_COUNT_PLACEHOLDER_TEXT
+	bot_count_label.text = BOT_COUNT_PLACEHOLDER_TEXT
 	ping_label.text = PING_PLACEHOLDER_TEXT
 	ping_label.visible = false
 	_clear_kill_feed()
 	_refresh_ping_indicator()
 
 
-func _on_online_player_count_updated(active_players: int, max_players: int) -> void:
+func _on_online_player_count_updated(
+	active_players: int, max_players: int, active_bots: int
+) -> void:
 	if not online_session_active:
 		return
 	if max_players <= 0:
 		player_count_label.text = "PLAYERS %d/--" % max(0, active_players)
-		return
-	player_count_label.text = "PLAYERS %d/%d" % [max(0, active_players), max_players]
+	else:
+		player_count_label.text = "PLAYERS %d/%d" % [max(0, active_players), max_players]
+	bot_count_label.text = "BOTS %d" % max(0, active_bots)
 
 
 func _on_online_kill_feed_event(
@@ -130,4 +136,4 @@ func _refresh_ping_indicator() -> void:
 		ping_label.visible = false
 		return
 	ping_label.visible = true
-	ping_label.text = "PING %dms" % ping_msec
+	ping_label.text = "[EU]PING %dms" % ping_msec

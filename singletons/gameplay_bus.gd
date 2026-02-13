@@ -12,7 +12,7 @@ signal online_fire_rejected(reason: String)
 signal online_loadout_state_updated(
 	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
 )
-signal online_player_count_updated(active_players: int, max_players: int)
+signal online_player_count_updated(active_players: int, max_players: int, active_bots: int)
 signal online_kill_feed_event(
 	event_seq: int,
 	killer_peer_id: int,

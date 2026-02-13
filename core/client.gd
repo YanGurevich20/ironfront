@@ -312,12 +312,14 @@ func _on_state_snapshot_received(server_tick: int, player_states: Array, max_pla
 	if not is_online_arena_active:
 		return
 	var active_human_players: int = 0
+	var active_bots: int = 0
 	for player_state_variant: Variant in player_states:
 		var player_state: Dictionary = player_state_variant
 		if bool(player_state.get("is_bot", false)):
+			active_bots += int(bool(player_state.get("is_alive", true)))
 			continue
 		active_human_players += 1
-	GameplayBus.online_player_count_updated.emit(active_human_players, max_players)
+	GameplayBus.online_player_count_updated.emit(active_human_players, max_players, active_bots)
 
 
 func _on_arena_loadout_state_received(

@@ -31,6 +31,7 @@ static func build_player_states_snapshot(
 					"turret_rotation": peer_state.get("state_turret_rotation", 0.0),
 					"last_processed_input_tick": peer_state.get("last_input_tick", 0),
 					"is_bot": false,
+					"is_alive": true,
 				}
 			)
 		)
