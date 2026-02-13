@@ -113,8 +113,8 @@ func complete_online_join_overlay(success: bool, message: String) -> void:
 	online_join_overlay.complete(success, message)
 
 
-func display_online_match_end(status_message: String) -> void:
-	online_match_result_overlay.display_match_end(status_message)
+func display_online_match_end(summary: Dictionary) -> void:
+	online_match_result_overlay.display_match_end(summary)
 	show_overlay(online_match_result_overlay)
 
 
@@ -194,7 +194,11 @@ func _on_abort_pressed() -> void:
 
 
 func _on_online_abort_pressed() -> void:
-	UiBus.online_match_abort_requested.emit()
+	UiBus.online_session_end_requested.emit("MATCH ABORTED")
+
+
+func _on_online_death_return_pressed() -> void:
+	UiBus.online_session_end_requested.emit("YOU WERE DESTROYED")
 
 
 func _on_online_respawn_pressed() -> void:
@@ -243,7 +247,9 @@ func _connect_signals() -> void:
 	Utils.connect_checked(online_match_result_overlay.exit_overlay_pressed, _on_return_pressed)
 	Utils.connect_checked(online_match_result_overlay.return_pressed, _on_return_pressed)
 	online_death_overlay.connect("respawn_pressed", Callable(self, "_on_online_respawn_pressed"))
-	online_death_overlay.connect("return_pressed", Callable(self, "_on_return_pressed"))
+	online_death_overlay.connect(
+		"return_pressed", Callable(self, "_on_online_death_return_pressed")
+	)
 
 	#* result overlay *#
 	Utils.connect_checked(result_overlay.exit_overlay_pressed, _on_return_pressed)

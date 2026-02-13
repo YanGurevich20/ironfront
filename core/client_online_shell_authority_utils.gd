@@ -2,6 +2,7 @@ class_name ClientOnlineShellAuthorityUtils
 extends RefCounted
 
 const ShellScene: PackedScene = preload("res://entities/shell/shell.tscn")
+static var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
 
 
 static func handle_shell_spawn_received(
@@ -25,7 +26,7 @@ static func handle_shell_spawn_received(
 			)
 		)
 		return
-	var shell_spec: ShellSpec = client._get_cached_shell_spec(shell_spec_path)
+	var shell_spec: ShellSpec = _get_cached_shell_spec(shell_spec_path)
 	if shell_spec == null:
 		push_warning(
 			(
@@ -97,6 +98,43 @@ static func handle_shell_impact_received(
 		target_tank.set_health(remaining_health)
 
 
+static func handle_loadout_state_received(
+	client: Client,
+	selected_shell_path: String,
+	shell_counts_by_path: Dictionary,
+	reload_time_left: float
+) -> void:
+	if not client.is_online_arena_active:
+		return
+	if client.online_player_tank == null:
+		return
+	if selected_shell_path.is_empty():
+		client.online_player_tank.set_remaining_shell_count(0)
+		GameplayBus.online_loadout_state_updated.emit(
+			selected_shell_path, shell_counts_by_path, reload_time_left
+		)
+		return
+	var selected_shell_spec: ShellSpec = _get_cached_shell_spec(selected_shell_path)
+	if selected_shell_spec == null:
+		push_warning(
+			(
+				"%s authoritative_loadout_state_invalid_selected_shell path=%s"
+				% [client._log_prefix(), selected_shell_path]
+			)
+		)
+		GameplayBus.online_loadout_state_updated.emit(
+			selected_shell_path, shell_counts_by_path, reload_time_left
+		)
+		return
+	var selected_shell_count: int = max(0, int(shell_counts_by_path.get(selected_shell_path, 0)))
+	client.online_player_tank.apply_authoritative_shell_state(
+		selected_shell_spec, selected_shell_count, reload_time_left
+	)
+	GameplayBus.online_loadout_state_updated.emit(
+		selected_shell_path, shell_counts_by_path, reload_time_left
+	)
+
+
 static func _reconcile_authoritative_shell_impact(
 	client: Client,
 	shot_id: int,
@@ -119,3 +157,14 @@ static func _reconcile_authoritative_shell_impact(
 		return
 	client.active_online_shells_by_shot_id.erase(shot_id)
 	impacted_shell.queue_free()
+
+
+static func _get_cached_shell_spec(shell_spec_path: String) -> ShellSpec:
+	if shell_spec_cache_by_path.has(shell_spec_path):
+		return shell_spec_cache_by_path[shell_spec_path]
+	var loaded_shell_spec_resource: Resource = load(shell_spec_path)
+	var loaded_shell_spec: ShellSpec = loaded_shell_spec_resource as ShellSpec
+	if loaded_shell_spec == null:
+		return null
+	shell_spec_cache_by_path[shell_spec_path] = loaded_shell_spec
+	return loaded_shell_spec

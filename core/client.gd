@@ -8,6 +8,8 @@ const ClientRuntimeUtilsData := preload("res://core/client_runtime_utils.gd")
 const ClientOnlineShellAuthorityUtilsData := preload(
 	"res://core/client_online_shell_authority_utils.gd"
 )
+const ClientOnlineRewardTrackerData := preload("res://core/client_online_reward_tracker.gd")
+const ONLINE_KILL_REWARD_DOLLARS: int = 5000
 
 var current_level: BaseLevel
 var current_level_key: int = 0
@@ -15,9 +17,11 @@ var online_arena_level: ArenaLevelMvp
 var online_player_tank: Tank
 var is_online_arena_active: bool = false
 var online_local_player_dead: bool = false
+var online_reward_tracker: ClientOnlineRewardTrackerData = ClientOnlineRewardTrackerData.new(
+	ONLINE_KILL_REWARD_DOLLARS
+)
 
 var online_arena_scene: PackedScene = preload("res://levels/arena/arena_level_mvp.tscn")
-var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
 var active_online_shells_by_shot_id: Dictionary[int, Shell] = {}
 
 @onready var root: SceneTree = get_tree()
@@ -37,7 +41,7 @@ func _ready() -> void:
 	Utils.connect_checked(UiBus.resume_requested, _resume_game)
 	Utils.connect_checked(UiBus.restart_level_requested, _restart_level)
 	Utils.connect_checked(UiBus.abort_level_requested, _abort_level)
-	Utils.connect_checked(UiBus.online_match_abort_requested, _abort_online_match)
+	Utils.connect_checked(UiBus.online_session_end_requested, _end_online_session)
 	Utils.connect_checked(UiBus.online_respawn_requested, _on_online_respawn_requested)
 	Utils.connect_checked(UiBus.return_to_menu_requested, _quit_level)
 	Utils.connect_checked(network_client.join_status_changed, ui_manager.update_online_join_overlay)
@@ -56,6 +60,7 @@ func _ready() -> void:
 	)
 	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
 	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
+	Utils.connect_checked(GameplayBus.online_kill_feed_event, _on_online_kill_feed_event)
 	Utils.connect_checked(MultiplayerBus.online_join_retry_requested, _connect_to_online_server)
 	Utils.connect_checked(
 		MultiplayerBus.online_join_cancel_requested,
@@ -71,6 +76,9 @@ func _connect_to_online_server() -> void:
 
 func _on_join_arena_completed(success: bool, message: String) -> void:
 	if not success:
+		if is_online_arena_active:
+			_end_online_session(message)
+			return
 		ui_manager.complete_online_join_overlay(false, message)
 		return
 	var bootstrap_success: bool = _start_online_arena()
@@ -131,14 +139,6 @@ func _abort_level() -> void:
 		current_level.finish_level(false)
 
 
-func _abort_online_match() -> void:
-	if not is_online_arena_active:
-		return
-	_quit_online_arena()
-	ui_manager.finish_level()
-	ui_manager.display_online_match_end("MATCH ABORTED")
-
-
 func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> void:
 	var reward_info: Dictionary = ClientMatchResultsData.calculate_level_reward(
 		metrics, current_level_key
@@ -189,6 +189,7 @@ func _start_online_arena() -> bool:
 	)
 	online_player_tank = player_tank
 	online_local_player_dead = false
+	online_reward_tracker.reset()
 	is_online_arena_active = true
 	ui_manager.set_online_session_active(true)
 	ui_manager.hide_online_death_overlay()
@@ -238,6 +239,33 @@ func _on_tank_destroyed(tank: Tank) -> void:
 	ui_manager.show_online_death_overlay()
 
 
+func _on_online_kill_feed_event(
+	event_seq: int,
+	killer_peer_id: int,
+	killer_name: String,
+	killer_tank_name: String,
+	shell_short_name: String,
+	victim_peer_id: int,
+	victim_name: String,
+	victim_tank_name: String
+) -> void:
+	if not is_online_arena_active:
+		return
+	if multiplayer.multiplayer_peer == null:
+		return
+	online_reward_tracker.on_kill_feed_event(
+		event_seq,
+		killer_peer_id,
+		killer_name,
+		killer_tank_name,
+		shell_short_name,
+		victim_peer_id,
+		victim_name,
+		victim_tank_name,
+		multiplayer.get_unique_id()
+	)
+
+
 func _on_online_respawn_requested() -> void:
 	if not is_online_arena_active:
 		return
@@ -266,6 +294,19 @@ func _on_arena_fire_rejected_received(reason: String) -> void:
 	GameplayBus.online_fire_rejected.emit(reason)
 
 
+func _end_online_session(status_message: String) -> void:
+	if not is_online_arena_active:
+		return
+	var player_data: PlayerData = PlayerData.get_instance()
+	var summary: Dictionary = online_reward_tracker.build_summary(status_message)
+	online_reward_tracker.apply_rewards(player_data)
+	GameplayBus.level_finished_and_saved.emit()
+	_quit_online_arena()
+	ui_manager.finish_level()
+	ui_manager.display_online_match_end(summary)
+	online_reward_tracker.reset()
+
+
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
 	online_sync_runtime.call("on_state_snapshot_received", server_tick, player_states)
 	if not is_online_arena_active:
@@ -276,34 +317,8 @@ func _on_state_snapshot_received(server_tick: int, player_states: Array, max_pla
 func _on_arena_loadout_state_received(
 	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
 ) -> void:
-	if not is_online_arena_active:
-		return
-	if online_player_tank == null:
-		return
-	if selected_shell_path.is_empty():
-		online_player_tank.set_remaining_shell_count(0)
-		GameplayBus.online_loadout_state_updated.emit(
-			selected_shell_path, shell_counts_by_path, reload_time_left
-		)
-		return
-	var selected_shell_spec: ShellSpec = _get_cached_shell_spec(selected_shell_path)
-	if selected_shell_spec == null:
-		push_warning(
-			(
-				"%s authoritative_loadout_state_invalid_selected_shell path=%s"
-				% [_log_prefix(), selected_shell_path]
-			)
-		)
-		GameplayBus.online_loadout_state_updated.emit(
-			selected_shell_path, shell_counts_by_path, reload_time_left
-		)
-		return
-	var selected_shell_count: int = max(0, int(shell_counts_by_path.get(selected_shell_path, 0)))
-	online_player_tank.apply_authoritative_shell_state(
-		selected_shell_spec, selected_shell_count, reload_time_left
-	)
-	GameplayBus.online_loadout_state_updated.emit(
-		selected_shell_path, shell_counts_by_path, reload_time_left
+	ClientOnlineShellAuthorityUtilsData.handle_loadout_state_received(
+		self, selected_shell_path, shell_counts_by_path, reload_time_left
 	)
 
 
@@ -375,14 +390,3 @@ func _on_arena_shell_impact_received(
 		post_impact_rotation,
 		continue_simulation
 	)
-
-
-func _get_cached_shell_spec(shell_spec_path: String) -> ShellSpec:
-	if shell_spec_cache_by_path.has(shell_spec_path):
-		return shell_spec_cache_by_path[shell_spec_path]
-	var loaded_shell_spec_resource: Resource = load(shell_spec_path)
-	var loaded_shell_spec: ShellSpec = loaded_shell_spec_resource as ShellSpec
-	if loaded_shell_spec == null:
-		return null
-	shell_spec_cache_by_path[shell_spec_path] = loaded_shell_spec
-	return loaded_shell_spec

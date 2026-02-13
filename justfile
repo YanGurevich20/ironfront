@@ -68,3 +68,6 @@ server-logs instance=default_instance zone=default_zone remote_dir=default_remot
 # Follow server logs on a GCP VM.
 server-logs-follow instance=default_instance zone=default_zone remote_dir=default_remote_dir:
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && tail -f server.log"
+
+install-apk:
+	adb install -r dist/android/Ironfront.apk
