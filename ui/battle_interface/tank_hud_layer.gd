@@ -109,7 +109,6 @@ func _update_tank_hud_positions() -> void:
 		var tank_hud: TankHUD = tank_huds_by_tank.get(tank_key)
 		if tank_hud == null:
 			continue
-		tank_hud.update_health_bar(tank._health)
 		tank_hud.global_position = _world_to_screen(camera, _get_hud_world_position(tank, tank_hud))
 		tank_hud.rotation = 0.0
 

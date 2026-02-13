@@ -23,6 +23,7 @@ var _online_session_active: bool = false
 
 
 func _ready() -> void:
+	get_viewport().gui_snap_controls_to_pixels = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu_nodes = [login_menu, garage]
 	_control_nodes = [battle_interface]

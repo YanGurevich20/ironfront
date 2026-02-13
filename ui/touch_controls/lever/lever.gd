@@ -3,6 +3,8 @@ extends Control
 
 signal lever_moved(lever_side: LeverSide, value: float)
 signal lever_double_tapped
+signal lever_released(lever_side: LeverSide, is_locked: bool)
+signal lever_lock_changed(lever_side: LeverSide, is_locked: bool)
 
 enum LeverSide { LEFT = 0, RIGHT = 1 }
 
@@ -27,6 +29,8 @@ var last_value := 0.0
 var start_position: Vector2
 var last_touch_press_time_msec: int = -1
 var last_touch_press_position: Vector2 = Vector2.ZERO
+var release_pending: bool = false
+var released_with_lock: bool = false
 
 @onready var lever_sprite: Sprite2D = %LeverSprite
 @onready var click_small: AudioStreamPlayer = %LeverClickSmall
@@ -48,6 +52,9 @@ func _gui_input(event: InputEvent) -> void:
 	else:
 		return
 	update_lever()
+	if release_pending:
+		release_pending = false
+		lever_released.emit(lever_side, released_with_lock)
 
 
 func _handle_touch(event: InputEventScreenTouch) -> void:
@@ -62,7 +69,10 @@ func _handle_touch(event: InputEventScreenTouch) -> void:
 		if should_lock != should_lock_last_value:
 			play_large_click(1.0 if should_lock else 1.5)
 			should_lock_last_value = should_lock
+			lever_lock_changed.emit(lever_side, should_lock)
 		touch_y_position = event.position.y if should_lock else control_field_height / 2
+		release_pending = true
+		released_with_lock = should_lock
 
 
 func _handle_drag(event: InputEventScreenDrag) -> void:
@@ -70,6 +80,7 @@ func _handle_drag(event: InputEventScreenDrag) -> void:
 	if should_lock != should_lock_last_value:
 		play_large_click(1.0 if should_lock else 1.5)
 		should_lock_last_value = should_lock
+		lever_lock_changed.emit(lever_side, should_lock)
 	touch_y_position = event.position.y
 
 
@@ -107,6 +118,7 @@ func update_lever() -> void:
 		click_small.pitch_scale = randfn(0.7, 0.03)
 		click_small.play()
 		last_value = lever_value
+		lever_moved.emit(lever_side, lever_value)
 		GameplayBus.lever_input.emit(lever_side, lever_value)
 
 
@@ -116,9 +128,12 @@ func reset_input() -> void:
 	should_lock_last_value = false
 	last_touch_press_time_msec = -1
 	last_touch_press_position = Vector2.ZERO
+	release_pending = false
+	released_with_lock = false
 	lever_sprite.frame = _resolve_sprite_frame(CENTER_FRAME)
 	lever_value = 0.0
 	last_value = 0.0
+	lever_lock_changed.emit(lever_side, false)
 	GameplayBus.lever_input.emit(lever_side, lever_value)
 
 

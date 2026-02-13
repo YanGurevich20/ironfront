@@ -3,38 +3,45 @@ class_name EnemyIndicators extends Control
 @export var arrow_texture: Texture2D
 @export var edge_padding: float = 16.0
 
-var _arrows: Dictionary[Tank, TextureRect] = {}
-var _enemies: Array[Tank] = []
+var _enemy_tanks_by_id: Dictionary[int, Tank] = {}
+var _arrows_by_enemy_id: Dictionary[int, TextureRect] = {}
 
 
 func _ready() -> void:
-	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
+	Utils.connect_checked(get_tree().node_added, _on_node_added)
+	Utils.connect_checked(get_tree().node_removed, _on_node_removed)
 
 
 func _process(delta: float) -> void:
 	if delta < 0.0:
 		return
+	if not visible:
+		return
 	var camera := get_viewport().get_camera_2d()
 	if camera == null:
 		return
 	var viewport_rect := Rect2(Vector2.ZERO, get_viewport_rect().size)
-	var enemies: Array[Tank] = _arrows.keys()
+	var enemy_ids: Array[int] = _enemy_tanks_by_id.keys()
 
-	if enemies.is_empty():
+	if enemy_ids.is_empty():
 		return
 
-	for enemy: Tank in enemies:
-		if not is_instance_valid(enemy):
-			_remove_arrow(enemy)
+	for enemy_id: int in enemy_ids:
+		var enemy_tank: Tank = _enemy_tanks_by_id.get(enemy_id)
+		if enemy_tank == null or not is_instance_valid(enemy_tank):
+			_remove_enemy(enemy_id)
 			continue
-		var screen_pos := _world_to_screen(camera, enemy.global_position)
+		if not enemy_tank.is_inside_tree() or not enemy_tank.is_in_group("tank"):
+			_remove_enemy(enemy_id)
+			continue
+		var screen_pos := _world_to_screen(camera, enemy_tank.global_position)
 		if viewport_rect.has_point(screen_pos):
-			var existing_arrow := _arrows[enemy]
+			var existing_arrow: TextureRect = _arrows_by_enemy_id.get(enemy_id)
 			if existing_arrow != null:
 				existing_arrow.hide()
 			continue
 		var direction := screen_pos - viewport_rect.size * 0.5
-		var arrow: TextureRect = _arrows[enemy]
+		var arrow: TextureRect = _arrows_by_enemy_id.get(enemy_id)
 		if arrow == null:
 			continue
 		var edge_pos := _get_edge_position(viewport_rect, direction)
@@ -43,43 +50,50 @@ func _process(delta: float) -> void:
 		arrow.show()
 
 
-func _on_tank_destroyed(tank: Tank) -> void:
-	if not _enemies.has(tank):
+func _on_node_added(node: Node) -> void:
+	if not visible:
 		return
-	_remove_arrow(tank)
-	_enemies.erase(tank)
+	var enemy_tank: Tank = node as Tank
+	if enemy_tank == null:
+		return
+	_register_enemy(enemy_tank)
+
+
+func _on_node_removed(node: Node) -> void:
+	var enemy_tank: Tank = node as Tank
+	if enemy_tank == null:
+		return
+	var enemy_id: int = enemy_tank.get_instance_id()
+	_remove_enemy(enemy_id)
 
 
 func reset_indicators() -> void:
-	var enemies: Array[Tank] = _arrows.keys()
-	for enemy: Tank in enemies:
-		_remove_arrow(enemy)
-	_enemies.clear()
+	var enemy_ids: Array[int] = _enemy_tanks_by_id.keys()
+	for enemy_id: int in enemy_ids:
+		_remove_enemy(enemy_id)
 	visible = false
 
 
 func display_indicators() -> void:
 	visible = true
-	_enemies = _get_enemy_tanks()
-	for enemy: Tank in _enemies:
-		_get_or_create_arrow(enemy)
+	_register_current_enemies()
 
 
-func _get_enemy_tanks() -> Array[Tank]:
-	var enemies: Array[Tank] = []
+func _register_current_enemies() -> void:
 	for node: Node in get_tree().get_nodes_in_group("tank"):
-		var tank := node as Tank
-		if tank == null:
+		var enemy_tank: Tank = node as Tank
+		if enemy_tank == null:
 			continue
-		if not tank.is_player:
-			enemies.append(tank)
-	return enemies
+		_register_enemy(enemy_tank)
 
 
-func _get_or_create_arrow(enemy: Tank) -> TextureRect:
-	if _arrows.has(enemy):
-		return _arrows[enemy]
-
+func _register_enemy(enemy_tank: Tank) -> void:
+	if enemy_tank.is_player or not enemy_tank.is_in_group("tank"):
+		return
+	var enemy_id: int = enemy_tank.get_instance_id()
+	if _enemy_tanks_by_id.has(enemy_id):
+		return
+	_enemy_tanks_by_id[enemy_id] = enemy_tank
 	var arrow := TextureRect.new()
 	arrow.texture = arrow_texture
 	arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -90,15 +104,20 @@ func _get_or_create_arrow(enemy: Tank) -> TextureRect:
 	arrow.size = arrow_size
 	arrow.pivot_offset = arrow_size * 0.5
 	add_child(arrow)
-	_arrows[enemy] = arrow
-	return arrow
+	_arrows_by_enemy_id[enemy_id] = arrow
+	enemy_tank.tree_exiting.connect(_on_enemy_tree_exiting.bind(enemy_id), CONNECT_ONE_SHOT)
 
 
-func _remove_arrow(enemy: Tank) -> void:
-	var arrow := _arrows.get(enemy) as TextureRect
+func _on_enemy_tree_exiting(enemy_id: int) -> void:
+	_remove_enemy(enemy_id)
+
+
+func _remove_enemy(enemy_id: int) -> void:
+	var arrow: TextureRect = _arrows_by_enemy_id.get(enemy_id)
 	if arrow != null:
 		arrow.queue_free()
-	_arrows.erase(enemy)
+	_arrows_by_enemy_id.erase(enemy_id)
+	_enemy_tanks_by_id.erase(enemy_id)
 
 
 func _get_edge_position(viewport_rect: Rect2, direction: Vector2) -> Vector2:

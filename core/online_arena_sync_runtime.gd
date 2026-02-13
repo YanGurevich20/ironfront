@@ -6,12 +6,25 @@ var local_player_tank: Tank
 var runtime_active: bool = false
 
 var latest_snapshot_server_tick: int = 0
-var snapshot_render_delay_ticks: int = 1
+var snapshot_render_delay_ticks: int = 2
+var latest_snapshot_received_local_time_seconds: float = 0.0
+var last_snapshot_received_server_tick: int = -1
+var last_snapshot_received_local_time_seconds: float = -1.0
+var estimated_server_ticks_per_second: float = 60.0
 var remote_tanks_by_peer_id: Dictionary = {}
 var remote_snapshot_history_by_peer_id: Dictionary = {}
 var max_snapshot_history_per_peer: int = 24
 var reconciliation_hard_snap_distance: float = 48.0
-var reconciliation_soft_blend: float = 0.5
+var reconciliation_min_error_distance: float = 6.0
+var reconciliation_max_position_correction_speed: float = 96.0
+var reconciliation_rotation_blend_per_second: float = 8.0
+var reconciliation_velocity_blend_per_second: float = 5.0
+var has_pending_local_authoritative_state: bool = false
+var pending_local_authoritative_server_tick: int = 0
+var pending_local_authoritative_position: Vector2 = Vector2.ZERO
+var pending_local_authoritative_rotation: float = 0.0
+var pending_local_authoritative_linear_velocity: Vector2 = Vector2.ZERO
+var pending_local_last_processed_input_tick: int = 0
 
 
 func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
@@ -20,9 +33,14 @@ func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank
 	local_player_tank = next_local_player_tank
 	runtime_active = arena_level != null and local_player_tank != null
 	latest_snapshot_server_tick = 0
+	latest_snapshot_received_local_time_seconds = 0.0
+	last_snapshot_received_server_tick = -1
+	last_snapshot_received_local_time_seconds = -1.0
+	estimated_server_ticks_per_second = 60.0
 	remote_tanks_by_peer_id.clear()
 	remote_snapshot_history_by_peer_id.clear()
 	set_process(runtime_active)
+	set_physics_process(runtime_active)
 	print(
 		(
 			"%s[sync] runtime_started local_tank=%s"
@@ -41,16 +59,45 @@ func stop_runtime() -> void:
 	remote_tanks_by_peer_id.clear()
 	remote_snapshot_history_by_peer_id.clear()
 	latest_snapshot_server_tick = 0
+	latest_snapshot_received_local_time_seconds = 0.0
+	last_snapshot_received_server_tick = -1
+	last_snapshot_received_local_time_seconds = -1.0
+	estimated_server_ticks_per_second = 60.0
 	arena_level = null
 	local_player_tank = null
 	runtime_active = false
+	has_pending_local_authoritative_state = false
+	pending_local_authoritative_server_tick = 0
+	pending_local_authoritative_position = Vector2.ZERO
+	pending_local_authoritative_rotation = 0.0
+	pending_local_authoritative_linear_velocity = Vector2.ZERO
+	pending_local_last_processed_input_tick = 0
 	set_process(false)
+	set_physics_process(false)
 	print("%s[sync] runtime_stopped" % _log_prefix())
 
 
 func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 	if not runtime_active:
 		return
+	var now_seconds: float = _get_now_seconds()
+	if (
+		last_snapshot_received_server_tick >= 0
+		and server_tick > last_snapshot_received_server_tick
+		and last_snapshot_received_local_time_seconds >= 0.0
+	):
+		var delta_ticks: int = server_tick - last_snapshot_received_server_tick
+		var delta_seconds: float = max(
+			0.0001, now_seconds - last_snapshot_received_local_time_seconds
+		)
+		var measured_tick_rate_hz: float = float(delta_ticks) / delta_seconds
+		var clamped_tick_rate_hz: float = clamp(measured_tick_rate_hz, 20.0, 240.0)
+		estimated_server_ticks_per_second = lerpf(
+			estimated_server_ticks_per_second, clamped_tick_rate_hz, 0.2
+		)
+	last_snapshot_received_server_tick = server_tick
+	last_snapshot_received_local_time_seconds = now_seconds
+	latest_snapshot_received_local_time_seconds = now_seconds
 	latest_snapshot_server_tick = max(latest_snapshot_server_tick, server_tick)
 	var seen_peer_ids: Dictionary = {}
 	for player_state_variant: Variant in player_states:
@@ -67,7 +114,7 @@ func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 		var authoritative_turret_rotation: float = float(player_state.get("turret_rotation", 0.0))
 		var last_processed_input_tick: int = int(player_state.get("last_processed_input_tick", 0))
 		if peer_id == multiplayer.get_unique_id():
-			_apply_local_reconciliation(
+			_queue_local_reconciliation(
 				server_tick,
 				authoritative_position,
 				authoritative_rotation,
@@ -131,37 +178,70 @@ func _process(_delta: float) -> void:
 	_update_remote_tank_interpolation()
 
 
-func _apply_local_reconciliation(
+func _physics_process(delta: float) -> void:
+	if not runtime_active:
+		return
+	_apply_local_reconciliation(delta)
+
+
+func _queue_local_reconciliation(
 	server_tick: int,
 	authoritative_position: Vector2,
 	authoritative_rotation: float,
 	authoritative_linear_velocity: Vector2,
 	last_processed_input_tick: int
 ) -> void:
+	has_pending_local_authoritative_state = true
+	pending_local_authoritative_server_tick = server_tick
+	pending_local_authoritative_position = authoritative_position
+	pending_local_authoritative_rotation = authoritative_rotation
+	pending_local_authoritative_linear_velocity = authoritative_linear_velocity
+	pending_local_last_processed_input_tick = last_processed_input_tick
+
+
+func _apply_local_reconciliation(delta: float) -> void:
 	if local_player_tank == null:
 		return
+	if not has_pending_local_authoritative_state:
+		return
+	if delta <= 0.0:
+		return
 	var position_error: float = local_player_tank.global_position.distance_to(
-		authoritative_position
+		pending_local_authoritative_position
 	)
 	if position_error > reconciliation_hard_snap_distance:
-		local_player_tank.global_position = authoritative_position
-		local_player_tank.global_rotation = authoritative_rotation
-		local_player_tank.linear_velocity = authoritative_linear_velocity
+		local_player_tank.global_position = pending_local_authoritative_position
+		local_player_tank.global_rotation = pending_local_authoritative_rotation
+		local_player_tank.linear_velocity = pending_local_authoritative_linear_velocity
+		has_pending_local_authoritative_state = false
 		push_warning(
 			(
 				"%s[sync][local] hard_snap tick=%d error=%.2f last_input=%d"
-				% [_log_prefix(), server_tick, position_error, last_processed_input_tick]
+				% [
+					_log_prefix(),
+					pending_local_authoritative_server_tick,
+					position_error,
+					pending_local_last_processed_input_tick
+				]
 			)
 		)
 		return
-	local_player_tank.global_position = local_player_tank.global_position.lerp(
-		authoritative_position, reconciliation_soft_blend
-	)
+	if position_error > reconciliation_min_error_distance:
+		var correction_direction: Vector2 = (
+			(pending_local_authoritative_position - local_player_tank.global_position).normalized()
+		)
+		var correction_distance: float = min(
+			position_error - reconciliation_min_error_distance,
+			reconciliation_max_position_correction_speed * delta
+		)
+		local_player_tank.global_position += correction_direction * correction_distance
+	var rotation_blend: float = min(1.0, reconciliation_rotation_blend_per_second * delta)
 	local_player_tank.global_rotation = lerp_angle(
-		local_player_tank.global_rotation, authoritative_rotation, reconciliation_soft_blend
+		local_player_tank.global_rotation, pending_local_authoritative_rotation, rotation_blend
 	)
+	var velocity_blend: float = min(1.0, reconciliation_velocity_blend_per_second * delta)
 	local_player_tank.linear_velocity = local_player_tank.linear_velocity.lerp(
-		authoritative_linear_velocity, reconciliation_soft_blend
+		pending_local_authoritative_linear_velocity, velocity_blend
 	)
 
 
@@ -220,7 +300,16 @@ func _remove_stale_remote_tanks(seen_peer_ids: Dictionary) -> void:
 
 
 func _update_remote_tank_interpolation() -> void:
-	var target_tick: int = max(0, latest_snapshot_server_tick - snapshot_render_delay_ticks)
+	if latest_snapshot_server_tick <= 0:
+		return
+	var elapsed_since_latest_snapshot_seconds: float = max(
+		0.0, _get_now_seconds() - latest_snapshot_received_local_time_seconds
+	)
+	var projected_server_tick: float = (
+		float(latest_snapshot_server_tick)
+		+ elapsed_since_latest_snapshot_seconds * estimated_server_ticks_per_second
+	)
+	var target_tick: float = max(0.0, projected_server_tick - float(snapshot_render_delay_ticks))
 	for peer_id_variant: Variant in remote_tanks_by_peer_id.keys():
 		var peer_id: int = int(peer_id_variant)
 		var remote_tank: Tank = remote_tanks_by_peer_id.get(peer_id)
@@ -234,9 +323,9 @@ func _update_remote_tank_interpolation() -> void:
 		for history_sample_variant: Variant in history:
 			var history_sample: Dictionary = history_sample_variant
 			var sample_tick: int = int(history_sample.get("server_tick", 0))
-			if sample_tick <= target_tick:
+			if float(sample_tick) <= target_tick:
 				older_sample = history_sample
-			if sample_tick >= target_tick:
+			if float(sample_tick) >= target_tick:
 				newer_sample = history_sample
 				break
 		if older_sample.is_empty():
@@ -248,7 +337,7 @@ func _update_remote_tank_interpolation() -> void:
 		var blend_t: float = 0.0
 		if newer_tick > older_tick:
 			blend_t = clamp(
-				float(target_tick - older_tick) / float(newer_tick - older_tick), 0.0, 1.0
+				(target_tick - float(older_tick)) / float(newer_tick - older_tick), 0.0, 1.0
 			)
 		var older_position: Vector2 = older_sample.get("position", remote_tank.global_position)
 		var newer_position: Vector2 = newer_sample.get("position", older_position)
@@ -298,3 +387,7 @@ func _log_prefix() -> String:
 	if multiplayer.multiplayer_peer != null:
 		peer_id = multiplayer.get_unique_id()
 	return "[client-sync pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
+
+
+func _get_now_seconds() -> float:
+	return float(Time.get_ticks_usec()) / 1_000_000.0

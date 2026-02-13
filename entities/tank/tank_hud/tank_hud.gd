@@ -2,7 +2,6 @@ class_name TankHUD extends Control
 
 const IMPACT_RESULT_TYPE := ShellSpec.ImpactResultType
 
-var tank_reference: Tank
 var impact_timer: SceneTreeTimer
 var settings_data: SettingsData
 
@@ -26,7 +25,6 @@ func _apply_settings() -> void:
 
 
 func initialize(tank: Tank) -> void:
-	tank_reference = tank
 	var player_data := PlayerData.get_instance()
 	var resolved_player_name: String = tank.display_player_name.strip_edges()
 	if resolved_player_name.is_empty():
@@ -43,15 +41,6 @@ func initialize(tank: Tank) -> void:
 func update_health_bar(health: int) -> void:
 	health_bar.value = health
 	health_value_label.text = str(health)
-
-
-func update_hud_position() -> void:
-	assert(tank_reference != null, "Tank reference is not set")
-	var biggest_dimension: float = max(
-		tank_reference.tank_spec.hull_size.x, tank_reference.tank_spec.hull_size.y
-	)
-	global_position = tank_reference.global_position - Vector2(size.x / 2, biggest_dimension)
-	rotation = -tank_reference.global_rotation
 
 
 func handle_impact_result(impact_result: ShellSpec.ImpactResult) -> void:

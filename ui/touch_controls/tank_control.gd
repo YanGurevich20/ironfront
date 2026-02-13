@@ -8,6 +8,9 @@ const MIN_PINCH_DISTANCE: float = 8.0
 var pinch_touch_positions: Dictionary[int, Vector2] = {}
 var pinch_start_distance: float = 0.0
 var pinch_start_zoom_level: float = 1.0
+var dual_control_active: bool = false
+var dual_control_master: Lever = null
+var dual_control_slave: Lever = null
 
 @onready var left_lever: Lever = $LeftLever
 @onready var right_lever: Lever = $RightLever
@@ -22,8 +25,42 @@ func _ready() -> void:
 		fire_button.fire_button_pressed, func() -> void: GameplayBus.fire_input.emit()
 	)
 	Utils.connect_checked(pause_button.pressed, func() -> void: UiBus.pause_input.emit())
-	Utils.connect_checked(left_lever.lever_double_tapped, _on_lever_double_tapped)
-	Utils.connect_checked(right_lever.lever_double_tapped, _on_lever_double_tapped)
+	Utils.connect_checked(
+		left_lever.lever_double_tapped, func() -> void: _on_lever_double_tapped(left_lever)
+	)
+	Utils.connect_checked(
+		right_lever.lever_double_tapped, func() -> void: _on_lever_double_tapped(right_lever)
+	)
+	Utils.connect_checked(
+		left_lever.lever_moved,
+		func(lever_side: Lever.LeverSide, value: float) -> void:
+			_on_dual_control_master_lever_moved(left_lever, lever_side, value)
+	)
+	Utils.connect_checked(
+		right_lever.lever_moved,
+		func(lever_side: Lever.LeverSide, value: float) -> void:
+			_on_dual_control_master_lever_moved(right_lever, lever_side, value)
+	)
+	Utils.connect_checked(
+		left_lever.lever_released,
+		func(lever_side: Lever.LeverSide, is_locked: bool) -> void:
+			_on_dual_control_master_lever_released(left_lever, lever_side, is_locked)
+	)
+	Utils.connect_checked(
+		right_lever.lever_released,
+		func(lever_side: Lever.LeverSide, is_locked: bool) -> void:
+			_on_dual_control_master_lever_released(right_lever, lever_side, is_locked)
+	)
+	Utils.connect_checked(
+		left_lever.lever_lock_changed,
+		func(lever_side: Lever.LeverSide, is_locked: bool) -> void:
+			_on_dual_control_master_lock_changed(left_lever, lever_side, is_locked)
+	)
+	Utils.connect_checked(
+		right_lever.lever_lock_changed,
+		func(lever_side: Lever.LeverSide, is_locked: bool) -> void:
+			_on_dual_control_master_lock_changed(right_lever, lever_side, is_locked)
+	)
 	_apply_settings()
 	Utils.connect_checked(GameplayBus.settings_changed, _apply_settings)
 
@@ -39,6 +76,7 @@ func _set_zoom_level(value: float) -> void:
 
 
 func reset_input() -> void:
+	_clear_dual_control_state()
 	left_lever.reset_input()
 	right_lever.reset_input()
 	traverse_wheel.reset_input()
@@ -49,9 +87,78 @@ func display_controls() -> void:
 	shell_select.initialize()
 
 
-func _on_lever_double_tapped() -> void:
-	left_lever.reset_input()
-	right_lever.reset_input()
+func _on_lever_double_tapped(source_lever: Lever) -> void:
+	dual_control_active = true
+	dual_control_master = source_lever
+	dual_control_slave = right_lever if source_lever == left_lever else left_lever
+	_sync_dual_control_slave(dual_control_master.lever_value)
+
+
+func _on_dual_control_master_lever_moved(
+	source_lever: Lever, lever_side: Lever.LeverSide, value: float
+) -> void:
+	if not dual_control_active:
+		return
+	if source_lever != dual_control_master:
+		return
+	if dual_control_slave == null:
+		return
+	if lever_side != source_lever.lever_side:
+		return
+	_sync_dual_control_slave(value)
+
+
+func _on_dual_control_master_lever_released(
+	source_lever: Lever, lever_side: Lever.LeverSide, is_locked: bool
+) -> void:
+	if not dual_control_active:
+		return
+	if source_lever != dual_control_master:
+		return
+	if lever_side != source_lever.lever_side:
+		return
+	if is_locked:
+		_sync_dual_control_slave(source_lever.lever_value)
+	else:
+		left_lever.reset_input()
+		right_lever.reset_input()
+	_clear_dual_control_state()
+
+
+func _on_dual_control_master_lock_changed(
+	source_lever: Lever, lever_side: Lever.LeverSide, is_locked: bool
+) -> void:
+	if not dual_control_active:
+		return
+	if source_lever != dual_control_master:
+		return
+	if lever_side != source_lever.lever_side:
+		return
+	if is_locked != source_lever.should_lock_last_value:
+		return
+	_sync_dual_control_slave(source_lever.lever_value)
+
+
+func _sync_dual_control_slave(master_value: float) -> void:
+	if dual_control_master == null:
+		return
+	if dual_control_slave == null:
+		return
+	var clamped_value: float = clampf(master_value, -1.0, 1.0)
+	var step: int = int(
+		round(float(Lever.CENTER_FRAME) - clamped_value * float(Lever.CENTER_FRAME))
+	)
+	step = clamp(step, 0, Lever.TOTAL_FRAMES - 1)
+	var step_height: float = dual_control_slave.control_field_height / float(Lever.TOTAL_FRAMES)
+	dual_control_slave.should_lock_last_value = dual_control_master.should_lock_last_value
+	dual_control_slave.touch_y_position = (float(step) + 0.5) * step_height
+	dual_control_slave.update_lever()
+
+
+func _clear_dual_control_state() -> void:
+	dual_control_active = false
+	dual_control_master = null
+	dual_control_slave = null
 
 
 func _unhandled_input(event: InputEvent) -> void:

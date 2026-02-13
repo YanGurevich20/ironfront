@@ -5,7 +5,7 @@ const ServerArenaRuntimeScript := preload("res://core/server_arena_runtime.gd")
 
 @export var listen_port: int = 7000
 @export var max_clients: int = 32
-@export var tick_rate_hz: int = 30
+@export var tick_rate_hz: int = 60
 @export var arena_max_players: int = 10
 @export var arena_level_scene: PackedScene = preload("res://levels/arena/arena_level_mvp.tscn")
 
