@@ -1,20 +1,17 @@
 class_name TankHUD extends Control
 
-const IMPACT_RESULT_TYPE := ShellSpec.ImpactResultType
-
-var impact_timer: SceneTreeTimer
+var damage_ticker_timer: SceneTreeTimer
 var settings_data: SettingsData
 
 @onready var player_name_label: Label = %PlayerName
 @onready var tank_name_label: Label = %TankName
 @onready var health_bar: TextureProgressBar = %HealthBar
 @onready var health_value_label: Label = %HealthValue
-@onready var impact_result_type_label: Label = %ImpactResultType
 @onready var damage_ticker_label: Label = %DamageTicker
 
 
 func _ready() -> void:
-	_hide_impact_result()
+	_hide_damage_ticker()
 	settings_data = SettingsData.get_instance()
 	Utils.connect_checked(GameplayBus.settings_changed, _apply_settings)
 	_apply_settings()
@@ -44,23 +41,22 @@ func update_health_bar(health: int) -> void:
 
 
 func handle_impact_result(impact_result: ShellSpec.ImpactResult) -> void:
-	var result_type := impact_result.result_type
-	if impact_timer != null and impact_timer.timeout.is_connected(_hide_impact_result):
-		impact_timer.timeout.disconnect(_hide_impact_result)
-
-	var result_name: String = IMPACT_RESULT_TYPE.find_key(result_type)
-	impact_result_type_label.text = result_name.capitalize() + "!"
-	impact_result_type_label.show()
+	if (
+		damage_ticker_timer != null
+		and damage_ticker_timer.timeout.is_connected(_hide_damage_ticker)
+	):
+		damage_ticker_timer.timeout.disconnect(_hide_damage_ticker)
 
 	damage_ticker_label.text = "-" + str(impact_result.damage)
 	if impact_result.damage > 0:
 		damage_ticker_label.show()
+	else:
+		damage_ticker_label.hide()
 
-	impact_timer = get_tree().create_timer(1.0)
-	Utils.connect_checked(impact_timer.timeout, _hide_impact_result)
+	damage_ticker_timer = get_tree().create_timer(1.0)
+	Utils.connect_checked(damage_ticker_timer.timeout, _hide_damage_ticker)
 
 
-func _hide_impact_result() -> void:
-	impact_result_type_label.hide()
+func _hide_damage_ticker() -> void:
 	damage_ticker_label.hide()
-	impact_timer = null
+	damage_ticker_timer = null

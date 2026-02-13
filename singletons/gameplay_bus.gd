@@ -23,6 +23,7 @@ signal online_kill_feed_event(
 	victim_name: String,
 	victim_tank_name: String
 )
+signal online_player_impact_event(event_data: Dictionary)
 
 signal shell_fired(shell: Shell, tank: Tank)
 signal tank_destroyed(tank: Tank)

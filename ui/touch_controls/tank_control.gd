@@ -21,6 +21,7 @@ var dual_control_slave: Lever = null
 
 
 func _ready() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Utils.connect_checked(
 		fire_button.fire_button_pressed, func() -> void: GameplayBus.fire_input.emit()
 	)
@@ -162,6 +163,8 @@ func _clear_dual_control_state() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
 	if event is InputEventScreenTouch:
 		_handle_pinch_touch(event)
 	elif event is InputEventScreenDrag:

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://d1kly08x723he"]
+
+[node name="PlayerMagEventItem" type="HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 0
+
+[node name="HpLabel" type="Label" parent="." unique_id=1855826964]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "102HP"
+
+[node name="VerbLabel" type="Label" parent="." unique_id=2058509096]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = " to "
+
+[node name="EnemyLabel" type="Label" parent="." unique_id=2111631278]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "[M4A1]"
+
+[node name="ShellLabel" type="Label" parent="." unique_id=1935545802]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "APCR"

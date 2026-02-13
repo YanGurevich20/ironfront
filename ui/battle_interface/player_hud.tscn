@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://dmcf5oauq1kku"]
 
-[ext_resource type="Script" path="res://ui/battle_interface/player_hud.gd" id="1_646pa"]
-[ext_resource type="Texture2D" path="res://entities/tank/tank_hud/white_progress_background.png" id="2_afkqs"]
+[ext_resource type="Script" uid="uid://kcj5tkd1ik0m" path="res://ui/battle_interface/player_hud.gd" id="1_646pa"]
+[ext_resource type="Texture2D" uid="uid://c6q0geftoyjwo" path="res://entities/tank/tank_hud/white_progress_background.png" id="2_afkqs"]
 
-[node name="PlayerHud" type="Control"]
+[node name="PlayerHud" type="Control" unique_id=131647372]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +12,20 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_646pa")
+
+[node name="PlayerMagEventList" type="VBoxContainer" parent="." unique_id=1489379595]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -120.0
+offset_right = 280.0
+offset_bottom = -28.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 2
 
 [node name="PlayerHealthBar" type="TextureProgressBar" parent="." unique_id=918611760]
 unique_name_in_owner = true

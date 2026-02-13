@@ -10,6 +10,7 @@ var network_client: NetworkClient
 
 
 func _ready() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	player_hud.set_hud_active(false)
 
 
