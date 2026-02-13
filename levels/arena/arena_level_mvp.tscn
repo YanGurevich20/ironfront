@@ -84,51 +84,51 @@ joint_mode = 1
 unique_name_in_owner = true
 
 [node name="Spawn01" type="Marker2D" parent="ArenaSpawnPoints" unique_id=2064773102]
-position = Vector2(696, 800)
+position = Vector2(-800, -500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_01"
 
 [node name="Spawn02" type="Marker2D" parent="ArenaSpawnPoints" unique_id=635224868]
-position = Vector2(656, 673)
+position = Vector2(-400, -500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_02"
 
 [node name="Spawn03" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1434972762]
-position = Vector2(885, 760)
+position = Vector2(0, -500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_03"
 
 [node name="Spawn04" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1123856318]
-position = Vector2(851, 839)
+position = Vector2(400, -500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_04"
 
 [node name="Spawn05" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1112928178]
-position = Vector2(737, 632)
+position = Vector2(800, -500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_05"
 
 [node name="Spawn06" type="Marker2D" parent="ArenaSpawnPoints" unique_id=847016834]
-position = Vector2(636, 710)
+position = Vector2(-800, 500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_06"
 
 [node name="Spawn07" type="Marker2D" parent="ArenaSpawnPoints" unique_id=280379255]
-position = Vector2(627, 858)
+position = Vector2(-400, 500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_07"
 
 [node name="Spawn08" type="Marker2D" parent="ArenaSpawnPoints" unique_id=2103236088]
-position = Vector2(585, 804)
+position = Vector2(0, 500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_08"
 
 [node name="Spawn09" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1817104775]
-position = Vector2(763, 890)
+position = Vector2(400, 500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_09"
 
 [node name="Spawn10" type="Marker2D" parent="ArenaSpawnPoints" unique_id=1107806991]
-position = Vector2(817, 726)
+position = Vector2(800, 500)
 script = ExtResource("3_t3m2w")
 spawn_id = &"spawn_10"

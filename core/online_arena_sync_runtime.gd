@@ -103,7 +103,7 @@ func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 	for player_state_variant: Variant in player_states:
 		var player_state: Dictionary = player_state_variant
 		var peer_id: int = int(player_state.get("peer_id", 0))
-		if peer_id <= 0:
+		if peer_id == 0:
 			continue
 		seen_peer_ids[peer_id] = true
 		var authoritative_position: Vector2 = player_state.get("position", Vector2.ZERO)

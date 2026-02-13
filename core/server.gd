@@ -7,6 +7,8 @@ const ServerArenaRuntimeScript := preload("res://core/server_arena_runtime.gd")
 @export var max_clients: int = 32
 @export var tick_rate_hz: int = 60
 @export var arena_max_players: int = 10
+@export var arena_bot_count: int = 2
+@export var arena_bot_respawn_delay_seconds: float = 5.0
 @export var arena_level_scene: PackedScene = preload("res://levels/arena/arena_level_mvp.tscn")
 
 var tick_count: int = 0
@@ -55,6 +57,7 @@ func _ready() -> void:
 func _start_arena_runtime() -> bool:
 	server_arena_runtime = ServerArenaRuntimeScript.new()
 	add_child(server_arena_runtime)
+	server_arena_runtime.configure_bot_settings(arena_bot_count, arena_bot_respawn_delay_seconds)
 	var initialized: bool = server_arena_runtime.initialize_runtime(arena_level_scene)
 	if not initialized:
 		server_arena_runtime.queue_free()
@@ -70,6 +73,12 @@ func _apply_cli_args() -> void:
 			var port_value: int = int(arg.trim_prefix("--port="))
 			if port_value > 0:
 				listen_port = port_value
+		if arg.begins_with("--bot-count="):
+			arena_bot_count = max(0, int(arg.trim_prefix("--bot-count=")))
+		if arg.begins_with("--bot-respawn-delay="):
+			arena_bot_respawn_delay_seconds = max(
+				0.0, float(arg.trim_prefix("--bot-respawn-delay="))
+			)
 
 
 func _configure_physics_tick_loop() -> void:
@@ -163,7 +172,7 @@ func _physics_process(delta: float) -> void:
 	var authoritative_player_states: Array[Dictionary] = []
 	if server_arena_runtime != null and arena_session_state != null:
 		authoritative_player_states = server_arena_runtime.step_authoritative_runtime(
-			arena_session_state
+			arena_session_state, delta
 		)
 	network_server.set_authoritative_player_states(authoritative_player_states)
 	network_server.on_server_tick(tick_count, delta)

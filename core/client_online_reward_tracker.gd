@@ -23,7 +23,7 @@ func on_kill_feed_event(
 	killer_name: String,
 	killer_tank_name: String,
 	shell_short_name: String,
-	victim_peer_id: int,
+	victim_actor_id: int,
 	victim_name: String,
 	victim_tank_name: String,
 	local_peer_id: int
@@ -35,7 +35,7 @@ func on_kill_feed_event(
 		return
 	if shell_short_name.is_empty():
 		return
-	if victim_peer_id <= 0 or victim_name.is_empty() or victim_tank_name.is_empty():
+	if victim_actor_id == 0 or victim_name.is_empty() or victim_tank_name.is_empty():
 		return
 	if killer_peer_id != local_peer_id:
 		return

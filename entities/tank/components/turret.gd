@@ -51,14 +51,16 @@ func has_line_of_sight(target: Node2D) -> bool:
 
 #region Shell Firing
 func fire_shell() -> bool:
-	if remaining_shell_count <= 0:
+	var has_infinite_ammo: bool = tank.is_in_group("arena_bot")
+	if not has_infinite_ammo and remaining_shell_count <= 0:
 		reload_timer.stop()
 		return false
 	if not reload_timer.is_stopped():
 		return false
 	if current_shell_spec == null:
 		return false
-	remaining_shell_count = max(0, remaining_shell_count - 1)
+	if not has_infinite_ammo:
+		remaining_shell_count = max(0, remaining_shell_count - 1)
 	var shell: Shell = shell_scene.instantiate()
 	shell.initialize(current_shell_spec, muzzle, tank)
 	GameplayBus.shell_fired.emit(shell, tank)

@@ -7,10 +7,7 @@ static func build_player_states_snapshot(
 ) -> Array[Dictionary]:
 	if arena_session_state == null:
 		return []
-	if (
-		not authoritative_player_states.is_empty()
-		and authoritative_player_states.size() == arena_session_state.get_player_count()
-	):
+	if not authoritative_player_states.is_empty():
 		var runtime_snapshot_player_states: Array[Dictionary] = []
 		for player_state: Dictionary in authoritative_player_states:
 			runtime_snapshot_player_states.append(player_state.duplicate(true))
@@ -33,6 +30,7 @@ static func build_player_states_snapshot(
 					"linear_velocity": peer_state.get("state_linear_velocity", Vector2.ZERO),
 					"turret_rotation": peer_state.get("state_turret_rotation", 0.0),
 					"last_processed_input_tick": peer_state.get("last_input_tick", 0),
+					"is_bot": false,
 				}
 			)
 		)
