@@ -30,5 +30,6 @@ signal tank_destroyed(tank: Tank)
 
 signal level_started
 signal level_finished_and_saved
+signal player_data_changed
 
 signal settings_changed

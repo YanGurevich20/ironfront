@@ -31,15 +31,15 @@ static func reset(cls: GDScript) -> void:
 	push_warning("Resetting %s" % cls, "Unsafe method!")
 	var instance: LoadableData = cls.new()
 	var key: String = instance.get_file_name()
-	var erased := _instances.erase(key)
-	if not erased:
-		pass
-
+	_instances.erase(key)
 	var path: String = instance._get_path()
 	if FileAccess.file_exists(path):
 		var remove_result := DirAccess.remove_absolute(path)
 		if remove_result != OK:
 			push_warning("Failed to remove data file: ", path)
+	var fresh: LoadableData = cls.new()
+	fresh.save()
+	_instances[key] = fresh
 
 
 func get_file_name() -> String:

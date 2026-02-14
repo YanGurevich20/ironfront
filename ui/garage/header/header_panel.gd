@@ -22,6 +22,7 @@ func _ready() -> void:
 
 
 func display_player_data() -> void:
+	player_data = PlayerData.get_instance()
 	var dollars: int = player_data.dollars
 	var bonds: int = player_data.bonds
 	dollars_label.text = Utils.format_dollars(dollars)

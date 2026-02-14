@@ -46,6 +46,10 @@ var _state: State = State.LOCKED
 @onready var _name_label: Label = %NameLabel
 
 
+func _ready() -> void:
+	Utils.connect_checked(_button.pressed, func() -> void: item_pressed.emit())
+
+
 func set_button_properties(disabled: bool, toggle_mode: bool, button_pressed: bool) -> void:
 	_button.disabled = disabled
 	_button.toggle_mode = toggle_mode
