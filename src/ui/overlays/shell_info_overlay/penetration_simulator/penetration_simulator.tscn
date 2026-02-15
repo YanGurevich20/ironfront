@@ -7,7 +7,7 @@
 atlas = ExtResource("2_10d1r")
 region = Rect2(16, 16, 32, 32)
 
-[node name="PenetationSimulator" type="PanelContainer"]
+[node name="PenetrationSimulator" type="PanelContainer"]
 custom_minimum_size = Vector2(448, 0)
 offset_right = 448.0
 offset_bottom = 142.0

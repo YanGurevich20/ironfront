@@ -141,7 +141,7 @@ func _resolve_sprite_frame(step: int) -> int:
 	var clamped_step: int = clamp(step, 0, TOTAL_FRAMES - 1)
 	var logical_index: int = _resolve_state_base_index() + clamped_step
 	# Sheet is authored as 4 columns (state) x 7 rows (position).
-	var state_column: int = int(logical_index / FRAMES_PER_STATE)
+	var state_column: int = int(float(logical_index) / FRAMES_PER_STATE)
 	var state_row: int = logical_index % FRAMES_PER_STATE
 	return state_row * SPRITE_COLUMNS + state_column
 
