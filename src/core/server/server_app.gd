@@ -1,4 +1,4 @@
-class_name Server
+class_name ServerApp
 extends Node
 
 @export_range(1, 65535, 1) var listen_port: int = 7_000

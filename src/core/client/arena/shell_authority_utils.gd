@@ -5,7 +5,7 @@ const ShellScene: PackedScene = preload("res://src/entities/shell/shell.tscn")
 
 
 static func handle_shell_spawn_received(
-	client: Client,
+	runtime: ArenaSessionRuntime,
 	shot_id: int,
 	firing_peer_id: int,
 	shell_id: String,
@@ -13,33 +13,33 @@ static func handle_shell_spawn_received(
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
-	if not client.is_arena_active or client.arena_level == null:
+	if not runtime.is_arena_active or runtime.arena_level == null:
 		return
-	if firing_peer_id != client.multiplayer.get_unique_id():
-		client.arena_sync_runtime.play_remote_fire_effect(firing_peer_id)
+	if firing_peer_id != runtime.multiplayer.get_unique_id():
+		runtime.arena_sync_runtime.play_remote_fire_effect(firing_peer_id)
 	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
 	assert(shell_spec != null, "Invalid shell_id from server: %s" % shell_id)
 	var shell: Shell = ShellScene.instantiate()
 	shell.initialize_from_spawn(
 		shell_spec, spawn_position, shell_velocity, shell_rotation, null, true
 	)
-	if client.active_shells_by_shot_id.has(shot_id):
-		var existing_shell: Shell = client.active_shells_by_shot_id[shot_id]
+	if runtime.active_shells_by_shot_id.has(shot_id):
+		var existing_shell: Shell = runtime.active_shells_by_shot_id[shot_id]
 		if existing_shell != null:
 			existing_shell.queue_free()
-	client.active_shells_by_shot_id[shot_id] = shell
+	runtime.active_shells_by_shot_id[shot_id] = shell
 	Utils.connect_checked(
 		shell.tree_exiting,
 		func() -> void:
-			var tracked_shell: Shell = client.active_shells_by_shot_id.get(shot_id)
+			var tracked_shell: Shell = runtime.active_shells_by_shot_id.get(shot_id)
 			if tracked_shell == shell:
-				client.active_shells_by_shot_id.erase(shot_id)
+				runtime.active_shells_by_shot_id.erase(shot_id)
 	)
-	client.arena_level.add_child(shell)
+	runtime.arena_level.add_child(shell)
 
 
 static func handle_shell_impact_received(
-	client: Client,
+	runtime: ArenaSessionRuntime,
 	shot_id: int,
 	firing_peer_id: int,
 	target_peer_id: int,
@@ -51,9 +51,9 @@ static func handle_shell_impact_received(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	if not client.is_arena_active:
+	if not runtime.is_arena_active:
 		return
-	var target_tank: Tank = client.arena_sync_runtime.get_tank_by_peer_id(target_peer_id)
+	var target_tank: Tank = runtime.arena_sync_runtime.get_tank_by_peer_id(target_peer_id)
 	if target_tank == null:
 		push_warning(
 			(
@@ -61,15 +61,15 @@ static func handle_shell_impact_received(
 					"%s authoritative_shell_impact_missing_target shot_id=%d "
 					+ "firing_peer=%d target_peer=%d hit_position=%s"
 				)
-				% [client._log_prefix(), shot_id, firing_peer_id, target_peer_id, hit_position]
+				% [runtime._log_prefix(), shot_id, firing_peer_id, target_peer_id, hit_position]
 			)
 		)
 		return
 	_emit_local_player_impact_event(
-		client, shot_id, firing_peer_id, target_peer_id, result_type, damage, target_tank
+		runtime, shot_id, firing_peer_id, target_peer_id, result_type, damage, target_tank
 	)
 	_reconcile_authoritative_shell_impact(
-		client,
+		runtime,
 		shot_id,
 		hit_position,
 		post_impact_velocity,
@@ -86,21 +86,21 @@ static func handle_shell_impact_received(
 
 
 static func handle_loadout_state_received(
-	client: Client,
+	runtime: ArenaSessionRuntime,
 	selected_shell_id: String,
 	shell_counts_by_id: Dictionary,
 	reload_time_left: float
 ) -> void:
-	if not client.is_arena_active:
+	if not runtime.is_arena_active:
 		return
-	if client.player_tank == null:
+	if runtime.player_tank == null:
 		return
 	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
 	assert(
 		selected_shell_spec != null, "Invalid selected_shell_id from server: %s" % selected_shell_id
 	)
 	var selected_shell_count: int = max(0, int(shell_counts_by_id.get(selected_shell_id, 0)))
-	client.player_tank.apply_authoritative_shell_state(
+	runtime.player_tank.apply_authoritative_shell_state(
 		selected_shell_spec, selected_shell_count, reload_time_left
 	)
 	GameplayBus.online_loadout_state_updated.emit(
@@ -109,18 +109,18 @@ static func handle_loadout_state_received(
 
 
 static func _reconcile_authoritative_shell_impact(
-	client: Client,
+	runtime: ArenaSessionRuntime,
 	shot_id: int,
 	hit_position: Vector2,
 	post_impact_velocity: Vector2,
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	if not client.active_shells_by_shot_id.has(shot_id):
+	if not runtime.active_shells_by_shot_id.has(shot_id):
 		return
-	var impacted_shell: Shell = client.active_shells_by_shot_id[shot_id]
+	var impacted_shell: Shell = runtime.active_shells_by_shot_id[shot_id]
 	if impacted_shell == null:
-		client.active_shells_by_shot_id.erase(shot_id)
+		runtime.active_shells_by_shot_id.erase(shot_id)
 		return
 	impacted_shell.global_position = hit_position
 	if continue_simulation:
@@ -128,12 +128,12 @@ static func _reconcile_authoritative_shell_impact(
 		impacted_shell.velocity = post_impact_velocity
 		impacted_shell.rotation = post_impact_rotation
 		return
-	client.active_shells_by_shot_id.erase(shot_id)
+	runtime.active_shells_by_shot_id.erase(shot_id)
 	impacted_shell.queue_free()
 
 
 static func _emit_local_player_impact_event(
-	client: Client,
+	runtime: ArenaSessionRuntime,
 	shot_id: int,
 	firing_peer_id: int,
 	target_peer_id: int,
@@ -141,17 +141,17 @@ static func _emit_local_player_impact_event(
 	damage: int,
 	target_tank: Tank
 ) -> void:
-	if client.multiplayer.multiplayer_peer == null:
+	if runtime.multiplayer.multiplayer_peer == null:
 		return
-	var local_peer_id: int = client.multiplayer.get_unique_id()
+	var local_peer_id: int = runtime.multiplayer.get_unique_id()
 	var local_is_firing: bool = firing_peer_id == local_peer_id
 	var local_is_target: bool = target_peer_id == local_peer_id
 	if not local_is_firing and not local_is_target:
 		return
 	var related_tank_name: String = _resolve_related_tank_name(
-		client, local_is_firing, firing_peer_id, target_tank
+		runtime, local_is_firing, firing_peer_id, target_tank
 	)
-	var shell_short_name: String = _resolve_shell_type_label(client, shot_id)
+	var shell_short_name: String = _resolve_shell_type_label(runtime, shot_id)
 	var event_data: Dictionary = _build_local_impact_event_data(
 		local_is_target, result_type, damage, related_tank_name, shell_short_name
 	)
@@ -159,11 +159,11 @@ static func _emit_local_player_impact_event(
 
 
 static func _resolve_related_tank_name(
-	client: Client, local_is_firing: bool, firing_peer_id: int, target_tank: Tank
+	runtime: ArenaSessionRuntime, local_is_firing: bool, firing_peer_id: int, target_tank: Tank
 ) -> String:
 	if local_is_firing:
 		return _resolve_tank_name(target_tank)
-	var source_tank: Tank = client.arena_sync_runtime.get_tank_by_peer_id(firing_peer_id)
+	var source_tank: Tank = runtime.arena_sync_runtime.get_tank_by_peer_id(firing_peer_id)
 	return _resolve_tank_name(source_tank)
 
 
@@ -176,8 +176,8 @@ static func _resolve_tank_name(tank: Tank) -> String:
 	return display_name
 
 
-static func _resolve_shell_type_label(client: Client, shot_id: int) -> String:
-	var tracked_shell: Shell = client.active_shells_by_shot_id.get(shot_id)
+static func _resolve_shell_type_label(runtime: ArenaSessionRuntime, shot_id: int) -> String:
+	var tracked_shell: Shell = runtime.active_shells_by_shot_id.get(shot_id)
 	if (
 		tracked_shell == null
 		or tracked_shell.shell_spec == null

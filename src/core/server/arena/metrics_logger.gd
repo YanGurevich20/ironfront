@@ -1,14 +1,14 @@
 class_name MetricsLogger
 extends RefCounted
 
-var _server: Server
+var _server: ServerApp
 var _last_log_tick_count: int = 0
 var _last_rx: int = 0
 var _last_applied: int = 0
 var _last_snapshots: int = 0
 
 
-func _init(server: Server) -> void:
+func _init(server: ServerApp) -> void:
 	_server = server
 
 
