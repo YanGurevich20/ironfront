@@ -28,7 +28,7 @@ static func get_connection_ping_msec(
 ) -> int:
 	if not can_send_input_intents(multiplayer_api, arena_input_enabled):
 		return -1
-	var enet_peer: ENetMultiplayerPeer = multiplayer_api.multiplayer_peer as ENetMultiplayerPeer
+	var enet_peer: ENetMultiplayerPeer = multiplayer_api.multiplayer_peer
 	if enet_peer == null:
 		return -1
 	var server_packet_peer: ENetPacketPeer = enet_peer.get_peer(1)
