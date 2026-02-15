@@ -119,13 +119,15 @@ func _update_health_display(health: int) -> void:
 
 func _trim_player_mag_event_list_to_limit() -> void:
 	while player_mag_event_list.get_child_count() > MAX_MAG_EVENT_ITEMS:
-		var oldest_item: Node = player_mag_event_list.get_child(0)
+		var oldest_item: Control = player_mag_event_list.get_child(0)
+		if oldest_item == null:
+			return
 		player_mag_event_list.remove_child(oldest_item)
 		oldest_item.queue_free()
 
 
 func _clear_player_mag_event_list() -> void:
-	for child: Node in player_mag_event_list.get_children():
+	for child: Control in player_mag_event_list.get_children():
 		player_mag_event_list.remove_child(child)
 		child.queue_free()
 

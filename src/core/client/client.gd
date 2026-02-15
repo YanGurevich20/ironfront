@@ -209,7 +209,7 @@ func _quit_online_arena() -> void:
 	online_local_player_dead = false
 	ui_manager.hide_online_death_overlay()
 	ui_manager.set_online_session_active(false)
-	online_sync_runtime.call("stop_runtime")
+	online_sync_runtime.stop_runtime()
 	if online_player_tank != null:
 		online_player_tank.queue_free()
 		online_player_tank = null
@@ -274,9 +274,7 @@ func _on_arena_respawn_received(
 	if peer_id == multiplayer.get_unique_id():
 		_respawn_local_online_player_tank(spawn_position, spawn_rotation)
 		return
-	online_sync_runtime.call(
-		"respawn_remote_tank", peer_id, player_name, spawn_position, spawn_rotation
-	)
+	online_sync_runtime.respawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation)
 
 
 func _on_arena_fire_rejected_received(reason: String) -> void:
@@ -300,7 +298,7 @@ func _end_online_session(status_message: String) -> void:
 
 
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
-	online_sync_runtime.call("on_state_snapshot_received", server_tick, player_states)
+	online_sync_runtime.on_state_snapshot_received(server_tick, player_states)
 	if not is_online_arena_active:
 		return
 	var active_human_players: int = 0
@@ -336,7 +334,7 @@ func _respawn_local_online_player_tank(spawn_position: Vector2, spawn_rotation: 
 	online_player_tank = respawned_tank
 	online_local_player_dead = false
 	ui_manager.hide_online_death_overlay()
-	online_sync_runtime.call("replace_local_player_tank", online_player_tank)
+	online_sync_runtime.replace_local_player_tank(online_player_tank)
 	network_client.set_arena_input_enabled(true, false)
 
 

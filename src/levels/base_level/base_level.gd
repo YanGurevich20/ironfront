@@ -20,7 +20,7 @@ var enemies_left: int = 0
 var player_tank: Tank
 @onready var level_metrics: Metrics = Metrics.new()
 @onready var metric_enum := Metrics.Metric
-@onready var entities: Node = $Entities
+@onready var entities: Node2D = $Entities
 @onready var player_spawn_point: Marker2D = $SpawnPoints/PlayerSpawnPoint
 @onready var enemy_spawn_points: Array[SpawnPoint] = []
 

@@ -17,7 +17,7 @@ static func handle_shell_spawn_received(
 	if not client.is_online_arena_active or client.online_arena_level == null:
 		return
 	if firing_peer_id != client.multiplayer.get_unique_id():
-		client.online_sync_runtime.call("play_remote_fire_effect", firing_peer_id)
+		client.online_sync_runtime.play_remote_fire_effect(firing_peer_id)
 	if shell_spec_path.is_empty():
 		push_warning(
 			(
@@ -69,7 +69,7 @@ static func handle_shell_impact_received(
 ) -> void:
 	if not client.is_online_arena_active:
 		return
-	var target_tank: Tank = client.online_sync_runtime.call("get_tank_by_peer_id", target_peer_id)
+	var target_tank: Tank = client.online_sync_runtime.get_tank_by_peer_id(target_peer_id)
 	if target_tank == null:
 		push_warning(
 			(
@@ -193,7 +193,7 @@ static func _resolve_related_tank_name(
 ) -> String:
 	if local_is_firing:
 		return _resolve_tank_name(target_tank)
-	var source_tank: Tank = client.online_sync_runtime.call("get_tank_by_peer_id", firing_peer_id)
+	var source_tank: Tank = client.online_sync_runtime.get_tank_by_peer_id(firing_peer_id)
 	return _resolve_tank_name(source_tank)
 
 

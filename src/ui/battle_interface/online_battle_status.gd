@@ -85,11 +85,10 @@ func _on_online_kill_feed_event(
 	var local_peer_id: int = (
 		multiplayer.get_unique_id() if multiplayer.multiplayer_peer != null else 0
 	)
-	var kill_feed_item: Node = kill_feed_item_scene.instantiate()
+	var kill_feed_item: KillFeedItem = kill_feed_item_scene.instantiate()
 	kill_feed_list.add_child(kill_feed_item)
 	kill_feed_list.move_child(kill_feed_item, 0)
-	kill_feed_item.call(
-		"set_kill_event",
+	kill_feed_item.set_kill_event(
 		killer_name,
 		killer_tank_name,
 		killer_peer_id == local_peer_id,
@@ -98,11 +97,11 @@ func _on_online_kill_feed_event(
 		victim_tank_name,
 		victim_peer_id == local_peer_id
 	)
-	kill_feed_item.connect("expired", Callable(self, "_on_kill_feed_item_expired"))
+	Utils.connect_checked(kill_feed_item.expired, _on_kill_feed_item_expired)
 	_trim_kill_feed_to_limit()
 
 
-func _on_kill_feed_item_expired(item: Node) -> void:
+func _on_kill_feed_item_expired(item: KillFeedItem) -> void:
 	if item == null:
 		return
 	if item.get_parent() != kill_feed_list:
@@ -113,13 +112,15 @@ func _on_kill_feed_item_expired(item: Node) -> void:
 
 func _trim_kill_feed_to_limit() -> void:
 	while kill_feed_list.get_child_count() > MAX_KILL_FEED_ITEMS:
-		var oldest_item: Node = kill_feed_list.get_child(kill_feed_list.get_child_count() - 1)
+		var oldest_item: Control = kill_feed_list.get_child(kill_feed_list.get_child_count() - 1)
+		if oldest_item == null:
+			return
 		kill_feed_list.remove_child(oldest_item)
 		oldest_item.queue_free()
 
 
 func _clear_kill_feed() -> void:
-	for child: Node in kill_feed_list.get_children():
+	for child: Control in kill_feed_list.get_children():
 		kill_feed_list.remove_child(child)
 		child.queue_free()
 
