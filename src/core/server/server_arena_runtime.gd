@@ -112,7 +112,7 @@ func spawn_peer_tank(
 	spawned_tank.add_to_group("arena_human_player")
 	(
 		ServerArenaActorUtils
-		. register_actor(
+		.register_actor(
 			self,
 			peer_id,
 			spawned_tank,

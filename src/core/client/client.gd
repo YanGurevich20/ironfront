@@ -186,7 +186,7 @@ func _start_online_arena() -> bool:
 	ui_manager.set_online_session_active(true)
 	ui_manager.hide_online_death_overlay()
 	active_online_shells_by_shot_id.clear()
-	online_sync_runtime.call("start_runtime", online_arena_level, online_player_tank)
+	online_sync_runtime.start_runtime(online_arena_level, online_player_tank)
 	network_client.set_arena_input_enabled(true)
 	_resume_game()
 	GameplayBus.level_started.emit()
