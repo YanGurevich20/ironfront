@@ -1,7 +1,7 @@
 class_name Server
 extends Node
 
-@export var listen_port: int = 7_000
+@export_range(1, 65535, 1) var listen_port: int = 7_000
 @export var max_clients: int = 32
 @export var tick_rate_hz: int = 60
 @export var arena_max_players: int = 10
@@ -65,14 +65,16 @@ func _start_arena_runtime() -> bool:
 
 
 func _apply_cli_args() -> void:
-	var client_args: Dictionary = Utils.get_parse_cmdline_user_args()
+	var client_args: Dictionary = Utils.get_parsed_cmdline_user_args()
 	listen_port = max(0, int(client_args.get("port", listen_port)))
 	arena_bot_count = max(0, int(client_args.get("bot-count", arena_bot_count)))
-	arena_bot_respawn_delay_seconds = max(0.0, float(client_args.get("bot-respawn-delay", arena_bot_respawn_delay_seconds)))
+	arena_bot_respawn_delay_seconds = max(
+		0.0, float(client_args.get("bot-respawn-delay", arena_bot_respawn_delay_seconds))
+	)
 
 
 func _configure_physics_tick_loop() -> void:
-	Engine.physics_ticks_per_second = max(1, tick_rate_hz)
+	Engine.physics_ticks_per_second = tick_rate_hz
 	set_physics_process(true)
 	print("[server] physics tick loop configured at %d Hz" % Engine.physics_ticks_per_second)
 

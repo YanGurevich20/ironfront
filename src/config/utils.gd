@@ -70,9 +70,10 @@ static func trandfn(mean: float, std_dev: float) -> float:
 		roll = randfn(mean, std_dev)
 	return roll
 
-static func get_parse_cmdline_user_args() -> Dictionary:
+
+static func get_parsed_cmdline_user_args() -> Dictionary[String, Variant]:
 	var client_args: PackedStringArray = OS.get_cmdline_user_args()
-	var parsed_client_args: Dictionary = {}
+	var parsed_client_args: Dictionary[String, Variant] = {}
 	for arg: String in client_args:
 		if arg.contains("="):
 			var key: String = arg.split("=")[0]
