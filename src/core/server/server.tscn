@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cluk0t45o1puh" path="res://src/core/server/server.gd" id="1_pzori"]
 [ext_resource type="Script" uid="uid://bjrtem4bw62ur" path="res://src/net/network_server.gd" id="2_hvgj5"]
+[ext_resource type="Script" path="res://src/core/server/server_arena_runtime.gd" id="3_wsp10"]
 
 [node name="Runtime" type="Node"]
 script = ExtResource("1_pzori")
@@ -9,3 +10,7 @@ script = ExtResource("1_pzori")
 [node name="Network" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("2_hvgj5")
+
+[node name="ArenaRuntime" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_wsp10")

@@ -1,13 +1,7 @@
 class_name NetworkServer
 extends Node
 
-signal arena_join_succeeded(
-	peer_id: int,
-	player_name: String,
-	tank_id: int,
-	spawn_id: StringName,
-	spawn_transform: Transform2D
-)
+signal arena_join_requested(peer_id: int, player_name: String, tank_id: int, join_message: String)
 signal arena_peer_removed(peer_id: int, reason: String)
 signal arena_respawn_requested(peer_id: int)
 
@@ -16,7 +10,6 @@ const RPC_CHANNEL_INPUT: int = 1
 var server_peer: ENetMultiplayerPeer
 var protocol_version: int = MultiplayerProtocol.PROTOCOL_VERSION
 var arena_session_state: ArenaSessionState
-var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
 var server_tick_rate_hz: int = 30
 var snapshot_interval_ticks: int = 2
 var total_on_server_tick_calls: int = 0
@@ -33,11 +26,6 @@ var authoritative_player_states: Array[Dictionary] = []
 
 func configure_arena_session(session_state: ArenaSessionState) -> void:
 	arena_session_state = session_state
-
-
-func configure_arena_spawn_pool(spawn_transforms_by_id: Dictionary) -> void:
-	arena_spawn_transforms_by_id = spawn_transforms_by_id.duplicate(true)
-	print("[server][arena] configured_spawn_pool count=%d" % arena_spawn_transforms_by_id.size())
 
 
 func configure_tick_rate(tick_rate_hz: int) -> void:
@@ -110,10 +98,6 @@ func _join_arena(
 		push_error("[server][arena] join requested before session initialization")
 		_join_arena_ack.rpc_id(peer_id, false, "ARENA SESSION UNAVAILABLE", Vector2.ZERO, 0.0)
 		return
-	if arena_spawn_transforms_by_id.is_empty():
-		push_error("[server][arena] join requested with empty spawn pool")
-		_join_arena_ack.rpc_id(peer_id, false, "ARENA SPAWNS UNAVAILABLE", Vector2.ZERO, 0.0)
-		return
 	if arena_session_state.has_peer(peer_id):
 		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
 	var cleaned_player_name: String = player_name.strip_edges()
@@ -133,31 +117,8 @@ func _join_arena(
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
 		return
-	var random_spawn: Dictionary = NetworkServerSpawnUtils.pick_random_spawn(
-		arena_spawn_transforms_by_id
-	)
-	if random_spawn.is_empty():
-		print("[server][join] reject_join_arena peer=%d reason=NO_SPAWN_AVAILABLE" % peer_id)
-		arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
-		_join_arena_ack.rpc_id(peer_id, false, "NO SPAWN AVAILABLE", Vector2.ZERO, 0.0)
-		return
-	var assigned_spawn_id: StringName = random_spawn.get("spawn_id", StringName())
-	var assigned_spawn_transform: Transform2D = random_spawn.get(
-		"spawn_transform", Transform2D.IDENTITY
-	)
-	var assigned_spawn_position: Vector2 = assigned_spawn_transform.origin
-	var assigned_spawn_rotation: float = assigned_spawn_transform.get_rotation()
 	var selected_tank_id: int = int(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
-	arena_session_state.set_peer_authoritative_state(
-		peer_id, assigned_spawn_position, assigned_spawn_rotation, Vector2.ZERO
-	)
-	arena_join_succeeded.emit(
-		peer_id, cleaned_player_name, selected_tank_id, assigned_spawn_id, assigned_spawn_transform
-	)
-	_join_arena_ack.rpc_id(
-		peer_id, true, join_message, assigned_spawn_position, assigned_spawn_rotation
-	)
-	_broadcast_state_snapshot(0)
+	arena_join_requested.emit(peer_id, cleaned_player_name, selected_tank_id, join_message)
 
 
 @rpc("any_peer", "reliable")
@@ -393,3 +354,14 @@ func send_arena_loadout_state(
 	_receive_arena_loadout_state.rpc_id(
 		peer_id, selected_shell_path, shell_counts_by_path, reload_time_left
 	)
+
+
+func complete_arena_join(
+	peer_id: int, join_message: String, spawn_position: Vector2, spawn_rotation: float
+) -> void:
+	_join_arena_ack.rpc_id(peer_id, true, join_message, spawn_position, spawn_rotation)
+	_broadcast_state_snapshot(0)
+
+
+func reject_arena_join(peer_id: int, join_message: String) -> void:
+	_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)

@@ -13,6 +13,8 @@ func _init(server: Server) -> void:
 
 
 func log_periodic() -> void:
+	if _server.tick_count % (_server.tick_rate_hz * 5) == 0:
+		return
 	var network_server: NetworkServer = _server.network_server
 	var tick_count: int = _server.tick_count
 	var tick_rate_hz: int = _server.tick_rate_hz

@@ -129,6 +129,44 @@ static func despawn_actor(runtime: ServerArenaRuntime, actor_id: int, reason: St
 	print("[server][arena-runtime] tank_despawned actor=%d reason=%s" % [actor_id, reason])
 
 
+static func respawn_peer_tank_at_random(
+	runtime: ServerArenaRuntime, peer_id: int, player_name: String, tank_id: int
+) -> Dictionary:
+	if not runtime.is_peer_tank_dead(peer_id):
+		return {"success": false, "reason": "TANK_NOT_DEAD"}
+	var random_spawn: Dictionary = pick_random_spawn(runtime)
+	if random_spawn.is_empty():
+		return {"success": false, "reason": "NO_SPAWN_AVAILABLE"}
+	var spawn_id: StringName = random_spawn.get("spawn_id", StringName())
+	var spawn_transform: Transform2D = random_spawn.get("spawn_transform", Transform2D.IDENTITY)
+	var respawned: bool = runtime.respawn_peer_tank(
+		peer_id, player_name, tank_id, spawn_id, spawn_transform
+	)
+	if not respawned:
+		return {"success": false, "reason": "RESPAWN_FAILED"}
+	return {
+		"success": true,
+		"spawn_id": spawn_id,
+		"spawn_transform": spawn_transform,
+	}
+
+
+static func spawn_peer_tank_at_random(
+	runtime: ServerArenaRuntime, peer_id: int, player_name: String, tank_id: int
+) -> Dictionary:
+	var random_spawn: Dictionary = pick_random_spawn(runtime)
+	if random_spawn.is_empty():
+		return {"success": false, "reason": "NO_SPAWN_AVAILABLE"}
+	var spawn_id: StringName = random_spawn.get("spawn_id", StringName())
+	var spawn_transform: Transform2D = random_spawn.get("spawn_transform", Transform2D.IDENTITY)
+	runtime.spawn_peer_tank(peer_id, player_name, tank_id, spawn_id, spawn_transform)
+	return {
+		"success": true,
+		"spawn_id": spawn_id,
+		"spawn_transform": spawn_transform,
+	}
+
+
 static func pick_random_spawn(runtime: ServerArenaRuntime) -> Dictionary:
 	var available_spawn_ids: Array[StringName] = runtime.arena_spawn_transforms_by_id.keys()
 	if available_spawn_ids.is_empty():
