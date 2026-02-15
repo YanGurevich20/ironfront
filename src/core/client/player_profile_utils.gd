@@ -1,4 +1,4 @@
-class_name ClientPlayerProfileUtils
+class_name PlayerProfileUtils
 extends RefCounted
 
 

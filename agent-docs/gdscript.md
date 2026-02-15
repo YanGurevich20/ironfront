@@ -16,7 +16,7 @@ This file is written for code-generating agents. Follow it literally.
 Good:
 ```gdscript
 @onready var network_server: NetworkServer = %Network
-@onready var arena_runtime: ServerArenaRuntime = %ArenaRuntime
+@onready var arena_runtime: ArenaRuntime = %ArenaRuntime
 ```
 
 Bad:
@@ -63,8 +63,8 @@ if payload["peer_id"] > 0:
 
 Good:
 ```gdscript
-var spawn_result: Dictionary = ServerArenaActorUtils.spawn_peer_tank_at_random(
-	arena_runtime, peer_id, player_name, tank_id
+var spawn_result: Dictionary = arena_runtime.spawn_peer_tank_at_random(
+	peer_id, player_name, tank_id
 )
 ```
 

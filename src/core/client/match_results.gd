@@ -1,4 +1,4 @@
-class_name ClientMatchResults
+class_name MatchResults
 extends RefCounted
 
 

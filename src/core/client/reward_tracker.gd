@@ -1,4 +1,4 @@
-class_name ClientOnlineRewardTracker
+class_name RewardTracker
 extends RefCounted
 
 var reward_per_kill_dollars: int

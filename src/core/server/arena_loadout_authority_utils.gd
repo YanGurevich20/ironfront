@@ -1,9 +1,9 @@
-class_name ServerArenaLoadoutAuthorityUtils
+class_name ArenaLoadoutAuthorityUtils
 extends RefCounted
 
 
 static func handle_peer_shell_select_request(
-	runtime: ServerArenaRuntime,
+	runtime: ArenaRuntime,
 	arena_session_state: ArenaSessionState,
 	peer_id: int,
 	spawned_tank: Tank,
@@ -19,10 +19,7 @@ static func handle_peer_shell_select_request(
 
 
 static func handle_peer_fire_request(
-	runtime: ServerArenaRuntime,
-	arena_session_state: ArenaSessionState,
-	peer_id: int,
-	spawned_tank: Tank
+	runtime: ArenaRuntime, arena_session_state: ArenaSessionState, peer_id: int, spawned_tank: Tank
 ) -> void:
 	var selected_shell_path: String = arena_session_state.get_peer_selected_shell_path(peer_id)
 	if selected_shell_path.is_empty():
@@ -60,7 +57,7 @@ static func handle_peer_fire_request(
 
 
 static func sync_peer_tank_shell_state(
-	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
+	runtime: ArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
 	var selected_shell_path: String = runtime.arena_session_state.get_peer_selected_shell_path(
 		peer_id
@@ -80,7 +77,7 @@ static func sync_peer_tank_shell_state(
 
 
 static func send_peer_loadout_state(
-	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
+	runtime: ArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
 	var selected_shell_path: String = runtime.arena_session_state.get_peer_selected_shell_path(
 		peer_id
@@ -89,19 +86,19 @@ static func send_peer_loadout_state(
 		peer_id
 	)
 	var reload_time_left: float = spawned_tank.turret.get_reload_time_left()
-	runtime.network_server.send_arena_loadout_state(
+	runtime.network_gameplay.send_arena_loadout_state(
 		peer_id, selected_shell_path, shell_counts_by_path, reload_time_left
 	)
 
 
 static func reject_peer_fire(
-	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank, reason: String
+	runtime: ArenaRuntime, peer_id: int, spawned_tank: Tank, reason: String
 ) -> void:
-	runtime.network_server.send_arena_fire_rejected(peer_id, reason)
+	runtime.network_gameplay.send_arena_fire_rejected(peer_id, reason)
 	send_peer_loadout_state(runtime, peer_id, spawned_tank)
 
 
-static func load_shell_spec(runtime: ServerArenaRuntime, shell_spec_path: String) -> ShellSpec:
+static func load_shell_spec(runtime: ArenaRuntime, shell_spec_path: String) -> ShellSpec:
 	if runtime.shell_spec_cache_by_path.has(shell_spec_path):
 		return runtime.shell_spec_cache_by_path[shell_spec_path]
 	var loaded_resource: Resource = load(shell_spec_path)

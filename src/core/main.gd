@@ -6,8 +6,8 @@ var server_scene: PackedScene = preload("res://src/core/server/server.tscn")
 
 
 func _ready() -> void:
-	print("[main] cli args=%s" % str(OS.get_cmdline_args()))
-	if OS.has_feature("dedicated_server") or "--server" in OS.get_cmdline_user_args():
+	var args: Dictionary = Utils.get_parsed_cmdline_user_args()
+	if OS.has_feature("dedicated_server") or args.get("server", false):
 		var server_runtime: Server = server_scene.instantiate()
 		add_child(server_runtime)
 		print("[main] launched server runtime")

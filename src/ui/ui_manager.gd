@@ -88,7 +88,7 @@ func update_objectives(objectives: Array) -> void:
 	pause_overlay.set_objectives(objectives)
 
 
-func set_network_client(network_client: NetworkClient) -> void:
+func set_network_client(network_client: ENetClient) -> void:
 	battle_interface.set_network_client(network_client)
 
 

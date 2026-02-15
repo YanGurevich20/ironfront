@@ -10,7 +10,7 @@ const PING_UPDATE_INTERVAL_SECONDS: float = 1.0
 var online_session_active: bool = false
 var latest_kill_event_seq: int = 0
 var ping_update_elapsed_seconds: float = 0.0
-var network_client: NetworkClient
+var network_client: ENetClient
 
 @onready var player_count_label: Label = %PlayerCountLabel
 @onready var bot_count_label: Label = %BotCountLabel
@@ -37,7 +37,7 @@ func _process(delta: float) -> void:
 	_refresh_ping_indicator()
 
 
-func set_network_client(network_client_ref: NetworkClient) -> void:
+func set_network_client(network_client_ref: ENetClient) -> void:
 	network_client = network_client_ref
 	_refresh_ping_indicator()
 

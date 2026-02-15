@@ -1,79 +1,77 @@
 class_name Client
 extends Node2D
 
-const ONLINE_KILL_REWARD_DOLLARS: int = 5000
+const KILL_REWARD_DOLLARS: int = 5000
 
 var current_level: BaseLevel
 var current_level_key: int = 0
-var online_arena_level: ArenaLevelMvp
-var online_player_tank: Tank
-var is_online_arena_active: bool = false
-var online_local_player_dead: bool = false
-var online_reward_tracker: ClientOnlineRewardTracker = ClientOnlineRewardTracker.new(
-	ONLINE_KILL_REWARD_DOLLARS
-)
+var arena_level: ArenaLevelMvp
+var player_tank: Tank
+var is_arena_active: bool = false
+var local_player_dead: bool = false
+var reward_tracker: RewardTracker = RewardTracker.new(KILL_REWARD_DOLLARS)
 
-var online_arena_scene: PackedScene = preload("res://src/levels/arena/arena_level_mvp.tscn")
-var active_online_shells_by_shot_id: Dictionary[int, Shell] = {}
+var arena_scene: PackedScene = preload("res://src/levels/arena/arena_level_mvp.tscn")
+var active_shells_by_shot_id: Dictionary[int, Shell] = {}
 
 @onready var root: SceneTree = get_tree()
 @onready var ui_manager: UIManager = %UIManager
 @onready var level_container: Node2D = %LevelContainer
-@onready var network_client: NetworkClient = %Network
-@onready var online_sync_runtime: OnlineArenaSyncRuntime = OnlineArenaSyncRuntime.new()
+@onready var enet_client: ENetClient = %Network
+@onready var online_runtime: ClientOnlineRuntime = %OnlineRuntime
+@onready var arena_sync_runtime: ArenaSyncRuntime = ArenaSyncRuntime.new()
 
 
 func _ready() -> void:
-	add_child(online_sync_runtime)
-	ui_manager.set_network_client(network_client)
+	add_child(arena_sync_runtime)
+	ui_manager.set_network_client(enet_client)
 	Utils.connect_checked(UiBus.quit_pressed, func() -> void: get_tree().quit())
-	Utils.connect_checked(UiBus.play_online_pressed, _connect_to_online_server)
+	Utils.connect_checked(UiBus.play_online_pressed, _connect_to_server)
 	Utils.connect_checked(UiBus.level_pressed, _start_level)
 	Utils.connect_checked(UiBus.pause_input, _pause_game)
 	Utils.connect_checked(UiBus.resume_requested, _resume_game)
 	Utils.connect_checked(UiBus.restart_level_requested, _restart_level)
 	Utils.connect_checked(UiBus.abort_level_requested, _abort_level)
-	Utils.connect_checked(UiBus.online_session_end_requested, _end_online_session)
-	Utils.connect_checked(UiBus.online_respawn_requested, _on_online_respawn_requested)
+	Utils.connect_checked(UiBus.online_session_end_requested, _end_session)
+	Utils.connect_checked(UiBus.online_respawn_requested, _on_respawn_requested)
 	Utils.connect_checked(UiBus.return_to_menu_requested, _quit_level)
-	Utils.connect_checked(network_client.join_status_changed, ui_manager.update_online_join_overlay)
-	Utils.connect_checked(network_client.join_arena_completed, _on_join_arena_completed)
-	Utils.connect_checked(network_client.state_snapshot_received, _on_state_snapshot_received)
-	Utils.connect_checked(network_client.arena_shell_spawn_received, _on_arena_shell_spawn_received)
+	Utils.connect_checked(online_runtime.join_status_changed, ui_manager.update_online_join_overlay)
+	Utils.connect_checked(online_runtime.join_arena_completed, _on_join_arena_completed)
+	Utils.connect_checked(online_runtime.state_snapshot_received, _on_state_snapshot_received)
+	Utils.connect_checked(online_runtime.arena_shell_spawn_received, _on_arena_shell_spawn_received)
 	Utils.connect_checked(
-		network_client.arena_shell_impact_received, _on_arena_shell_impact_received
+		online_runtime.arena_shell_impact_received, _on_arena_shell_impact_received
 	)
-	Utils.connect_checked(network_client.arena_respawn_received, _on_arena_respawn_received)
+	Utils.connect_checked(online_runtime.arena_respawn_received, _on_arena_respawn_received)
 	Utils.connect_checked(
-		network_client.arena_fire_rejected_received, _on_arena_fire_rejected_received
+		online_runtime.arena_fire_rejected_received, _on_arena_fire_rejected_received
 	)
 	Utils.connect_checked(
-		network_client.arena_loadout_state_received, _on_arena_loadout_state_received
+		online_runtime.arena_loadout_state_received, _on_arena_loadout_state_received
 	)
 	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
 	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
-	Utils.connect_checked(GameplayBus.online_kill_feed_event, _on_online_kill_feed_event)
-	Utils.connect_checked(MultiplayerBus.online_join_retry_requested, _connect_to_online_server)
+	Utils.connect_checked(GameplayBus.online_kill_feed_event, _on_kill_feed_event)
+	Utils.connect_checked(MultiplayerBus.online_join_retry_requested, _connect_to_server)
 	Utils.connect_checked(
-		MultiplayerBus.online_join_cancel_requested,
-		func() -> void: network_client.cancel_join_request()
+		MultiplayerBus.online_join_cancel_requested, online_runtime.cancel_join_request
 	)
-	ClientPlayerProfileUtils.save_player_metrics()
+	PlayerProfileUtils.save_player_metrics()
 
 
-func _connect_to_online_server() -> void:
+func _connect_to_server() -> void:
 	ui_manager.show_online_join_overlay()
-	network_client.connect_to_server()
+	online_runtime.connect_to_server()
 
 
 func _on_join_arena_completed(success: bool, message: String) -> void:
 	if not success:
-		if is_online_arena_active:
-			_end_online_session(message)
+		if is_arena_active:
+			_end_session(message)
 			return
 		ui_manager.complete_online_join_overlay(false, message)
 		return
-	var bootstrap_success: bool = _start_online_arena()
+	var bootstrap_success: bool = _start_arena()
 	if not bootstrap_success:
 		ui_manager.complete_online_join_overlay(false, "ARENA BOOTSTRAP FAILED")
 		return
@@ -81,17 +79,16 @@ func _on_join_arena_completed(success: bool, message: String) -> void:
 
 
 func _log_prefix() -> String:
-	return ClientRuntimeUtils.build_log_prefix(multiplayer)
+	return RuntimeUtils.build_log_prefix(multiplayer)
 
 
 #region level lifecycle
 func _pause_game() -> void:
-	if is_online_arena_active:
+	if is_arena_active:
 		return
 	if current_level == null:
 		return
 	current_level.evaluate_metrics_and_objectives(false)
-	# TODO: Consider moving objective getter to the base level class
 	var current_objectives := current_level.objective_manager.objectives
 	ui_manager.update_objectives(current_objectives)
 	root.set_pause(true)
@@ -102,8 +99,8 @@ func _resume_game() -> void:
 
 
 func _start_level(level_key: int) -> void:
-	if is_online_arena_active:
-		_quit_online_arena()
+	if is_arena_active:
+		_quit_arena()
 	ui_manager.set_online_session_active(false)
 	_resume_game()
 	current_level_key = level_key
@@ -116,7 +113,7 @@ func _start_level(level_key: int) -> void:
 
 
 func _restart_level() -> void:
-	if is_online_arena_active:
+	if is_arena_active:
 		push_warning("%s restart_level_ignored_online_arena_active" % _log_prefix())
 		return
 	_quit_level()
@@ -124,7 +121,7 @@ func _restart_level() -> void:
 
 
 func _abort_level() -> void:
-	if is_online_arena_active:
+	if is_arena_active:
 		push_warning("%s abort_level_ignored_online_arena_active" % _log_prefix())
 		return
 	if current_level:
@@ -132,20 +129,18 @@ func _abort_level() -> void:
 
 
 func _finish_level(success: bool, metrics: Dictionary, objectives: Array) -> void:
-	var reward_info: Dictionary = ClientMatchResults.calculate_level_reward(
-		metrics, current_level_key
-	)
+	var reward_info: Dictionary = MatchResults.calculate_level_reward(metrics, current_level_key)
 	ui_manager.display_result(success, metrics, objectives, reward_info)
 	ui_manager.finish_level()
-	ClientPlayerProfileUtils.save_player_metrics(metrics)
-	ClientPlayerProfileUtils.save_game_progress(
+	PlayerProfileUtils.save_player_metrics(metrics)
+	PlayerProfileUtils.save_game_progress(
 		metrics, current_level_key, int(reward_info.get("total_reward", 0))
 	)
 
 
 func _quit_level() -> void:
-	if is_online_arena_active:
-		_quit_online_arena()
+	if is_arena_active:
+		_quit_arena()
 		return
 	if current_level:
 		current_level.level_finished.disconnect(_finish_level)
@@ -155,83 +150,83 @@ func _quit_level() -> void:
 		current_level = null
 
 
-func _start_online_arena() -> bool:
-	if online_arena_scene == null:
-		push_error("%s online_arena_scene is null" % _log_prefix())
+func _start_arena() -> bool:
+	if arena_scene == null:
+		push_error("%s arena_scene is null" % _log_prefix())
 		return false
 	if current_level != null:
 		_quit_level()
-	if online_arena_level != null:
-		_quit_online_arena()
-	var arena_level_node: Node = online_arena_scene.instantiate()
+	if arena_level != null:
+		_quit_arena()
+	var arena_level_node: Node = arena_scene.instantiate()
 	var arena_level_candidate: ArenaLevelMvp = arena_level_node as ArenaLevelMvp
 	if arena_level_candidate == null:
 		push_error("%s arena scene root must use ArenaLevelMvp script" % _log_prefix())
 		arena_level_node.queue_free()
 		return false
 	level_container.add_child(arena_level_candidate)
-	online_arena_level = arena_level_candidate
-	var player_tank: Tank = ClientPlayerProfileUtils.create_local_player_tank()
-	if player_tank == null:
-		_quit_online_arena()
+	arena_level = arena_level_candidate
+	var spawned_player_tank: Tank = PlayerProfileUtils.create_local_player_tank()
+	if spawned_player_tank == null:
+		_quit_arena()
 		return false
-	online_arena_level.add_child(player_tank)
-	player_tank.apply_spawn_state(
-		network_client.assigned_spawn_position, network_client.assigned_spawn_rotation
+	arena_level.add_child(spawned_player_tank)
+	spawned_player_tank.apply_spawn_state(
+		online_runtime.assigned_spawn_position, online_runtime.assigned_spawn_rotation
 	)
-	online_player_tank = player_tank
-	online_local_player_dead = false
-	online_reward_tracker.reset()
-	is_online_arena_active = true
+	player_tank = spawned_player_tank
+	local_player_dead = false
+	reward_tracker.reset()
+	is_arena_active = true
 	ui_manager.set_online_session_active(true)
 	ui_manager.hide_online_death_overlay()
-	active_online_shells_by_shot_id.clear()
-	online_sync_runtime.start_runtime(online_arena_level, online_player_tank)
-	network_client.set_arena_input_enabled(true)
+	active_shells_by_shot_id.clear()
+	arena_sync_runtime.start_runtime(arena_level, player_tank)
+	online_runtime.set_arena_input_enabled(true)
 	_resume_game()
 	GameplayBus.level_started.emit()
 	print(
 		(
-			"%s online_arena_started spawn_position=%s spawn_rotation=%.4f"
+			"%s arena_started spawn_position=%s spawn_rotation=%.4f"
 			% [
 				_log_prefix(),
-				network_client.assigned_spawn_position,
-				network_client.assigned_spawn_rotation
+				online_runtime.assigned_spawn_position,
+				online_runtime.assigned_spawn_rotation
 			]
 		)
 	)
 	return true
 
 
-func _quit_online_arena() -> void:
-	network_client.leave_arena()
-	active_online_shells_by_shot_id.clear()
-	online_local_player_dead = false
+func _quit_arena() -> void:
+	online_runtime.leave_arena()
+	active_shells_by_shot_id.clear()
+	local_player_dead = false
 	ui_manager.hide_online_death_overlay()
 	ui_manager.set_online_session_active(false)
-	online_sync_runtime.stop_runtime()
-	if online_player_tank != null:
-		online_player_tank.queue_free()
-		online_player_tank = null
-	if online_arena_level != null:
-		level_container.remove_child(online_arena_level)
-		online_arena_level.queue_free()
-		online_arena_level = null
-	is_online_arena_active = false
-	network_client.set_arena_input_enabled(false)
+	arena_sync_runtime.stop_runtime()
+	if player_tank != null:
+		player_tank.queue_free()
+		player_tank = null
+	if arena_level != null:
+		level_container.remove_child(arena_level)
+		arena_level.queue_free()
+		arena_level = null
+	is_arena_active = false
+	online_runtime.set_arena_input_enabled(false)
 
 
 func _on_tank_destroyed(tank: Tank) -> void:
-	if not is_online_arena_active:
+	if not is_arena_active:
 		return
-	if tank != online_player_tank:
+	if tank != player_tank:
 		return
-	online_local_player_dead = true
-	network_client.set_arena_input_enabled(false, false)
+	local_player_dead = true
+	online_runtime.set_arena_input_enabled(false, false)
 	ui_manager.show_online_death_overlay()
 
 
-func _on_online_kill_feed_event(
+func _on_kill_feed_event(
 	event_seq: int,
 	killer_peer_id: int,
 	killer_name: String,
@@ -241,11 +236,11 @@ func _on_online_kill_feed_event(
 	victim_name: String,
 	victim_tank_name: String
 ) -> void:
-	if not is_online_arena_active:
+	if not is_arena_active:
 		return
 	if multiplayer.multiplayer_peer == null:
 		return
-	online_reward_tracker.on_kill_feed_event(
+	reward_tracker.on_kill_feed_event(
 		event_seq,
 		killer_peer_id,
 		killer_name,
@@ -258,48 +253,48 @@ func _on_online_kill_feed_event(
 	)
 
 
-func _on_online_respawn_requested() -> void:
-	if not is_online_arena_active:
+func _on_respawn_requested() -> void:
+	if not is_arena_active:
 		return
-	if not online_local_player_dead:
+	if not local_player_dead:
 		return
-	network_client.request_arena_respawn()
+	online_runtime.request_arena_respawn()
 
 
 func _on_arena_respawn_received(
 	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
-	if not is_online_arena_active:
+	if not is_arena_active:
 		return
 	if peer_id == multiplayer.get_unique_id():
-		_respawn_local_online_player_tank(spawn_position, spawn_rotation)
+		_respawn_local_player_tank(spawn_position, spawn_rotation)
 		return
-	online_sync_runtime.respawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation)
+	arena_sync_runtime.respawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation)
 
 
 func _on_arena_fire_rejected_received(reason: String) -> void:
-	if not is_online_arena_active:
+	if not is_arena_active:
 		return
 	push_warning("%s authoritative_fire_rejected reason=%s" % [_log_prefix(), reason])
 	GameplayBus.online_fire_rejected.emit(reason)
 
 
-func _end_online_session(status_message: String) -> void:
-	if not is_online_arena_active:
+func _end_session(status_message: String) -> void:
+	if not is_arena_active:
 		return
 	var player_data: PlayerData = PlayerData.get_instance()
-	var summary: Dictionary = online_reward_tracker.build_summary(status_message)
-	online_reward_tracker.apply_rewards(player_data)
+	var summary: Dictionary = reward_tracker.build_summary(status_message)
+	reward_tracker.apply_rewards(player_data)
 	GameplayBus.level_finished_and_saved.emit()
-	_quit_online_arena()
+	_quit_arena()
 	ui_manager.finish_level()
 	ui_manager.display_online_match_end(summary)
-	online_reward_tracker.reset()
+	reward_tracker.reset()
 
 
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
-	online_sync_runtime.on_state_snapshot_received(server_tick, player_states)
-	if not is_online_arena_active:
+	arena_sync_runtime.on_state_snapshot_received(server_tick, player_states)
+	if not is_arena_active:
 		return
 	var active_human_players: int = 0
 	var active_bots: int = 0
@@ -315,31 +310,31 @@ func _on_state_snapshot_received(server_tick: int, player_states: Array, max_pla
 func _on_arena_loadout_state_received(
 	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
 ) -> void:
-	ClientOnlineShellAuthorityUtils.handle_loadout_state_received(
+	ShellAuthorityUtils.handle_loadout_state_received(
 		self, selected_shell_path, shell_counts_by_path, reload_time_left
 	)
 
 
-func _respawn_local_online_player_tank(spawn_position: Vector2, spawn_rotation: float) -> void:
-	if online_arena_level == null:
+func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) -> void:
+	if arena_level == null:
 		return
-	if online_player_tank != null:
-		online_player_tank.queue_free()
-	var respawned_tank: Tank = ClientPlayerProfileUtils.create_local_player_tank()
+	if player_tank != null:
+		player_tank.queue_free()
+	var respawned_tank: Tank = PlayerProfileUtils.create_local_player_tank()
 	if respawned_tank == null:
-		push_error("%s online_respawn_failed player_tank_creation" % _log_prefix())
+		push_error("%s arena_respawn_failed player_tank_creation" % _log_prefix())
 		return
-	online_arena_level.add_child(respawned_tank)
+	arena_level.add_child(respawned_tank)
 	respawned_tank.apply_spawn_state(spawn_position, spawn_rotation)
-	online_player_tank = respawned_tank
-	online_local_player_dead = false
+	player_tank = respawned_tank
+	local_player_dead = false
 	ui_manager.hide_online_death_overlay()
-	online_sync_runtime.replace_local_player_tank(online_player_tank)
-	network_client.set_arena_input_enabled(true, false)
+	arena_sync_runtime.replace_local_player_tank(player_tank)
+	online_runtime.set_arena_input_enabled(true, false)
 
 
 func _on_shell_fired(shell: Shell, tank: Tank) -> void:
-	if not is_online_arena_active or online_arena_level == null or tank != online_player_tank:
+	if not is_arena_active or arena_level == null or tank != player_tank:
 		return
 	shell.queue_free()
 
@@ -352,7 +347,7 @@ func _on_arena_shell_spawn_received(
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
-	ClientOnlineShellAuthorityUtils.handle_shell_spawn_received(
+	ShellAuthorityUtils.handle_shell_spawn_received(
 		self,
 		shot_id,
 		firing_peer_id,
@@ -375,7 +370,7 @@ func _on_arena_shell_impact_received(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	ClientOnlineShellAuthorityUtils.handle_shell_impact_received(
+	ShellAuthorityUtils.handle_shell_impact_received(
 		self,
 		shot_id,
 		firing_peer_id,

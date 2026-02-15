@@ -1,4 +1,4 @@
-class_name OnlineArenaSyncRuntime
+class_name ArenaSyncRuntime
 extends Node
 
 var arena_level: ArenaLevelMvp

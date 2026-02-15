@@ -1,15 +1,6 @@
-class_name NetworkServer
+class_name ServerGameplayApi
 extends Node
 
-signal arena_peer_disconnected(peer_id: int)
-signal arena_join_requested(
-	peer_id: int,
-	player_name: String,
-	requested_tank_id: int,
-	requested_shell_loadout_by_path: Dictionary,
-	requested_selected_shell_path: String
-)
-signal arena_leave_requested(peer_id: int)
 signal arena_input_intent_received(
 	peer_id: int,
 	input_tick: int,
@@ -23,8 +14,6 @@ signal arena_respawn_requested(peer_id: int)
 
 const RPC_CHANNEL_INPUT: int = 1
 
-var server_peer: ENetMultiplayerPeer
-var protocol_version: int = MultiplayerProtocol.PROTOCOL_VERSION
 var arena_session_state: ArenaSessionState
 var server_tick_rate_hz: int = 30
 var snapshot_interval_ticks: int = 2
@@ -57,66 +46,6 @@ func configure_tick_rate(tick_rate_hz: int) -> void:
 	)
 
 
-func start_server(listen_port: int, max_clients: int) -> bool:
-	server_peer = ENetMultiplayerPeer.new()
-	var error_code: int = server_peer.create_server(listen_port, max_clients)
-	if error_code != OK:
-		push_error("Server failed to start on port %d (error %d)" % [listen_port, error_code])
-		return false
-
-	multiplayer.multiplayer_peer = server_peer
-	Utils.connect_checked(multiplayer.peer_disconnected, _on_peer_disconnected)
-
-	print("[server] listening on udp://0.0.0.0:%d max_clients=%d" % [listen_port, max_clients])
-	return true
-
-
-func _on_peer_disconnected(peer_id: int) -> void:
-	print("[server] peer_disconnected id=%d peers=%d" % [peer_id, multiplayer.get_peers().size()])
-	arena_peer_disconnected.emit(peer_id)
-
-
-@rpc("authority", "reliable")
-func _receive_server_hello_ack(_server_protocol_version: int, _server_unix_time: int) -> void:
-	push_warning("[server] unexpected RPC: _receive_server_hello_ack")
-
-
-@rpc("any_peer", "reliable")
-func _receive_client_hello(client_protocol_version: int, player_name: String) -> void:
-	var peer_id: int = multiplayer.get_remote_sender_id()
-	print("[server][join] client_hello peer=%d protocol=%d" % [peer_id, client_protocol_version])
-	print("[server] client_hello peer=%d player=%s" % [peer_id, player_name])
-	_receive_server_hello_ack.rpc_id(peer_id, protocol_version, Time.get_unix_time_from_system())
-
-
-@rpc("any_peer", "reliable")
-func _join_arena(
-	player_name: String,
-	requested_tank_id: int,
-	requested_shell_loadout_by_path: Dictionary,
-	requested_selected_shell_path: String
-) -> void:
-	var peer_id: int = multiplayer.get_remote_sender_id()
-	arena_join_requested.emit(
-		peer_id,
-		player_name,
-		requested_tank_id,
-		requested_shell_loadout_by_path,
-		requested_selected_shell_path
-	)
-
-
-@rpc("any_peer", "reliable")
-func _leave_arena() -> void:
-	var peer_id: int = multiplayer.get_remote_sender_id()
-	arena_leave_requested.emit(peer_id)
-
-
-@rpc("authority", "reliable")
-func _receive_state_snapshot(_server_tick: int, _player_states: Array, _max_players: int) -> void:
-	push_warning("[server] unexpected RPC: _receive_state_snapshot")
-
-
 func on_server_tick(server_tick: int, tick_delta_seconds: float) -> void:
 	total_on_server_tick_calls += 1
 	if tick_delta_seconds <= 0.0:
@@ -136,10 +65,7 @@ func set_authoritative_player_states(player_states: Array[Dictionary]) -> void:
 
 
 func _broadcast_state_snapshot(server_tick: int) -> void:
-	var snapshot_player_states: Array[Dictionary] = (
-		NetworkServerSnapshotBuilder
-		. build_player_states_snapshot(arena_session_state, authoritative_player_states)
-	)
+	var snapshot_player_states: Array[Dictionary] = _build_player_states_snapshot()
 	var arena_max_players: int = arena_session_state.max_players
 	var connected_peers: PackedInt32Array = multiplayer.get_peers()
 	total_snapshots_broadcast += 1
@@ -148,6 +74,15 @@ func _broadcast_state_snapshot(server_tick: int) -> void:
 		_receive_state_snapshot.rpc_id(
 			peer_id, server_tick, snapshot_player_states, arena_max_players
 		)
+
+
+func broadcast_state_snapshot_now() -> void:
+	_broadcast_state_snapshot(0)
+
+
+@rpc("authority", "reliable")
+func _receive_state_snapshot(_server_tick: int, _player_states: Array, _max_players: int) -> void:
+	push_warning("[server][gameplay] unexpected RPC: _receive_state_snapshot")
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
@@ -181,18 +116,6 @@ func _request_respawn() -> void:
 
 
 @rpc("authority", "reliable")
-func _join_arena_ack(
-	_success: bool, _message: String, _spawn_position: Vector2, _spawn_rotation: float
-) -> void:
-	push_warning("[server] unexpected RPC: _join_arena_ack")
-
-
-@rpc("authority", "reliable")
-func _leave_arena_ack(_success: bool, _message: String) -> void:
-	push_warning("[server] unexpected RPC: _leave_arena_ack")
-
-
-@rpc("authority", "reliable")
 func _receive_arena_shell_spawn(
 	_shot_id: int,
 	_firing_peer_id: int,
@@ -201,7 +124,7 @@ func _receive_arena_shell_spawn(
 	_shell_velocity: Vector2,
 	_shell_rotation: float
 ) -> void:
-	push_warning("[server] unexpected RPC: _receive_arena_shell_spawn")
+	push_warning("[server][gameplay] unexpected RPC: _receive_arena_shell_spawn")
 
 
 @rpc("authority", "reliable")
@@ -217,31 +140,31 @@ func _receive_arena_shell_impact(
 	_post_impact_rotation: float,
 	_continue_simulation: bool
 ) -> void:
-	push_warning("[server] unexpected RPC: _receive_arena_shell_impact")
+	push_warning("[server][gameplay] unexpected RPC: _receive_arena_shell_impact")
 
 
 @rpc("authority", "reliable")
 func _receive_arena_respawn(
 	_peer_id: int, _player_name: String, _spawn_position: Vector2, _spawn_rotation: float
 ) -> void:
-	push_warning("[server] unexpected RPC: _receive_arena_respawn")
+	push_warning("[server][gameplay] unexpected RPC: _receive_arena_respawn")
 
 
 @rpc("authority", "reliable")
 func _receive_arena_fire_rejected(_reason: String) -> void:
-	push_warning("[server] unexpected RPC: _receive_arena_fire_rejected")
+	push_warning("[server][gameplay] unexpected RPC: _receive_arena_fire_rejected")
 
 
 @rpc("authority", "reliable")
 func _receive_arena_loadout_state(
 	_selected_shell_path: String, _shell_counts_by_path: Dictionary, _reload_time_left: float
 ) -> void:
-	push_warning("[server] unexpected RPC: _receive_arena_loadout_state")
+	push_warning("[server][gameplay] unexpected RPC: _receive_arena_loadout_state")
 
 
 @rpc("authority", "reliable")
 func _receive_arena_kill_event(_kill_event_payload: Dictionary) -> void:
-	push_warning("[server] unexpected RPC: _receive_arena_kill_event")
+	push_warning("[server][gameplay] unexpected RPC: _receive_arena_kill_event")
 
 
 func broadcast_arena_respawn(
@@ -272,21 +195,6 @@ func send_arena_loadout_state(
 	)
 
 
-func complete_arena_join(
-	peer_id: int, join_message: String, spawn_position: Vector2, spawn_rotation: float
-) -> void:
-	_join_arena_ack.rpc_id(peer_id, true, join_message, spawn_position, spawn_rotation)
-	_broadcast_state_snapshot(0)
-
-
-func reject_arena_join(peer_id: int, join_message: String) -> void:
-	_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
-
-
-func complete_arena_leave(peer_id: int, leave_message: String) -> void:
-	_leave_arena_ack.rpc_id(peer_id, true, leave_message)
-
-
 func mark_input_applied() -> void:
 	total_input_messages_applied += 1
 
@@ -295,5 +203,105 @@ func mark_fire_request_applied() -> void:
 	total_fire_requests_applied += 1
 
 
-func broadcast_state_snapshot_now() -> void:
-	_broadcast_state_snapshot(0)
+func broadcast_arena_shell_spawn(
+	shot_id: int,
+	firing_peer_id: int,
+	shell_spec_path: String,
+	spawn_position: Vector2,
+	shell_velocity: Vector2,
+	shell_rotation: float
+) -> void:
+	for peer_id: int in multiplayer.get_peers():
+		_receive_arena_shell_spawn.rpc_id(
+			peer_id,
+			shot_id,
+			firing_peer_id,
+			shell_spec_path,
+			spawn_position,
+			shell_velocity,
+			shell_rotation
+		)
+
+
+func broadcast_arena_shell_impact(
+	shot_id: int,
+	firing_peer_id: int,
+	target_peer_id: int,
+	result_type: int,
+	damage: int,
+	remaining_health: int,
+	hit_position: Vector2,
+	post_impact_velocity: Vector2,
+	post_impact_rotation: float,
+	continue_simulation: bool
+) -> void:
+	for peer_id: int in multiplayer.get_peers():
+		_receive_arena_shell_impact.rpc_id(
+			peer_id,
+			shot_id,
+			firing_peer_id,
+			target_peer_id,
+			result_type,
+			damage,
+			remaining_health,
+			hit_position,
+			post_impact_velocity,
+			post_impact_rotation,
+			continue_simulation
+		)
+
+
+func broadcast_arena_kill_event(
+	event_seq: int,
+	killer_peer_id: int,
+	killer_name: String,
+	killer_tank_name: String,
+	shell_short_name: String,
+	victim_peer_id: int,
+	victim_name: String,
+	victim_tank_name: String
+) -> void:
+	var kill_event_payload: Dictionary = {
+		"event_seq": event_seq,
+		"killer_peer_id": killer_peer_id,
+		"killer_name": killer_name,
+		"killer_tank_name": killer_tank_name,
+		"shell_short_name": shell_short_name,
+		"victim_peer_id": victim_peer_id,
+		"victim_name": victim_name,
+		"victim_tank_name": victim_tank_name,
+	}
+	for peer_id: int in multiplayer.get_peers():
+		_receive_arena_kill_event.rpc_id(peer_id, kill_event_payload)
+
+
+func _build_player_states_snapshot() -> Array[Dictionary]:
+	if not authoritative_player_states.is_empty():
+		var runtime_snapshot_player_states: Array[Dictionary] = []
+		for player_state: Dictionary in authoritative_player_states:
+			runtime_snapshot_player_states.append(player_state.duplicate(true))
+		return runtime_snapshot_player_states
+
+	var snapshot_player_states: Array[Dictionary] = []
+	var peer_ids: Array[int] = arena_session_state.get_peer_ids()
+	for peer_id: int in peer_ids:
+		var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
+		if peer_state.is_empty():
+			continue
+		(
+			snapshot_player_states
+			. append(
+				{
+					"peer_id": peer_id,
+					"player_name": peer_state.get("player_name", ""),
+					"position": peer_state.get("state_position", Vector2.ZERO),
+					"rotation": peer_state.get("state_rotation", 0.0),
+					"linear_velocity": peer_state.get("state_linear_velocity", Vector2.ZERO),
+					"turret_rotation": peer_state.get("state_turret_rotation", 0.0),
+					"last_processed_input_tick": peer_state.get("last_input_tick", 0),
+					"is_bot": false,
+					"is_alive": true,
+				}
+			)
+		)
+	return snapshot_player_states

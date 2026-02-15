@@ -1,6 +1,6 @@
 class_name BattleInterface extends Control
 
-var network_client: NetworkClient
+var network_client: ENetClient
 
 @onready var tank_control: TankControl = %TankControl
 @onready var enemy_indicators: EnemyIndicators = %EnemyIndicators
@@ -14,7 +14,7 @@ func _ready() -> void:
 	player_hud.set_hud_active(false)
 
 
-func set_network_client(network_client_ref: NetworkClient) -> void:
+func set_network_client(network_client_ref: ENetClient) -> void:
 	network_client = network_client_ref
 	online_battle_status.set_network_client(network_client)
 
@@ -32,7 +32,3 @@ func start_level() -> void:
 	enemy_indicators.display_indicators()
 	tank_hud_layer.display_huds()
 	player_hud.set_hud_active(true)
-	var online_session_active: bool = (
-		network_client != null and network_client.arena_membership_active
-	)
-	online_battle_status.set_online_session_active(online_session_active)

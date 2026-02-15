@@ -2,7 +2,10 @@
 
 [ext_resource type="Script" uid="uid://cpnw0smwvs8pn" path="res://src/core/client/client.gd" id="1_y2g12"]
 [ext_resource type="PackedScene" uid="uid://bbwbe6voggknh" path="res://src/ui/ui_manager.tscn" id="2_0p37h"]
-[ext_resource type="Script" uid="uid://j71yr646rysl" path="res://src/net/network_client.gd" id="3_nw0w8"]
+[ext_resource type="Script" uid="uid://j71yr646rysl" path="res://src/net/client/enet_client.gd" id="3_nw0w8"]
+[ext_resource type="Script" path="res://src/net/client/client_session_api.gd" id="4_ux10p"]
+[ext_resource type="Script" path="res://src/net/client/client_gameplay_api.gd" id="5_x1r24"]
+[ext_resource type="Script" path="res://src/core/client/client_online_runtime.gd" id="6_tcm44"]
 
 [node name="Runtime" type="Node2D" unique_id=2016107524]
 script = ExtResource("1_y2g12")
@@ -16,3 +19,15 @@ unique_name_in_owner = true
 [node name="Network" type="Node" parent="." unique_id=1052572476]
 unique_name_in_owner = true
 script = ExtResource("3_nw0w8")
+
+[node name="Session" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_ux10p")
+
+[node name="Gameplay" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("5_x1r24")
+
+[node name="OnlineRuntime" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("6_tcm44")

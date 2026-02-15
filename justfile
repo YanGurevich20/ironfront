@@ -9,6 +9,10 @@ default_server_port := "7000"
 build:
 	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --verbose --path . --quit
 
+# Refresh Godot editor-side script class/cache metadata.
+refresh-cache:
+	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --editor --path . --quit
+
 # Run local dedicated server runtime.
 server-local port=default_server_port:
 	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . -- --server --port={{port}}
@@ -25,8 +29,8 @@ fmt-check:
 fmt:
 	rg --files -g '*.gd' | xargs "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}"
 
-# Run formatter then lint.
-fix: build fmt lint
+# Refresh cache, then run build, formatter, and lint.
+fix: refresh-cache build fmt lint
 
 # Export dedicated Linux server executable.
 server-export:

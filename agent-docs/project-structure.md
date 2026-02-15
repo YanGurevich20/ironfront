@@ -19,8 +19,8 @@
 
 ## Runtime Architecture
 - `src/core/main.gd` selects runtime mode (client vs dedicated server).
-- `src/core/client.gd` owns client game flow and composes `$NetworkClient` (`src/net/network_client.gd`).
-- `src/core/server.gd` owns server tick/runtime loop and composes `$NetworkServer` (`src/net/network_server.gd`).
+- `src/core/client.gd` owns client game flow and composes `$NetworkClient` (`src/net/client/network_client.gd`).
+- `src/core/server.gd` owns server tick/runtime loop and composes `$NetworkServer` (`src/net/server/network_server.gd`).
 - Keep transport/protocol code inside `src/net/`; avoid mixing server transport logic back into client runtime scripts.
 
 ## Development Commands

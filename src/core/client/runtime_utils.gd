@@ -1,4 +1,4 @@
-class_name ClientRuntimeUtils
+class_name RuntimeUtils
 extends RefCounted
 
 
