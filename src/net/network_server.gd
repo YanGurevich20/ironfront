@@ -1,8 +1,24 @@
 class_name NetworkServer
 extends Node
 
-signal arena_join_requested(peer_id: int, player_name: String, tank_id: int, join_message: String)
-signal arena_peer_removed(peer_id: int, reason: String)
+signal arena_peer_disconnected(peer_id: int)
+signal arena_join_requested(
+	peer_id: int,
+	player_name: String,
+	requested_tank_id: int,
+	requested_shell_loadout_by_path: Dictionary,
+	requested_selected_shell_path: String
+)
+signal arena_leave_requested(peer_id: int)
+signal arena_input_intent_received(
+	peer_id: int,
+	input_tick: int,
+	left_track_input: float,
+	right_track_input: float,
+	turret_aim: float
+)
+signal arena_fire_requested(peer_id: int, fire_request_seq: int)
+signal arena_shell_select_requested(peer_id: int, shell_select_seq: int, shell_spec_path: String)
 signal arena_respawn_requested(peer_id: int)
 
 const RPC_CHANNEL_INPUT: int = 1
@@ -57,20 +73,7 @@ func start_server(listen_port: int, max_clients: int) -> bool:
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	print("[server] peer_disconnected id=%d peers=%d" % [peer_id, multiplayer.get_peers().size()])
-	_remove_arena_peer(peer_id, "PEER_DISCONNECTED")
-
-
-func _remove_arena_peer(peer_id: int, reason: String) -> bool:
-	if arena_session_state == null:
-		push_warning("[server][arena] missing session state during remove reason=%s" % reason)
-		return false
-	var remove_result: Dictionary = arena_session_state.remove_peer(peer_id, reason)
-	if not remove_result.get("removed", false):
-		return false
-	arena_peer_removed.emit(peer_id, reason)
-	print("[server][arena] peer_removed_cleanup peer=%d reason=%s" % [peer_id, reason])
-	_broadcast_state_snapshot(0)
-	return true
+	arena_peer_disconnected.emit(peer_id)
 
 
 @rpc("authority", "reliable")
@@ -94,39 +97,19 @@ func _join_arena(
 	requested_selected_shell_path: String
 ) -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	if arena_session_state == null:
-		push_error("[server][arena] join requested before session initialization")
-		_join_arena_ack.rpc_id(peer_id, false, "ARENA SESSION UNAVAILABLE", Vector2.ZERO, 0.0)
-		return
-	if arena_session_state.has_peer(peer_id):
-		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
-	var cleaned_player_name: String = player_name.strip_edges()
-	if cleaned_player_name.is_empty():
-		print("[server][join] reject_join_arena peer=%d reason=INVALID_PLAYER_NAME" % peer_id)
-		_join_arena_ack.rpc_id(peer_id, false, "INVALID PLAYER NAME", Vector2.ZERO, 0.0)
-		return
-	var join_result: Dictionary = arena_session_state.try_join_peer(
+	arena_join_requested.emit(
 		peer_id,
-		cleaned_player_name,
+		player_name,
 		requested_tank_id,
 		requested_shell_loadout_by_path,
 		requested_selected_shell_path
 	)
-	var join_message: String = str(join_result.get("message", "JOIN FAILED"))
-	if not join_result.get("success", false):
-		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
-		_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
-		return
-	var selected_tank_id: int = int(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
-	arena_join_requested.emit(peer_id, cleaned_player_name, selected_tank_id, join_message)
 
 
 @rpc("any_peer", "reliable")
 func _leave_arena() -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	var removed: bool = _remove_arena_peer(peer_id, "CLIENT_REQUEST")
-	var leave_message: String = "LEFT ARENA" if removed else "NOT IN ARENA"
-	_leave_arena_ack.rpc_id(peer_id, true, leave_message)
+	arena_leave_requested.emit(peer_id)
 
 
 @rpc("authority", "reliable")
@@ -137,8 +120,6 @@ func _receive_state_snapshot(_server_tick: int, _player_states: Array, _max_play
 func on_server_tick(server_tick: int, tick_delta_seconds: float) -> void:
 	total_on_server_tick_calls += 1
 	if tick_delta_seconds <= 0.0:
-		return
-	if arena_session_state == null:
 		return
 	if arena_session_state.get_player_count() == 0:
 		return
@@ -159,9 +140,7 @@ func _broadcast_state_snapshot(server_tick: int) -> void:
 		NetworkServerSnapshotBuilder
 		. build_player_states_snapshot(arena_session_state, authoritative_player_states)
 	)
-	var arena_max_players: int = (
-		arena_session_state.max_players if arena_session_state != null else 0
-	)
+	var arena_max_players: int = arena_session_state.max_players
 	var connected_peers: PackedInt32Array = multiplayer.get_peers()
 	total_snapshots_broadcast += 1
 	last_snapshot_tick = server_tick
@@ -175,92 +154,29 @@ func _broadcast_state_snapshot(server_tick: int) -> void:
 func _receive_input_intent(
 	input_tick: int, left_track_input: float, right_track_input: float, turret_aim: float
 ) -> void:
-	if arena_session_state == null:
-		return
 	total_input_messages_received += 1
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	if not arena_session_state.has_peer(peer_id):
-		return
-	if input_tick <= 0:
-		return
-	var current_server_tick: int = Time.get_ticks_msec()
-	var is_too_far_future: bool = (
-		input_tick
-		> (
-			arena_session_state.get_peer_last_input_tick(peer_id)
-			+ MultiplayerProtocol.MAX_INPUT_FUTURE_TICKS
-		)
+	arena_input_intent_received.emit(
+		peer_id, input_tick, left_track_input, right_track_input, turret_aim
 	)
-	if is_too_far_future:
-		print("[server][sync][input] ignored_far_future peer=%d tick=%d" % [peer_id, input_tick])
-		return
-	var accepted: bool = arena_session_state.set_peer_input_intent(
-		peer_id,
-		input_tick,
-		clamp(left_track_input, -1.0, 1.0),
-		clamp(right_track_input, -1.0, 1.0),
-		clamp(turret_aim, -1.0, 1.0),
-		current_server_tick
-	)
-	if not accepted:
-		print("[server][sync][input] ignored_non_monotonic peer=%d tick=%d" % [peer_id, input_tick])
-		return
-	total_input_messages_applied += 1
 
 
 @rpc("any_peer", "reliable")
 func _request_fire(fire_request_seq: int) -> void:
-	if arena_session_state == null:
-		return
 	total_fire_requests_received += 1
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	if not arena_session_state.has_peer(peer_id):
-		return
-	var received_msec: int = Time.get_ticks_msec()
-	var accepted: bool = arena_session_state.queue_peer_fire_request(
-		peer_id, fire_request_seq, received_msec
-	)
-	if not accepted:
-		print(
-			(
-				"[server][sync][fire] ignored_non_monotonic peer=%d seq=%d"
-				% [peer_id, fire_request_seq]
-			)
-		)
-		return
-	total_fire_requests_applied += 1
+	arena_fire_requested.emit(peer_id, fire_request_seq)
 
 
 @rpc("any_peer", "reliable")
 func _request_shell_select(shell_select_seq: int, shell_spec_path: String) -> void:
-	if arena_session_state == null:
-		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	if not arena_session_state.has_peer(peer_id):
-		return
-	var received_msec: int = Time.get_ticks_msec()
-	var accepted: bool = arena_session_state.queue_peer_shell_select_request(
-		peer_id, shell_select_seq, shell_spec_path, received_msec
-	)
-	if not accepted:
-		print(
-			(
-				(
-					"[server][sync][shell_select] ignored_non_monotonic_or_invalid "
-					+ "peer=%d seq=%d path=%s"
-				)
-				% [peer_id, shell_select_seq, shell_spec_path]
-			)
-		)
+	arena_shell_select_requested.emit(peer_id, shell_select_seq, shell_spec_path)
 
 
 @rpc("any_peer", "reliable")
 func _request_respawn() -> void:
-	if arena_session_state == null:
-		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	if not arena_session_state.has_peer(peer_id):
-		return
 	arena_respawn_requested.emit(peer_id)
 
 
@@ -365,3 +281,19 @@ func complete_arena_join(
 
 func reject_arena_join(peer_id: int, join_message: String) -> void:
 	_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
+
+
+func complete_arena_leave(peer_id: int, leave_message: String) -> void:
+	_leave_arena_ack.rpc_id(peer_id, true, leave_message)
+
+
+func mark_input_applied() -> void:
+	total_input_messages_applied += 1
+
+
+func mark_fire_request_applied() -> void:
+	total_fire_requests_applied += 1
+
+
+func broadcast_state_snapshot_now() -> void:
+	_broadcast_state_snapshot(0)

@@ -168,8 +168,6 @@ func step_authoritative_runtime(
 	next_arena_session_state: ArenaSessionState, delta: float
 ) -> Array[Dictionary]:
 	var snapshot_actor_states: Array[Dictionary] = []
-	if next_arena_session_state == null:
-		return snapshot_actor_states
 
 	ServerArenaActorUtils.update_pending_bot_respawns(self, delta)
 
@@ -265,16 +263,8 @@ func _apply_peer_input_intent_to_tank(
 
 
 func _on_shell_fired(shell: Shell, tank: Tank) -> void:
-	if shell == null or tank == null:
-		return
 	var tank_instance_id: int = tank.get_instance_id()
 	if not actor_id_by_tank_instance_id.has(tank_instance_id):
-		shell.queue_free()
-		return
-	if network_server == null:
-		shell.queue_free()
-		return
-	if arena_level == null:
 		shell.queue_free()
 		return
 	var firing_actor_id: int = actor_id_by_tank_instance_id[tank_instance_id]
@@ -311,8 +301,6 @@ func _on_shell_impact_resolved(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	if network_server == null or shell == null or target_tank == null:
-		return
 	var shell_instance_id: int = shell.get_instance_id()
 	if not shot_id_by_shell_instance_id.has(shell_instance_id):
 		return
@@ -348,7 +336,7 @@ func _on_shell_impact_resolved(
 		firing_actor_id,
 		ServerArenaActorUtils.get_actor_player_name(self, firing_actor_id),
 		ServerArenaActorUtils.get_actor_tank_display_name(self, firing_actor_id),
-		_get_shell_short_name(shell),
+		shell.shell_spec.shell_name,
 		target_actor_id,
 		ServerArenaActorUtils.get_actor_player_name(self, target_actor_id),
 		ServerArenaActorUtils.get_actor_tank_display_name(self, target_actor_id)
@@ -356,8 +344,6 @@ func _on_shell_impact_resolved(
 
 
 func _on_tank_destroyed(tank: Tank) -> void:
-	if tank == null:
-		return
 	var tank_instance_id: int = tank.get_instance_id()
 	if not actor_id_by_tank_instance_id.has(tank_instance_id):
 		return
@@ -375,15 +361,3 @@ func _on_server_shell_exited(shell_instance_id: int) -> void:
 
 func _exit_tree() -> void:
 	ServerArenaActorUtils.clear_runtime(self)
-
-
-func _get_shell_short_name(shell: Shell) -> String:
-	if shell == null or shell.shell_spec == null:
-		return "SHELL"
-	var shell_name: String = shell.shell_spec.shell_name.strip_edges()
-	if shell_name.is_empty():
-		return "SHELL"
-	var shell_name_parts: PackedStringArray = shell_name.split(" ", false)
-	if shell_name_parts.is_empty():
-		return shell_name
-	return shell_name_parts[0]

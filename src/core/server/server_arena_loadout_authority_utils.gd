@@ -62,8 +62,6 @@ static func handle_peer_fire_request(
 static func sync_peer_tank_shell_state(
 	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
-	if spawned_tank == null or runtime.arena_session_state == null:
-		return
 	var selected_shell_path: String = runtime.arena_session_state.get_peer_selected_shell_path(
 		peer_id
 	)
@@ -84,17 +82,13 @@ static func sync_peer_tank_shell_state(
 static func send_peer_loadout_state(
 	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
-	if runtime.network_server == null or runtime.arena_session_state == null:
-		return
 	var selected_shell_path: String = runtime.arena_session_state.get_peer_selected_shell_path(
 		peer_id
 	)
 	var shell_counts_by_path: Dictionary = runtime.arena_session_state.get_peer_ammo_by_shell_path(
 		peer_id
 	)
-	var reload_time_left: float = 0.0
-	if spawned_tank != null:
-		reload_time_left = spawned_tank.turret.get_reload_time_left()
+	var reload_time_left: float = spawned_tank.turret.get_reload_time_left()
 	runtime.network_server.send_arena_loadout_state(
 		peer_id, selected_shell_path, shell_counts_by_path, reload_time_left
 	)
@@ -103,8 +97,7 @@ static func send_peer_loadout_state(
 static func reject_peer_fire(
 	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank, reason: String
 ) -> void:
-	if runtime.network_server != null:
-		runtime.network_server.send_arena_fire_rejected(peer_id, reason)
+	runtime.network_server.send_arena_fire_rejected(peer_id, reason)
 	send_peer_loadout_state(runtime, peer_id, spawned_tank)
 
 

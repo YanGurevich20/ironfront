@@ -13,14 +13,11 @@ func _init(server: Server) -> void:
 
 
 func log_periodic() -> void:
-	if _server.tick_count % (_server.tick_rate_hz * 5) == 0:
-		return
+	if _server.tick_count % (_server.tick_rate_hz * 5) != 0: return
 	var network_server: NetworkServer = _server.network_server
 	var tick_count: int = _server.tick_count
 	var tick_rate_hz: int = _server.tick_rate_hz
-	var arena_player_count: int = 0
-	if _server.arena_session_state != null:
-		arena_player_count = _server.arena_session_state.get_player_count()
+	var arena_player_count: int = _server.arena_session_state.get_player_count()
 	var physics_step_ms: float = Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
 	var peers_count: int = _server.get_multiplayer().get_peers().size()
 

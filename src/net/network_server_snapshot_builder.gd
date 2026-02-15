@@ -5,8 +5,6 @@ extends RefCounted
 static func build_player_states_snapshot(
 	arena_session_state: ArenaSessionState, authoritative_player_states: Array[Dictionary]
 ) -> Array[Dictionary]:
-	if arena_session_state == null:
-		return []
 	if not authoritative_player_states.is_empty():
 		var runtime_snapshot_player_states: Array[Dictionary] = []
 		for player_state: Dictionary in authoritative_player_states:

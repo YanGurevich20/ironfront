@@ -37,7 +37,15 @@ func _ready() -> void:
 	network_server.configure_tick_rate(tick_rate_hz)
 	server_arena_runtime.configure_network_server(network_server)
 	Utils.connect_checked(network_server.arena_join_requested, _on_arena_join_requested)
-	Utils.connect_checked(network_server.arena_peer_removed, _on_arena_peer_removed)
+	Utils.connect_checked(network_server.arena_leave_requested, _on_arena_leave_requested)
+	Utils.connect_checked(network_server.arena_peer_disconnected, _on_arena_peer_disconnected)
+	Utils.connect_checked(
+		network_server.arena_input_intent_received, _on_arena_input_intent_received
+	)
+	Utils.connect_checked(network_server.arena_fire_requested, _on_arena_fire_requested)
+	Utils.connect_checked(
+		network_server.arena_shell_select_requested, _on_arena_shell_select_requested
+	)
 	Utils.connect_checked(network_server.arena_respawn_requested, _on_arena_respawn_requested)
 	if not network_server.start_server(listen_port, max_clients):
 		get_tree().quit(1)
@@ -63,10 +71,34 @@ func _apply_cli_args() -> void:
 
 
 func _on_arena_join_requested(
-	peer_id: int, player_name: String, tank_id: int, join_message: String
+	peer_id: int,
+	player_name: String,
+	requested_tank_id: int,
+	requested_shell_loadout_by_path: Dictionary,
+	requested_selected_shell_path: String
 ) -> void:
+	if arena_session_state.has_peer(peer_id):
+		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
+	var cleaned_player_name: String = player_name.strip_edges()
+	if cleaned_player_name.is_empty():
+		print("[server][join] reject_join_arena peer=%d reason=INVALID_PLAYER_NAME" % peer_id)
+		network_server.reject_arena_join(peer_id, "INVALID PLAYER NAME")
+		return
+	var join_result: Dictionary = arena_session_state.try_join_peer(
+		peer_id,
+		cleaned_player_name,
+		requested_tank_id,
+		requested_shell_loadout_by_path,
+		requested_selected_shell_path
+	)
+	var join_message: String = str(join_result.get("message", "JOIN FAILED"))
+	if not join_result.get("success", false):
+		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
+		network_server.reject_arena_join(peer_id, join_message)
+		return
+	var tank_id: int = int(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
 	var join_spawn_result: Dictionary = ServerArenaActorUtils.spawn_peer_tank_at_random(
-		server_arena_runtime, peer_id, player_name, tank_id
+		server_arena_runtime, peer_id, cleaned_player_name, tank_id
 	)
 	if not join_spawn_result.get("success", false):
 		arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
@@ -85,8 +117,99 @@ func _on_arena_join_requested(
 	print("[server][arena] player_joined peer=%d spawn_id=%s" % [peer_id, spawn_id])
 
 
-func _on_arena_peer_removed(peer_id: int, reason: String) -> void:
+func _on_arena_leave_requested(peer_id: int) -> void:
+	var removed: bool = _remove_arena_peer(peer_id, "CLIENT_REQUEST")
+	var leave_message: String = "LEFT ARENA" if removed else "NOT IN ARENA"
+	network_server.complete_arena_leave(peer_id, leave_message)
+
+
+func _on_arena_peer_disconnected(peer_id: int) -> void:
+	_remove_arena_peer(peer_id, "PEER_DISCONNECTED")
+
+
+func _remove_arena_peer(peer_id: int, reason: String) -> bool:
+	var remove_result: Dictionary = arena_session_state.remove_peer(peer_id, reason)
+	if not remove_result.get("removed", false):
+		return false
 	server_arena_runtime.despawn_peer_tank(peer_id, reason)
+	network_server.broadcast_state_snapshot_now()
+	print("[server][arena] peer_removed_cleanup peer=%d reason=%s" % [peer_id, reason])
+	return true
+
+
+func _on_arena_input_intent_received(
+	peer_id: int,
+	input_tick: int,
+	left_track_input: float,
+	right_track_input: float,
+	turret_aim: float
+) -> void:
+	if not arena_session_state.has_peer(peer_id):
+		return
+	if input_tick <= 0:
+		return
+	var is_too_far_future: bool = (
+		input_tick
+		> (
+			arena_session_state.get_peer_last_input_tick(peer_id)
+			+ MultiplayerProtocol.MAX_INPUT_FUTURE_TICKS
+		)
+	)
+	if is_too_far_future:
+		print("[server][sync][input] ignored_far_future peer=%d tick=%d" % [peer_id, input_tick])
+		return
+	var received_msec: int = Time.get_ticks_msec()
+	var accepted: bool = arena_session_state.set_peer_input_intent(
+		peer_id,
+		input_tick,
+		clamp(left_track_input, -1.0, 1.0),
+		clamp(right_track_input, -1.0, 1.0),
+		clamp(turret_aim, -1.0, 1.0),
+		received_msec
+	)
+	if not accepted:
+		print("[server][sync][input] ignored_non_monotonic peer=%d tick=%d" % [peer_id, input_tick])
+		return
+	network_server.mark_input_applied()
+
+
+func _on_arena_fire_requested(peer_id: int, fire_request_seq: int) -> void:
+	if not arena_session_state.has_peer(peer_id):
+		return
+	var received_msec: int = Time.get_ticks_msec()
+	var accepted: bool = arena_session_state.queue_peer_fire_request(
+		peer_id, fire_request_seq, received_msec
+	)
+	if not accepted:
+		print(
+			(
+				"[server][sync][fire] ignored_non_monotonic peer=%d seq=%d"
+				% [peer_id, fire_request_seq]
+			)
+		)
+		return
+	network_server.mark_fire_request_applied()
+
+
+func _on_arena_shell_select_requested(
+	peer_id: int, shell_select_seq: int, shell_spec_path: String
+) -> void:
+	if not arena_session_state.has_peer(peer_id):
+		return
+	var received_msec: int = Time.get_ticks_msec()
+	var accepted: bool = arena_session_state.queue_peer_shell_select_request(
+		peer_id, shell_select_seq, shell_spec_path, received_msec
+	)
+	if not accepted:
+		print(
+			(
+				(
+					"[server][sync][shell_select] ignored_non_monotonic_or_invalid "
+					+ "peer=%d seq=%d path=%s"
+				)
+				% [peer_id, shell_select_seq, shell_spec_path]
+			)
+		)
 
 
 func _on_arena_respawn_requested(peer_id: int) -> void:
