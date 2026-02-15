@@ -38,18 +38,8 @@ static func get_connection_ping_msec(
 
 
 static func resolve_cli_connect_target(default_host: String, default_port: int) -> Dictionary:
-	var resolved_host: String = default_host
-	var resolved_port: int = default_port
-	var user_args: PackedStringArray = OS.get_cmdline_user_args()
-	print("[client][cli] user_args=%s" % str(user_args))
-	for user_arg: String in user_args:
-		if user_arg.begins_with("--host="):
-			var host_value: String = user_arg.trim_prefix("--host=").strip_edges()
-			if not host_value.is_empty():
-				resolved_host = host_value
-		elif user_arg.begins_with("--port="):
-			var port_value: int = int(user_arg.trim_prefix("--port="))
-			if port_value > 0:
-				resolved_port = port_value
+	var client_args: Dictionary = Utils.get_parse_cmdline_user_args()
+	var resolved_host: String = client_args.get("host", default_host)
+	var resolved_port: int = max(0, int(client_args.get("port", default_port)))
 	print("[client][cli] resolved_host=%s resolved_port=%d" % [resolved_host, resolved_port])
 	return {"host": resolved_host, "port": resolved_port}

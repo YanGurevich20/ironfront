@@ -65,18 +65,10 @@ func _start_arena_runtime() -> bool:
 
 
 func _apply_cli_args() -> void:
-	var args: PackedStringArray = OS.get_cmdline_user_args()
-	for arg: String in args:
-		if arg.begins_with("--port="):
-			var port_value: int = int(arg.trim_prefix("--port="))
-			if port_value > 0:
-				listen_port = port_value
-		if arg.begins_with("--bot-count="):
-			arena_bot_count = max(0, int(arg.trim_prefix("--bot-count=")))
-		if arg.begins_with("--bot-respawn-delay="):
-			arena_bot_respawn_delay_seconds = max(
-				0.0, float(arg.trim_prefix("--bot-respawn-delay="))
-			)
+	var client_args: Dictionary = Utils.get_parse_cmdline_user_args()
+	listen_port = max(0, int(client_args.get("port", listen_port)))
+	arena_bot_count = max(0, int(client_args.get("bot-count", arena_bot_count)))
+	arena_bot_respawn_delay_seconds = max(0.0, float(client_args.get("bot-respawn-delay", arena_bot_respawn_delay_seconds)))
 
 
 func _configure_physics_tick_loop() -> void:

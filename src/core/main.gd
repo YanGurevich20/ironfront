@@ -1,8 +1,8 @@
 class_name Main
 extends Node
 
-var client_scene: PackedScene = preload("res://src/core/client.tscn")
-var server_scene: PackedScene = preload("res://src/core/server.tscn")
+var client_scene: PackedScene = preload("res://src/core/client/client.tscn")
+var server_scene: PackedScene = preload("res://src/core/server/server.tscn")
 
 
 func _ready() -> void:
