@@ -5,8 +5,8 @@ signal arena_join_requested(
 	peer_id: int,
 	player_name: String,
 	requested_tank_id: int,
-	requested_shell_loadout_by_path: Dictionary,
-	requested_selected_shell_path: String
+	requested_shell_loadout_by_id: Dictionary,
+	requested_selected_shell_id: String
 )
 signal arena_leave_requested(peer_id: int)
 
@@ -34,16 +34,16 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 func _join_arena(
 	player_name: String,
 	requested_tank_id: int,
-	requested_shell_loadout_by_path: Dictionary,
-	requested_selected_shell_path: String
+	requested_shell_loadout_by_id: Dictionary,
+	requested_selected_shell_id: String
 ) -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	arena_join_requested.emit(
 		peer_id,
 		player_name,
 		requested_tank_id,
-		requested_shell_loadout_by_path,
-		requested_selected_shell_path
+		requested_shell_loadout_by_id,
+		requested_selected_shell_id
 	)
 
 

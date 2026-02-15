@@ -66,3 +66,19 @@ func unlock_tank(tank_id: TankManager.TankId) -> void:
 
 func is_selected_tank_valid() -> bool:
 	return selected_tank_id in tank_configs.keys()
+
+
+func build_join_arena_payload() -> Dictionary:
+	assert(is_selected_tank_valid(), "Invalid selected tank_id: %s" % selected_tank_id)
+	var tank_config: PlayerTankConfig = get_current_tank_config()
+	tank_config.assert_valid_for_tank(selected_tank_id)
+	var shell_loadout_by_id: Dictionary = tank_config.build_shell_loadout_by_id()
+	var selected_shell_id: String = tank_config.pick_selected_shell_id(shell_loadout_by_id)
+	assert(
+		not selected_shell_id.is_empty(), "No usable shell for tank_id: %s" % tank_config.tank_id
+	)
+	return {
+		"tank_id": int(tank_config.tank_id),
+		"shell_loadout_by_id": shell_loadout_by_id,
+		"selected_shell_id": selected_shell_id,
+	}

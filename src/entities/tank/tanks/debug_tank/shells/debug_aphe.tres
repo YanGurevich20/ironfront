@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://c1sxth408g7ba"]
+[gd_resource type="Resource" script_class="ShellSpec" format=3 uid="uid://c1sxth408g7ba"]
 
 [ext_resource type="Resource" uid="uid://0s0xmq8o3lcr" path="res://src/entities/shell/base_shell_type/base_shell_types/APHE/APHE.tres" id="1_7o2ns"]
 [ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://src/entities/shell/shell_spec.gd" id="2_162xu"]
@@ -9,6 +9,7 @@ base_shell_type = ExtResource("1_7o2ns")
 muzzle_velocity = 750.0
 damage = 400
 penetration = 75.0
+shell_id = "debug_tank.debug_aphe"
 shell_name = "DEBUG_AP"
 caliber = 90
 unlock_cost = 0

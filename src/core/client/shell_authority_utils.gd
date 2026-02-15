@@ -2,14 +2,13 @@ class_name ShellAuthorityUtils
 extends RefCounted
 
 const ShellScene: PackedScene = preload("res://src/entities/shell/shell.tscn")
-static var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
 
 
 static func handle_shell_spawn_received(
 	client: Client,
 	shot_id: int,
 	firing_peer_id: int,
-	shell_spec_path: String,
+	shell_id: String,
 	spawn_position: Vector2,
 	shell_velocity: Vector2,
 	shell_rotation: float
@@ -18,23 +17,8 @@ static func handle_shell_spawn_received(
 		return
 	if firing_peer_id != client.multiplayer.get_unique_id():
 		client.arena_sync_runtime.play_remote_fire_effect(firing_peer_id)
-	if shell_spec_path.is_empty():
-		push_warning(
-			(
-				"%s authoritative_shell_spawn_ignored_empty_spec shot_id=%d firing_peer=%d"
-				% [client._log_prefix(), shot_id, firing_peer_id]
-			)
-		)
-		return
-	var shell_spec: ShellSpec = _get_cached_shell_spec(shell_spec_path)
-	if shell_spec == null:
-		push_warning(
-			(
-				"%s authoritative_shell_spawn_ignored_invalid_spec shot_id=%d spec=%s"
-				% [client._log_prefix(), shot_id, shell_spec_path]
-			)
-		)
-		return
+	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
+	assert(shell_spec != null, "Invalid shell_id from server: %s" % shell_id)
 	var shell: Shell = ShellScene.instantiate()
 	shell.initialize_from_spawn(
 		shell_spec, spawn_position, shell_velocity, shell_rotation, null, true
@@ -103,38 +87,24 @@ static func handle_shell_impact_received(
 
 static func handle_loadout_state_received(
 	client: Client,
-	selected_shell_path: String,
-	shell_counts_by_path: Dictionary,
+	selected_shell_id: String,
+	shell_counts_by_id: Dictionary,
 	reload_time_left: float
 ) -> void:
 	if not client.is_arena_active:
 		return
 	if client.player_tank == null:
 		return
-	if selected_shell_path.is_empty():
-		client.player_tank.set_remaining_shell_count(0)
-		GameplayBus.online_loadout_state_updated.emit(
-			selected_shell_path, shell_counts_by_path, reload_time_left
-		)
-		return
-	var selected_shell_spec: ShellSpec = _get_cached_shell_spec(selected_shell_path)
-	if selected_shell_spec == null:
-		push_warning(
-			(
-				"%s authoritative_loadout_state_invalid_selected_shell path=%s"
-				% [client._log_prefix(), selected_shell_path]
-			)
-		)
-		GameplayBus.online_loadout_state_updated.emit(
-			selected_shell_path, shell_counts_by_path, reload_time_left
-		)
-		return
-	var selected_shell_count: int = max(0, int(shell_counts_by_path.get(selected_shell_path, 0)))
+	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
+	assert(
+		selected_shell_spec != null, "Invalid selected_shell_id from server: %s" % selected_shell_id
+	)
+	var selected_shell_count: int = max(0, int(shell_counts_by_id.get(selected_shell_id, 0)))
 	client.player_tank.apply_authoritative_shell_state(
 		selected_shell_spec, selected_shell_count, reload_time_left
 	)
 	GameplayBus.online_loadout_state_updated.emit(
-		selected_shell_path, shell_counts_by_path, reload_time_left
+		selected_shell_id, shell_counts_by_id, reload_time_left
 	)
 
 
@@ -275,14 +245,3 @@ static func _resolve_result_name(result_type: int) -> String:
 	if result_name.is_empty():
 		return "impact"
 	return result_name
-
-
-static func _get_cached_shell_spec(shell_spec_path: String) -> ShellSpec:
-	if shell_spec_cache_by_path.has(shell_spec_path):
-		return shell_spec_cache_by_path[shell_spec_path]
-	var loaded_shell_spec_resource: Resource = load(shell_spec_path)
-	var loaded_shell_spec: ShellSpec = loaded_shell_spec_resource as ShellSpec
-	if loaded_shell_spec == null:
-		return null
-	shell_spec_cache_by_path[shell_spec_path] = loaded_shell_spec
-	return loaded_shell_spec

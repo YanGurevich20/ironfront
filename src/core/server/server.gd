@@ -77,8 +77,8 @@ func _on_arena_join_requested(
 	peer_id: int,
 	player_name: String,
 	requested_tank_id: int,
-	requested_shell_loadout_by_path: Dictionary,
-	requested_selected_shell_path: String
+	requested_shell_loadout_by_id: Dictionary,
+	requested_selected_shell_id: String
 ) -> void:
 	if arena_session_state.has_peer(peer_id):
 		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
@@ -91,8 +91,8 @@ func _on_arena_join_requested(
 		peer_id,
 		cleaned_player_name,
 		requested_tank_id,
-		requested_shell_loadout_by_path,
-		requested_selected_shell_path
+		requested_shell_loadout_by_id,
+		requested_selected_shell_id
 	)
 	var join_message: String = str(join_result.get("message", "JOIN FAILED"))
 	if not join_result.get("success", false):
@@ -196,13 +196,13 @@ func _on_arena_fire_requested(peer_id: int, fire_request_seq: int) -> void:
 
 
 func _on_arena_shell_select_requested(
-	peer_id: int, shell_select_seq: int, shell_spec_path: String
+	peer_id: int, shell_select_seq: int, shell_id: String
 ) -> void:
 	if not arena_session_state.has_peer(peer_id):
 		return
 	var received_msec: int = Time.get_ticks_msec()
 	var accepted: bool = arena_session_state.queue_peer_shell_select_request(
-		peer_id, shell_select_seq, shell_spec_path, received_msec
+		peer_id, shell_select_seq, shell_id, received_msec
 	)
 	if not accepted:
 		print(
@@ -211,7 +211,7 @@ func _on_arena_shell_select_requested(
 					"[server][sync][shell_select] ignored_non_monotonic_or_invalid "
 					+ "peer=%d seq=%d path=%s"
 				)
-				% [peer_id, shell_select_seq, shell_spec_path]
+				% [peer_id, shell_select_seq, shell_id]
 			)
 		)
 

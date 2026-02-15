@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://c6arbing6yhys"]
+[gd_resource type="Resource" script_class="ShellSpec" format=3 uid="uid://c6arbing6yhys"]
 
 [ext_resource type="Resource" uid="uid://dhf222dc7t1o5" path="res://src/entities/shell/base_shell_type/base_shell_types/HEAT/HEAT.tres" id="1_hjsde"]
 [ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://src/entities/shell/shell_spec.gd" id="2_opa36"]
@@ -9,6 +9,7 @@ base_shell_type = ExtResource("1_hjsde")
 muzzle_velocity = 500.0
 damage = 350
 penetration = 120.0
+shell_id = "debug_tank.debug_heat"
 shell_name = "DEBUG_HEAT"
 caliber = 90
 unlock_cost = 0

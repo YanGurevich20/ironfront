@@ -102,16 +102,16 @@ func _reset_loading_progress_bars() -> void:
 
 
 func _on_online_loadout_state_updated(
-	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
 	if shell_counts.is_empty():
 		return
 	var selected_shell: ShellSpec = null
 	for shell_spec: ShellSpec in shell_counts.keys():
-		var shell_spec_path: String = shell_spec.resource_path
-		var server_count: int = max(0, int(shell_counts_by_path.get(shell_spec_path, 0)))
+		var shell_id: String = ShellManager.get_shell_id(shell_spec)
+		var server_count: int = max(0, int(shell_counts_by_id.get(shell_id, 0)))
 		shell_counts[shell_spec] = server_count
-		if shell_spec_path == selected_shell_path:
+		if shell_id == selected_shell_id:
 			selected_shell = shell_spec
 	update_counts()
 	if selected_shell == null:

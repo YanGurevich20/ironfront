@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cmrgpml8dg7v2"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cmrgpml8dg7v2"]
 
 [ext_resource type="Shader" uid="uid://bmriix0qcaktx" path="res://src/entities/tank/shaders/tank_destruction_shader.gdshader" id="1_uh23a"]
 

@@ -2,7 +2,9 @@ class_name PlayerProfileUtils
 extends RefCounted
 
 
-static func create_local_player_tank() -> Tank:
+static func create_local_player_tank(
+	controller_type: TankManager.TankControllerType = TankManager.TankControllerType.PLAYER
+) -> Tank:
 	var player_data: PlayerData = PlayerData.get_instance()
 	var selected_tank_id: TankManager.TankId = player_data.selected_tank_id
 	var unlocked_tank_ids: Array[TankManager.TankId] = player_data.get_unlocked_tank_ids()
@@ -11,9 +13,7 @@ static func create_local_player_tank() -> Tank:
 			selected_tank_id = unlocked_tank_ids[0]
 		else:
 			selected_tank_id = TankManager.TankId.TIGER_1
-	var player_tank: Tank = TankManager.create_tank(
-		selected_tank_id, TankManager.TankControllerType.PLAYER
-	)
+	var player_tank: Tank = TankManager.create_tank(selected_tank_id, controller_type)
 	player_tank.display_player_name = player_data.player_name.strip_edges()
 	return player_tank
 

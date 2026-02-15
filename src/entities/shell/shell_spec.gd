@@ -16,6 +16,7 @@ const CALIBER_DIVISOR: float = 10.0
 @export var penetration: float = 100.0
 
 @export_category("Info")
+@export var shell_id: StringName
 @export var shell_name: String = "M75"
 @export var caliber: int = 75
 @export var unlock_cost: int = 10_000

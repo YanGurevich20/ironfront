@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://mdqwiwadrwg"]
+[gd_resource type="Resource" script_class="ShellSpec" format=3 uid="uid://mdqwiwadrwg"]
 
 [ext_resource type="Resource" uid="uid://fqrmhgwgttbs" path="res://src/entities/shell/base_shell_type/base_shell_types/AP/AP_T.tres" id="1_wos6h"]
 [ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://src/entities/shell/shell_spec.gd" id="2_i870e"]
@@ -6,10 +6,7 @@
 [resource]
 script = ExtResource("2_i870e")
 base_shell_type = ExtResource("1_wos6h")
-muzzle_velocity = 600.0
 damage = 200
 penetration = 80.0
+shell_id = "m4a1_sherman.m75_t"
 shell_name = "M75-T"
-caliber = 75
-unlock_cost = 10000
-resupply_cost = 200

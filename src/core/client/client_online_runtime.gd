@@ -11,7 +11,7 @@ signal arena_respawn_received(
 )
 signal arena_fire_rejected_received(reason: String)
 signal arena_loadout_state_received(
-	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 )
 
 const VERBOSE_JOIN_LOGS: bool = false
@@ -148,13 +148,13 @@ func request_fire() -> void:
 	gameplay_api.request_fire(local_fire_request_seq)
 
 
-func request_shell_select(shell_spec_path: String) -> void:
-	if shell_spec_path.is_empty():
+func request_shell_select(shell_id: String) -> void:
+	if shell_id.is_empty():
 		return
 	if not _can_send_gameplay_requests():
 		return
 	local_shell_select_seq += 1
-	gameplay_api.request_shell_select(local_shell_select_seq, shell_spec_path)
+	gameplay_api.request_shell_select(local_shell_select_seq, shell_id)
 
 
 func set_arena_input_enabled(enabled: bool, reset_sequence_state: bool = true) -> void:
@@ -214,16 +214,14 @@ func _send_join_arena() -> void:
 		return
 	var player_data: PlayerData = PlayerData.get_instance()
 	var player_name: String = player_data.player_name
-	var join_loadout_payload: Dictionary = NetworkClientJoinPayloadUtils.build_join_loadout_payload(
-		player_data
-	)
+	var join_loadout_payload: Dictionary = player_data.build_join_arena_payload()
 	var selected_tank_id: int = int(
 		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
 	)
-	var shell_loadout_by_path: Dictionary = join_loadout_payload.get("shell_loadout_by_path", {})
-	var selected_shell_path: String = str(join_loadout_payload.get("selected_shell_path", ""))
+	var shell_loadout_by_id: Dictionary = join_loadout_payload.get("shell_loadout_by_id", {})
+	var selected_shell_id: String = str(join_loadout_payload.get("selected_shell_id", ""))
 	session_api.send_join_arena(
-		player_name, selected_tank_id, shell_loadout_by_path, selected_shell_path
+		player_name, selected_tank_id, shell_loadout_by_id, selected_shell_id
 	)
 	_log_join("sent_join_arena player=%s tank=%d" % [player_name, selected_tank_id])
 
@@ -282,13 +280,13 @@ func _on_state_snapshot_received(server_tick: int, player_states: Array, max_pla
 func _on_arena_shell_spawn_received(
 	shot_id: int,
 	firing_peer_id: int,
-	shell_spec_path: String,
+	shell_id: String,
 	spawn_position: Vector2,
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
 	arena_shell_spawn_received.emit(
-		shot_id, firing_peer_id, shell_spec_path, spawn_position, shell_velocity, shell_rotation
+		shot_id, firing_peer_id, shell_id, spawn_position, shell_velocity, shell_rotation
 	)
 
 
@@ -329,9 +327,9 @@ func _on_arena_fire_rejected_received(reason: String) -> void:
 
 
 func _on_arena_loadout_state_received(
-	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
-	arena_loadout_state_received.emit(selected_shell_path, shell_counts_by_path, reload_time_left)
+	arena_loadout_state_received.emit(selected_shell_id, shell_counts_by_id, reload_time_left)
 
 
 func _on_arena_kill_event_received(kill_event_payload: Dictionary) -> void:
@@ -356,22 +354,23 @@ func _on_arena_kill_event_received(kill_event_payload: Dictionary) -> void:
 
 
 func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
+	var clamped_value: float = clamp(value, -1.0, 1.0)
 	if lever_side == Lever.LeverSide.LEFT:
-		pending_left_track_input = clamp(value, -1.0, 1.0)
-	elif lever_side == Lever.LeverSide.RIGHT:
-		pending_right_track_input = clamp(value, -1.0, 1.0)
+		pending_left_track_input = clamped_value
+		return
+	if lever_side == Lever.LeverSide.RIGHT:
+		pending_right_track_input = clamped_value
 
 
-func _on_wheel_input(value: float) -> void:
-	pending_turret_aim = clamp(value, -1.0, 1.0)
+func _on_wheel_input(turret_aim: float) -> void:
+	pending_turret_aim = clamp(turret_aim, -1.0, 1.0)
 
 
 func _on_shell_selected(shell_spec: ShellSpec, remaining_shell_count: int) -> void:
 	if remaining_shell_count < 0:
 		return
-	if shell_spec == null:
-		return
-	request_shell_select(shell_spec.resource_path)
+	var shell_id: String = ShellManager.get_shell_id(shell_spec)
+	request_shell_select(shell_id)
 
 
 func _can_send_gameplay_requests() -> bool:

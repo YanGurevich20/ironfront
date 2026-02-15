@@ -166,7 +166,9 @@ func _start_arena() -> bool:
 		return false
 	level_container.add_child(arena_level_candidate)
 	arena_level = arena_level_candidate
-	var spawned_player_tank: Tank = PlayerProfileUtils.create_local_player_tank()
+	var spawned_player_tank: Tank = PlayerProfileUtils.create_local_player_tank(
+		TankManager.TankControllerType.MULTIPLAYER
+	)
 	if spawned_player_tank == null:
 		_quit_arena()
 		return false
@@ -308,10 +310,10 @@ func _on_state_snapshot_received(server_tick: int, player_states: Array, max_pla
 
 
 func _on_arena_loadout_state_received(
-	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
 	ShellAuthorityUtils.handle_loadout_state_received(
-		self, selected_shell_path, shell_counts_by_path, reload_time_left
+		self, selected_shell_id, shell_counts_by_id, reload_time_left
 	)
 
 
@@ -320,7 +322,9 @@ func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) 
 		return
 	if player_tank != null:
 		player_tank.queue_free()
-	var respawned_tank: Tank = PlayerProfileUtils.create_local_player_tank()
+	var respawned_tank: Tank = PlayerProfileUtils.create_local_player_tank(
+		TankManager.TankControllerType.MULTIPLAYER
+	)
 	if respawned_tank == null:
 		push_error("%s arena_respawn_failed player_tank_creation" % _log_prefix())
 		return
@@ -342,19 +346,13 @@ func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 func _on_arena_shell_spawn_received(
 	shot_id: int,
 	firing_peer_id: int,
-	shell_spec_path: String,
+	shell_id: String,
 	spawn_position: Vector2,
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
 	ShellAuthorityUtils.handle_shell_spawn_received(
-		self,
-		shot_id,
-		firing_peer_id,
-		shell_spec_path,
-		spawn_position,
-		shell_velocity,
-		shell_rotation
+		self, shot_id, firing_peer_id, shell_id, spawn_position, shell_velocity, shell_rotation
 	)
 
 

@@ -3,7 +3,6 @@ extends Node
 
 var network_gameplay: ServerGameplayApi
 var arena_session_state: ArenaSessionState
-var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
 
 @onready var actors: ArenaActors = %Actors
 @onready var simulation: ArenaSimulation = %Simulation
@@ -58,7 +57,6 @@ func step_authoritative_runtime(
 func clear_runtime() -> void:
 	actors.clear_runtime()
 	combat_relay.clear_state()
-	shell_spec_cache_by_path.clear()
 
 
 func _exit_tree() -> void:

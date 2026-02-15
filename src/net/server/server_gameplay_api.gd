@@ -9,10 +9,8 @@ signal arena_input_intent_received(
 	turret_aim: float
 )
 signal arena_fire_requested(peer_id: int, fire_request_seq: int)
-signal arena_shell_select_requested(peer_id: int, shell_select_seq: int, shell_spec_path: String)
+signal arena_shell_select_requested(peer_id: int, shell_select_seq: int, shell_id: String)
 signal arena_respawn_requested(peer_id: int)
-
-const RPC_CHANNEL_INPUT: int = 1
 
 var arena_session_state: ArenaSessionState
 var server_tick_rate_hz: int = 30
@@ -85,7 +83,7 @@ func _receive_state_snapshot(_server_tick: int, _player_states: Array, _max_play
 	push_warning("[server][gameplay] unexpected RPC: _receive_state_snapshot")
 
 
-@rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
+@rpc("any_peer", "call_remote", "unreliable_ordered", MultiplayerProtocol.CHANNEL_INPUT)
 func _receive_input_intent(
 	input_tick: int, left_track_input: float, right_track_input: float, turret_aim: float
 ) -> void:
@@ -104,9 +102,9 @@ func _request_fire(fire_request_seq: int) -> void:
 
 
 @rpc("any_peer", "reliable")
-func _request_shell_select(shell_select_seq: int, shell_spec_path: String) -> void:
+func _request_shell_select(shell_select_seq: int, shell_id: String) -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	arena_shell_select_requested.emit(peer_id, shell_select_seq, shell_spec_path)
+	arena_shell_select_requested.emit(peer_id, shell_select_seq, shell_id)
 
 
 @rpc("any_peer", "reliable")
@@ -119,7 +117,7 @@ func _request_respawn() -> void:
 func _receive_arena_shell_spawn(
 	_shot_id: int,
 	_firing_peer_id: int,
-	_shell_spec_path: String,
+	_shell_id: String,
 	_spawn_position: Vector2,
 	_shell_velocity: Vector2,
 	_shell_rotation: float
@@ -157,7 +155,7 @@ func _receive_arena_fire_rejected(_reason: String) -> void:
 
 @rpc("authority", "reliable")
 func _receive_arena_loadout_state(
-	_selected_shell_path: String, _shell_counts_by_path: Dictionary, _reload_time_left: float
+	_selected_shell_id: String, _shell_counts_by_id: Dictionary, _reload_time_left: float
 ) -> void:
 	push_warning("[server][gameplay] unexpected RPC: _receive_arena_loadout_state")
 
@@ -183,15 +181,12 @@ func send_arena_fire_rejected(peer_id: int, reason: String) -> void:
 
 
 func send_arena_loadout_state(
-	peer_id: int,
-	selected_shell_path: String,
-	shell_counts_by_path: Dictionary,
-	reload_time_left: float
+	peer_id: int, selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
 	if not multiplayer.get_peers().has(peer_id):
 		return
 	_receive_arena_loadout_state.rpc_id(
-		peer_id, selected_shell_path, shell_counts_by_path, reload_time_left
+		peer_id, selected_shell_id, shell_counts_by_id, reload_time_left
 	)
 
 
@@ -206,7 +201,7 @@ func mark_fire_request_applied() -> void:
 func broadcast_arena_shell_spawn(
 	shot_id: int,
 	firing_peer_id: int,
-	shell_spec_path: String,
+	shell_id: String,
 	spawn_position: Vector2,
 	shell_velocity: Vector2,
 	shell_rotation: float
@@ -216,7 +211,7 @@ func broadcast_arena_shell_spawn(
 			peer_id,
 			shot_id,
 			firing_peer_id,
-			shell_spec_path,
+			shell_id,
 			spawn_position,
 			shell_velocity,
 			shell_rotation

@@ -41,14 +41,9 @@ func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 		shell.tree_exiting, func() -> void: _on_server_shell_exited(shell_instance_id)
 	)
 	actors.arena_level.add_child(shell)
-	var shell_spec_path: String = shell.shell_spec.resource_path if shell.shell_spec != null else ""
+	var shell_id: String = ShellManager.get_shell_id(shell.shell_spec)
 	runtime.network_gameplay.broadcast_arena_shell_spawn(
-		shot_id,
-		firing_actor_id,
-		shell_spec_path,
-		shell.global_position,
-		shell.velocity,
-		shell.rotation
+		shot_id, firing_actor_id, shell_id, shell.global_position, shell.velocity, shell.rotation
 	)
 
 

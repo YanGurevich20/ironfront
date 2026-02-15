@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://clwdyedfa6ixn"]
+[gd_resource type="Resource" script_class="ShellSpec" format=3 uid="uid://clwdyedfa6ixn"]
 
 [ext_resource type="Resource" uid="uid://d2k0nd6ykrvh5" path="res://src/entities/shell/base_shell_type/base_shell_types/APCR/APCR.tres" id="1_ia4fo"]
 [ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://src/entities/shell/shell_spec.gd" id="2_rfx6q"]
@@ -9,6 +9,7 @@ base_shell_type = ExtResource("1_ia4fo")
 muzzle_velocity = 800.0
 damage = 640
 penetration = 170.0
+shell_id = "tiger_1.pzgr40"
 shell_name = "PzGr.40"
 caliber = 88
 unlock_cost = 20000

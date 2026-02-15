@@ -9,11 +9,9 @@ signal arena_respawn_received(
 )
 signal arena_fire_rejected_received(reason: String)
 signal arena_loadout_state_received(
-	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 )
 signal arena_kill_event_received(kill_event_payload: Dictionary)
-
-const RPC_CHANNEL_INPUT: int = 1
 
 
 func send_input_intent(
@@ -26,8 +24,8 @@ func request_fire(fire_request_seq: int) -> void:
 	_request_fire.rpc_id(1, fire_request_seq)
 
 
-func request_shell_select(shell_select_seq: int, shell_spec_path: String) -> void:
-	_request_shell_select.rpc_id(1, shell_select_seq, shell_spec_path)
+func request_shell_select(shell_select_seq: int, shell_id: String) -> void:
+	_request_shell_select.rpc_id(1, shell_select_seq, shell_id)
 
 
 func request_respawn() -> void:
@@ -39,7 +37,7 @@ func _receive_state_snapshot(server_tick: int, player_states: Array, max_players
 	state_snapshot_received.emit(server_tick, player_states, max_players)
 
 
-@rpc("any_peer", "call_remote", "unreliable_ordered", RPC_CHANNEL_INPUT)
+@rpc("any_peer", "call_remote", "unreliable_ordered", MultiplayerProtocol.CHANNEL_INPUT)
 func _receive_input_intent(
 	_input_tick: int, _left_track_input: float, _right_track_input: float, _turret_aim: float
 ) -> void:
@@ -52,7 +50,7 @@ func _request_fire(_fire_request_seq: int) -> void:
 
 
 @rpc("any_peer", "reliable")
-func _request_shell_select(_shell_select_seq: int, _shell_spec_path: String) -> void:
+func _request_shell_select(_shell_select_seq: int, _shell_id: String) -> void:
 	push_warning("[client][gameplay] unexpected RPC: _request_shell_select")
 
 
@@ -65,13 +63,13 @@ func _request_respawn() -> void:
 func _receive_arena_shell_spawn(
 	shot_id: int,
 	firing_peer_id: int,
-	shell_spec_path: String,
+	shell_id: String,
 	spawn_position: Vector2,
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
 	arena_shell_spawn_received.emit(
-		shot_id, firing_peer_id, shell_spec_path, spawn_position, shell_velocity, shell_rotation
+		shot_id, firing_peer_id, shell_id, spawn_position, shell_velocity, shell_rotation
 	)
 
 
@@ -116,9 +114,9 @@ func _receive_arena_fire_rejected(reason: String) -> void:
 
 @rpc("authority", "reliable")
 func _receive_arena_loadout_state(
-	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
+	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
-	arena_loadout_state_received.emit(selected_shell_path, shell_counts_by_path, reload_time_left)
+	arena_loadout_state_received.emit(selected_shell_id, shell_counts_by_id, reload_time_left)
 
 
 @rpc("authority", "reliable")
