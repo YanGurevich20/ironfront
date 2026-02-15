@@ -1,0 +1,76 @@
+[gd_scene load_steps=9 format=3 uid="uid://d34gxchnp2fof"]
+
+[ext_resource type="PackedScene" uid="uid://bmrhpmmx0erk3" path="res://src/levels/base_level/base_level.tscn" id="1_44gv1"]
+[ext_resource type="Script" uid="uid://c312c8cbsvli7" path="res://src/game_data/level_data/objective.gd" id="2_bmgug"]
+[ext_resource type="PackedScene" uid="uid://d4elqwoe18ky3" path="res://src/levels/base_level/level_components/spawn_point/spawn_point.tscn" id="2_hldmh"]
+[ext_resource type="Script" uid="uid://dhqboadrtowib" path="res://src/levels/base_level/level_components/objective_manager.gd" id="3_20opy"]
+
+[sub_resource type="Resource" id="Resource_8l0e1"]
+script = ExtResource("2_bmgug")
+description = ""
+metric = 0
+operator = ">="
+required_value = 6
+score_value = 100
+metadata/_custom_type_script = "uid://c312c8cbsvli7"
+
+[sub_resource type="Resource" id="Resource_lfnxh"]
+script = ExtResource("2_bmgug")
+description = ""
+metric = 4
+operator = "<"
+required_value = 3
+score_value = 100
+metadata/_custom_type_script = "uid://c312c8cbsvli7"
+
+[sub_resource type="Resource" id="Resource_ofchu"]
+script = ExtResource("2_bmgug")
+description = ""
+metric = 7
+operator = "<"
+required_value = 50
+score_value = 200
+metadata/_custom_type_script = "uid://c312c8cbsvli7"
+
+[sub_resource type="Resource" id="Resource_jq78i"]
+script = ExtResource("3_20opy")
+objectives = Array[ExtResource("2_bmgug")]([SubResource("Resource_8l0e1"), SubResource("Resource_lfnxh"), SubResource("Resource_ofchu")])
+metadata/_custom_type_script = "uid://dhqboadrtowib"
+
+[node name="Level3" instance=ExtResource("1_44gv1")]
+score_thresholds = {
+"one_star": 100,
+"three_star": 400,
+"two_star": 200
+}
+objective_manager = SubResource("Resource_jq78i")
+level_name = "level 3"
+level_index = 3
+
+[node name="PlayerSpawnPoint" parent="SpawnPoints" index="0"]
+position = Vector2(-706, 684)
+rotation = -1.09956
+
+[node name="EnemySpawnPoint1" parent="SpawnPoints" index="1"]
+position = Vector2(769, -28.9999)
+rotation = 3.49066
+
+[node name="EnemySpawnPoint2" parent="SpawnPoints" index="2" instance=ExtResource("2_hldmh")]
+position = Vector2(-148, 908)
+rotation = -0.308923
+
+[node name="EnemySpawnPoint3" parent="SpawnPoints" index="3" instance=ExtResource("2_hldmh")]
+position = Vector2(-161, 232)
+rotation = 2.62672
+
+[node name="EnemySpawnPoint4" parent="SpawnPoints" index="4" instance=ExtResource("2_hldmh")]
+position = Vector2(868, 904)
+rotation = -3.45052
+
+[node name="EnemySpawnPoint5" parent="SpawnPoints" index="5" instance=ExtResource("2_hldmh")]
+position = Vector2(630, 357)
+rotation = 1.23569
+
+[node name="EnemySpawnPoint6" parent="SpawnPoints" index="6" instance=ExtResource("2_hldmh")]
+position = Vector2(425, 196)
+rotation = -2.94961

@@ -111,7 +111,7 @@ This already aligns with Godot's recommended model:
 
 ## Arena Spawn Source (Phase 2.5)
 
-- Arena scene source for server spawn pool: `res://levels/arena/arena_level_mvp.tscn`.
+- Arena scene source for server spawn pool: `res://src/levels/arena/arena_level_mvp.tscn`.
 - Spawn markers use explicit stable IDs via `ArenaSpawnMarker.spawn_id` (e.g., `spawn_01`..`spawn_10`).
 - On server startup, load/instantiate arena scene, validate marker config, then cache `spawn_id -> Transform2D`.
 - Phase 3 random assignment should consume this cached spawn pool rather than scanning scene files at join time.

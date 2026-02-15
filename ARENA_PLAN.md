@@ -32,7 +32,7 @@
 - [x] Document how server loads/references this level's spawn pool.
 
 ### Notes
-- Arena scene path: `res://levels/arena/arena_level_mvp.tscn`.
+- Arena scene path: `res://src/levels/arena/arena_level_mvp.tscn`.
 - Server boot loads this scene, validates spawn markers, and caches `spawn_id -> Transform2D` for Phase 3 assignment.
 
 ## Phase 3: Random Spawn Assignment
@@ -115,7 +115,7 @@
 This tracker is the source of truth for the "real server session" migration so we can resume without re-loading full context.
 
 ### Step 1: Server Arena Runtime Bootstrap
-- [x] Add persistent server arena runtime node that keeps `res://levels/arena/arena_level_mvp.tscn` mounted during server lifetime.
+- [x] Add persistent server arena runtime node that keeps `res://src/levels/arena/arena_level_mvp.tscn` mounted during server lifetime.
 - [x] Move spawn validation/load responsibility into server runtime initialization.
 - [x] Keep `spawn_id -> Transform2D` cache exposed for existing join/spawn assignment path.
 - [x] Add network lifecycle hooks (`join_succeeded`, `peer_removed`) so server runtime can react to session events.

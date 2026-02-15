@@ -1,0 +1,48 @@
+[gd_scene load_steps=8 format=3 uid="uid://lafeuhaksq6i"]
+
+[ext_resource type="PackedScene" uid="uid://bmrhpmmx0erk3" path="res://src/levels/base_level/base_level.tscn" id="1_eus5j"]
+[ext_resource type="Script" uid="uid://c312c8cbsvli7" path="res://src/game_data/level_data/objective.gd" id="2_yi3jx"]
+[ext_resource type="Script" uid="uid://dhqboadrtowib" path="res://src/levels/base_level/level_components/objective_manager.gd" id="3_foxie"]
+[ext_resource type="PackedScene" uid="uid://d4elqwoe18ky3" path="res://src/levels/base_level/level_components/spawn_point/spawn_point.tscn" id="4_foxie"]
+
+[sub_resource type="Resource" id="Resource_7d3si"]
+script = ExtResource("2_yi3jx")
+description = ""
+metric = 0
+operator = "="
+required_value = 2
+score_value = 100
+metadata/_custom_type_script = "uid://c312c8cbsvli7"
+
+[sub_resource type="Resource" id="Resource_jum3j"]
+script = ExtResource("3_foxie")
+objectives = Array[ExtResource("2_yi3jx")]([SubResource("Resource_7d3si")])
+metadata/_custom_type_script = "uid://dhqboadrtowib"
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_yi3jx"]
+resource_local_to_scene = true
+vertices = PackedVector2Array(1008, 1008, -1008, 1008, -1008, -1008, 1008, -1008)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-1024, -1024, -1024, 1024, 1024, 1024, 1024, -1024)])
+source_geometry_mode = 1
+agent_radius = 16.0
+
+[node name="BaseLevel" instance=ExtResource("1_eus5j")]
+objective_manager = SubResource("Resource_jum3j")
+
+[node name="NavigationRegion2D" parent="Map" index="0"]
+navigation_polygon = SubResource("NavigationPolygon_yi3jx")
+
+[node name="PlayerSpawnPoint" parent="SpawnPoints" index="0"]
+position = Vector2(-65, 26)
+rotation = -0.053307
+
+[node name="EnemySpawnPoint1" parent="SpawnPoints" index="1"]
+position = Vector2(164, 2)
+rotation = -4.75081
+type = 2
+
+[node name="EnemySpawnPoint2" parent="SpawnPoints" index="2" instance=ExtResource("4_foxie")]
+position = Vector2(476, 5)
+rotation = -3.01513
+type = 2

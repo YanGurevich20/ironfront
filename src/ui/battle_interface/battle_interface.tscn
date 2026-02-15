@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://b1d2c8q0t8m4b"]
+
+[ext_resource type="Script" uid="uid://c2b3pyj3edax2" path="res://src/ui/battle_interface/battle_interface.gd" id="1_s3x1n"]
+[ext_resource type="PackedScene" uid="uid://fbdhh7erijnq" path="res://src/ui/touch_controls/tank_control.tscn" id="2_1nqak"]
+[ext_resource type="PackedScene" uid="uid://dxf3b7nuy8xyq" path="res://src/ui/battle_interface/enemy_indicators.tscn" id="3_6i3on"]
+[ext_resource type="Script" path="res://src/ui/battle_interface/tank_hud_layer.gd" id="4_sxm2u"]
+[ext_resource type="PackedScene" path="res://src/ui/battle_interface/online_battle_status.tscn" id="5_6r86x"]
+[ext_resource type="PackedScene" path="res://src/ui/battle_interface/player_hud.tscn" id="6_ic2ks"]
+
+[node name="BattleInterface" type="Control" unique_id=1816836008]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s3x1n")
+
+[node name="TankControl" parent="." unique_id=1718937172 instance=ExtResource("2_1nqak")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="EnemyIndicators" parent="." unique_id=135093621 instance=ExtResource("3_6i3on")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="TankHUDLayer" type="Control" parent="." unique_id=197192632]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_sxm2u")
+
+[node name="PlayerHud" parent="." unique_id=339131877 instance=ExtResource("6_ic2ks")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="OnlineBattleStatus" parent="." unique_id=1160492051 instance=ExtResource("5_6r86x")]
+unique_name_in_owner = true
+layout_mode = 1

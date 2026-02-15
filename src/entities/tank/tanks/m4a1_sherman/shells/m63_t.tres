@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://dr0gyuvt7fj63"]
+
+[ext_resource type="Resource" uid="uid://c0nnmrgqk51e" path="res://src/entities/shell/base_shell_type/base_shell_types/HE/HE_T.tres" id="1_pxtyw"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://src/entities/shell/shell_spec.gd" id="2_h8e70"]
+
+[resource]
+script = ExtResource("2_h8e70")
+base_shell_type = ExtResource("1_pxtyw")
+muzzle_velocity = 580.0
+damage = 280
+penetration = 30.0
+shell_name = "M63-T"
+caliber = 75
+unlock_cost = 8500
+resupply_cost = 200

@@ -71,3 +71,6 @@ server-logs-follow instance=default_instance zone=default_zone remote_dir=defaul
 
 install-apk:
 	adb install -r dist/android/Ironfront.apk
+
+gcloud-config:
+	gcloud config configurations activate ironfront

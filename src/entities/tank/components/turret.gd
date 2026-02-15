@@ -1,0 +1,141 @@
+class_name Turret
+extends Sprite2D
+
+var shell_scene: PackedScene = preload("res://src/entities/shell/shell.tscn")
+var remaining_shell_count: int = 1
+var current_shell_spec: ShellSpec
+
+@onready var tank: Tank = get_parent()
+@onready var cannon: Sprite2D = $Cannon
+@onready var muzzle: Marker2D = $Cannon/MuzzleMarker
+@onready var flash: AnimatedSprite2D = %MuzzleFlash
+@onready var reload_timer: Timer = %ReloadTimer
+@onready var line_of_sight_raycast: RayCast2D = %LineOfSightRaycast
+@onready var cannon_sound: AudioStreamPlayer2D = %CannonSound
+
+
+func _ready() -> void:
+	Utils.connect_checked(flash.animation_finished, func() -> void: flash.visible = false)
+	Utils.connect_checked(
+		reload_timer.timeout,
+		func() -> void: GameplayBus.reload_progress_left_updated.emit(1.0, tank)
+	)
+	if tank.tank_spec.allowed_shells.size() > 0:
+		current_shell_spec = tank.tank_spec.allowed_shells[0]
+	line_of_sight_raycast.add_exception(tank)
+
+
+#region Rotation Handling
+
+
+func process(delta: float, rotation_input: float) -> void:
+	rotation_degrees += rotation_input * tank.tank_spec.max_turret_traverse_speed * delta
+	if not reload_timer.is_stopped():
+		GameplayBus.reload_progress_left_updated.emit(get_reload_progress(), tank)
+
+
+#endregion
+
+
+#region Line of Sight
+func has_line_of_sight(target: Node2D) -> bool:
+	line_of_sight_raycast.target_position = muzzle.to_local(target.global_position)
+	line_of_sight_raycast.force_raycast_update()
+	return (
+		not line_of_sight_raycast.is_colliding() or line_of_sight_raycast.get_collider() == target
+	)
+
+
+#endregion
+
+
+#region Shell Firing
+func fire_shell() -> bool:
+	var has_infinite_ammo: bool = tank.is_in_group("arena_bot")
+	if not has_infinite_ammo and remaining_shell_count <= 0:
+		reload_timer.stop()
+		return false
+	if not reload_timer.is_stopped():
+		return false
+	if current_shell_spec == null:
+		return false
+	if not has_infinite_ammo:
+		remaining_shell_count = max(0, remaining_shell_count - 1)
+	var shell: Shell = shell_scene.instantiate()
+	shell.initialize(current_shell_spec, muzzle, tank)
+	GameplayBus.shell_fired.emit(shell, tank)
+	GameplayBus.reload_progress_left_updated.emit(0.0, tank)
+
+	reload_timer.start(tank.tank_spec.reload_time)
+	play_fire_effect()
+	return true
+
+
+func play_fire_effect(play_sound: bool = true, apply_knockback_impulse: bool = true) -> void:
+	if play_sound:
+		cannon_sound.play()
+
+	flash.visible = true
+	flash.play("flash")
+	_play_recoil_animation()
+
+	if not apply_knockback_impulse:
+		return
+	var recoil_vector: Vector2 = (
+		-muzzle.global_transform.x * 10.0 * (tank.tank_spec.cannon_caliber / 100)
+	)
+	var recoil_position: Vector2 = position.rotated(tank.rotation)
+	tank.apply_impulse(recoil_vector, recoil_position)
+
+
+func _play_recoil_animation() -> void:
+	var tween := get_tree().create_tween()
+	var original_cannon_x: float = tank.tank_spec.cannon_offset.x
+	(
+		tween
+		. tween_property(cannon, "position:x", original_cannon_x - 10.0, 0.02)
+		. set_trans(Tween.TRANS_EXPO)
+		. set_ease(Tween.EASE_OUT)
+	)
+	(
+		tween
+		. tween_property(cannon, "position:x", original_cannon_x, 0.4)
+		. set_trans(Tween.TRANS_QUAD)
+		. set_ease(Tween.EASE_IN)
+	)
+
+
+#endregion
+
+
+func get_reload_progress() -> float:
+	return 1.0 - (reload_timer.time_left / tank.tank_spec.reload_time)
+
+
+func reset_reload_timer() -> void:
+	reload_timer.stop()
+	reload_timer.start(tank.tank_spec.reload_time)
+
+
+func set_current_shell_spec(shell_spec: ShellSpec) -> void:
+	if shell_spec != current_shell_spec:
+		current_shell_spec = shell_spec
+		reset_reload_timer()
+
+
+func get_reload_time_left() -> float:
+	return max(0.0, reload_timer.time_left)
+
+
+func apply_authoritative_shell_state(
+	shell_spec: ShellSpec, remaining_shell_amount: int, reload_time_left: float
+) -> void:
+	if shell_spec != null and shell_spec != current_shell_spec:
+		current_shell_spec = shell_spec
+	remaining_shell_count = max(0, remaining_shell_amount)
+	if reload_time_left <= 0.0:
+		reload_timer.stop()
+		GameplayBus.reload_progress_left_updated.emit(1.0, tank)
+		return
+	reload_timer.start(reload_time_left)
+	GameplayBus.reload_progress_left_updated.emit(get_reload_progress(), tank)

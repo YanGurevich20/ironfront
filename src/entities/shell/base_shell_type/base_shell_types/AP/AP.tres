@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BaseShellType" format=3 uid="uid://bmowonvrk2i1v"]
+
+[ext_resource type="Texture2D" uid="uid://bf5hrwaqvtn25" path="res://src/entities/shell/base_shell_type/rounds.png" id="1_67gun"]
+[ext_resource type="Script" uid="uid://0m20y2pnl21p" path="res://src/entities/shell/base_shell_type/base_shell_type.gd" id="2_bgf1i"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_64s4n"]
+atlas = ExtResource("1_67gun")
+region = Rect2(30, 159, 4, 3)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hdfl3"]
+atlas = ExtResource("1_67gun")
+region = Rect2(16, 16, 32, 32)
+
+[resource]
+script = ExtResource("2_bgf1i")
+ricochet_angle_soft = 55.0
+ricochet_angle_hard = 70.0
+round_texture = SubResource("AtlasTexture_hdfl3")
+projectile_texture = SubResource("AtlasTexture_64s4n")
+metadata/_custom_type_script = "uid://0m20y2pnl21p"

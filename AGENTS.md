@@ -2,14 +2,16 @@
 
 ## Project Structure & Module Organization
 - `project.godot` is the root Godot 4 project file (edit via the Godot editor UI when possible).
-- `core/` holds runtime orchestration and app entrypoints (`main`, `client`, `server`).
-- `net/` contains networking transport/protocol handlers (`network_client`, `network_server`).
-- `entities/` contains gameplay entities (tanks, shells, specs, shared assets).
-- `controllers/` provides player/AI controller scenes and scripts.
-- `levels/` stores playable level scenes and related logic.
-- `ui/` contains UI scenes, widgets, and HUD elements.
-- `global_assets/` is for shared art, audio, and UI resources.
-- `game_data/` includes data resources and configuration assets.
+- `src/` contains all game modules; `project.godot` references `res://src/...` paths.
+- `src/core/` holds runtime orchestration and app entrypoints (`main`, `client`, `server`).
+- `src/net/` contains networking transport/protocol handlers (`network_client`, `network_server`).
+- `src/entities/` contains gameplay entities (tanks, shells, specs, shared assets).
+- `src/controllers/` provides player/AI controller scenes and scripts.
+- `src/levels/` stores playable level scenes and related logic.
+- `src/ui/` contains UI scenes, widgets, and HUD elements.
+- `src/global_assets/` is for shared art, audio, and UI resources.
+- `src/game_data/` includes data resources and configuration assets.
+- `src/config/` and `src/singletons/` hold config and autoload scripts.
 - `android/` houses Android export/build artifacts and templates.
 
 ## Build, Test, and Development Commands

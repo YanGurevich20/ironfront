@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ShellSpec" load_steps=3 format=3 uid="uid://c7kqynckiykje"]
+
+[ext_resource type="Resource" uid="uid://dhf222dc7t1o5" path="res://src/entities/shell/base_shell_type/base_shell_types/HEAT/HEAT.tres" id="1_kiy1s"]
+[ext_resource type="Script" uid="uid://dfleef5q2keir" path="res://src/entities/shell/shell_spec.gd" id="2_6j5ko"]
+
+[resource]
+script = ExtResource("2_6j5ko")
+base_shell_type = ExtResource("1_kiy1s")
+muzzle_velocity = 450.0
+damage = 210
+penetration = 100.0
+shell_name = "M82"
+caliber = 75
+unlock_cost = 12000
+resupply_cost = 0
