@@ -1,10 +1,6 @@
 class_name NetworkClientInputCaptureUtils
 extends RefCounted
 
-const NetworkClientConnectionUtilsData := preload(
-	"res://src/net/network_client_connection_utils.gd"
-)
-
 
 static func setup_for_client(network_client: NetworkClient) -> void:
 	Utils.connect_checked(
@@ -22,7 +18,7 @@ static func setup_for_client(network_client: NetworkClient) -> void:
 	Utils.connect_checked(
 		GameplayBus.fire_input,
 		func() -> void:
-			if not NetworkClientConnectionUtilsData.can_send_input_intents(
+			if not NetworkClientConnectionUtils.can_send_input_intents(
 				network_client.multiplayer, network_client.arena_input_enabled
 			):
 				return
@@ -38,7 +34,7 @@ static func setup_for_client(network_client: NetworkClient) -> void:
 				return
 			if shell_spec.resource_path.is_empty():
 				return
-			if not NetworkClientConnectionUtilsData.can_send_input_intents(
+			if not NetworkClientConnectionUtils.can_send_input_intents(
 				network_client.multiplayer, network_client.arena_input_enabled
 			):
 				return

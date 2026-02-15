@@ -1,9 +1,7 @@
 class_name Server
 extends Node
 
-const ServerArenaRuntimeScript := preload("res://src/core/server_arena_runtime.gd")
-
-@export var listen_port: int = 7000
+@export var listen_port: int = 7_000
 @export var max_clients: int = 32
 @export var tick_rate_hz: int = 60
 @export var arena_max_players: int = 10
@@ -55,7 +53,7 @@ func _ready() -> void:
 
 
 func _start_arena_runtime() -> bool:
-	server_arena_runtime = ServerArenaRuntimeScript.new()
+	server_arena_runtime = ServerArenaRuntime.new()
 	add_child(server_arena_runtime)
 	server_arena_runtime.configure_bot_settings(arena_bot_count, arena_bot_respawn_delay_seconds)
 	var initialized: bool = server_arena_runtime.initialize_runtime(arena_level_scene)

@@ -1,12 +1,6 @@
 class_name ServerArenaRuntime
 extends Node
 
-const NetworkServerBroadcastUtilsData := preload("res://src/net/network_server_broadcast_utils.gd")
-const ServerArenaActorUtilsData := preload("res://src/core/server_arena_actor_utils.gd")
-const ServerArenaLoadoutAuthorityUtilsData := preload(
-	"res://src/core/server_arena_loadout_authority_utils.gd"
-)
-
 var arena_level: ArenaLevelMvp
 var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
 var actor_tanks_by_id: Dictionary[int, Tank] = {}
@@ -22,7 +16,7 @@ var firing_actor_id_by_shell_instance_id: Dictionary[int, int] = {}
 var shell_spec_cache_by_path: Dictionary[String, ShellSpec] = {}
 var bot_count: int = 0
 var bot_respawn_delay_seconds: float = 5.0
-var next_bot_actor_id: int = ServerArenaActorUtilsData.BOT_ACTOR_ID_START
+var next_bot_actor_id: int = ServerArenaActorUtils.BOT_ACTOR_ID_START
 var pending_bot_respawns: Array[Dictionary] = []
 
 
@@ -45,7 +39,7 @@ func configure_bot_settings(next_bot_count: int, next_bot_respawn_delay_seconds:
 
 
 func initialize_runtime(arena_level_packed_scene: PackedScene) -> bool:
-	ServerArenaActorUtilsData.clear_runtime(self)
+	ServerArenaActorUtils.clear_runtime(self)
 	if arena_level_packed_scene == null:
 		push_error("[server][arena-runtime] missing arena level scene")
 		return false
@@ -72,16 +66,16 @@ func initialize_runtime(arena_level_packed_scene: PackedScene) -> bool:
 				% [spawn_count, empty_spawn_id_count, duplicate_spawn_ids]
 			)
 		)
-		ServerArenaActorUtilsData.clear_runtime(self)
+		ServerArenaActorUtils.clear_runtime(self)
 		return false
 
 	arena_spawn_transforms_by_id = arena_level.get_spawn_transforms_by_id().duplicate(true)
 	if arena_spawn_transforms_by_id.is_empty():
 		push_error("[server][arena-runtime] spawn config produced zero spawn transforms")
-		ServerArenaActorUtilsData.clear_runtime(self)
+		ServerArenaActorUtils.clear_runtime(self)
 		return false
 
-	ServerArenaActorUtilsData.spawn_initial_bots(self)
+	ServerArenaActorUtils.spawn_initial_bots(self)
 	print(
 		(
 			(
@@ -111,13 +105,13 @@ func spawn_peer_tank(
 	if actor_tanks_by_id.has(peer_id):
 		despawn_peer_tank(peer_id, "REPLACED_EXISTING_TANK")
 
-	var validated_tank_id: int = ServerArenaLoadoutAuthorityUtilsData.resolve_valid_tank_id(tank_id)
+	var validated_tank_id: int = ServerArenaLoadoutAuthorityUtils.resolve_valid_tank_id(tank_id)
 	var spawned_tank: Tank = TankManager.create_tank(
 		validated_tank_id, TankManager.TankControllerType.DUMMY
 	)
 	spawned_tank.add_to_group("arena_human_player")
 	(
-		ServerArenaActorUtilsData
+		ServerArenaActorUtils
 		. register_actor(
 			self,
 			peer_id,
@@ -131,8 +125,8 @@ func spawn_peer_tank(
 		)
 	)
 	spawned_tank.apply_spawn_state(spawn_transform.origin, spawn_transform.get_rotation())
-	ServerArenaLoadoutAuthorityUtilsData.sync_peer_tank_shell_state(self, peer_id, spawned_tank)
-	ServerArenaLoadoutAuthorityUtilsData.send_peer_loadout_state(self, peer_id, spawned_tank)
+	ServerArenaLoadoutAuthorityUtils.sync_peer_tank_shell_state(self, peer_id, spawned_tank)
+	ServerArenaLoadoutAuthorityUtils.send_peer_loadout_state(self, peer_id, spawned_tank)
 
 	print(
 		(
@@ -167,7 +161,7 @@ func respawn_peer_tank(
 
 
 func despawn_peer_tank(peer_id: int, reason: String) -> void:
-	ServerArenaActorUtilsData.despawn_actor(self, peer_id, reason)
+	ServerArenaActorUtils.despawn_actor(self, peer_id, reason)
 
 
 func step_authoritative_runtime(
@@ -177,7 +171,7 @@ func step_authoritative_runtime(
 	if next_arena_session_state == null:
 		return snapshot_actor_states
 
-	ServerArenaActorUtilsData.update_pending_bot_respawns(self, delta)
+	ServerArenaActorUtils.update_pending_bot_respawns(self, delta)
 
 	var peer_ids: Array[int] = next_arena_session_state.get_peer_ids()
 	for peer_id: int in peer_ids:
@@ -205,7 +199,7 @@ func step_authoritative_runtime(
 			continue
 		var actor_metadata: Dictionary = actor_metadata_by_id.get(actor_id, {})
 		var is_bot: bool = bool(actor_metadata.get("is_bot", false))
-		var player_name: String = ServerArenaActorUtilsData.get_actor_player_name(self, actor_id)
+		var player_name: String = ServerArenaActorUtils.get_actor_player_name(self, actor_id)
 		var last_processed_input_tick: int = 0
 		if not is_bot:
 			var peer_state: Dictionary = next_arena_session_state.get_peer_state(actor_id)
@@ -259,13 +253,13 @@ func _apply_peer_input_intent_to_tank(
 		next_arena_session_state.consume_peer_shell_select_request(peer_id)
 	)
 	if not shell_select_request.is_empty():
-		ServerArenaLoadoutAuthorityUtilsData.handle_peer_shell_select_request(
+		ServerArenaLoadoutAuthorityUtils.handle_peer_shell_select_request(
 			self, next_arena_session_state, peer_id, spawned_tank, shell_select_request
 		)
 
 	var fire_request_seq: int = next_arena_session_state.consume_peer_fire_request_seq(peer_id)
 	if fire_request_seq > 0:
-		ServerArenaLoadoutAuthorityUtilsData.handle_peer_fire_request(
+		ServerArenaLoadoutAuthorityUtils.handle_peer_fire_request(
 			self, next_arena_session_state, peer_id, spawned_tank
 		)
 
@@ -295,7 +289,7 @@ func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 	)
 	arena_level.add_child(shell)
 	var shell_spec_path: String = shell.shell_spec.resource_path if shell.shell_spec != null else ""
-	NetworkServerBroadcastUtilsData.broadcast_arena_shell_spawn(
+	NetworkServerBroadcastUtils.broadcast_arena_shell_spawn(
 		network_server,
 		network_server.multiplayer.get_peers(),
 		shot_id,
@@ -329,7 +323,7 @@ func _on_shell_impact_resolved(
 	var shot_id: int = shot_id_by_shell_instance_id[shell_instance_id]
 	var firing_actor_id: int = firing_actor_id_by_shell_instance_id.get(shell_instance_id, 0)
 	var remaining_health: int = target_tank._health
-	NetworkServerBroadcastUtilsData.broadcast_arena_shell_impact(
+	NetworkServerBroadcastUtils.broadcast_arena_shell_impact(
 		network_server,
 		network_server.multiplayer.get_peers(),
 		shot_id,
@@ -347,17 +341,17 @@ func _on_shell_impact_resolved(
 		return
 	var kill_event_seq: int = next_kill_event_seq
 	next_kill_event_seq += 1
-	NetworkServerBroadcastUtilsData.broadcast_arena_kill_event(
+	NetworkServerBroadcastUtils.broadcast_arena_kill_event(
 		network_server,
 		network_server.multiplayer.get_peers(),
 		kill_event_seq,
 		firing_actor_id,
-		ServerArenaActorUtilsData.get_actor_player_name(self, firing_actor_id),
-		ServerArenaActorUtilsData.get_actor_tank_display_name(self, firing_actor_id),
+		ServerArenaActorUtils.get_actor_player_name(self, firing_actor_id),
+		ServerArenaActorUtils.get_actor_tank_display_name(self, firing_actor_id),
 		_get_shell_short_name(shell),
 		target_actor_id,
-		ServerArenaActorUtilsData.get_actor_player_name(self, target_actor_id),
-		ServerArenaActorUtilsData.get_actor_tank_display_name(self, target_actor_id)
+		ServerArenaActorUtils.get_actor_player_name(self, target_actor_id),
+		ServerArenaActorUtils.get_actor_tank_display_name(self, target_actor_id)
 	)
 
 
@@ -371,7 +365,7 @@ func _on_tank_destroyed(tank: Tank) -> void:
 	var actor_metadata: Dictionary = actor_metadata_by_id.get(actor_id, {})
 	if not bool(actor_metadata.get("is_bot", false)):
 		return
-	ServerArenaActorUtilsData.schedule_bot_respawn(self, actor_id)
+	ServerArenaActorUtils.schedule_bot_respawn(self, actor_id)
 
 
 func _on_server_shell_exited(shell_instance_id: int) -> void:
@@ -380,7 +374,7 @@ func _on_server_shell_exited(shell_instance_id: int) -> void:
 
 
 func _exit_tree() -> void:
-	ServerArenaActorUtilsData.clear_runtime(self)
+	ServerArenaActorUtils.clear_runtime(self)
 
 
 func _get_shell_short_name(shell: Shell) -> String:

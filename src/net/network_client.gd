@@ -14,32 +14,20 @@ signal arena_loadout_state_received(
 	selected_shell_path: String, shell_counts_by_path: Dictionary, reload_time_left: float
 )
 
-const MultiplayerProtocolData := preload("res://src/net/multiplayer_protocol.gd")
-const NetworkClientConnectionUtilsData := preload(
-	"res://src/net/network_client_connection_utils.gd"
-)
-const NetworkClientInputCaptureUtilsData := preload(
-	"res://src/net/network_client_input_capture_utils.gd"
-)
-const NetworkClientJoinPayloadUtilsData := preload(
-	"res://src/net/network_client_join_payload_utils.gd"
-)
-const NetworkClientJoinAckUtilsData := preload("res://src/net/network_client_join_ack_utils.gd")
-const NetworkClientKillFeedUtilsData := preload("res://src/net/network_client_kill_feed_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
 const VERBOSE_JOIN_LOGS: bool = false
 
 var client_peer: ENetMultiplayerPeer
 var default_connect_host: String = "ironfront.vikng.dev"
 var default_connect_port: int = 7000
-var protocol_version: int = MultiplayerProtocolData.PROTOCOL_VERSION
+var protocol_version: int = MultiplayerProtocol.PROTOCOL_VERSION
 var cancel_join_requested: bool = false
 var join_attempt_id: int = 0
 var assigned_spawn_position: Vector2 = Vector2.ZERO
 var assigned_spawn_rotation: float = 0.0
 var arena_membership_active: bool = false
 var arena_input_enabled: bool = false
-var input_send_interval_seconds: float = 1.0 / float(MultiplayerProtocolData.INPUT_SEND_RATE_HZ)
+var input_send_interval_seconds: float = 1.0 / float(MultiplayerProtocol.INPUT_SEND_RATE_HZ)
 var input_send_elapsed_seconds: float = 0.0
 var local_input_tick: int = 0
 var local_fire_request_seq: int = 0
@@ -50,7 +38,7 @@ var pending_turret_aim: float = 0.0
 
 
 func _ready() -> void:
-	var resolved_target: Dictionary = NetworkClientConnectionUtilsData.resolve_cli_connect_target(
+	var resolved_target: Dictionary = NetworkClientConnectionUtils.resolve_cli_connect_target(
 		default_connect_host, default_connect_port
 	)
 	default_connect_host = resolved_target.get("host", default_connect_host)
@@ -58,13 +46,11 @@ func _ready() -> void:
 	Utils.connect_checked(multiplayer.connected_to_server, _on_connected_to_server)
 	Utils.connect_checked(multiplayer.connection_failed, _on_connection_failed)
 	Utils.connect_checked(multiplayer.server_disconnected, _on_server_disconnected)
-	NetworkClientInputCaptureUtilsData.setup_for_client(self)
+	NetworkClientInputCaptureUtils.setup_for_client(self)
 
 
 func _process(delta: float) -> void:
-	if not NetworkClientConnectionUtilsData.can_send_input_intents(
-		multiplayer, arena_input_enabled
-	):
+	if not NetworkClientConnectionUtils.can_send_input_intents(multiplayer, arena_input_enabled):
 		return
 	input_send_elapsed_seconds += delta
 	if input_send_elapsed_seconds < input_send_interval_seconds:
@@ -166,8 +152,8 @@ func _send_join_arena() -> void:
 		return
 	var player_data: PlayerData = PlayerData.get_instance()
 	var player_name: String = player_data.player_name
-	var join_loadout_payload: Dictionary = (
-		NetworkClientJoinPayloadUtilsData.build_join_loadout_payload(player_data)
+	var join_loadout_payload: Dictionary = NetworkClientJoinPayloadUtils.build_join_loadout_payload(
+		player_data
 	)
 	var selected_tank_id: int = int(
 		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
@@ -195,7 +181,7 @@ func leave_arena() -> void:
 	assigned_spawn_position = Vector2.ZERO
 	assigned_spawn_rotation = 0.0
 	set_arena_input_enabled(false)
-	if not NetworkClientConnectionUtilsData.is_connected_to_server(multiplayer):
+	if not NetworkClientConnectionUtils.is_connected_to_server(multiplayer):
 		return
 	_leave_arena.rpc_id(1)
 	_log_join("sent_leave_arena")
@@ -204,7 +190,7 @@ func leave_arena() -> void:
 func request_arena_respawn() -> void:
 	if not arena_membership_active:
 		return
-	if not NetworkClientConnectionUtilsData.is_connected_to_server(multiplayer):
+	if not NetworkClientConnectionUtils.is_connected_to_server(multiplayer):
 		return
 	_request_respawn.rpc_id(1)
 
@@ -309,7 +295,7 @@ func _request_respawn() -> void:
 func _join_arena_ack(
 	success: bool, message: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
-	NetworkClientJoinAckUtilsData.handle_join_arena_ack(
+	NetworkClientJoinAckUtils.handle_join_arena_ack(
 		self, success, message, spawn_position, spawn_rotation
 	)
 
@@ -381,7 +367,7 @@ func _receive_arena_loadout_state(
 
 @rpc("authority", "reliable")
 func _receive_arena_kill_event(kill_event_payload: Dictionary) -> void:
-	NetworkClientKillFeedUtilsData.handle_kill_event_payload(kill_event_payload)
+	NetworkClientKillFeedUtils.handle_kill_event_payload(kill_event_payload)
 
 
 func _log_join(message: String) -> void:
@@ -391,6 +377,4 @@ func _log_join(message: String) -> void:
 
 
 func get_connection_ping_msec() -> int:
-	return NetworkClientConnectionUtilsData.get_connection_ping_msec(
-		multiplayer, arena_input_enabled
-	)
+	return NetworkClientConnectionUtils.get_connection_ping_msec(multiplayer, arena_input_enabled)

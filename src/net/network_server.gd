@@ -11,15 +11,10 @@ signal arena_join_succeeded(
 signal arena_peer_removed(peer_id: int, reason: String)
 signal arena_respawn_requested(peer_id: int)
 
-const MultiplayerProtocolData := preload("res://src/net/multiplayer_protocol.gd")
-const NetworkServerSnapshotBuilderData := preload(
-	"res://src/net/network_server_snapshot_builder.gd"
-)
-const NetworkServerSpawnUtilsData := preload("res://src/net/network_server_spawn_utils.gd")
 const RPC_CHANNEL_INPUT: int = 1
 
 var server_peer: ENetMultiplayerPeer
-var protocol_version: int = MultiplayerProtocolData.PROTOCOL_VERSION
+var protocol_version: int = MultiplayerProtocol.PROTOCOL_VERSION
 var arena_session_state: ArenaSessionState
 var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
 var server_tick_rate_hz: int = 30
@@ -48,7 +43,7 @@ func configure_arena_spawn_pool(spawn_transforms_by_id: Dictionary) -> void:
 func configure_tick_rate(tick_rate_hz: int) -> void:
 	server_tick_rate_hz = max(1, tick_rate_hz)
 	snapshot_interval_ticks = max(
-		1, int(round(float(server_tick_rate_hz) / float(MultiplayerProtocolData.SNAPSHOT_RATE_HZ)))
+		1, int(round(float(server_tick_rate_hz) / float(MultiplayerProtocol.SNAPSHOT_RATE_HZ)))
 	)
 	print(
 		(
@@ -138,7 +133,7 @@ func _join_arena(
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		_join_arena_ack.rpc_id(peer_id, false, join_message, Vector2.ZERO, 0.0)
 		return
-	var random_spawn: Dictionary = NetworkServerSpawnUtilsData.pick_random_spawn(
+	var random_spawn: Dictionary = NetworkServerSpawnUtils.pick_random_spawn(
 		arena_spawn_transforms_by_id
 	)
 	if random_spawn.is_empty():
@@ -200,7 +195,7 @@ func set_authoritative_player_states(player_states: Array[Dictionary]) -> void:
 
 func _broadcast_state_snapshot(server_tick: int) -> void:
 	var snapshot_player_states: Array[Dictionary] = (
-		NetworkServerSnapshotBuilderData
+		NetworkServerSnapshotBuilder
 		. build_player_states_snapshot(arena_session_state, authoritative_player_states)
 	)
 	var arena_max_players: int = (
@@ -232,7 +227,7 @@ func _receive_input_intent(
 		input_tick
 		> (
 			arena_session_state.get_peer_last_input_tick(peer_id)
-			+ MultiplayerProtocolData.MAX_INPUT_FUTURE_TICKS
+			+ MultiplayerProtocol.MAX_INPUT_FUTURE_TICKS
 		)
 	)
 	if is_too_far_future:
