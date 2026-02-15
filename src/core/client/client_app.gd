@@ -3,6 +3,7 @@ extends Node2D
 
 @onready var ui_manager: UIManager = %UIManager
 @onready var enet_client: ENetClient = %Network
+@onready var online_runtime: ClientOnlineRuntime = %OnlineRuntime
 @onready var offline_runtime: OfflineRuntime = %OfflineRuntime
 @onready var arena_runtime: ArenaSessionRuntime = %ArenaSessionRuntime
 
@@ -23,13 +24,10 @@ func _ready() -> void:
 	Utils.connect_checked(
 		MultiplayerBus.online_join_cancel_requested, arena_runtime.cancel_join_request
 	)
-	Utils.connect_checked(offline_runtime.level_started, _on_level_started)
 	Utils.connect_checked(offline_runtime.objectives_updated, ui_manager.update_objectives)
 	Utils.connect_checked(offline_runtime.level_completed, _on_offline_level_completed)
-	Utils.connect_checked(arena_runtime.join_status_changed, ui_manager.update_online_join_overlay)
+	Utils.connect_checked(online_runtime.join_status_changed, ui_manager.update_online_join_overlay)
 	Utils.connect_checked(arena_runtime.join_completed, _on_online_join_completed)
-	Utils.connect_checked(arena_runtime.session_started, _on_arena_session_started)
-	Utils.connect_checked(arena_runtime.session_stopped, _on_arena_session_stopped)
 	Utils.connect_checked(arena_runtime.session_ended, _on_arena_session_ended)
 	Utils.connect_checked(
 		arena_runtime.local_player_destroyed, ui_manager.show_online_death_overlay
@@ -56,8 +54,6 @@ func _start_offline_level(level_key: int) -> void:
 
 
 func _pause_game() -> void:
-	if arena_runtime.is_active():
-		return
 	offline_runtime.pause_level()
 
 
@@ -66,28 +62,18 @@ func _resume_game() -> void:
 
 
 func _restart_level() -> void:
-	if arena_runtime.is_active():
-		push_warning("[client] restart_level_ignored_online_arena_active")
-		return
 	offline_runtime.restart_level()
 
 
 func _abort_level() -> void:
-	if arena_runtime.is_active():
-		push_warning("[client] abort_level_ignored_online_arena_active")
-		return
 	offline_runtime.abort_level()
 
 
 func _return_to_menu() -> void:
-	if arena_runtime.is_active():
-		arena_runtime.stop_session()
-		return
+	arena_runtime.stop_session()
+	ui_manager.set_online_session_active(false)
+	ui_manager.hide_online_death_overlay()
 	offline_runtime.quit_level()
-
-
-func _on_level_started() -> void:
-	GameplayBus.level_started.emit()
 
 
 func _on_offline_level_completed(
@@ -99,20 +85,11 @@ func _on_offline_level_completed(
 
 func _on_online_join_completed(success: bool, message: String) -> void:
 	if success:
+		ui_manager.set_online_session_active(true)
+		ui_manager.hide_online_death_overlay()
 		ui_manager.hide_online_join_overlay()
 		return
 	ui_manager.complete_online_join_overlay(false, message)
-
-
-func _on_arena_session_started() -> void:
-	ui_manager.set_online_session_active(true)
-	ui_manager.hide_online_death_overlay()
-	GameplayBus.level_started.emit()
-
-
-func _on_arena_session_stopped() -> void:
-	ui_manager.set_online_session_active(false)
-	ui_manager.hide_online_death_overlay()
 
 
 func _on_arena_session_ended(summary: Dictionary) -> void:

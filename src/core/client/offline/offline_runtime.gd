@@ -1,7 +1,6 @@
 class_name OfflineRuntime
 extends Node
 
-signal level_started
 signal objectives_updated(objectives: Array)
 signal level_completed(
 	success: bool, metrics: Dictionary, objectives: Array, reward_info: Dictionary
@@ -30,7 +29,7 @@ func start_level(level_key: int) -> void:
 	Utils.connect_checked(current_level.objectives_updated, _on_objectives_updated)
 	level_container.add_child(current_level)
 	current_level.start_level()
-	level_started.emit()
+	GameplayBus.level_started.emit()
 
 
 func pause_level() -> void:

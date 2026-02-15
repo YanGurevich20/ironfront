@@ -23,8 +23,37 @@ func reset_connection() -> void:
 	multiplayer.multiplayer_peer = null
 
 
+func get_connection_status() -> MultiplayerPeer.ConnectionStatus:
+	if multiplayer.multiplayer_peer == null:
+		return MultiplayerPeer.CONNECTION_DISCONNECTED
+	return multiplayer.multiplayer_peer.get_connection_status()
+
+
+func resolve_cli_connect_target(default_host: String, default_port: int) -> Dictionary:
+	var client_args: Dictionary = Utils.get_parsed_cmdline_user_args()
+	var resolved_host: String = str(client_args.get("host", default_host))
+	var resolved_port: int = max(0, int(client_args.get("port", default_port)))
+	print("[client][cli] resolved_host=%s resolved_port=%d" % [resolved_host, resolved_port])
+	return {"host": resolved_host, "port": resolved_port}
+
+
+func ensure_connecting(default_host: String, default_port: int) -> Dictionary:
+	var connection_status: MultiplayerPeer.ConnectionStatus = get_connection_status()
+	if connection_status == MultiplayerPeer.CONNECTION_CONNECTED:
+		return {"status": "already_connected"}
+	if connection_status == MultiplayerPeer.CONNECTION_CONNECTING:
+		return {"status": "already_connecting"}
+	reset_connection()
+	var target: Dictionary = resolve_cli_connect_target(default_host, default_port)
+	var host: String = str(target.get("host", default_host))
+	var port: int = int(target.get("port", default_port))
+	if not connect_to_server(host, port):
+		return {"status": "failed", "host": host, "port": port}
+	return {"status": "started", "host": host, "port": port}
+
+
 func is_connected_to_server() -> bool:
-	return NetworkClientConnectionUtils.is_connected_to_server(multiplayer)
+	return get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 
 func get_connection_ping_msec() -> int:

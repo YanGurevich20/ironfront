@@ -80,32 +80,24 @@ func connect_to_server() -> void:
 	join_attempt_id += 1
 	cancel_join_requested = false
 	_log_join("connect_requested")
-	if multiplayer.multiplayer_peer != null:
-		if multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
-			enet_client.reset_connection()
-			_log_join("cleared_offline_multiplayer_peer")
-		else:
-			var connection_status: MultiplayerPeer.ConnectionStatus = (
-				multiplayer.multiplayer_peer.get_connection_status()
-			)
-			_log_join("existing_peer_status=%d" % connection_status)
-			if connection_status == MultiplayerPeer.CONNECTION_CONNECTED:
-				join_status_changed.emit("CONNECTED. REQUESTING ARENA JOIN...", false)
-				_send_join_arena()
-				return
-			if connection_status == MultiplayerPeer.CONNECTION_CONNECTING:
-				join_status_changed.emit("CONNECTING TO ONLINE SERVER...", false)
-				return
-			enet_client.reset_connection()
-			_log_join("cleared_stale_multiplayer_peer")
-	var resolved_target: Dictionary = NetworkClientConnectionUtils.resolve_cli_connect_target(
+	var connect_result: Dictionary = enet_client.ensure_connecting(
 		default_connect_host, default_connect_port
 	)
-	var host: String = resolved_target.get("host", default_connect_host)
-	var port: int = resolved_target.get("port", default_connect_port)
-	if not enet_client.connect_to_server(host, port):
+	var status: String = str(connect_result.get("status", "failed"))
+	if status == "already_connected":
+		_log_join("existing_peer_status=%d" % MultiplayerPeer.CONNECTION_CONNECTED)
+		join_status_changed.emit("CONNECTED. REQUESTING ARENA JOIN...", false)
+		_send_join_arena()
+		return
+	if status == "already_connecting":
+		_log_join("existing_peer_status=%d" % MultiplayerPeer.CONNECTION_CONNECTING)
+		join_status_changed.emit("CONNECTING TO ONLINE SERVER...", false)
+		return
+	if status == "failed":
 		_emit_join_failed("CONNECTION FAILED")
 		return
+	var host: String = str(connect_result.get("host", default_connect_host))
+	var port: int = int(connect_result.get("port", default_connect_port))
 	_log_join("connecting_to=udp://%s:%d" % [host, port])
 	join_status_changed.emit("CONNECTING TO ONLINE SERVER...", false)
 

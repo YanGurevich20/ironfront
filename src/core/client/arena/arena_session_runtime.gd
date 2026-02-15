@@ -1,14 +1,10 @@
 class_name ArenaSessionRuntime
 extends Node
 
-signal join_status_changed(message: String, is_error: bool)
 signal join_completed(success: bool, message: String)
-signal session_started
-signal session_stopped
 signal session_ended(summary: Dictionary)
 signal local_player_destroyed
 signal local_player_respawned
-signal fire_rejected(reason: String)
 
 const KILL_REWARD_DOLLARS: int = 5000
 
@@ -27,7 +23,6 @@ var active_shells_by_shot_id: Dictionary[int, Shell] = {}
 
 func _ready() -> void:
 	add_child(arena_sync_runtime)
-	Utils.connect_checked(online_runtime.join_status_changed, _on_join_status_changed)
 	Utils.connect_checked(online_runtime.join_arena_completed, _on_join_arena_completed)
 	Utils.connect_checked(online_runtime.state_snapshot_received, _on_state_snapshot_received)
 	Utils.connect_checked(online_runtime.arena_shell_spawn_received, _on_arena_shell_spawn_received)
@@ -68,7 +63,6 @@ func stop_session() -> void:
 	if not is_arena_active:
 		return
 	_quit_arena()
-	session_stopped.emit()
 
 
 func end_session(status_message: String) -> void:
@@ -84,11 +78,10 @@ func end_session(status_message: String) -> void:
 
 
 func _log_prefix() -> String:
-	return RuntimeUtils.build_log_prefix(multiplayer)
-
-
-func _on_join_status_changed(message: String, is_error: bool) -> void:
-	join_status_changed.emit(message, is_error)
+	var peer_id: int = 0
+	if multiplayer.multiplayer_peer != null:
+		peer_id = multiplayer.get_unique_id()
+	return "[client pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
 
 
 func _on_join_arena_completed(success: bool, message: String) -> void:
@@ -147,7 +140,7 @@ func _start_arena() -> bool:
 			]
 		)
 	)
-	session_started.emit()
+	GameplayBus.level_started.emit()
 	return true
 
 
@@ -220,7 +213,6 @@ func _on_arena_fire_rejected_received(reason: String) -> void:
 		return
 	push_warning("%s authoritative_fire_rejected reason=%s" % [_log_prefix(), reason])
 	GameplayBus.online_fire_rejected.emit(reason)
-	fire_rejected.emit(reason)
 
 
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
