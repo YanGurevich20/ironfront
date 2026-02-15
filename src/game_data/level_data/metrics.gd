@@ -1,4 +1,4 @@
-class_name Metrics extends LoadableData
+class_name Metrics extends Resource
 
 enum Metric {
 	# game events
@@ -17,6 +17,7 @@ enum Metric {
 	STARS_EARNED,
 	LEVELS_PLAYED
 }
+const FILE_NAME: String = "metrics"
 
 @export var metrics: Dictionary[Metric, int] = {
 	Metric.KILLS: 0,
@@ -34,18 +35,13 @@ enum Metric {
 	Metric.LEVELS_PLAYED: 0
 }
 
-var derived_metrics: Dictionary[Metric, Callable] = {
-	Metric.SHOTS_MISSED:
-	func() -> int: return metrics[Metric.SHOTS_FIRED] - metrics[Metric.SHOTS_HIT]
-}
-
 
 static func get_instance() -> Metrics:
-	return LoadableData.get_loadable_instance(Metrics)
+	return DataStore.load_or_create(Metrics, FILE_NAME) as Metrics
 
 
-func get_file_name() -> String:
-	return "metrics"
+func save() -> void:
+	DataStore.save(self, FILE_NAME)
 
 
 #region Metric Modification
@@ -84,5 +80,4 @@ func merge_metrics(source: Dictionary) -> void:
 
 
 func _update_derived_metrics() -> void:
-	for metric: Metric in derived_metrics.keys():
-		derived_metrics[metric].call()
+	metrics[Metric.SHOTS_MISSED] = metrics[Metric.SHOTS_FIRED] - metrics[Metric.SHOTS_HIT]

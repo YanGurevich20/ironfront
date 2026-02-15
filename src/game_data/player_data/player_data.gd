@@ -1,4 +1,4 @@
-class_name PlayerData extends LoadableData
+class_name PlayerData extends Resource
 
 const DEFAULT_TANK_ID: TankManager.TankId = TankManager.TankId.M4A1_SHERMAN
 const FILE_NAME: String = "player_data"
@@ -12,13 +12,12 @@ const FILE_NAME: String = "player_data"
 @export var is_developer: bool = false
 
 
-func get_file_name() -> String:
-	return FILE_NAME
-
-
 static func get_instance() -> PlayerData:
-	var instance: PlayerData = LoadableData.get_loadable_instance(PlayerData)
-	return instance
+	return DataStore.load_or_create(PlayerData, FILE_NAME)
+
+
+func save() -> void:
+	DataStore.save(self, FILE_NAME)
 
 
 func _init() -> void:

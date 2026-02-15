@@ -1,57 +1,139 @@
-# GDScript Guidelines
+# GDScript Guidelines (LLM-Directed)
 
-## Style and Naming
-- Use tabs for indentation (Godot default).
-- Use `snake_case` for functions and variables.
-- Use `PascalCase` for `class_name` declarations.
-- Use `snake_case` for scene/resource names (`.tscn`, `.tres`).
+This file is written for code-generating agents. Follow it literally.
 
-## Dependency and Runtime Wiring
-- Prefer direct `class_name` references over local `preload(...)` aliases when the class is globally registered.
-- Prefer concrete typed fields over `Object` to keep method calls discoverable and compiler-checked.
-- Construct runtime helpers with typed `ClassName.new()` and attach them directly, rather than casting through `Node`.
-- Keep names aligned with the class (`ClientPlayerProfileUtils`, not `ClientPlayerProfileUtilsData`) unless the value is truly data-only.
+## 1) Naming and File Basics
+- Use tabs for indentation.
+- Use `snake_case` for variables/functions.
+- Use `PascalCase` for `class_name`.
+- Use `snake_case` for scene/resource filenames.
 
-## Repository Code Rules
-- Avoid leading-underscore parameter names (for example `_visible`) as a shadowing workaround; use specific, descriptive names.
-- When referencing nodes in scripts, set a Unique Name and use `%NodeName` access.
-- Never use `.call(...)` as a type-resolution workaround. If types look stale, check open Godot editor tabs/files and refresh there first.
+## 2) Node Access and Scene Tree Wiring
+- Prefer `%UniqueName` for sibling/child dependencies.
+- Avoid deep path lookups in runtime logic.
+- Long-lived systems should be scene children, not ad-hoc `new()+add_child()` in many places.
 
-## Typing and Data Shapes
-- Prefer typed dictionaries for stable maps.
-- Prefer typed arrays when shape is known.
-- Keep cache dictionaries typed to minimize downstream casts.
-
+Good:
 ```gdscript
-var player_tanks_by_peer_id: Dictionary[int, Tank] = {}
-var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
+@onready var network_server: NetworkServer = %Network
+@onready var arena_runtime: ServerArenaRuntime = %ArenaRuntime
 ```
 
-## Casting and Parsing
-- Avoid redundant casts when values are already constrained by typed storage.
-- Parse/coerce at trust boundaries (RPC payloads, untyped dictionaries), then keep runtime state typed.
-
-Prefer:
+Bad:
 ```gdscript
-var join_success: bool = join_result.get("success", false)
+var network_server: Node = get_node("/root/Main/Runtime/Network")
 ```
 
-Use explicit coercion only for genuinely ambiguous input.
+## 3) Type Everything You Can
+- Prefer typed fields, typed arrays, and typed dictionaries.
+- Avoid `Object` unless absolutely necessary.
 
-## Iteration and Control Flow
-- Iterate with typed loop variables where possible.
-- Keep `continue`/`return` usage tight and verify indentation-sensitive blocks after edits.
+## 4) Parse at Boundaries, Keep Internals Typed
+- RPC payloads and generic dictionaries are trust boundaries.
+- Parse/coerce once, then continue with typed values.
 
-## Networking and Runtime Separation
-- Keep transport/protocol validation in `src/net/*`.
-- Keep authoritative gameplay/runtime mutation in `src/core/*`.
-- Split visual replay effects from authoritative gameplay simulation where appropriate.
+Good:
+```gdscript
+var peer_id: int = int(payload.get("peer_id", 0))
+var player_name: String = str(payload.get("player_name", ""))
+if peer_id <= 0 or player_name.is_empty():
+	return
+```
 
-## Refactoring Practices
-- Apply low-risk cleanups incrementally in touched areas.
-- Extract cohesive helpers/modules when scripts grow too large.
-- Prefer extracting pure data transforms over dense in-place edits.
-- Keep online and offline lifecycle flows separate when behavior diverges.
+Bad:
+```gdscript
+if payload["peer_id"] > 0:
+	do_spawn(payload["peer_id"], payload["player_name"])
+```
+
+## 5) Signals for Cross-System Communication
+- Use signals for intent/event boundaries.
+- Avoid direct two-way coupling across domains.
+- Pattern:
+  - net layer emits intent signal
+  - orchestrator handles it
+  - runtime mutates world
+
+## 6) One Owner Per Responsibility
+- Do not split one decision across multiple layers.
+- Example ownership split:
+  - network layer: transport + protocol validation
+  - runtime layer: spawn selection + world mutation
+  - orchestrator: wiring + lifecycle
+
+Good:
+```gdscript
+var spawn_result: Dictionary = ServerArenaActorUtils.spawn_peer_tank_at_random(
+	arena_runtime, peer_id, player_name, tank_id
+)
+```
+
+Bad:
+```gdscript
+# network picks spawn and runtime also validates/changes it later
+```
+
+## 7) Keep Hot Paths Simple
+- Validate invariants once at startup.
+- Avoid repeated null checks in per-tick/per-message loops unless state is truly optional.
+
+Good:
+```gdscript
+func _physics_process(delta: float) -> void:
+	var states: Array[Dictionary] = arena_runtime.step_authoritative_runtime(arena_session_state, delta)
+	network_server.set_authoritative_player_states(states)
+```
+
+Bad:
+```gdscript
+if arena_runtime != null and arena_session_state != null and network_server != null:
+	# repeated every tick
+```
+
+## 8) Return Structured Results for Cross-Layer Operations
+- For helper calls crossing boundaries, return result dictionaries with explicit status.
+
+Good:
+```gdscript
+return {
+	"success": false,
+	"reason": "NO_SPAWN_AVAILABLE",
+}
+```
+
+Then handle explicitly:
+```gdscript
+if not result.get("success", false):
+	var reason: String = str(result.get("reason", "FAILED"))
+	return
+```
+
+## 9) Prefer Small Helpers Over Monoliths
+- If a method grows too large, extract cohesive helpers.
+- Helpers should have clear input/output and no hidden side effects when possible.
+
+## 10) Avoid These Patterns
+- `.call(...)` to bypass typing.
+- Leading-underscore parameter names used only to dodge warnings.
+- Deep `get_node("A/B/C/D")` when `%UniqueName` is possible.
+- Unbounded file growth; extract helpers before scripts become hard to scan.
+
+## 11) Prefer `class_name` Globals for Static APIs
+- For utility classes with `class_name`, call static functions directly by class name.
+- Do not add local `preload(...)` aliases for globally-registered utility classes unless there is a demonstrated load-order problem.
+
+Good:
+```gdscript
+var player_data: PlayerData = DataStore.load_or_create(PlayerData, PlayerData.FILE_NAME)
+DataStore.save(player_data, PlayerData.FILE_NAME)
+```
+
+Bad:
+```gdscript
+const DATA_STORE := preload("res://src/game_data/data_store.gd")
+var player_data: PlayerData = DATA_STORE.load_or_create(PlayerData, PlayerData.FILE_NAME)
+DATA_STORE.save(player_data, PlayerData.FILE_NAME)
+```
 
 ## Documentation Requirement
-- When a new, more efficient GDScript pattern is discovered in this repo, document it in `docs/GDScript.md`.
+- When a new pattern is adopted in this repo, update this file with a concrete good/bad example.

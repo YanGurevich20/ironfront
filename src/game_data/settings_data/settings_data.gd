@@ -1,4 +1,4 @@
-class_name SettingsData extends LoadableData
+class_name SettingsData extends Resource
 
 const FILE_NAME: String = "settings_data"
 
@@ -33,9 +33,9 @@ const FILE_NAME: String = "settings_data"
 		GameplayBus.settings_changed.emit()
 
 
-func get_file_name() -> String:
-	return FILE_NAME
-
-
 static func get_instance() -> SettingsData:
-	return LoadableData.get_loadable_instance(SettingsData)
+	return DataStore.load_or_create(SettingsData, FILE_NAME) as SettingsData
+
+
+func save() -> void:
+	DataStore.save(self, FILE_NAME)
