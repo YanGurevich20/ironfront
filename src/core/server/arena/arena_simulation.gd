@@ -1,11 +1,11 @@
 class_name ArenaSimulation
 extends Node
 
-var runtime: ArenaRuntime
+var runtime: ServerArenaRuntime
 var actors: ArenaActors
 
 
-func configure(next_runtime: ArenaRuntime, next_actors: ArenaActors) -> void:
+func configure(next_runtime: ServerArenaRuntime, next_actors: ArenaActors) -> void:
 	runtime = next_runtime
 	actors = next_actors
 

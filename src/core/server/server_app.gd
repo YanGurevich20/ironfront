@@ -16,7 +16,7 @@ var metrics_logger: MetricsLogger
 @onready var network_server: ENetServer = %Network
 @onready var network_session: ServerSessionApi = %Session
 @onready var network_gameplay: ServerGameplayApi = %Gameplay
-@onready var server_arena_runtime: ArenaRuntime = %ArenaRuntime
+@onready var server_arena_runtime: ServerArenaRuntime = %ArenaRuntime
 
 
 func _ready() -> void:

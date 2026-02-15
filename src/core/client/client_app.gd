@@ -3,9 +3,8 @@ extends Node2D
 
 @onready var ui_manager: UIManager = %UIManager
 @onready var enet_client: ENetClient = %Network
-@onready var online_runtime: ClientOnlineRuntime = %OnlineRuntime
 @onready var offline_runtime: OfflineRuntime = %OfflineRuntime
-@onready var arena_runtime: ArenaSessionRuntime = %ArenaSessionRuntime
+@onready var arena_client: ArenaClient = %ArenaClient
 
 
 func _ready() -> void:
@@ -17,24 +16,20 @@ func _ready() -> void:
 	Utils.connect_checked(UiBus.resume_requested, _resume_game)
 	Utils.connect_checked(UiBus.restart_level_requested, _restart_level)
 	Utils.connect_checked(UiBus.abort_level_requested, _abort_level)
-	Utils.connect_checked(UiBus.online_session_end_requested, arena_runtime.end_session)
-	Utils.connect_checked(UiBus.online_respawn_requested, arena_runtime.request_respawn)
+	Utils.connect_checked(UiBus.online_session_end_requested, arena_client.end_session)
+	Utils.connect_checked(UiBus.online_respawn_requested, arena_client.request_respawn)
 	Utils.connect_checked(UiBus.return_to_menu_requested, _return_to_menu)
 	Utils.connect_checked(MultiplayerBus.online_join_retry_requested, _start_online_join)
 	Utils.connect_checked(
-		MultiplayerBus.online_join_cancel_requested, arena_runtime.cancel_join_request
+		MultiplayerBus.online_join_cancel_requested, arena_client.cancel_join_request
 	)
 	Utils.connect_checked(offline_runtime.objectives_updated, ui_manager.update_objectives)
 	Utils.connect_checked(offline_runtime.level_completed, _on_offline_level_completed)
-	Utils.connect_checked(online_runtime.join_status_changed, ui_manager.update_online_join_overlay)
-	Utils.connect_checked(arena_runtime.join_completed, _on_online_join_completed)
-	Utils.connect_checked(arena_runtime.session_ended, _on_arena_session_ended)
-	Utils.connect_checked(
-		arena_runtime.local_player_destroyed, ui_manager.show_online_death_overlay
-	)
-	Utils.connect_checked(
-		arena_runtime.local_player_respawned, ui_manager.hide_online_death_overlay
-	)
+	Utils.connect_checked(arena_client.join_status_changed, ui_manager.update_online_join_overlay)
+	Utils.connect_checked(arena_client.join_completed, _on_online_join_completed)
+	Utils.connect_checked(arena_client.session_ended, _on_arena_session_ended)
+	Utils.connect_checked(arena_client.local_player_destroyed, ui_manager.show_online_death_overlay)
+	Utils.connect_checked(arena_client.local_player_respawned, ui_manager.hide_online_death_overlay)
 	PlayerProfileUtils.save_player_metrics()
 
 
@@ -42,12 +37,12 @@ func _start_online_join() -> void:
 	if offline_runtime.is_active():
 		offline_runtime.quit_level()
 	ui_manager.show_online_join_overlay()
-	arena_runtime.connect_to_server()
+	arena_client.connect_to_server()
 
 
 func _start_offline_level(level_key: int) -> void:
-	if arena_runtime.is_active():
-		arena_runtime.stop_session()
+	if arena_client.is_active():
+		arena_client.stop_session()
 	ui_manager.set_online_session_active(false)
 	ui_manager.hide_online_death_overlay()
 	offline_runtime.start_level(level_key)
@@ -70,7 +65,7 @@ func _abort_level() -> void:
 
 
 func _return_to_menu() -> void:
-	arena_runtime.stop_session()
+	arena_client.stop_session()
 	ui_manager.set_online_session_active(false)
 	ui_manager.hide_online_death_overlay()
 	offline_runtime.quit_level()

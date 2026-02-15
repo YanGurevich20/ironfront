@@ -1,29 +1,23 @@
-class_name ArenaClientShellController
+class_name ArenaWorldShells
 extends Node
 
-const ShellScene: PackedScene = preload("res://src/entities/shell/shell.tscn")
+const SHELL_SCENE: PackedScene = preload("res://src/entities/shell/shell.tscn")
 
 var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
 var active_shells_by_shot_id: Dictionary[int, Shell] = {}
-var replication: ArenaReplication
-var online_runtime: ClientOnlineRuntime
+var replication: ArenaWorldReplication
 
 
-func configure(
-	next_replication: ArenaReplication, next_online_runtime: ClientOnlineRuntime
-) -> void:
-	replication = next_replication
-	online_runtime = next_online_runtime
-	Utils.connect_checked(GameplayBus.shell_fired, handle_local_shell_fired)
+func _ready() -> void:
+	Utils.connect_checked(GameplayBus.shell_fired, _on_local_shell_fired)
 	Utils.connect_checked(
 		GameplayBus.update_remaining_shell_count, _on_update_remaining_shell_count
 	)
-	Utils.connect_checked(online_runtime.arena_shell_spawn_received, handle_shell_spawn_received)
-	Utils.connect_checked(online_runtime.arena_shell_impact_received, handle_shell_impact_received)
-	Utils.connect_checked(
-		online_runtime.arena_loadout_state_received, handle_loadout_state_received
-	)
+
+
+func configure(next_replication: ArenaWorldReplication) -> void:
+	replication = next_replication
 
 
 func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
@@ -46,12 +40,6 @@ func replace_local_player_tank(next_local_player_tank: Tank) -> void:
 	local_player_tank = next_local_player_tank
 
 
-func handle_local_shell_fired(shell: Shell, tank: Tank) -> void:
-	if arena_level == null or tank != local_player_tank:
-		return
-	shell.queue_free()
-
-
 func handle_shell_spawn_received(
 	shot_id: int,
 	firing_peer_id: int,
@@ -66,7 +54,7 @@ func handle_shell_spawn_received(
 		replication.play_remote_fire_effect(firing_peer_id)
 	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
 	assert(shell_spec != null, "Invalid shell_id from server: %s" % shell_id)
-	var shell: Shell = ShellScene.instantiate()
+	var shell: Shell = SHELL_SCENE.instantiate()
 	shell.initialize_from_spawn(
 		shell_spec, spawn_position, shell_velocity, shell_rotation, null, true
 	)
@@ -142,6 +130,18 @@ func handle_loadout_state_received(
 	GameplayBus.online_loadout_state_updated.emit(
 		selected_shell_id, shell_counts_by_id, reload_time_left
 	)
+
+
+func _on_local_shell_fired(shell: Shell, tank: Tank) -> void:
+	if arena_level == null or tank != local_player_tank:
+		return
+	shell.queue_free()
+
+
+func _on_update_remaining_shell_count(count: int) -> void:
+	if local_player_tank == null:
+		return
+	local_player_tank.set_remaining_shell_count(count)
 
 
 func _reconcile_authoritative_shell_impact(
@@ -270,12 +270,6 @@ func _resolve_local_impact_event_hp_color(local_is_target: bool, result_type: in
 	if is_non_pen_result:
 		return Colors.GOLD_DARK
 	return Colors.ENEMY_RED if local_is_target else Colors.GOLD
-
-
-func _on_update_remaining_shell_count(count: int) -> void:
-	if local_player_tank == null:
-		return
-	local_player_tank.set_remaining_shell_count(count)
 
 
 func _resolve_result_name(result_type: int) -> String:

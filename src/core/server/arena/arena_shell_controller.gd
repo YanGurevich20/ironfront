@@ -1,7 +1,7 @@
 class_name ArenaServerShellController
 extends Node
 
-var runtime: ArenaRuntime
+var runtime: ServerArenaRuntime
 var actors: ArenaActors
 var next_shell_shot_id: int = 1
 var next_kill_event_seq: int = 1
@@ -13,7 +13,7 @@ func _ready() -> void:
 	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
 
 
-func configure(next_runtime: ArenaRuntime, next_actors: ArenaActors) -> void:
+func configure(next_runtime: ServerArenaRuntime, next_actors: ArenaActors) -> void:
 	runtime = next_runtime
 	actors = next_actors
 

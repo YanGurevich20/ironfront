@@ -5,11 +5,8 @@
 [ext_resource type="Script" path="res://src/core/client/net/enet_client.gd" id="3_net"]
 [ext_resource type="Script" path="res://src/core/client/net/client_session_api.gd" id="4_session"]
 [ext_resource type="Script" path="res://src/core/client/net/client_gameplay_api.gd" id="5_gameplay"]
-[ext_resource type="Script" path="res://src/core/client/arena/online_runtime.gd" id="6_online_runtime"]
 [ext_resource type="Script" path="res://src/core/client/offline/offline_runtime.gd" id="7_offline_runtime"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_session_runtime.gd" id="8_arena_session_runtime"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_replication.gd" id="9_arena_replication"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_shell_controller.gd" id="10_arena_shell_controller"]
+[ext_resource type="PackedScene" path="res://src/core/client/arena/arena_client.tscn" id="8_arena_client"]
 
 [node name="Runtime" type="Node2D" unique_id=2016107524]
 script = ExtResource("1_client_app")
@@ -32,22 +29,9 @@ script = ExtResource("4_session")
 unique_name_in_owner = true
 script = ExtResource("5_gameplay")
 
-[node name="OnlineRuntime" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("6_online_runtime")
-
 [node name="OfflineRuntime" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("7_offline_runtime")
 
-[node name="ArenaSessionRuntime" type="Node" parent="."]
+[node name="ArenaClient" parent="." instance=ExtResource("8_arena_client")]
 unique_name_in_owner = true
-script = ExtResource("8_arena_session_runtime")
-
-[node name="Replication" type="Node" parent="ArenaSessionRuntime"]
-unique_name_in_owner = true
-script = ExtResource("9_arena_replication")
-
-[node name="ShellController" type="Node" parent="ArenaSessionRuntime"]
-unique_name_in_owner = true
-script = ExtResource("10_arena_shell_controller")

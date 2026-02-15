@@ -1,4 +1,4 @@
-class_name ArenaReplication
+class_name ArenaWorldReplication
 extends Node
 
 var arena_level: ArenaLevelMvp

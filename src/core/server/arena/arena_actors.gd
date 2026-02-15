@@ -3,7 +3,7 @@ extends Node
 
 const BOT_ACTOR_ID_START: int = -1
 
-var runtime: ArenaRuntime
+var runtime: ServerArenaRuntime
 var arena_level: ArenaLevelMvp
 var arena_spawn_transforms_by_id: Dictionary[StringName, Transform2D] = {}
 var actor_tanks_by_id: Dictionary[int, Tank] = {}
@@ -20,7 +20,7 @@ func _ready() -> void:
 	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
 
 
-func configure(next_runtime: ArenaRuntime) -> void:
+func configure(next_runtime: ServerArenaRuntime) -> void:
 	runtime = next_runtime
 
 

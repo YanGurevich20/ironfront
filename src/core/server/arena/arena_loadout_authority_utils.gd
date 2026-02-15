@@ -3,7 +3,7 @@ extends RefCounted
 
 
 static func handle_peer_shell_select_request(
-	runtime: ArenaRuntime,
+	runtime: ServerArenaRuntime,
 	arena_session_state: ArenaSessionState,
 	peer_id: int,
 	spawned_tank: Tank,
@@ -19,7 +19,10 @@ static func handle_peer_shell_select_request(
 
 
 static func handle_peer_fire_request(
-	runtime: ArenaRuntime, arena_session_state: ArenaSessionState, peer_id: int, spawned_tank: Tank
+	runtime: ServerArenaRuntime,
+	arena_session_state: ArenaSessionState,
+	peer_id: int,
+	spawned_tank: Tank
 ) -> void:
 	var selected_shell_id: String = arena_session_state.get_peer_selected_shell_id(peer_id)
 	var selected_shell_count: int = arena_session_state.get_peer_shell_count(
@@ -52,7 +55,7 @@ static func handle_peer_fire_request(
 
 
 static func sync_peer_tank_shell_state(
-	runtime: ArenaRuntime, peer_id: int, spawned_tank: Tank
+	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
 	var selected_shell_id: String = runtime.arena_session_state.get_peer_selected_shell_id(peer_id)
 	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
@@ -65,7 +68,7 @@ static func sync_peer_tank_shell_state(
 
 
 static func send_peer_loadout_state(
-	runtime: ArenaRuntime, peer_id: int, spawned_tank: Tank
+	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
 	var selected_shell_id: String = runtime.arena_session_state.get_peer_selected_shell_id(peer_id)
 	var shell_counts_by_id: Dictionary = runtime.arena_session_state.get_peer_ammo_by_shell_id(
@@ -78,7 +81,7 @@ static func send_peer_loadout_state(
 
 
 static func reject_peer_fire(
-	runtime: ArenaRuntime, peer_id: int, spawned_tank: Tank, reason: String
+	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank, reason: String
 ) -> void:
 	runtime.network_gameplay.send_arena_fire_rejected(peer_id, reason)
 	send_peer_loadout_state(runtime, peer_id, spawned_tank)

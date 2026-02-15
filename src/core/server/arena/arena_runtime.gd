@@ -1,4 +1,4 @@
-class_name ArenaRuntime
+class_name ServerArenaRuntime
 extends Node
 
 var network_gameplay: ServerGameplayApi
