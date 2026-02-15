@@ -14,31 +14,25 @@ var is_arena_active: bool = false
 var local_player_dead: bool = false
 var reward_tracker: RewardTracker = RewardTracker.new(KILL_REWARD_DOLLARS)
 var arena_scene: PackedScene = preload("res://src/levels/arena/arena_level_mvp.tscn")
-var active_shells_by_shot_id: Dictionary[int, Shell] = {}
 
 @onready var level_container: Node2D = %LevelContainer
 @onready var online_runtime: ClientOnlineRuntime = %OnlineRuntime
-@onready var arena_sync_runtime: ArenaSyncRuntime = ArenaSyncRuntime.new()
+@onready var replication: ArenaReplication = %Replication
+@onready var shell_controller: ArenaClientShellController = %ShellController
 
 
 func _ready() -> void:
-	add_child(arena_sync_runtime)
+	shell_controller.configure(replication, online_runtime)
 	Utils.connect_checked(online_runtime.join_arena_completed, _on_join_arena_completed)
 	Utils.connect_checked(online_runtime.state_snapshot_received, _on_state_snapshot_received)
-	Utils.connect_checked(online_runtime.arena_shell_spawn_received, _on_arena_shell_spawn_received)
-	Utils.connect_checked(
-		online_runtime.arena_shell_impact_received, _on_arena_shell_impact_received
-	)
 	Utils.connect_checked(online_runtime.arena_respawn_received, _on_arena_respawn_received)
 	Utils.connect_checked(
 		online_runtime.arena_fire_rejected_received, _on_arena_fire_rejected_received
 	)
-	Utils.connect_checked(
-		online_runtime.arena_loadout_state_received, _on_arena_loadout_state_received
-	)
-	Utils.connect_checked(GameplayBus.shell_fired, _on_shell_fired)
 	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
 	Utils.connect_checked(GameplayBus.online_kill_feed_event, _on_kill_feed_event)
+	Utils.connect_checked(GameplayBus.lever_input, _on_lever_input)
+	Utils.connect_checked(GameplayBus.wheel_input, _on_wheel_input)
 
 
 func is_active() -> bool:
@@ -126,8 +120,8 @@ func _start_arena() -> bool:
 	local_player_dead = false
 	reward_tracker.reset()
 	is_arena_active = true
-	active_shells_by_shot_id.clear()
-	arena_sync_runtime.start_runtime(arena_level, player_tank)
+	replication.start_runtime(arena_level, player_tank)
+	shell_controller.start_runtime(arena_level, player_tank)
 	online_runtime.set_arena_input_enabled(true)
 	get_tree().set_pause(false)
 	print(
@@ -146,9 +140,9 @@ func _start_arena() -> bool:
 
 func _quit_arena() -> void:
 	online_runtime.leave_arena()
-	active_shells_by_shot_id.clear()
 	local_player_dead = false
-	arena_sync_runtime.stop_runtime()
+	shell_controller.stop_runtime()
+	replication.stop_runtime()
 	if player_tank != null:
 		player_tank.queue_free()
 		player_tank = null
@@ -205,7 +199,7 @@ func _on_arena_respawn_received(
 	if peer_id == multiplayer.get_unique_id():
 		_respawn_local_player_tank(spawn_position, spawn_rotation)
 		return
-	arena_sync_runtime.respawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation)
+	replication.respawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation)
 
 
 func _on_arena_fire_rejected_received(reason: String) -> void:
@@ -215,8 +209,23 @@ func _on_arena_fire_rejected_received(reason: String) -> void:
 	GameplayBus.online_fire_rejected.emit(reason)
 
 
+func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
+	if not is_arena_active or local_player_dead or player_tank == null:
+		return
+	if lever_side == Lever.LeverSide.LEFT:
+		player_tank.left_track_input = value
+	elif lever_side == Lever.LeverSide.RIGHT:
+		player_tank.right_track_input = value
+
+
+func _on_wheel_input(value: float) -> void:
+	if not is_arena_active or local_player_dead or player_tank == null:
+		return
+	player_tank.turret_rotation_input = value
+
+
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
-	arena_sync_runtime.on_state_snapshot_received(server_tick, player_states)
+	replication.on_state_snapshot_received(server_tick, player_states)
 	if not is_arena_active:
 		return
 	var active_human_players: int = 0
@@ -228,14 +237,6 @@ func _on_state_snapshot_received(server_tick: int, player_states: Array, max_pla
 			continue
 		active_human_players += 1
 	GameplayBus.online_player_count_updated.emit(active_human_players, max_players, active_bots)
-
-
-func _on_arena_loadout_state_received(
-	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
-) -> void:
-	ShellAuthorityUtils.handle_loadout_state_received(
-		self, selected_shell_id, shell_counts_by_id, reload_time_left
-	)
 
 
 func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) -> void:
@@ -253,52 +254,7 @@ func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) 
 	respawned_tank.apply_spawn_state(spawn_position, spawn_rotation)
 	player_tank = respawned_tank
 	local_player_dead = false
-	arena_sync_runtime.replace_local_player_tank(player_tank)
+	replication.replace_local_player_tank(player_tank)
+	shell_controller.replace_local_player_tank(player_tank)
 	online_runtime.set_arena_input_enabled(true, false)
 	local_player_respawned.emit()
-
-
-func _on_shell_fired(shell: Shell, tank: Tank) -> void:
-	if not is_arena_active or arena_level == null or tank != player_tank:
-		return
-	shell.queue_free()
-
-
-func _on_arena_shell_spawn_received(
-	shot_id: int,
-	firing_peer_id: int,
-	shell_id: String,
-	spawn_position: Vector2,
-	shell_velocity: Vector2,
-	shell_rotation: float
-) -> void:
-	ShellAuthorityUtils.handle_shell_spawn_received(
-		self, shot_id, firing_peer_id, shell_id, spawn_position, shell_velocity, shell_rotation
-	)
-
-
-func _on_arena_shell_impact_received(
-	shot_id: int,
-	firing_peer_id: int,
-	target_peer_id: int,
-	result_type: int,
-	damage: int,
-	remaining_health: int,
-	hit_position: Vector2,
-	post_impact_velocity: Vector2,
-	post_impact_rotation: float,
-	continue_simulation: bool
-) -> void:
-	ShellAuthorityUtils.handle_shell_impact_received(
-		self,
-		shot_id,
-		firing_peer_id,
-		target_peer_id,
-		result_type,
-		damage,
-		remaining_health,
-		hit_position,
-		post_impact_velocity,
-		post_impact_rotation,
-		continue_simulation
-	)

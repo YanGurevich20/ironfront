@@ -1,4 +1,4 @@
-class_name ArenaCombatRelay
+class_name ArenaServerShellController
 extends Node
 
 var runtime: ArenaRuntime

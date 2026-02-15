@@ -8,17 +8,18 @@ static var tank_specs: Dictionary[TankId, TankSpec] = {
 	TankId.M4A1_SHERMAN: preload("res://src/entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
 	TankId.TIGER_1: preload("res://src/entities/tank/tanks/tiger_1/tiger_1.tres"),
 }
+static var DummyTankControllerScene := preload(
+	"res://src/controllers/dummy_tank_controller/dummy_tank_controller.tscn"
+)
 static var tank_controller_scenes: Dictionary[TankControllerType, PackedScene] = {
 	TankControllerType.PLAYER:
 	preload(
 		"res://src/controllers/mobile_player_tank_controller/mobile_player_tank_controller.tscn"
 	),
-	TankControllerType.MULTIPLAYER:
-	preload("res://src/controllers/multiplayer_tank_controller/multiplayer_tank_controller.tscn"),
+	TankControllerType.MULTIPLAYER: DummyTankControllerScene,
 	TankControllerType.AI:
 	preload("res://src/controllers/ai_tank_controller/ai_tank_controller.tscn"),
-	TankControllerType.DUMMY:
-	preload("res://src/controllers/dummy_tank_controller/dummy_tank_controller.tscn"),
+	TankControllerType.DUMMY: DummyTankControllerScene,
 }
 
 static var TankScene := preload("res://src/entities/tank/tank.tscn")

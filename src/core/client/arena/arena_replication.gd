@@ -1,4 +1,4 @@
-class_name ArenaSyncRuntime
+class_name ArenaReplication
 extends Node
 
 var arena_level: ArenaLevelMvp
@@ -386,7 +386,7 @@ func _log_prefix() -> String:
 	var peer_id: int = 0
 	if multiplayer.multiplayer_peer != null:
 		peer_id = multiplayer.get_unique_id()
-	return "[client-sync pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
+	return "[client-repl pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
 
 
 func _get_now_seconds() -> float:

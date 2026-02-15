@@ -24,9 +24,11 @@ func reset_connection() -> void:
 
 
 func get_connection_status() -> MultiplayerPeer.ConnectionStatus:
-	if multiplayer.multiplayer_peer == null:
+	if client_peer == null:
 		return MultiplayerPeer.CONNECTION_DISCONNECTED
-	return multiplayer.multiplayer_peer.get_connection_status()
+	if multiplayer.multiplayer_peer != client_peer:
+		return MultiplayerPeer.CONNECTION_DISCONNECTED
+	return client_peer.get_connection_status()
 
 
 func resolve_cli_connect_target(default_host: String, default_port: int) -> Dictionary:

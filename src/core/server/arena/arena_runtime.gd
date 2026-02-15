@@ -6,13 +6,13 @@ var arena_session_state: ArenaSessionState
 
 @onready var actors: ArenaActors = %Actors
 @onready var simulation: ArenaSimulation = %Simulation
-@onready var combat_relay: ArenaCombatRelay = %CombatRelay
+@onready var shell_controller: ArenaServerShellController = %ShellController
 
 
 func _ready() -> void:
 	actors.configure(self)
 	simulation.configure(self, actors)
-	combat_relay.configure(self, actors)
+	shell_controller.configure(self, actors)
 
 
 func configure_network_gameplay(next_network_gameplay: ServerGameplayApi) -> void:
@@ -56,7 +56,7 @@ func step_authoritative_runtime(
 
 func clear_runtime() -> void:
 	actors.clear_runtime()
-	combat_relay.clear_state()
+	shell_controller.clear_state()
 
 
 func _exit_tree() -> void:

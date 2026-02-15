@@ -84,6 +84,7 @@ func connect_to_server() -> void:
 		default_connect_host, default_connect_port
 	)
 	var status: String = str(connect_result.get("status", "failed"))
+	_log_join("connect_result status=%s" % status)
 	if status == "already_connected":
 		_log_join("existing_peer_status=%d" % MultiplayerPeer.CONNECTION_CONNECTED)
 		join_status_changed.emit("CONNECTED. REQUESTING ARENA JOIN...", false)

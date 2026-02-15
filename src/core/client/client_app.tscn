@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://src/core/client/arena/online_runtime.gd" id="6_online_runtime"]
 [ext_resource type="Script" path="res://src/core/client/offline/offline_runtime.gd" id="7_offline_runtime"]
 [ext_resource type="Script" path="res://src/core/client/arena/arena_session_runtime.gd" id="8_arena_session_runtime"]
+[ext_resource type="Script" path="res://src/core/client/arena/arena_replication.gd" id="9_arena_replication"]
+[ext_resource type="Script" path="res://src/core/client/arena/arena_shell_controller.gd" id="10_arena_shell_controller"]
 
 [node name="Runtime" type="Node2D" unique_id=2016107524]
 script = ExtResource("1_client_app")
@@ -41,3 +43,11 @@ script = ExtResource("7_offline_runtime")
 [node name="ArenaSessionRuntime" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("8_arena_session_runtime")
+
+[node name="Replication" type="Node" parent="ArenaSessionRuntime"]
+unique_name_in_owner = true
+script = ExtResource("9_arena_replication")
+
+[node name="ShellController" type="Node" parent="ArenaSessionRuntime"]
+unique_name_in_owner = true
+script = ExtResource("10_arena_shell_controller")
