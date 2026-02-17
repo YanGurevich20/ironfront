@@ -1,8 +1,4 @@
-# Repository Rules
-
-## Required Workflow
-- Mandatory read: `agent-docs/gdscript.md` before making or reviewing GDScript changes.
-- Always run `just fix` after making code changes.
+# Module Rules
 
 ## LLM Refactor Rules
 - Prioritize reducing architectural complexity and clarifying ownership over minimizing diff size.

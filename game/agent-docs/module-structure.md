@@ -1,7 +1,8 @@
-# Project Structure
+# Module Structure
+__note: all paths in doc are relative to module root__
 
-## Root
-- `project.godot` is the root Godot 4 project file.
+## Module Root
+- `project.godot` is the Godot 4 project file.
 - Prefer editor-driven changes for `project.godot`, `.tscn`, and `.tres` files.
 - `android/` contains Android export/build artifacts and templates.
 
@@ -24,11 +25,4 @@
 - Keep transport/protocol code inside `src/net/`; avoid mixing server transport logic back into client runtime scripts.
 
 ## Development Commands
-- `godot --editor --path .`: open in Godot editor.
-- `godot --path .`: run the configured main scene.
-- Export builds use presets in `export_presets.cfg` through Godot `Project -> Export`.
-- `just build`: headless load for parse/resource validation.
-- `just lint`: run `gdlint` recursively.
-- `just fmt`: run `gdformat` recursively.
-- `just fmt-check`: run `gdformat --check` recursively.
-- `just fix`: run `just build`, `just fmt`, and `just lint`.
+- `just game::fix`: run godot editor cache refresh, build, format, and lint.
