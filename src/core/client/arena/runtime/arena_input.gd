@@ -13,6 +13,7 @@ var local_shell_select_seq: int = 0
 var pending_left_track_input: float = 0.0
 var pending_right_track_input: float = 0.0
 var pending_turret_input: float = 0.0
+var session_running: bool = false
 
 
 func start_session(
@@ -34,17 +35,20 @@ func start_session(
 	input_send_elapsed_seconds = 0.0
 	_connect_gameplay_bus()
 	set_process(true)
+	session_running = true
 
 
 func stop_session(reset_sequence_state: bool = true) -> void:
+	if not session_running:
+		return
+	session_running = false
 	_disconnect_gameplay_bus()
 	set_process(false)
 	pending_left_track_input = 0.0
 	pending_right_track_input = 0.0
 	pending_turret_input = 0.0
 	input_send_elapsed_seconds = 0.0
-	if arena_match != null:
-		arena_match.set_local_input(0.0, 0.0, 0.0)
+	arena_match.set_local_input(0.0, 0.0, 0.0)
 	if reset_sequence_state:
 		local_input_tick = 0
 		local_fire_request_seq = 0
@@ -52,7 +56,7 @@ func stop_session(reset_sequence_state: bool = true) -> void:
 
 
 func can_send_gameplay_requests() -> bool:
-	return enet_client != null and enet_client.is_connected_to_server()
+	return session_running and enet_client.is_connected_to_server()
 
 
 func _process(delta: float) -> void:

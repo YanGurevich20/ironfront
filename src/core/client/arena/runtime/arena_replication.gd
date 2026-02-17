@@ -3,6 +3,7 @@ extends Node
 
 var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
+var log_context: Dictionary = {}
 
 var latest_snapshot_server_tick: int = 0
 var snapshot_render_delay_ticks: int = 2
@@ -24,6 +25,10 @@ var pending_local_authoritative_position: Vector2 = Vector2.ZERO
 var pending_local_authoritative_rotation: float = 0.0
 var pending_local_authoritative_linear_velocity: Vector2 = Vector2.ZERO
 var pending_local_last_processed_input_tick: int = 0
+
+
+func configure_log_context(next_log_context: Dictionary) -> void:
+	log_context = next_log_context.duplicate(true)
 
 
 func start_match(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
@@ -367,10 +372,9 @@ func _spawn_remote_tank(
 
 
 func _log_prefix() -> String:
-	var peer_id: int = 0
-	if multiplayer.multiplayer_peer != null:
-		peer_id = multiplayer.get_unique_id()
-	return "[client-repl pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
+	var process_id: int = int(log_context.get("process_id", OS.get_process_id()))
+	var peer_id: int = int(log_context.get("peer_id", 0))
+	return "[client-repl pid=%d peer=%d]" % [process_id, peer_id]
 
 
 func _get_now_seconds() -> float:

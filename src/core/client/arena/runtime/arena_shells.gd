@@ -7,10 +7,15 @@ var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
 var active_shells_by_shot_id: Dictionary[int, Shell] = {}
 var replication: ArenaReplication
+var log_context: Dictionary = {}
 
 
 func bind_replication(next_replication: ArenaReplication) -> void:
 	replication = next_replication
+
+
+func configure_log_context(next_log_context: Dictionary) -> void:
+	log_context = next_log_context.duplicate(true)
 
 
 func start_match(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
@@ -226,7 +231,6 @@ func _disconnect_gameplay_bus() -> void:
 
 
 func _log_prefix() -> String:
-	var peer_id: int = 0
-	if multiplayer.multiplayer_peer != null:
-		peer_id = multiplayer.get_unique_id()
-	return "[client-shell pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
+	var process_id: int = int(log_context.get("process_id", OS.get_process_id()))
+	var peer_id: int = int(log_context.get("peer_id", 0))
+	return "[client-shell pid=%d peer=%d]" % [process_id, peer_id]

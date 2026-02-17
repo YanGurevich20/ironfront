@@ -10,6 +10,7 @@ var level_container: Node2D
 var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
 var local_player_dead: bool = false
+var log_context: Dictionary = {}
 
 @onready var replication: ArenaReplication = %Replication
 @onready var shells: ArenaShells = %Shells
@@ -21,6 +22,12 @@ func _ready() -> void:
 
 func configure_level_container(next_level_container: Node2D) -> void:
 	level_container = next_level_container
+
+
+func configure_log_context(next_log_context: Dictionary) -> void:
+	log_context = next_log_context.duplicate(true)
+	replication.configure_log_context(log_context)
+	shells.configure_log_context(log_context)
 
 
 func start_match(spawn_position: Vector2, spawn_rotation: float) -> bool:
@@ -165,7 +172,6 @@ func _on_tank_destroyed(tank: Tank) -> void:
 
 
 func _log_prefix() -> String:
-	var peer_id: int = 0
-	if multiplayer.multiplayer_peer != null:
-		peer_id = multiplayer.get_unique_id()
-	return "[client-match pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
+	var process_id: int = int(log_context.get("process_id", OS.get_process_id()))
+	var peer_id: int = int(log_context.get("peer_id", 0))
+	return "[client-match pid=%d peer=%d]" % [process_id, peer_id]

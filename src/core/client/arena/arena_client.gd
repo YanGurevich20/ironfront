@@ -16,7 +16,7 @@ enum ArenaPhase {
 }
 
 const ARENA_SESSION_RUNTIME_SCENE: PackedScene = preload(
-	"res://src/core/client/arena/arena_session_runtime.tscn"
+	"res://src/core/client/arena/runtime/arena_session_runtime.tscn"
 )
 
 var default_connect_host: String = "ironfront.vikng.dev"
@@ -217,5 +217,6 @@ func _reset_to_disconnected() -> void:
 func _teardown_runtime() -> void:
 	if runtime == null:
 		return
+	runtime.stop_session()
 	runtime.queue_free()
 	runtime = null

@@ -8,10 +8,6 @@ var reward_dollars: int = 0
 var last_kill_event_seq: int = 0
 
 
-func _ready() -> void:
-	reward_per_kill_dollars = max(0, reward_per_kill_dollars)
-
-
 func start_session() -> void:
 	reset()
 	if not GameplayBus.player_kill_event.is_connected(on_player_kill_event):

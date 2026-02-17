@@ -31,6 +31,7 @@ func start_session(spawn_position: Vector2, spawn_rotation: float) -> bool:
 	assert(enet_client != null, "ArenaSessionRuntime requires ENetClient")
 	assert(level_container != null, "ArenaSessionRuntime requires level_container")
 	stop_session()
+	arena_match.configure_log_context(_build_log_context())
 	arena_match.configure_level_container(level_container)
 	if not arena_match.start_match(spawn_position, spawn_rotation):
 		return false
@@ -181,8 +182,6 @@ func _connect_gameplay_api_signals() -> void:
 
 
 func _disconnect_gameplay_api_signals() -> void:
-	if gameplay_api == null:
-		return
 	if gameplay_api.state_snapshot_received.is_connected(_on_state_snapshot_received):
 		gameplay_api.state_snapshot_received.disconnect(_on_state_snapshot_received)
 	if gameplay_api.arena_fire_rejected_received.is_connected(_on_arena_fire_rejected_received):
@@ -199,5 +198,11 @@ func _disconnect_gameplay_api_signals() -> void:
 		gameplay_api.arena_loadout_state_received.disconnect(_on_arena_loadout_state_received)
 
 
-func _exit_tree() -> void:
-	stop_session()
+func _build_log_context() -> Dictionary:
+	var peer_id: int = 0
+	if multiplayer.multiplayer_peer != null:
+		peer_id = multiplayer.get_unique_id()
+	return {
+		"process_id": OS.get_process_id(),
+		"peer_id": peer_id,
+	}
