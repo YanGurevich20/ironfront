@@ -94,6 +94,7 @@ func set_network_client(network_client: ENetClient) -> void:
 
 func set_online_session_active(is_active: bool) -> void:
 	_online_session_active = is_active
+	battle_interface.set_online_session_active(is_active)
 
 
 func show_online_join_overlay() -> void:

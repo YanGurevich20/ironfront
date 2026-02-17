@@ -13,17 +13,23 @@ signal online_loadout_state_updated(
 	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 )
 signal online_player_count_updated(active_players: int, max_players: int, active_bots: int)
-signal online_kill_feed_event(
+signal player_kill_event(
 	event_seq: int,
-	killer_peer_id: int,
 	killer_name: String,
 	killer_tank_name: String,
+	killer_is_local: bool,
 	shell_short_name: String,
-	victim_peer_id: int,
 	victim_name: String,
-	victim_tank_name: String
+	victim_tank_name: String,
+	victim_is_local: bool
 )
-signal online_player_impact_event(event_data: Dictionary)
+signal player_impact_event(
+	local_is_target: bool,
+	result_type: int,
+	damage: int,
+	related_tank_name: String,
+	shell_short_name: String
+)
 
 signal shell_fired(shell: Shell, tank: Tank)
 signal tank_destroyed(tank: Tank)

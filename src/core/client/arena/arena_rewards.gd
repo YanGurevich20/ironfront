@@ -1,14 +1,26 @@
-class_name RewardTracker
-extends RefCounted
+class_name ArenaRewards
+extends Node
 
-var reward_per_kill_dollars: int
+@export var reward_per_kill_dollars: int = 5000
+
 var kills: int = 0
 var reward_dollars: int = 0
 var last_kill_event_seq: int = 0
 
 
-func _init(next_reward_per_kill_dollars: int) -> void:
-	reward_per_kill_dollars = max(0, next_reward_per_kill_dollars)
+func _ready() -> void:
+	reward_per_kill_dollars = max(0, reward_per_kill_dollars)
+
+
+func start_session() -> void:
+	reset()
+	if not GameplayBus.player_kill_event.is_connected(on_player_kill_event):
+		GameplayBus.player_kill_event.connect(on_player_kill_event)
+
+
+func stop_session() -> void:
+	if GameplayBus.player_kill_event.is_connected(on_player_kill_event):
+		GameplayBus.player_kill_event.disconnect(on_player_kill_event)
 
 
 func reset() -> void:
@@ -17,16 +29,15 @@ func reset() -> void:
 	last_kill_event_seq = 0
 
 
-func on_kill_feed_event(
+func on_player_kill_event(
 	event_seq: int,
-	killer_peer_id: int,
 	killer_name: String,
 	killer_tank_name: String,
+	killer_is_local: bool,
 	shell_short_name: String,
-	victim_actor_id: int,
 	victim_name: String,
 	victim_tank_name: String,
-	local_peer_id: int
+	_victim_is_local: bool
 ) -> void:
 	if event_seq <= last_kill_event_seq:
 		return
@@ -35,9 +46,9 @@ func on_kill_feed_event(
 		return
 	if shell_short_name.is_empty():
 		return
-	if victim_actor_id == 0 or victim_name.is_empty() or victim_tank_name.is_empty():
+	if victim_name.is_empty() or victim_tank_name.is_empty():
 		return
-	if killer_peer_id != local_peer_id:
+	if not killer_is_local:
 		return
 	kills += 1
 	reward_dollars += reward_per_kill_dollars

@@ -1,9 +1,8 @@
-class_name ArenaWorldReplication
+class_name ArenaReplication
 extends Node
 
 var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
-var runtime_active: bool = false
 
 var latest_snapshot_server_tick: int = 0
 var snapshot_render_delay_ticks: int = 2
@@ -27,11 +26,10 @@ var pending_local_authoritative_linear_velocity: Vector2 = Vector2.ZERO
 var pending_local_last_processed_input_tick: int = 0
 
 
-func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
-	stop_runtime()
+func start_match(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
+	stop_match()
 	arena_level = next_arena_level
 	local_player_tank = next_local_player_tank
-	runtime_active = arena_level != null and local_player_tank != null
 	latest_snapshot_server_tick = 0
 	latest_snapshot_received_local_time_seconds = 0.0
 	last_snapshot_received_server_tick = -1
@@ -39,47 +37,48 @@ func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank
 	estimated_server_ticks_per_second = 60.0
 	remote_tanks_by_peer_id.clear()
 	remote_snapshot_history_by_peer_id.clear()
-	set_process(runtime_active)
-	set_physics_process(runtime_active)
-	print(
-		(
-			"%s[sync] runtime_started local_tank=%s"
-			% [_log_prefix(), str(local_player_tank.get_instance_id())]
-		)
-	)
-
-
-func stop_runtime() -> void:
-	for peer_id_variant: Variant in remote_tanks_by_peer_id.keys():
-		var peer_id: int = int(peer_id_variant)
-		var remote_tank: Tank = remote_tanks_by_peer_id.get(peer_id)
-		if remote_tank == null:
-			continue
-		remote_tank.queue_free()
-	remote_tanks_by_peer_id.clear()
-	remote_snapshot_history_by_peer_id.clear()
-	latest_snapshot_server_tick = 0
-	latest_snapshot_received_local_time_seconds = 0.0
-	last_snapshot_received_server_tick = -1
-	last_snapshot_received_local_time_seconds = -1.0
-	estimated_server_ticks_per_second = 60.0
-	arena_level = null
-	local_player_tank = null
-	runtime_active = false
 	has_pending_local_authoritative_state = false
 	pending_local_authoritative_server_tick = 0
 	pending_local_authoritative_position = Vector2.ZERO
 	pending_local_authoritative_rotation = 0.0
 	pending_local_authoritative_linear_velocity = Vector2.ZERO
 	pending_local_last_processed_input_tick = 0
+	set_process(true)
+	set_physics_process(true)
+	print(
+		(
+			"%s[sync] match_started local_tank=%s"
+			% [_log_prefix(), str(local_player_tank.get_instance_id())]
+		)
+	)
+
+
+func stop_match() -> void:
+	for shell_variant: Variant in remote_tanks_by_peer_id.values():
+		var remote_tank: Tank = shell_variant
+		if remote_tank != null:
+			remote_tank.queue_free()
+	remote_tanks_by_peer_id.clear()
+	remote_snapshot_history_by_peer_id.clear()
+	latest_snapshot_server_tick = 0
+	latest_snapshot_received_local_time_seconds = 0.0
+	last_snapshot_received_server_tick = -1
+	last_snapshot_received_local_time_seconds = -1.0
+	estimated_server_ticks_per_second = 60.0
+	has_pending_local_authoritative_state = false
+	pending_local_authoritative_server_tick = 0
+	pending_local_authoritative_position = Vector2.ZERO
+	pending_local_authoritative_rotation = 0.0
+	pending_local_authoritative_linear_velocity = Vector2.ZERO
+	pending_local_last_processed_input_tick = 0
+	arena_level = null
+	local_player_tank = null
 	set_process(false)
 	set_physics_process(false)
-	print("%s[sync] runtime_stopped" % _log_prefix())
+	print("%s[sync] match_stopped" % _log_prefix())
 
 
 func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
-	if not runtime_active:
-		return
 	var now_seconds: float = _get_now_seconds()
 	if (
 		last_snapshot_received_server_tick >= 0
@@ -135,8 +134,6 @@ func on_state_snapshot_received(server_tick: int, player_states: Array) -> void:
 
 
 func play_remote_fire_effect(peer_id: int) -> void:
-	if not runtime_active:
-		return
 	var remote_tank: Tank = remote_tanks_by_peer_id.get(peer_id)
 	if remote_tank == null:
 		return
@@ -154,8 +151,6 @@ func respawn_remote_tank(
 	spawn_rotation: float,
 	spawn_turret_rotation: float = 0.0
 ) -> void:
-	if not runtime_active:
-		return
 	var remote_tank: Tank = remote_tanks_by_peer_id.get(peer_id)
 	if remote_tank != null:
 		remote_tank.queue_free()
@@ -165,22 +160,16 @@ func respawn_remote_tank(
 
 
 func get_tank_by_peer_id(peer_id: int) -> Tank:
-	if not runtime_active:
-		return null
 	if peer_id == multiplayer.get_unique_id():
 		return local_player_tank
 	return remote_tanks_by_peer_id.get(peer_id)
 
 
 func _process(_delta: float) -> void:
-	if not runtime_active:
-		return
 	_update_remote_tank_interpolation()
 
 
 func _physics_process(delta: float) -> void:
-	if not runtime_active:
-		return
 	_apply_local_reconciliation(delta)
 
 
@@ -202,9 +191,7 @@ func _queue_local_reconciliation(
 func _apply_local_reconciliation(delta: float) -> void:
 	if local_player_tank == null:
 		return
-	if not has_pending_local_authoritative_state:
-		return
-	if delta <= 0.0:
+	if not has_pending_local_authoritative_state or delta <= 0.0:
 		return
 	var position_error: float = local_player_tank.global_position.distance_to(
 		pending_local_authoritative_position
@@ -273,8 +260,6 @@ func _record_remote_snapshot(
 
 func _ensure_remote_tank(peer_id: int, player_state: Dictionary) -> void:
 	if remote_tanks_by_peer_id.has(peer_id):
-		return
-	if arena_level == null:
 		return
 	var player_name: String = str(player_state.get("player_name", ""))
 	var spawn_position: Vector2 = player_state.get("position", Vector2.ZERO)
@@ -363,8 +348,7 @@ func _spawn_remote_tank(
 	spawn_rotation: float,
 	spawn_turret_rotation: float
 ) -> void:
-	if arena_level == null:
-		return
+	assert(arena_level != null, "ArenaReplication requires arena_level")
 	var remote_tank: Tank = TankManager.create_tank(
 		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
 	)

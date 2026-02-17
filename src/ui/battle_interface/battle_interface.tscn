@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://c2b3pyj3edax2" path="res://src/ui/battle_interface/battle_interface.gd" id="1_s3x1n"]
 [ext_resource type="PackedScene" uid="uid://fbdhh7erijnq" path="res://src/ui/touch_controls/tank_control.tscn" id="2_1nqak"]
 [ext_resource type="PackedScene" uid="uid://dxf3b7nuy8xyq" path="res://src/ui/battle_interface/enemy_indicators.tscn" id="3_6i3on"]
-[ext_resource type="Script" path="res://src/ui/battle_interface/tank_hud_layer.gd" id="4_sxm2u"]
-[ext_resource type="PackedScene" path="res://src/ui/battle_interface/online_battle_status.tscn" id="5_6r86x"]
-[ext_resource type="PackedScene" path="res://src/ui/battle_interface/player_hud.tscn" id="6_ic2ks"]
+[ext_resource type="Script" uid="uid://cionelch1oj4g" path="res://src/ui/battle_interface/tank_hud_layer.gd" id="4_sxm2u"]
+[ext_resource type="PackedScene" uid="uid://kxtdwgjqv7ea" path="res://src/ui/battle_interface/online_battle_status.tscn" id="5_6r86x"]
+[ext_resource type="PackedScene" uid="uid://dmcf5oauq1kku" path="res://src/ui/battle_interface/player_hud.tscn" id="6_ic2ks"]
 
 [node name="BattleInterface" type="Control" unique_id=1816836008]
 layout_mode = 3

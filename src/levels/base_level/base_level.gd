@@ -18,6 +18,8 @@ const TANK_CONTROLLER_TYPE := TankManager.TankControllerType
 var run_time: float = 0.0
 var enemies_left: int = 0
 var player_tank: Tank
+var next_local_kill_event_seq: int = 1
+var pending_kill_context_by_victim_id: Dictionary[int, Dictionary] = {}
 @onready var level_metrics: Metrics = Metrics.new()
 @onready var metric_enum := Metrics.Metric
 @onready var entities: Node2D = $Entities
@@ -40,6 +42,8 @@ func _initialize_spawn_points() -> void:
 
 
 func start_level() -> void:
+	next_local_kill_event_seq = 1
+	pending_kill_context_by_victim_id.clear()
 	_spawn_player()
 	_spawn_enemies()
 	_count_remaining_enemies()
@@ -151,6 +155,7 @@ func _spawn_enemies() -> void:
 #region Signal Handlers
 func _on_shell_fired(shell: Shell, tank: Tank) -> void:
 	entities.add_child(shell)
+	Utils.connect_checked(shell.impact_resolved, _on_shell_impact_resolved)
 
 	if tank == player_tank:
 		level_metrics.increment_metric(metric_enum.SHOTS_FIRED)
@@ -168,7 +173,77 @@ func _on_tank_destroyed(tank: Tank) -> void:
 	_handle_tank_destroyed.call_deferred(tank)
 
 
+func _on_shell_impact_resolved(
+	shell: Shell,
+	target_tank: Tank,
+	result_type: ShellSpec.ImpactResultType,
+	damage: int,
+	_hit_position: Vector2,
+	_post_impact_velocity: Vector2,
+	_post_impact_rotation: float,
+	_continue_simulation: bool
+) -> void:
+	if player_tank == null:
+		return
+	var firing_tank: Tank = shell.firing_tank as Tank
+	if firing_tank == null:
+		return
+	var local_is_firing: bool = firing_tank == player_tank
+	var local_is_target: bool = target_tank == player_tank
+	if not local_is_firing and not local_is_target:
+		return
+	var related_tank: Tank = target_tank if local_is_firing else firing_tank
+	if damage > 0:
+		pending_kill_context_by_victim_id[target_tank.get_instance_id()] = {
+			"killer_name": _resolve_player_name(firing_tank),
+			"killer_tank_name": _resolve_tank_name(firing_tank),
+			"killer_is_local": local_is_firing,
+			"shell_short_name": _resolve_shell_type_label(shell),
+		}
+	GameplayBus.player_impact_event.emit(
+		local_is_target,
+		int(result_type),
+		damage,
+		_resolve_tank_name(related_tank),
+		_resolve_shell_type_label(shell)
+	)
+
+
+func _resolve_tank_name(tank: Tank) -> String:
+	if tank == null or tank.tank_spec == null:
+		return "TANK"
+	var display_name: String = tank.tank_spec.display_name.strip_edges()
+	if display_name.is_empty():
+		return "TANK"
+	return display_name
+
+
+func _resolve_player_name(tank: Tank) -> String:
+	if tank == null:
+		return "PLAYER"
+	var resolved_name: String = tank.display_player_name.strip_edges()
+	if not resolved_name.is_empty():
+		return resolved_name
+	if not tank.is_player:
+		return "AI"
+	var player_name: String = PlayerData.get_instance().player_name.strip_edges()
+	return player_name if not player_name.is_empty() else "PLAYER"
+
+
+func _resolve_shell_type_label(shell: Shell) -> String:
+	if shell == null or shell.shell_spec == null or shell.shell_spec.base_shell_type == null:
+		return "SHELL"
+	var shell_type_name: String = (
+		str(BaseShellType.ShellType.find_key(shell.shell_spec.base_shell_type.shell_type))
+		. strip_edges()
+	)
+	if shell_type_name.is_empty():
+		return "SHELL"
+	return shell_type_name
+
+
 func _handle_tank_destroyed(tank: Tank) -> void:
+	_emit_player_kill_event_for_victim(tank)
 	if tank == player_tank:
 		level_metrics.increment_metric(metric_enum.DEATHS)
 		finish_level(false)
@@ -178,4 +253,26 @@ func _handle_tank_destroyed(tank: Tank) -> void:
 
 		if enemies_left == 0:
 			finish_level(true)
+
+
+func _emit_player_kill_event_for_victim(victim_tank: Tank) -> void:
+	if victim_tank == null:
+		return
+	var victim_id: int = victim_tank.get_instance_id()
+	var kill_context: Dictionary = pending_kill_context_by_victim_id.get(victim_id, {})
+	pending_kill_context_by_victim_id.erase(victim_id)
+	if kill_context.is_empty():
+		return
+	var event_seq: int = next_local_kill_event_seq
+	next_local_kill_event_seq += 1
+	GameplayBus.player_kill_event.emit(
+		event_seq,
+		str(kill_context.get("killer_name", "PLAYER")),
+		str(kill_context.get("killer_tank_name", "TANK")),
+		bool(kill_context.get("killer_is_local", false)),
+		str(kill_context.get("shell_short_name", "SHELL")),
+		_resolve_player_name(victim_tank),
+		_resolve_tank_name(victim_tank),
+		victim_tank == player_tank
+	)
 #endregion

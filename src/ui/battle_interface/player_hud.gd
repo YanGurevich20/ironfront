@@ -20,7 +20,7 @@ var tracked_player_tank: Tank
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	player_health_bar.tint_progress = Colors.FRIENDLY_GREEN
-	Utils.connect_checked(GameplayBus.online_player_impact_event, _on_online_player_impact_event)
+	Utils.connect_checked(GameplayBus.player_impact_event, _on_player_impact_event)
 	_reset_display()
 	visible = false
 
@@ -88,7 +88,13 @@ func _on_player_tank_tree_exiting() -> void:
 	_reset_display()
 
 
-func _on_online_player_impact_event(event_data: Dictionary) -> void:
+func _on_player_impact_event(
+	local_is_target: bool,
+	result_type: int,
+	damage: int,
+	related_tank_name: String,
+	shell_short_name: String
+) -> void:
 	if not hud_active:
 		return
 	var item: HBoxContainer = player_mag_event_item_scene.instantiate() as HBoxContainer
@@ -99,13 +105,13 @@ func _on_online_player_impact_event(event_data: Dictionary) -> void:
 	var verb_label: Label = item.get_node("VerbLabel")
 	var enemy_label: Label = item.get_node("EnemyLabel")
 	var shell_label: Label = item.get_node("ShellLabel")
-	hp_label.text = str(event_data.get("hp_text", "0HP"))
-	hp_label.modulate = event_data.get("hp_color", Colors.GOLD_DARK)
-	verb_label.text = str(event_data.get("verb_text", " "))
+	hp_label.text = _build_hp_text(local_is_target, damage)
+	hp_label.modulate = _resolve_hp_color(local_is_target, result_type)
+	verb_label.text = _build_verb_text(local_is_target, result_type)
 	verb_label.modulate = EVENT_TEXT_WHITE
-	enemy_label.text = str(event_data.get("enemy_text", "[TANK]"))
+	enemy_label.text = "[%s]" % related_tank_name
 	enemy_label.modulate = EVENT_ENEMY_RED
-	shell_label.text = str(event_data.get("shell_text", "SHELL"))
+	shell_label.text = shell_short_name
 	shell_label.modulate = EVENT_TEXT_WHITE
 	_trim_player_mag_event_list_to_limit()
 
@@ -130,6 +136,37 @@ func _clear_player_mag_event_list() -> void:
 	for child: Control in player_mag_event_list.get_children():
 		player_mag_event_list.remove_child(child)
 		child.queue_free()
+
+
+func _build_hp_text(local_is_target: bool, damage: int) -> String:
+	var safe_damage: int = max(0, damage)
+	var hp_prefix: String = "-" if local_is_target else ""
+	return "%s%dHP" % [hp_prefix, safe_damage]
+
+
+func _resolve_hp_color(local_is_target: bool, result_type: int) -> Color:
+	if _is_non_pen_result(result_type):
+		return Colors.GOLD_DARK
+	return Colors.ENEMY_RED if local_is_target else Colors.GOLD
+
+
+func _build_verb_text(local_is_target: bool, result_type: int) -> String:
+	if not _is_non_pen_result(result_type):
+		return " " if local_is_target else " to "
+	var result_name: String = str(ShellSpec.ImpactResultType.find_key(result_type)).to_lower()
+	if result_name == "unpenetrated":
+		result_name = "unpenned"
+	if result_name.is_empty():
+		result_name = "impact"
+	return " %s " % result_name
+
+
+func _is_non_pen_result(result_type: int) -> bool:
+	return (
+		result_type == ShellSpec.ImpactResultType.BOUNCED
+		or result_type == ShellSpec.ImpactResultType.UNPENETRATED
+		or result_type == ShellSpec.ImpactResultType.SHATTERED
+	)
 
 
 func _reset_display() -> void:

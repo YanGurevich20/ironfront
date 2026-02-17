@@ -1,7 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://dhe3ageaikkit"]
 
-[ext_resource type="FontFile" uid="uid://noeufyw3eg0r" path="res://src/global_assets/fonts/PressStart2P-Regular.ttf" id="2_mx1a8"]
 [ext_resource type="Texture2D" uid="uid://c8wkdw0d74y2" path="res://src/global_assets/theme/main.png" id="2_plmku"]
+[ext_resource type="FontFile" uid="uid://cp7u8rbnunf2p" path="res://src/global_assets/fonts/toxigenesis bd.otf" id="2_qfpu4"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qgxfu"]
 texture = ExtResource("2_plmku")
@@ -167,8 +167,8 @@ texture_margin_bottom = 8.0
 region_rect = Rect2(129, 200, 62, 48)
 
 [resource]
-default_font = ExtResource("2_mx1a8")
-default_font_size = 12
+default_font = ExtResource("2_qfpu4")
+default_font_size = 14
 Button/colors/font_color = Color(0.984314, 0.964706, 0.92549, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)

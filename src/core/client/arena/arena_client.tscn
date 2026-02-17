@@ -1,26 +1,6 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/core/client/arena/arena_client.gd" id="1_arena_client"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_world.gd" id="2_arena_world"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_input_sync.gd" id="3_arena_input"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_world_replication.gd" id="4_arena_repl"]
-[ext_resource type="Script" path="res://src/core/client/arena/arena_world_shells.gd" id="5_arena_shells"]
 
 [node name="ArenaClient" type="Node"]
 script = ExtResource("1_arena_client")
-
-[node name="ArenaWorld" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("2_arena_world")
-
-[node name="Replication" type="Node" parent="ArenaWorld"]
-unique_name_in_owner = true
-script = ExtResource("4_arena_repl")
-
-[node name="Shells" type="Node" parent="ArenaWorld"]
-unique_name_in_owner = true
-script = ExtResource("5_arena_shells")
-
-[node name="ArenaInputSync" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("3_arena_input")

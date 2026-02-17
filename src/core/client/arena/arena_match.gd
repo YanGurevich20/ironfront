@@ -1,70 +1,75 @@
-class_name ArenaWorld
+class_name ArenaMatch
 extends Node
 
 signal local_player_destroyed
 signal local_player_respawned
 
+const ARENA_LEVEL_SCENE: PackedScene = preload("res://src/levels/arena/arena_level_mvp.tscn")
+
+var level_container: Node2D
 var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
 var local_player_dead: bool = false
-var level_container: Node2D
-var arena_scene: PackedScene = preload("res://src/levels/arena/arena_level_mvp.tscn")
 
-@onready var replication: ArenaWorldReplication = %Replication
-@onready var shells: ArenaWorldShells = %Shells
+@onready var replication: ArenaReplication = %Replication
+@onready var shells: ArenaShells = %Shells
 
 
 func _ready() -> void:
-	Utils.connect_checked(GameplayBus.tank_destroyed, _on_tank_destroyed)
-	shells.configure(replication)
+	shells.bind_replication(replication)
 
 
 func configure_level_container(next_level_container: Node2D) -> void:
 	level_container = next_level_container
 
 
-func is_local_player_dead() -> bool:
-	return local_player_dead
-
-
-func activate(spawn_position: Vector2, spawn_rotation: float) -> bool:
-	assert(level_container != null, "ArenaWorld requires level_container")
-	deactivate()
-	var arena_level_node: Node = arena_scene.instantiate()
-	var arena_level_candidate: ArenaLevelMvp = arena_level_node as ArenaLevelMvp
-	if arena_level_candidate == null:
+func start_match(spawn_position: Vector2, spawn_rotation: float) -> bool:
+	assert(level_container != null, "ArenaMatch requires level_container")
+	stop_match()
+	var level_node: Node = ARENA_LEVEL_SCENE.instantiate()
+	var next_arena_level: ArenaLevelMvp = level_node as ArenaLevelMvp
+	if next_arena_level == null:
 		push_error("%s arena scene root must use ArenaLevelMvp script" % _log_prefix())
-		arena_level_node.queue_free()
+		level_node.queue_free()
 		return false
-	level_container.add_child(arena_level_candidate)
-	arena_level = arena_level_candidate
 	var spawned_player_tank: Tank = PlayerProfileUtils.create_local_player_tank(
 		TankManager.TankControllerType.MULTIPLAYER
 	)
 	if spawned_player_tank == null:
-		deactivate()
+		next_arena_level.queue_free()
 		return false
-	arena_level.add_child(spawned_player_tank)
+	level_container.add_child(next_arena_level)
+	next_arena_level.add_child(spawned_player_tank)
 	spawned_player_tank.apply_spawn_state(spawn_position, spawn_rotation)
+	arena_level = next_arena_level
 	local_player_tank = spawned_player_tank
 	local_player_dead = false
-	replication.start_runtime(arena_level, local_player_tank)
-	shells.start_runtime(arena_level, local_player_tank)
+	replication.start_match(arena_level, local_player_tank)
+	shells.start_match(arena_level, local_player_tank)
+	if not GameplayBus.tank_destroyed.is_connected(_on_tank_destroyed):
+		GameplayBus.tank_destroyed.connect(_on_tank_destroyed)
 	get_tree().set_pause(false)
 	return true
 
 
-func deactivate() -> void:
+func stop_match() -> void:
+	if GameplayBus.tank_destroyed.is_connected(_on_tank_destroyed):
+		GameplayBus.tank_destroyed.disconnect(_on_tank_destroyed)
 	local_player_dead = false
-	shells.stop_runtime()
-	replication.stop_runtime()
+	shells.stop_match()
+	replication.stop_match()
 	if local_player_tank != null:
 		local_player_tank.queue_free()
 		local_player_tank = null
 	if arena_level != null:
-		level_container.remove_child(arena_level)
+		if arena_level.get_parent() != null:
+			arena_level.get_parent().remove_child(arena_level)
 		arena_level.queue_free()
 		arena_level = null
+
+
+func is_local_player_dead() -> bool:
+	return local_player_dead
 
 
 func apply_state_snapshot(server_tick: int, player_states: Array) -> void:
@@ -74,8 +79,6 @@ func apply_state_snapshot(server_tick: int, player_states: Array) -> void:
 func handle_remote_respawn_received(
 	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
 ) -> void:
-	if arena_level == null:
-		return
 	if peer_id == multiplayer.get_unique_id():
 		_respawn_local_player_tank(spawn_position, spawn_rotation)
 		return
@@ -130,7 +133,7 @@ func handle_loadout_state_received(
 func set_local_input(
 	left_track_input: float, right_track_input: float, turret_rotation_input: float
 ) -> void:
-	if arena_level == null or local_player_dead:
+	if local_player_dead:
 		return
 	local_player_tank.left_track_input = left_track_input
 	local_player_tank.right_track_input = right_track_input
@@ -155,7 +158,7 @@ func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) 
 
 
 func _on_tank_destroyed(tank: Tank) -> void:
-	if arena_level == null or tank != local_player_tank:
+	if tank != local_player_tank:
 		return
 	local_player_dead = true
 	local_player_destroyed.emit()
@@ -165,4 +168,4 @@ func _log_prefix() -> String:
 	var peer_id: int = 0
 	if multiplayer.multiplayer_peer != null:
 		peer_id = multiplayer.get_unique_id()
-	return "[client-world pid=%d peer=%d]" % [OS.get_process_id(), peer_id]
+	return "[client-match pid=%d peer=%d]" % [OS.get_process_id(), peer_id]

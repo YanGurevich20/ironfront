@@ -15,41 +15,25 @@ enum ArenaPhase {
 	ACTIVE,
 }
 
-const KILL_REWARD_DOLLARS: int = 5000
+const ARENA_SESSION_RUNTIME_SCENE: PackedScene = preload(
+	"res://src/core/client/arena/arena_session_runtime.tscn"
+)
 
 var default_connect_host: String = "ironfront.vikng.dev"
 var default_connect_port: int = 7000
 var protocol_version: int = MultiplayerProtocol.PROTOCOL_VERSION
 var phase: ArenaPhase = ArenaPhase.DISCONNECTED
 var cancel_join_requested: bool = false
-var arena_membership_active: bool = false
-var reward_tracker: RewardTracker = RewardTracker.new(KILL_REWARD_DOLLARS)
+var runtime: ArenaSessionRuntime
 
 @onready var enet_client: ENetClient = %Network
 @onready var session_api: ClientSessionApi = %Session
 @onready var gameplay_api: ClientGameplayApi = %Gameplay
-@onready var world: ArenaWorld = %ArenaWorld
-@onready var input_sync: ArenaInputSync = %ArenaInputSync
+@onready var level_container: Node2D = %LevelContainer
 
 
 func _ready() -> void:
-	assert(enet_client != null, "ArenaClient requires %Network")
-	assert(session_api != null, "ArenaClient requires %Session")
-	assert(gameplay_api != null, "ArenaClient requires %Gameplay")
-	assert(world != null, "ArenaClient requires %ArenaWorld")
-	assert(input_sync != null, "ArenaClient requires %ArenaInputSync")
-	world.configure_level_container(%LevelContainer)
-	input_sync.configure(gameplay_api, enet_client, world)
-	Utils.connect_checked(
-		multiplayer.connected_to_server,
-		func() -> void:
-			if phase != ArenaPhase.CONNECTING:
-				return
-			phase = ArenaPhase.NEGOTIATING
-			join_status_changed.emit("CONNECTED. NEGOTIATING SESSION...", false)
-			var player_data: PlayerData = PlayerData.get_instance()
-			session_api.send_client_hello(protocol_version, player_data.player_name)
-	)
+	Utils.connect_checked(multiplayer.connected_to_server, _on_connected_to_server)
 	Utils.connect_checked(
 		multiplayer.connection_failed, func() -> void: _on_connection_ended("CONNECTION FAILED")
 	)
@@ -58,32 +42,15 @@ func _ready() -> void:
 	)
 	Utils.connect_checked(session_api.server_hello_ack_received, _on_server_hello_ack_received)
 	Utils.connect_checked(session_api.join_arena_ack_received, _on_join_arena_ack_received)
-	Utils.connect_checked(gameplay_api.state_snapshot_received, _on_state_snapshot_received)
-	Utils.connect_checked(
-		gameplay_api.arena_fire_rejected_received, _on_arena_fire_rejected_received
-	)
-	Utils.connect_checked(gameplay_api.arena_kill_event_received, _on_arena_kill_event_received)
-	Utils.connect_checked(
-		gameplay_api.arena_shell_spawn_received, world.handle_shell_spawn_received
-	)
-	Utils.connect_checked(
-		gameplay_api.arena_shell_impact_received, world.handle_shell_impact_received
-	)
-	Utils.connect_checked(gameplay_api.arena_respawn_received, world.handle_remote_respawn_received)
-	Utils.connect_checked(
-		gameplay_api.arena_loadout_state_received, world.handle_loadout_state_received
-	)
-	Utils.connect_checked(world.local_player_destroyed, _on_local_player_destroyed)
-	Utils.connect_checked(world.local_player_respawned, _on_local_player_respawned)
 
 
 func is_active() -> bool:
-	return phase == ArenaPhase.ACTIVE
+	return phase == ArenaPhase.ACTIVE and runtime != null
 
 
 func connect_to_server() -> void:
 	cancel_join_requested = false
-	if is_active():
+	if runtime != null:
 		return
 	var connect_result: Dictionary = enet_client.ensure_connecting(
 		default_connect_host, default_connect_port
@@ -107,7 +74,7 @@ func connect_to_server() -> void:
 
 
 func cancel_join_request() -> void:
-	if is_active():
+	if runtime != null:
 		return
 	if phase == ArenaPhase.DISCONNECTED:
 		return
@@ -117,32 +84,23 @@ func cancel_join_request() -> void:
 
 
 func request_respawn() -> void:
-	if not is_active():
+	if runtime == null:
 		return
-	if not world.is_local_player_dead():
-		return
-	if not arena_membership_active:
-		return
-	if not input_sync.can_send_gameplay_requests():
-		return
-	gameplay_api.request_respawn()
+	runtime.request_respawn()
 
 
 func stop_session() -> void:
-	if not is_active():
-		return
 	_leave_arena()
 
 
 func end_session(status_message: String) -> void:
-	if not is_active():
+	if runtime == null:
 		return
 	var player_data: PlayerData = PlayerData.get_instance()
-	var summary: Dictionary = reward_tracker.build_summary(status_message)
-	reward_tracker.apply_rewards(player_data)
+	var summary: Dictionary = runtime.build_summary(status_message)
+	runtime.apply_rewards(player_data)
 	GameplayBus.level_finished_and_saved.emit()
 	_leave_arena()
-	reward_tracker.reset()
 	session_ended.emit(summary)
 
 
@@ -161,30 +119,41 @@ func _send_join_arena() -> void:
 
 
 func _start_arena(spawn_position: Vector2, spawn_rotation: float) -> bool:
-	if not world.activate(spawn_position, spawn_rotation):
+	_teardown_runtime()
+	var next_runtime: ArenaSessionRuntime = ARENA_SESSION_RUNTIME_SCENE.instantiate()
+	runtime = next_runtime
+	runtime.configure(gameplay_api, enet_client, level_container)
+	add_child(runtime)
+	Utils.connect_checked(runtime.local_player_destroyed, _on_local_player_destroyed)
+	Utils.connect_checked(runtime.local_player_respawned, _on_local_player_respawned)
+	if not runtime.start_session(spawn_position, spawn_rotation):
+		_teardown_runtime()
 		return false
 	phase = ArenaPhase.ACTIVE
-	arena_membership_active = true
-	reward_tracker.reset()
-	input_sync.activate()
-	GameplayBus.level_started.emit()
 	return true
 
 
 func _leave_arena() -> void:
-	if arena_membership_active and enet_client.is_connected_to_server():
+	if runtime != null and enet_client.is_connected_to_server():
 		session_api.send_leave_arena()
-	arena_membership_active = false
 	phase = ArenaPhase.DISCONNECTED
-	input_sync.deactivate()
-	world.deactivate()
+	_teardown_runtime()
+
+
+func _on_connected_to_server() -> void:
+	if phase != ArenaPhase.CONNECTING:
+		return
+	phase = ArenaPhase.NEGOTIATING
+	join_status_changed.emit("CONNECTED. NEGOTIATING SESSION...", false)
+	var player_data: PlayerData = PlayerData.get_instance()
+	session_api.send_client_hello(protocol_version, player_data.player_name)
 
 
 func _on_connection_ended(reason: String) -> void:
 	if cancel_join_requested:
 		cancel_join_requested = false
 		return
-	if phase == ArenaPhase.ACTIVE:
+	if runtime != null:
 		push_warning("[client] %s during active arena session" % reason.to_lower())
 		_leave_arena()
 		return
@@ -226,72 +195,11 @@ func _on_join_arena_ack_received(
 	join_completed.emit(true, message)
 
 
-func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
-	if not is_active():
-		return
-	world.apply_state_snapshot(server_tick, player_states)
-	var active_human_players: int = 0
-	var active_bots: int = 0
-	for player_state_variant: Variant in player_states:
-		var player_state: Dictionary = player_state_variant
-		if bool(player_state.get("is_bot", false)):
-			active_bots += int(bool(player_state.get("is_alive", true)))
-			continue
-		active_human_players += 1
-	GameplayBus.online_player_count_updated.emit(active_human_players, max_players, active_bots)
-
-
-func _on_arena_fire_rejected_received(reason: String) -> void:
-	if not is_active():
-		return
-	GameplayBus.online_fire_rejected.emit(reason)
-
-
-func _on_arena_kill_event_received(kill_event_payload: Dictionary) -> void:
-	if not is_active():
-		return
-	var event_seq: int = int(kill_event_payload.get("event_seq", 0))
-	var killer_peer_id: int = int(kill_event_payload.get("killer_peer_id", 0))
-	var killer_name: String = str(kill_event_payload.get("killer_name", ""))
-	var killer_tank_name: String = str(kill_event_payload.get("killer_tank_name", ""))
-	var shell_short_name: String = str(kill_event_payload.get("shell_short_name", ""))
-	var victim_peer_id: int = int(kill_event_payload.get("victim_peer_id", 0))
-	var victim_name: String = str(kill_event_payload.get("victim_name", ""))
-	var victim_tank_name: String = str(kill_event_payload.get("victim_tank_name", ""))
-	reward_tracker.on_kill_feed_event(
-		event_seq,
-		killer_peer_id,
-		killer_name,
-		killer_tank_name,
-		shell_short_name,
-		victim_peer_id,
-		victim_name,
-		victim_tank_name,
-		multiplayer.get_unique_id()
-	)
-	GameplayBus.online_kill_feed_event.emit(
-		event_seq,
-		killer_peer_id,
-		killer_name,
-		killer_tank_name,
-		shell_short_name,
-		victim_peer_id,
-		victim_name,
-		victim_tank_name
-	)
-
-
 func _on_local_player_destroyed() -> void:
-	if not is_active():
-		return
-	input_sync.deactivate(false)
 	local_player_destroyed.emit()
 
 
 func _on_local_player_respawned() -> void:
-	if not is_active():
-		return
-	input_sync.activate(false)
 	local_player_respawned.emit()
 
 
@@ -302,7 +210,12 @@ func _emit_join_failed(reason: String) -> void:
 
 func _reset_to_disconnected() -> void:
 	enet_client.reset_connection()
-	arena_membership_active = false
 	phase = ArenaPhase.DISCONNECTED
-	input_sync.deactivate()
-	world.deactivate()
+	_teardown_runtime()
+
+
+func _teardown_runtime() -> void:
+	if runtime == null:
+		return
+	runtime.queue_free()
+	runtime = null

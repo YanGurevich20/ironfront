@@ -1,4 +1,4 @@
-class_name ArenaWorldShells
+class_name ArenaShells
 extends Node
 
 const SHELL_SCENE: PackedScene = preload("res://src/entities/shell/shell.tscn")
@@ -6,27 +6,22 @@ const SHELL_SCENE: PackedScene = preload("res://src/entities/shell/shell.tscn")
 var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
 var active_shells_by_shot_id: Dictionary[int, Shell] = {}
-var replication: ArenaWorldReplication
+var replication: ArenaReplication
 
 
-func _ready() -> void:
-	Utils.connect_checked(GameplayBus.shell_fired, _on_local_shell_fired)
-	Utils.connect_checked(
-		GameplayBus.update_remaining_shell_count, _on_update_remaining_shell_count
-	)
-
-
-func configure(next_replication: ArenaWorldReplication) -> void:
+func bind_replication(next_replication: ArenaReplication) -> void:
 	replication = next_replication
 
 
-func start_runtime(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
+func start_match(next_arena_level: ArenaLevelMvp, next_local_player_tank: Tank) -> void:
 	arena_level = next_arena_level
 	local_player_tank = next_local_player_tank
 	active_shells_by_shot_id.clear()
+	_connect_gameplay_bus()
 
 
-func stop_runtime() -> void:
+func stop_match() -> void:
+	_disconnect_gameplay_bus()
 	for shell_variant: Variant in active_shells_by_shot_id.values():
 		var shell: Shell = shell_variant
 		if shell != null:
@@ -48,9 +43,7 @@ func handle_shell_spawn_received(
 	shell_velocity: Vector2,
 	shell_rotation: float
 ) -> void:
-	if arena_level == null:
-		return
-	if replication != null and firing_peer_id != multiplayer.get_unique_id():
+	if firing_peer_id != multiplayer.get_unique_id():
 		replication.play_remote_fire_effect(firing_peer_id)
 	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
 	assert(shell_spec != null, "Invalid shell_id from server: %s" % shell_id)
@@ -85,8 +78,6 @@ func handle_shell_impact_received(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	if replication == null:
-		return
 	var target_tank: Tank = replication.get_tank_by_peer_id(target_peer_id)
 	if target_tank == null:
 		push_warning(
@@ -117,8 +108,6 @@ func handle_shell_impact_received(
 func handle_loadout_state_received(
 	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
-	if local_player_tank == null:
-		return
 	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
 	assert(
 		selected_shell_spec != null, "Invalid selected_shell_id from server: %s" % selected_shell_id
@@ -133,14 +122,12 @@ func handle_loadout_state_received(
 
 
 func _on_local_shell_fired(shell: Shell, tank: Tank) -> void:
-	if arena_level == null or tank != local_player_tank:
+	if tank != local_player_tank:
 		return
 	shell.queue_free()
 
 
 func _on_update_remaining_shell_count(count: int) -> void:
-	if local_player_tank == null:
-		return
 	local_player_tank.set_remaining_shell_count(count)
 
 
@@ -175,8 +162,6 @@ func _emit_local_player_impact_event(
 	damage: int,
 	target_tank: Tank
 ) -> void:
-	if multiplayer.multiplayer_peer == null:
-		return
 	var local_peer_id: int = multiplayer.get_unique_id()
 	var local_is_firing: bool = firing_peer_id == local_peer_id
 	var local_is_target: bool = target_peer_id == local_peer_id
@@ -186,10 +171,9 @@ func _emit_local_player_impact_event(
 		local_is_firing, firing_peer_id, target_tank
 	)
 	var shell_short_name: String = _resolve_shell_type_label(shot_id)
-	var event_data: Dictionary = _build_local_impact_event_data(
+	GameplayBus.player_impact_event.emit(
 		local_is_target, result_type, damage, related_tank_name, shell_short_name
 	)
-	GameplayBus.online_player_impact_event.emit(event_data)
 
 
 func _resolve_related_tank_name(
@@ -227,58 +211,18 @@ func _resolve_shell_type_label(shot_id: int) -> String:
 	return shell_type_name
 
 
-func _build_local_impact_event_data(
-	local_is_target: bool,
-	result_type: int,
-	damage: int,
-	tank_name: String,
-	shell_short_name: String
-) -> Dictionary:
-	var is_non_pen_result: bool = (
-		result_type == ShellSpec.ImpactResultType.BOUNCED
-		or result_type == ShellSpec.ImpactResultType.UNPENETRATED
-		or result_type == ShellSpec.ImpactResultType.SHATTERED
-	)
-	var safe_damage: int = max(0, damage)
-	var hp_prefix: String = "-" if local_is_target else ""
-	var hp_text: String = "%s%dHP" % [hp_prefix, safe_damage]
-	var hp_color: Color = _resolve_local_impact_event_hp_color(local_is_target, result_type)
-	if is_non_pen_result:
-		var result_name: String = _resolve_result_name(result_type)
-		return {
-			"hp_text": hp_text,
-			"hp_color": hp_color,
-			"verb_text": " %s " % result_name,
-			"enemy_text": "[%s]" % tank_name,
-			"shell_text": shell_short_name,
-		}
-	return {
-		"hp_text": hp_text,
-		"hp_color": hp_color,
-		"verb_text": " " if local_is_target else " to ",
-		"enemy_text": "[%s]" % tank_name,
-		"shell_text": shell_short_name,
-	}
+func _connect_gameplay_bus() -> void:
+	if not GameplayBus.shell_fired.is_connected(_on_local_shell_fired):
+		GameplayBus.shell_fired.connect(_on_local_shell_fired)
+	if not GameplayBus.update_remaining_shell_count.is_connected(_on_update_remaining_shell_count):
+		GameplayBus.update_remaining_shell_count.connect(_on_update_remaining_shell_count)
 
 
-func _resolve_local_impact_event_hp_color(local_is_target: bool, result_type: int) -> Color:
-	var is_non_pen_result: bool = (
-		result_type == ShellSpec.ImpactResultType.BOUNCED
-		or result_type == ShellSpec.ImpactResultType.UNPENETRATED
-		or result_type == ShellSpec.ImpactResultType.SHATTERED
-	)
-	if is_non_pen_result:
-		return Colors.GOLD_DARK
-	return Colors.ENEMY_RED if local_is_target else Colors.GOLD
-
-
-func _resolve_result_name(result_type: int) -> String:
-	var result_name: String = str(ShellSpec.ImpactResultType.find_key(result_type)).to_lower()
-	if result_name == "unpenetrated":
-		return "unpenned"
-	if result_name.is_empty():
-		return "impact"
-	return result_name
+func _disconnect_gameplay_bus() -> void:
+	if GameplayBus.shell_fired.is_connected(_on_local_shell_fired):
+		GameplayBus.shell_fired.disconnect(_on_local_shell_fired)
+	if GameplayBus.update_remaining_shell_count.is_connected(_on_update_remaining_shell_count):
+		GameplayBus.update_remaining_shell_count.disconnect(_on_update_remaining_shell_count)
 
 
 func _log_prefix() -> String:

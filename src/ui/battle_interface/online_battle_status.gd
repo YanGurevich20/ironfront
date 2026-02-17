@@ -23,7 +23,7 @@ var kill_feed_item_scene: PackedScene = preload("res://src/ui/battle_interface/k
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Utils.connect_checked(GameplayBus.online_player_count_updated, _on_online_player_count_updated)
-	Utils.connect_checked(GameplayBus.online_kill_feed_event, _on_online_kill_feed_event)
+	Utils.connect_checked(GameplayBus.player_kill_event, _on_player_kill_event)
 	set_online_session_active(false)
 
 
@@ -67,35 +67,32 @@ func _on_online_player_count_updated(
 	bot_count_label.text = "BOTS %d" % max(0, active_bots)
 
 
-func _on_online_kill_feed_event(
+func _on_player_kill_event(
 	event_seq: int,
-	killer_peer_id: int,
 	killer_name: String,
 	killer_tank_name: String,
+	killer_is_local: bool,
 	shell_short_name: String,
-	victim_peer_id: int,
 	victim_name: String,
-	victim_tank_name: String
+	victim_tank_name: String,
+	victim_is_local: bool
 ) -> void:
 	if not online_session_active:
 		return
 	if event_seq <= latest_kill_event_seq:
 		return
 	latest_kill_event_seq = event_seq
-	var local_peer_id: int = (
-		multiplayer.get_unique_id() if multiplayer.multiplayer_peer != null else 0
-	)
 	var kill_feed_item: KillFeedItem = kill_feed_item_scene.instantiate()
 	kill_feed_list.add_child(kill_feed_item)
 	kill_feed_list.move_child(kill_feed_item, 0)
 	kill_feed_item.set_kill_event(
 		killer_name,
 		killer_tank_name,
-		killer_peer_id == local_peer_id,
+		killer_is_local,
 		shell_short_name,
 		victim_name,
 		victim_tank_name,
-		victim_peer_id == local_peer_id
+		victim_is_local
 	)
 	Utils.connect_checked(kill_feed_item.expired, _on_kill_feed_item_expired)
 	_trim_kill_feed_to_limit()

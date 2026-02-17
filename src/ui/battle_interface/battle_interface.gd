@@ -19,12 +19,16 @@ func set_network_client(network_client_ref: ENetClient) -> void:
 	online_battle_status.set_network_client(network_client)
 
 
+func set_online_session_active(is_active: bool) -> void:
+	online_battle_status.set_online_session_active(is_active)
+
+
 func finish_level() -> void:
 	tank_control.reset_input()
 	enemy_indicators.reset_indicators()
 	tank_hud_layer.reset_huds()
 	player_hud.set_hud_active(false)
-	online_battle_status.set_online_session_active(false)
+	set_online_session_active(false)
 
 
 func start_level() -> void:
