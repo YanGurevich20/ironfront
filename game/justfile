@@ -4,6 +4,8 @@ default_instance := "ironfront-server"
 default_zone := "europe-west1-b"
 default_remote_dir := "~/ironfront"
 default_server_port := "7000"
+gdlint_bin := "${GDLINT_BIN:-/Users/yan/Library/Python/3.12/bin/gdlint}"
+gdformat_bin := "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}"
 
 # Dry run to compile the project
 build:
@@ -19,15 +21,15 @@ server-local port=default_server_port:
 
 # Lint all GDScript files (static checks).
 lint:
-	rg --files -g '*.gd' | xargs "${GDLINT_BIN:-/Users/yan/Library/Python/3.12/bin/gdlint}"
+	{{gdlint_bin}} .
 
 # Check formatting without modifying files.
 fmt-check:
-	rg --files -g '*.gd' | xargs "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}" --check
+	{{gdformat_bin}} . --check
 
 # Auto-format GDScript files.
 fmt:
-	rg --files -g '*.gd' | xargs "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}"
+	{{gdformat_bin}} .
 
 # Refresh cache, then run build, formatter, and lint.
 fix: refresh-cache build fmt lint
