@@ -32,9 +32,8 @@ func get_connection_status() -> MultiplayerPeer.ConnectionStatus:
 
 
 func resolve_cli_connect_target(default_host: String, default_port: int) -> Dictionary:
-	var client_args: Dictionary = Utils.get_parsed_cmdline_user_args()
-	var resolved_host: String = str(client_args.get("host", default_host))
-	var resolved_port: int = max(0, int(client_args.get("port", default_port)))
+	var resolved_host: String = Env.get_env("host", default_host)
+	var resolved_port: int = Env.get_env("port", default_port)
 	print("[client][cli] resolved_host=%s resolved_port=%d" % [resolved_host, resolved_port])
 	return {"host": resolved_host, "port": resolved_port}
 

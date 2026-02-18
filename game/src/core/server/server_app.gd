@@ -65,11 +65,11 @@ func _ready() -> void:
 
 
 func _apply_cli_args() -> void:
-	var client_args: Dictionary = Utils.get_parsed_cmdline_user_args()
-	listen_port = max(0, int(client_args.get("port", listen_port)))
-	arena_bot_count = max(0, int(client_args.get("bot-count", arena_bot_count)))
-	arena_bot_respawn_delay_seconds = max(
-		0.0, float(client_args.get("bot-respawn-delay", arena_bot_respawn_delay_seconds))
+	var client_args: Dictionary = Env.get_parsed_cmdline_user_args()
+	listen_port = Env.get_env("port", listen_port)
+	arena_bot_count = Env.get_env("bot-count", arena_bot_count)
+	arena_bot_respawn_delay_seconds = Env.get_env(
+		"bot-respawn-delay", arena_bot_respawn_delay_seconds
 	)
 
 
