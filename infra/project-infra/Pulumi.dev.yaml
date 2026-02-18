@@ -1,0 +1,8 @@
+config:
+  gcp:project: ironfront-game
+  gcp:region: europe-west1
+  project-infra:artifactRepoId: ironfront
+  project-infra:subnetCidr: 10.20.0.0/20
+  project-infra:subnetName: ironfront-subnet
+  project-infra:vpcName: ironfront-vpc
+encryptionsalt: v1:/tf1lX1NAAc=:v1:Ul2SbtZRfuxmzdkX:5dPO+1cAdaEKhD5UIMZgachWds6KTw==

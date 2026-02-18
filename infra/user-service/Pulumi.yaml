@@ -1,0 +1,7 @@
+name: user-service-infra
+description: User service deployment resources
+runtime:
+  name: nodejs
+main: src
+backend:
+  url: gs://pulumi_project_state

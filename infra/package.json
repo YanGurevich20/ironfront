@@ -1,0 +1,17 @@
+{
+  "name": "@ironfront/infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "fix": "pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@pulumi/gcp": "^8.40.0",
+    "@pulumi/pulumi": "^3.221.0"
+  }
+}

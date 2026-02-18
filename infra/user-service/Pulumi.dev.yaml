@@ -1,0 +1,13 @@
+config:
+  gcp:project: ironfront-game
+  gcp:region: europe-west1
+  user-service-infra:allowUnauthenticated: "true"
+  user-service-infra:artifactRepoId: ironfront
+  user-service-infra:customDomain: api.ironfront.live
+  user-service-infra:enableCustomDomain: "true"
+  user-service-infra:imageTag: latest
+  user-service-infra:maxInstanceCount: "10"
+  user-service-infra:minInstanceCount: "0"
+  user-service-infra:serviceName: user-service-dev
+  user-service-infra:stage: dev
+encryptionsalt: v1:pO4RnAetGWI=:v1:KzOhMylNUpClg0uj:Y64k8LvU41Ged9zqAldFd7Du31tnyQ==

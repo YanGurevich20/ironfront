@@ -14,7 +14,8 @@ build:
 
 # Refresh Godot editor-side script class/cache metadata.
 refresh-cache:
-	{{godot_bin}} --headless --editor --path . --quit
+	# {{godot_bin}} --headless --editor --path . --quit
+	echo "Paused the refresh-cache flow due to --editor opening the Cursor IDE. If encountering unexpected import/global class_name behaviour, this may be the issue."
 
 # Run local dedicated server runtime.
 server-local port=default_server_port:
