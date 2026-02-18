@@ -4,6 +4,9 @@ extends Node
 
 signal login_pressed
 signal log_out_pressed
+signal auth_retry_requested
+signal auth_sign_in_started
+signal auth_sign_in_finished(success: bool)
 signal quit_pressed
 signal garage_menu_pressed
 signal play_pressed

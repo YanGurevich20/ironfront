@@ -5,11 +5,14 @@ extends Node2D
 @onready var enet_client: ENetClient = %Network
 @onready var offline_runtime: OfflineRuntime = %OfflineRuntime
 @onready var arena_client: ArenaClient = %ArenaClient
+@onready var auth_manager: AuthManager = %AuthManager
 
 
 func _ready() -> void:
 	ui_manager.set_network_client(enet_client)
 	Utils.connect_checked(UiBus.quit_pressed, func() -> void: get_tree().quit())
+	Utils.connect_checked(UiBus.auth_retry_requested, auth_manager.retry_sign_in)
+	Utils.connect_checked(UiBus.log_out_pressed, auth_manager.sign_out)
 	Utils.connect_checked(UiBus.play_online_pressed, _start_online_join)
 	Utils.connect_checked(UiBus.level_pressed, _start_offline_level)
 	Utils.connect_checked(UiBus.pause_input, _pause_game)
@@ -30,6 +33,8 @@ func _ready() -> void:
 	Utils.connect_checked(arena_client.session_ended, _on_arena_session_ended)
 	Utils.connect_checked(arena_client.local_player_destroyed, ui_manager.show_online_death_overlay)
 	Utils.connect_checked(arena_client.local_player_respawned, ui_manager.hide_online_death_overlay)
+	Utils.connect_checked(auth_manager.sign_in_succeeded, _on_auth_sign_in_succeeded)
+	Utils.connect_checked(auth_manager.sign_in_failed, _on_auth_sign_in_failed)
 	PlayerProfileUtils.save_player_metrics()
 
 
@@ -92,3 +97,17 @@ func _on_arena_session_ended(summary: Dictionary) -> void:
 	ui_manager.hide_online_death_overlay()
 	ui_manager.finish_level()
 	ui_manager.display_online_match_end(summary)
+
+
+func _on_auth_sign_in_succeeded(result: AuthResult) -> void:
+	var player_data: PlayerData = PlayerData.get_instance()
+	var resolved_display_name: String = result.display_name.strip_edges()
+	if not resolved_display_name.is_empty():
+		player_data.player_name = resolved_display_name
+		player_data.save()
+	UiBus.auth_sign_in_finished.emit(true)
+	UiBus.login_pressed.emit()
+
+
+func _on_auth_sign_in_failed(_reason: String) -> void:
+	UiBus.auth_sign_in_finished.emit(false)

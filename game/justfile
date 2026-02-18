@@ -4,20 +4,21 @@ default_instance := "ironfront-server"
 default_zone := "europe-west1-b"
 default_remote_dir := "~/ironfront"
 default_server_port := "7000"
+godot_bin := "${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}"
 gdlint_bin := "${GDLINT_BIN:-/Users/yan/Library/Python/3.12/bin/gdlint}"
 gdformat_bin := "${GDFORMAT_BIN:-/Users/yan/Library/Python/3.12/bin/gdformat}"
 
 # Dry run to compile the project
 build:
-	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --verbose --path . --quit
+	{{godot_bin}} --headless --verbose --path . --quit
 
 # Refresh Godot editor-side script class/cache metadata.
 refresh-cache:
-	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --editor --path . --quit
+	{{godot_bin}} --headless --editor --path . --quit
 
 # Run local dedicated server runtime.
 server-local port=default_server_port:
-	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . -- --server --port={{port}}
+	{{godot_bin}} --headless --path . -- --server --port={{port}}
 
 # Lint all GDScript files (static checks).
 lint:
@@ -37,14 +38,14 @@ fix: refresh-cache build fmt lint
 # Export dedicated Linux server executable.
 server-export:
 	mkdir -p dist/server
-	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . --export-release "Linux Server" ./dist/server/ironfront_server.x86_64
+	{{godot_bin}} --headless --path . --export-release "Linux Server" ./dist/server/ironfront_server.x86_64
 	chmod +x ./dist/server/ironfront_server.x86_64
 
 # Ship server in one command: truncate logs, export, stop, upload, run.
 server-ship instance=default_instance zone=default_zone remote_dir=default_remote_dir port=default_server_port:
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "mkdir -p {{remote_dir}}"
 	mkdir -p dist/server
-	"${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}" --headless --path . --export-release "Linux Server" ./dist/server/ironfront_server.x86_64
+	{{godot_bin}} --headless --path . --export-release "Linux Server" ./dist/server/ironfront_server.x86_64
 	chmod +x ./dist/server/ironfront_server.x86_64
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && if test -f server.pid; then kill \$(cat server.pid) 2>/dev/null || true; fi && pkill -f '[i]ronfront_server.x86_64 --headless' 2>/dev/null || true && rm -f server.pid"
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && : > server.log && rm -f server.pid"

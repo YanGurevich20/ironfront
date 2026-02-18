@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/core/client/auth/providers/pgs_auth_provider.gd" id="1_pgs_provider"]
+[ext_resource type="Script" path="res://addons/GodotPlayGameServices/scripts/sign_in/sign_in_client.gd" id="2_sign_in_client"]
+
+[node name="PgsAuthProvider" type="Node"]
+script = ExtResource("1_pgs_provider")
+
+[node name="PlayGamesSignInClient" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_sign_in_client")

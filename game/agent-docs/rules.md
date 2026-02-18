@@ -1,5 +1,10 @@
 # Module Rules
 
+## Primary runtime philosophy
+- Due to the dynamic nature of the game, where nodes can be added and removed at runtime, with long-chain dependencies from different components (such as a game event updating a UI element far in the tree, while communicating to a network node), it becomes very quickly unfeasible to remember to use methods such as .configure() to pass dependencies, .cleanup() for breakdown, and `if node is null return` checks in critical paths to avoid lifecycle bugs.
+- The Primary model we use to make nullability easier is "Scene tree as truth". This means that nodes that should always be present are added as part of the scene and referenced by unique names, and are considered always available to their parents. 
+- In regards to configuration, instead of calling activation methods on children, we let them hadnle the internal logic on their _ready() function, and trigger the activation via add_child().
+
 ## LLM Refactor Rules
 - Prioritize reducing architectural complexity and clarifying ownership over minimizing diff size.
 - Do not add new util/helper files unless explicitly requested.
