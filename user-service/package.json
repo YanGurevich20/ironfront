@@ -4,24 +4,31 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
     "build": "tsc -p tsconfig.json",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "fix": "pnpm run lint --fix && pnpm run typecheck"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "zod": "^3.25.67"
+    "@hono/node-server": "^1.19.9",
+    "@hono/zod-validator": "^0.7.6",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.11.10",
+    "pg": "^8.18.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/node": "^22.15.29",
-    "@typescript-eslint/eslint-plugin": "^8.34.1",
-    "@typescript-eslint/parser": "^8.34.1",
-    "eslint": "^9.29.0",
-    "typescript": "^5.8.3",
-    "tsx": "^4.20.3"
+    "@types/node": "^25.2.3",
+    "@types/pg": "^8.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "drizzle-kit": "^0.31.9",
+    "eslint": "^10.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

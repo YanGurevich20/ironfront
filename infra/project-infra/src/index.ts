@@ -1,69 +1,57 @@
-import * as pulumi from "@pulumi/pulumi";
-import * as gcp from "@pulumi/gcp";
-
-const cfg = new pulumi.Config("gcp");
-const project = cfg.require("project");
-const region = cfg.require("region");
-
-const stackCfg = new pulumi.Config();
-const artifactRepoId = stackCfg.require("artifactRepoId");
-const vpcName = stackCfg.require("vpcName");
-const subnetName = stackCfg.require("subnetName");
-const subnetCidr = stackCfg.require("subnetCidr");
-
-const requiredServices = [
-  "artifactregistry.googleapis.com",
-  "compute.googleapis.com",
-  "servicenetworking.googleapis.com"
-];
-
-const enabledServices = requiredServices.map(
-	(service) =>
-		new gcp.projects.Service(service, {
-			service,
-			project,
-			disableOnDestroy: false
-		})
-);
-
-const network = new gcp.compute.Network(
-  vpcName,
-  {
-    name: vpcName,
-    project,
-    autoCreateSubnetworks: false,
-    routingMode: "REGIONAL"
-  },
-  { dependsOn: enabledServices }
-);
-
-const subnet = new gcp.compute.Subnetwork(
+import { createArtifactRepo } from "./artifact.ts";
+import { createCiServiceAccount } from "./ci_identity.ts";
+import { applyCloudBuildIam } from "./cloudbuild.ts";
+import { createNetwork } from "./network.ts";
+import { enableProjectServices } from "./services.ts";
+import {
+  artifactRepoId,
+  artifactRepoPullProjectNumber,
+  artifactRepoRuntimeServiceAccounts,
+  ciServiceAccountId,
+  cloudBuildSourceBucket,
+  project,
+  region,
+  subnetCidr,
   subnetName,
-  {
-    name: subnetName,
-    project,
-    region,
-    network: network.id,
-    ipCidrRange: subnetCidr,
-    privateIpGoogleAccess: true
-  },
-  { dependsOn: [network] }
-);
+  vpcName
+} from "./stack_config.ts";
 
-const artifactRepo = new gcp.artifactregistry.Repository(
-  `${artifactRepoId}-${region}`,
-  {
-    project,
-    location: region,
-    repositoryId: artifactRepoId,
-    description: "Ironfront container images",
-    format: "DOCKER"
-  },
-  { dependsOn: enabledServices }
-);
+const enabledServices = enableProjectServices(project);
+const { serviceAccount: ciServiceAccount } = createCiServiceAccount({
+  project,
+  ciServiceAccountId,
+  dependsOn: enabledServices
+});
+
+const { network, subnet } = createNetwork({
+  project,
+  region,
+  vpcName,
+  subnetName,
+  subnetCidr,
+  dependsOn: enabledServices
+});
+
+const { artifactRepo } = createArtifactRepo({
+  project,
+  region,
+  artifactRepoId,
+  artifactRepoPullProjectNumber,
+  artifactRepoRuntimeServiceAccounts,
+  artifactRepoWriterServiceAccounts: [ciServiceAccount.email],
+  dependsOn: enabledServices
+});
+
+applyCloudBuildIam({
+  project,
+  cloudBuildSourceBucket,
+  cloudBuildBucketObjectAdminServiceAccounts: [ciServiceAccount.email],
+  cloudBuildLogWriterServiceAccounts: [ciServiceAccount.email]
+});
 
 export const gcpProject = project;
 export const gcpRegion = region;
 export const vpcId = network.id;
 export const subnetworkId = subnet.id;
 export const artifactRegistryRepository = artifactRepo.id;
+export const ciServiceAccountEmail = ciServiceAccount.email;

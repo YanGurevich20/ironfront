@@ -109,5 +109,6 @@ func _on_auth_sign_in_succeeded(result: AuthResult) -> void:
 	UiBus.login_pressed.emit()
 
 
-func _on_auth_sign_in_failed(_reason: String) -> void:
+func _on_auth_sign_in_failed(reason: String) -> void:
+	print("[client-app] auth sign-in failed reason=%s" % reason)
 	UiBus.auth_sign_in_finished.emit(false)

@@ -28,6 +28,7 @@ boot_splash/minimum_display_time=1000
 UiBus="*res://src/singletons/ui_bus.gd"
 GameplayBus="*res://src/singletons/gameplay_bus.gd"
 MultiplayerBus="*res://src/singletons/multiplayer_bus.gd"
+AppConfig="*res://src/config/app_config.gd"
 GodotPlayGameServices="*uid://d0ahkopwqod3r"
 
 [debug]

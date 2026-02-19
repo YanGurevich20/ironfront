@@ -1,29 +1,13 @@
 import crypto from "node:crypto";
 
-type SessionRecord = {
-  accountId: string;
-  expiresAtUnix: number;
-};
-
-const sessionByToken = new Map<string, SessionRecord>();
-
-export function issueSession(accountId: string, ttlSeconds: number): { token: string; expiresAtUnix: number } {
-  const now = Math.floor(Date.now() / 1000);
-  const expiresAtUnix = now + ttlSeconds;
+export function issueSession(ttlSeconds: number): { token: string; tokenHash: string; expiresAtUnix: number } {
+  const nowUnix = Math.floor(Date.now() / 1000);
+  const expiresAtUnix = nowUnix + ttlSeconds;
   const token = crypto.randomBytes(32).toString("hex");
-  sessionByToken.set(token, { accountId, expiresAtUnix });
-  return { token, expiresAtUnix };
+  const tokenHash = hashToken(token);
+  return { token, tokenHash, expiresAtUnix };
 }
 
-export function resolveSession(token: string): SessionRecord | null {
-  const record = sessionByToken.get(token);
-  if (!record) {
-    return null;
-  }
-  const now = Math.floor(Date.now() / 1000);
-  if (record.expiresAtUnix <= now) {
-    sessionByToken.delete(token);
-    return null;
-  }
-  return record;
+export function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
 }

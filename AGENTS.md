@@ -18,3 +18,4 @@
 ## Global Required Workflow Rules
 - Use root `just fix` after cross-module changes, otherwise use a targeted `just <module>::fix`.
 - Read the module's `agent-docs/index.md` and any files required in that index before beginning implementation.
+- No gcloud commands for manipulating infrastructure - everything should be done via the infra repo.

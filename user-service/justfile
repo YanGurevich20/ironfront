@@ -1,2 +1,75 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+gcp_project := env_var_or_default("GCP_PROJECT", "ironfront-game")
+gcp_region := env_var_or_default("GCP_REGION", "europe-west1")
+artifact_repo := env_var_or_default("ARTIFACT_REPO", "ironfront")
+image_name := env_var_or_default("IMAGE_NAME", "user-service")
+pulumi_stack := env_var_or_default("PULUMI_STACK", "dev")
+api_url := env_var_or_default("USER_SERVICE_API_URL", "https://api-dev.ironfront.live")
+
 fix:
 	pnpm run fix
+
+# Build and push a user-service image to Artifact Registry.
+# Usage:
+#   just push-image                      # auto immutable tag
+#   just push-image my-tag               # explicit tag
+push-image tag="":
+	TAG="{{tag}}"; \
+	if [[ -z "$TAG" ]]; then \
+		TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
+	fi; \
+	IMAGE="{{gcp_region}}-docker.pkg.dev/{{gcp_project}}/{{artifact_repo}}/{{image_name}}:${TAG}"; \
+	echo "Building and pushing linux/amd64 image $IMAGE"; \
+	docker buildx build --platform linux/amd64 -t "$IMAGE" --push .; \
+	echo "IMAGE_TAG=$TAG"; \
+	echo "IMAGE=$IMAGE"
+
+# Run dev DB migrations against Cloud SQL using cloud-sql-proxy.
+dev-db-migrate:
+	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
+	INFRA_DIR="../infra/user-service"; \
+	if [[ -f "../infra/.env" ]]; then \
+		set -a; source "../infra/.env"; set +a; \
+	fi; \
+	PROJECT="$(cd "$INFRA_DIR" && pulumi config get gcp:project --stack {{pulumi_stack}})"; \
+	REGION="$(cd "$INFRA_DIR" && pulumi config get gcp:region --stack {{pulumi_stack}})"; \
+	INSTANCE="$(cd "$INFRA_DIR" && pulumi config get user-service-infra:dbInstanceName --stack {{pulumi_stack}})"; \
+	DB_NAME="$(cd "$INFRA_DIR" && pulumi config get user-service-infra:dbName --stack {{pulumi_stack}})"; \
+	DB_USER="$(cd "$INFRA_DIR" && pulumi config get user-service-infra:dbUserName --stack {{pulumi_stack}})"; \
+	DB_PASSWORD="${USER_SERVICE_DB_PASSWORD:?USER_SERVICE_DB_PASSWORD is required (set it in infra/.env or env)}"; \
+	INSTANCE_CONN="${PROJECT}:${REGION}:${INSTANCE}"; \
+	echo "Starting cloud-sql-proxy for $INSTANCE_CONN"; \
+	cloud-sql-proxy --address 127.0.0.1 --port 5432 "$INSTANCE_CONN" >/tmp/cloud-sql-proxy.log 2>&1 & \
+	PROXY_PID=$!; \
+	cleanup() { kill "$PROXY_PID" >/dev/null 2>&1 || true; }; \
+	trap cleanup EXIT; \
+	for i in $(seq 1 20); do \
+		if nc -z 127.0.0.1 5432 >/dev/null 2>&1; then break; fi; \
+		sleep 0.5; \
+	done; \
+	DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@127.0.0.1:5432/${DB_NAME}" STAGE=dev pnpm run db:migrate; \
+	echo "Dev DB migrations completed"
+
+# Deploy user-service dev with an immutable image tag and no manual tag handling.
+dev-deploy:
+	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
+	just push-image "$TAG"; \
+	cd ../infra/user-service; \
+	pulumi config set user-service-infra:imageTag "$TAG" --stack {{pulumi_stack}}; \
+	pulumi up --yes --stack {{pulumi_stack}}; \
+	echo "Deployed image tag $TAG"
+
+# Smoke test dev auth exchange + me flow.
+dev-smoke:
+	EXCHANGE_RESPONSE="$(curl -sS -X POST "{{api_url}}/auth/exchange" -H "content-type: application/json" -d '{"provider":"dev","proof":"dev:smoke","client":{"stage":"dev"}}')"; \
+	echo "exchange: $EXCHANGE_RESPONSE"; \
+	SESSION_TOKEN="$(node -e 'const body = JSON.parse(process.argv[1]); if (!body.session_token) process.exit(1); process.stdout.write(body.session_token);' "$EXCHANGE_RESPONSE")"; \
+	ME_RESPONSE="$(curl -sS "{{api_url}}/me" -H "authorization: Bearer $SESSION_TOKEN")"; \
+	echo "me: $ME_RESPONSE"
+
+# Full dev flow: migrate DB, deploy with immutable tag, smoke test.
+dev-release:
+	just dev-db-migrate
+	just dev-deploy
+	just dev-smoke

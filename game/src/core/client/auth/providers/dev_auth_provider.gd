@@ -3,7 +3,6 @@ extends AuthProvider
 
 @export var dev_user_id: String = "dev-local-user"
 @export var dev_display_name: String = "DEV_PLAYER"
-@export var dev_proof_prefix: String = "dev-proof"
 @export var sign_in_delay_seconds: float = 3.0
 
 
@@ -28,5 +27,5 @@ func _complete_sign_in() -> void:
 		return
 	_set_sign_in_in_progress(false)
 	var issued_at_msec: int = int(Time.get_unix_time_from_system() * 1000)
-	var proof: String = "%s:%d" % [dev_proof_prefix, issued_at_msec]
+	var proof: String = "%s:%d" % [dev_user_id, issued_at_msec]
 	sign_in_succeeded.emit(AuthResult.new("dev", dev_user_id, dev_display_name, proof, 0))
