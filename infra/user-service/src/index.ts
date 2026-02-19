@@ -1,4 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
+import * as gcp from "@pulumi/gcp";
 import { createCloudRunService } from "./cloud_run.ts";
 import { createCustomDomainLoadBalancer } from "./custom_domain.ts";
 import { createDatabaseResources } from "./database.ts";
@@ -7,6 +8,7 @@ import { enableProjectServices } from "./services.ts";
 import {
   allowUnauthenticated,
   artifactRepoId,
+  cloudRunDeletionProtection,
   customDomain,
   dbDeletionProtection,
   dbEdition,
@@ -17,6 +19,9 @@ import {
   dbUserName,
   dbUserPassword,
   dbVersion,
+  pgsWebClientId,
+  pgsWebClientSecret,
+  pgsWebClientSecretName,
   enableCustomDomain,
   imageTag,
   maxInstanceCount,
@@ -54,10 +59,35 @@ const { databaseInstance, databaseUrlSecret, databaseUrlSecretVersion } = create
   dependsOn: enabledServices
 });
 
+let pgsWebClientSecretId: pulumi.Output<string> | undefined;
+let pgsWebClientSecretVersion: gcp.secretmanager.SecretVersion | undefined;
+if (pgsWebClientId && pgsWebClientSecret && pgsWebClientSecretName) {
+  const pgsSecret = new gcp.secretmanager.Secret(
+    pgsWebClientSecretName,
+    {
+      project,
+      secretId: pgsWebClientSecretName,
+      replication: {
+        auto: {}
+      }
+    },
+    { dependsOn: enabledServices }
+  );
+  pgsWebClientSecretVersion = new gcp.secretmanager.SecretVersion(
+    `${pgsWebClientSecretName}-current`,
+    {
+      secret: pgsSecret.id,
+      secretData: pgsWebClientSecret
+    }
+  );
+  pgsWebClientSecretId = pgsSecret.secretId;
+}
+
 const { service, image } = createCloudRunService({
   project,
   region,
   serviceName,
+  deletionProtection: cloudRunDeletionProtection,
   artifactRepoId,
   imageTag,
   stage,
@@ -68,7 +98,9 @@ const { service, image } = createCloudRunService({
   serviceAccountEmail: runServiceAccount.email,
   databaseConnectionName: databaseInstance.connectionName,
   databaseUrlSecretId: databaseUrlSecret.secretId,
-  dependsOn: [databaseUrlSecretVersion]
+  pgsWebClientId: pgsWebClientId || undefined,
+  pgsWebClientSecretId,
+  dependsOn: [databaseUrlSecretVersion, ...(pgsWebClientSecretVersion ? [pgsWebClientSecretVersion] : [])]
 });
 
 let customDomainIpAddress: pulumi.Output<string> | undefined;
@@ -88,3 +120,4 @@ export const deployedImage = image;
 export const customDomainDnsARecord = customDomainIpAddress;
 export const cloudSqlInstanceConnectionName = databaseInstance.connectionName;
 export const databaseUrlSecretId = databaseUrlSecret.secretId;
+export const pgsWebClientSecretResourceId = pgsWebClientSecretId;

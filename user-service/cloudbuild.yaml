@@ -31,8 +31,8 @@ substitutions:
   _REGION: europe-west1
   _REPO: ironfront
   _IMAGE_NAME: user-service
-  _SERVICE_NAME: user-service-dev
-  _STAGE: dev
+  _SERVICE_NAME: user-service-prod
+  _STAGE: prod
   _TAG: latest
   _IMAGE_URI: ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE_NAME}:${_TAG}
 

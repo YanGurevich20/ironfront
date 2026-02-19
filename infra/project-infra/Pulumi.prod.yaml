@@ -5,7 +5,7 @@ config:
   project-infra:artifactRepoPullProjectNumber: "556532261549"
   project-infra:ciServiceAccountId: ironfront-ci
   project-infra:artifactRepoRuntimeServiceAccounts:
-    - user-service-dev-sa@ironfront-game.iam.gserviceaccount.com
+    - user-service-prod-sa@ironfront-game.iam.gserviceaccount.com
   project-infra:cloudBuildSourceBucket: ironfront-game_cloudbuild
   project-infra:subnetCidr: 10.20.0.0/20
   project-infra:subnetName: ironfront-subnet

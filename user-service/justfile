@@ -4,8 +4,6 @@ gcp_project := env_var_or_default("GCP_PROJECT", "ironfront-game")
 gcp_region := env_var_or_default("GCP_REGION", "europe-west1")
 artifact_repo := env_var_or_default("ARTIFACT_REPO", "ironfront")
 image_name := env_var_or_default("IMAGE_NAME", "user-service")
-pulumi_stack := env_var_or_default("PULUMI_STACK", "dev")
-api_url := env_var_or_default("USER_SERVICE_API_URL", "https://api-dev.ironfront.live")
 
 fix:
 	pnpm run fix
@@ -25,20 +23,14 @@ push-image tag="":
 	echo "IMAGE_TAG=$TAG"; \
 	echo "IMAGE=$IMAGE"
 
-# Run dev DB migrations against Cloud SQL using cloud-sql-proxy.
-dev-db-migrate:
+# Run DB migrations against prod Cloud SQL using cloud-sql-proxy.
+db-migrate:
+	just db-migrate-stack "prod"
+
+db-migrate-stack stack:
 	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
-	INFRA_DIR="../infra/user-service"; \
-	if [[ -f "../infra/.env" ]]; then \
-		set -a; source "../infra/.env"; set +a; \
-	fi; \
-	PROJECT="$(cd "$INFRA_DIR" && pulumi config get gcp:project --stack {{pulumi_stack}})"; \
-	REGION="$(cd "$INFRA_DIR" && pulumi config get gcp:region --stack {{pulumi_stack}})"; \
-	INSTANCE="$(cd "$INFRA_DIR" && pulumi config get user-service-infra:dbInstanceName --stack {{pulumi_stack}})"; \
-	DB_NAME="$(cd "$INFRA_DIR" && pulumi config get user-service-infra:dbName --stack {{pulumi_stack}})"; \
-	DB_USER="$(cd "$INFRA_DIR" && pulumi config get user-service-infra:dbUserName --stack {{pulumi_stack}})"; \
-	DB_PASSWORD="${USER_SERVICE_DB_PASSWORD:?USER_SERVICE_DB_PASSWORD is required (set it in infra/.env or env)}"; \
-	INSTANCE_CONN="${PROJECT}:${REGION}:${INSTANCE}"; \
+	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts {{stack}})"; \
+	INSTANCE_CONN="${STACK_GCP_PROJECT}:${STACK_GCP_REGION}:${STACK_DB_INSTANCE}"; \
 	echo "Starting cloud-sql-proxy for $INSTANCE_CONN"; \
 	cloud-sql-proxy --address 127.0.0.1 --port 5432 "$INSTANCE_CONN" >/tmp/cloud-sql-proxy.log 2>&1 & \
 	PROXY_PID=$!; \
@@ -48,28 +40,36 @@ dev-db-migrate:
 		if nc -z 127.0.0.1 5432 >/dev/null 2>&1; then break; fi; \
 		sleep 0.5; \
 	done; \
-	DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@127.0.0.1:5432/${DB_NAME}" STAGE=dev pnpm run db:migrate; \
-	echo "Dev DB migrations completed"
+	DATABASE_URL="postgresql://${STACK_DB_USER}:${STACK_DB_PASSWORD_ENCODED}@127.0.0.1:5432/${STACK_DB_NAME}" STAGE="$STACK_STAGE" PGS_WEB_CLIENT_ID="$STACK_PGS_WEB_CLIENT_ID" PGS_WEB_CLIENT_SECRET="$STACK_PGS_WEB_CLIENT_SECRET" pnpm run db:migrate; \
+	echo "$STACK_STAGE DB migrations completed"
 
-# Deploy user-service dev with an immutable image tag and no manual tag handling.
-dev-deploy:
+# Deploy user-service to prod with an immutable image tag.
+deploy:
+	just deploy-stack "prod"
+
+deploy-stack stack:
 	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
 	just push-image "$TAG"; \
 	cd ../infra/user-service; \
-	pulumi config set user-service-infra:imageTag "$TAG" --stack {{pulumi_stack}}; \
-	pulumi up --yes --stack {{pulumi_stack}}; \
-	echo "Deployed image tag $TAG"
+	pulumi config set user-service-infra:imageTag "$TAG" --stack {{stack}}; \
+	pulumi up --yes --stack {{stack}}; \
+	echo "Deployed image tag $TAG to stack {{stack}}"
 
-# Smoke test dev auth exchange + me flow.
-dev-smoke:
-	EXCHANGE_RESPONSE="$(curl -sS -X POST "{{api_url}}/auth/exchange" -H "content-type: application/json" -d '{"provider":"dev","proof":"dev:smoke","client":{"stage":"dev"}}')"; \
-	echo "exchange: $EXCHANGE_RESPONSE"; \
-	SESSION_TOKEN="$(node -e 'const body = JSON.parse(process.argv[1]); if (!body.session_token) process.exit(1); process.stdout.write(body.session_token);' "$EXCHANGE_RESPONSE")"; \
-	ME_RESPONSE="$(curl -sS "{{api_url}}/me" -H "authorization: Bearer $SESSION_TOKEN")"; \
-	echo "me: $ME_RESPONSE"
+# Smoke test for prod API.
+smoke:
+	just smoke-stack "prod"
 
-# Full dev flow: migrate DB, deploy with immutable tag, smoke test.
-dev-release:
-	just dev-db-migrate
-	just dev-deploy
-	just dev-smoke
+smoke-stack stack:
+	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts {{stack}})"; \
+	echo "smoke stack=$STACK_NAME api=$STACK_API_BASE_URL"; \
+	HEALTH_RESPONSE="$(curl -sS "$STACK_API_BASE_URL/healthz" || true)"; \
+	echo "healthz: $HEALTH_RESPONSE"; \
+	DEV_REJECTED="$(curl -sS -X POST "$STACK_API_BASE_URL/auth/exchange" -H "content-type: application/json" -d '{"provider":"dev","proof":"dev:smoke","client":{"stage":"prod"}}' || true)"; \
+	echo "dev-provider-rejected: $DEV_REJECTED"
+
+# Full flow: migrate, deploy, smoke.
+release:
+	just db-migrate
+	just deploy
+	just smoke
+

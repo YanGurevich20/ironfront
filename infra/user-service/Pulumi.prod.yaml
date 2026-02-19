@@ -1,0 +1,28 @@
+config:
+  gcp:project: ironfront-game
+  gcp:region: europe-west1
+  user-service-infra:allowUnauthenticated: "true"
+  user-service-infra:artifactRepoId: ironfront
+  user-service-infra:customDomain: api.ironfront.live
+  user-service-infra:dbDeletionProtection: "true"
+  user-service-infra:dbEdition: ENTERPRISE
+  user-service-infra:dbInstanceName: user-service-prod-pg
+  user-service-infra:dbName: user_service
+  user-service-infra:dbSecretName: user-service-prod-database-url
+  user-service-infra:dbTier: db-custom-1-3840
+  user-service-infra:dbUserName: user_service_app
+  user-service-infra:dbVersion: POSTGRES_16
+  user-service-infra:enableCustomDomain: "true"
+  user-service-infra:imageTag: 6245761-20260219231148
+  user-service-infra:maxInstanceCount: "20"
+  user-service-infra:minInstanceCount: "0"
+  user-service-infra:pgsWebClientId: 556532261549-5sfh8fmkgs232240dviunjr3e4kqeh8a.apps.googleusercontent.com
+  user-service-infra:pgsWebClientSecretName: user-service-prod-pgs-web-client-secret
+  user-service-infra:serviceName: user-service-prod
+  user-service-infra:sessionTtlSeconds: "86400"
+  user-service-infra:stage: prod
+  user-service-infra:dbUserPassword:
+    secure: v1:SBWZ1RfpYHdZ3Xgz:so87R24p+Mu1JuHtEjorlYeh1ALhxfwlK3RQBWTfIR8r+DnBCAcb69WhBbmw+bfM7JF7wzxkOZj65aGr
+  user-service-infra:pgsWebClientSecret:
+    secure: v1:XcrZBsEw9YinpWx3:XZYYPYAmUrYQbKYQ+DgBqwlhMDNwlUExR0xxAZUufizWeofR+2ZSsYfZWKtaLgc6Llud
+encryptionsalt: v1:BbS5hQCnPcA=:v1:4jhXR3R8E7xmAzkF:Eg81usY63oSnXQQXRUhicCcifUQdCw==

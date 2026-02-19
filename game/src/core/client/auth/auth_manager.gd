@@ -94,6 +94,10 @@ func _instantiate_provider() -> AuthProvider:
 	var provider_node: Node = provider_scene.instantiate()
 	var provider: AuthProvider = provider_node as AuthProvider
 	assert(provider != null, "Provider scene root must inherit AuthProvider")
+	if use_pgs_provider:
+		var pgs_provider: PgsAuthProvider = provider as PgsAuthProvider
+		assert(pgs_provider != null, "PGS provider scene root must inherit PgsAuthProvider")
+		pgs_provider.server_client_id = AppConfig.pgs_server_client_id
 	add_child(provider)
 	return provider
 

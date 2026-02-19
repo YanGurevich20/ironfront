@@ -1,8 +1,8 @@
-# Auth Context (Current State) 19/02/2026
+# Auth Context (Current State) 20/02/2026
 
 ## Environments
-- Dev API domain: `https://api-dev.ironfront.live`
-- Prod API domain target: `https://api.ironfront.live`
+- Local dev: user-service runs on localhost (STAGE=dev, local Postgres or cloud-sql-proxy)
+- Prod API: `https://api.ironfront.live` (Cloud Run + Cloud SQL)
 
 ## Game Auth Runtime
 - `AuthManager` is the auth state orchestrator.
@@ -10,15 +10,15 @@
   - Dev: `DevAuthProvider` (simulated provider proof + delay).
   - Prod/Android: `PgsAuthProvider`.
 - `AppConfig` autoload controls runtime config:
-  - `stage`
-  - `user_service_base_url` (with optional `--user-service-url` override)
+  - `stage` (dev = local, prod = GCP)
+  - `user_service_base_url` (defaults to localhost:8080 for dev, api.ironfront.live for prod; override with `--user-service-url`)
 - API layering:
   - `src/api/api_client.gd` for transport.
   - `src/api/user_service/user_service_client.gd` for user-service endpoints.
 - Login UI uses button-based auth state and no offline username flow.
 
 ## User Service Runtime
-- Hono service with Drizzle + Postgres (Cloud SQL).
+- Hono service with Drizzle + Postgres (Cloud SQL in prod, local Postgres for dev).
 - Active auth endpoints:
   - `POST /auth/exchange`
   - `GET /me`
@@ -26,21 +26,12 @@
 
 ## Infra / Deployment
 - Pulumi-managed infra under `infra/`:
-  - `project-infra` for project-wide resources/IAM.
-  - `user-service` for service/db/runtime resources.
-- Dev user-service deploy target: Cloud Run + Cloud SQL + Secret Manager.
+  - `project-infra` (stack: prod) for project-wide resources/IAM.
+  - `user-service` (stack: prod) for Cloud Run + Cloud SQL + Secret Manager.
+- Single deploy target: prod at api.ironfront.live.
 - Image deploy flow uses immutable tags and `linux/amd64` buildx images.
-- User-service recipes available:
-  - `just user-service::dev-db-migrate`
-  - `just user-service::dev-deploy`
-  - `just user-service::dev-smoke`
-  - `just user-service::dev-release`
-
-## Verified
-- Dev deploy succeeds.
-- Dev smoke succeeds against `api-dev` (`/auth/exchange` then `/me`).
-- Local game auth works against dev API.
-
-## Next
-1. Deploy/test prod API with real PGS provider from device.
-2. Wire authoritative user/progression/economy/loadout data flows to DB-backed APIs.
+- User-service recipes:
+  - `just user-service::db-migrate`
+  - `just user-service::deploy`
+  - `just user-service::smoke`
+  - `just user-service::release`

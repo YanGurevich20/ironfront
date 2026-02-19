@@ -23,5 +23,21 @@ export const dbUserPassword = stackCfg.requireSecret("dbUserPassword");
 export const dbTier = stackCfg.require("dbTier");
 export const dbEdition = stackCfg.require("dbEdition");
 export const dbDeletionProtection = stackCfg.requireBoolean("dbDeletionProtection");
+export const cloudRunDeletionProtection = stackCfg.getBoolean("cloudRunDeletionProtection") ?? true;
 export const dbSecretName = stackCfg.require("dbSecretName");
 export const dbVersion = stackCfg.require("dbVersion");
+export const pgsWebClientId = stackCfg.get("pgsWebClientId") ?? "";
+export const pgsWebClientSecret = stackCfg.getSecret("pgsWebClientSecret");
+export const pgsWebClientSecretName = stackCfg.get("pgsWebClientSecretName") ?? "";
+
+if (stage === "prod") {
+  if (!pgsWebClientId) {
+    throw new Error("user-service-infra:pgsWebClientId is required for prod");
+  }
+  if (!pgsWebClientSecretName) {
+    throw new Error("user-service-infra:pgsWebClientSecretName is required for prod");
+  }
+  if (!pgsWebClientSecret) {
+    throw new Error("user-service-infra:pgsWebClientSecret is required for prod");
+  }
+}

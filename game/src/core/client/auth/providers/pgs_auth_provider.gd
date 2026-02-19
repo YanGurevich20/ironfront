@@ -9,6 +9,10 @@ var _requesting_server_access: bool = false
 @onready var sign_in_client: PlayGamesSignInClient = %PlayGamesSignInClient
 
 
+func _enter_tree() -> void:
+	_initialize_plugin_for_lifecycle()
+
+
 func _ready() -> void:
 	Utils.connect_checked(sign_in_client.user_authenticated, _on_user_authenticated)
 	Utils.connect_checked(
@@ -62,6 +66,10 @@ func _on_server_side_access_requested(server_auth_code: String) -> void:
 
 
 func _ensure_plugin_ready() -> bool:
+	return _initialize_plugin_for_lifecycle()
+
+
+func _initialize_plugin_for_lifecycle() -> bool:
 	if not OS.has_feature("android"):
 		return false
 	if not Engine.has_singleton("GodotPlayGameServices"):

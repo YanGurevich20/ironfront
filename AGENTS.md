@@ -19,3 +19,7 @@
 - Use root `just fix` after cross-module changes, otherwise use a targeted `just <module>::fix`.
 - Read the module's `agent-docs/index.md` and any files required in that index before beginning implementation.
 - No gcloud commands for manipulating infrastructure - everything should be done via the infra repo.
+- Config and secret policy:
+  - Keep non-sensitive runtime config centralized in plain config code.
+  - Use `.env` for local/dev secrets.
+  - Use CI/CD-reachable secret stores (for example Secret Manager) for prod secrets.

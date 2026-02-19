@@ -28,6 +28,9 @@ Pulumi stack for deploying `user-service` on Cloud Run.
 - `user-service-infra:dbDeletionProtection`
 - `user-service-infra:dbSecretName`
 - `user-service-infra:dbVersion`
+- `user-service-infra:pgsWebClientId`
+- `user-service-infra:pgsWebClientSecretName`
+- `user-service-infra:pgsWebClientSecret` (set via `pulumi config set --secret`)
 
 ## Database + Secret Flow
 - Provisions Cloud SQL Postgres instance/database/user.

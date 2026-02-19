@@ -1,4 +1,4 @@
 node_modules
 .pulumi
 Pulumi.*.yaml.backup
-.env
+.env*
