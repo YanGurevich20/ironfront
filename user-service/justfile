@@ -9,8 +9,10 @@ fix:
 	pnpm run fix
 
 dev:
-	source ../infra/.env.dev 2>/dev/null || true
-	pnpm run dev
+	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run dev
+
+dev-db:
+	docker start ironfront-user-service-pg || docker run --name ironfront-user-service-pg -e POSTGRES_USER=user -e POSTGRES_PASSWORD=pass -e POSTGRES_DB=user_service -p 5432:5432 postgres:16
 
 push-image:
 	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
@@ -20,7 +22,10 @@ push-image:
 	echo "IMAGE_TAG=$TAG"; \
 	echo "IMAGE=$IMAGE"
 
-db-migrate:
+db-migrate target:
+	just _db-migrate-{{target}}
+
+_db-migrate-prod:
 	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
 	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts prod)"; \
 	INSTANCE_CONN="${STACK_GCP_PROJECT}:${STACK_GCP_REGION}:${STACK_DB_INSTANCE}"; \
@@ -35,6 +40,10 @@ db-migrate:
 	done; \
 	DATABASE_URL="postgresql://${STACK_DB_USER}:${STACK_DB_PASSWORD_ENCODED}@127.0.0.1:5432/${STACK_DB_NAME}" STAGE="$STACK_STAGE" PGS_WEB_CLIENT_ID="$STACK_PGS_WEB_CLIENT_ID" PGS_WEB_CLIENT_SECRET="$STACK_PGS_WEB_CLIENT_SECRET" pnpm run db:migrate; \
 	echo "$STACK_STAGE DB migrations completed"
+
+_db-migrate-dev:
+	just dev-db
+	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run db:migrate
 
 deploy:
 	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
