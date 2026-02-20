@@ -1,8 +1,12 @@
 # Auth Context (Current State) 20/02/2026
 
+## Stage Semantics
+- `stage=dev` always means local development (user-service on localhost, local Postgres, DevAuthProvider).
+- `stage=prod` means production (GCP Cloud Run + Cloud SQL, PgsAuthProvider only).
+
 ## Environments
-- Local dev: user-service runs on localhost (STAGE=dev, local Postgres or cloud-sql-proxy)
-- Prod API: `https://api.ironfront.live` (Cloud Run + Cloud SQL)
+- Local dev: `just user-service::dev`; loads `infra/.env.dev` (STAGE=dev, DATABASE_URL → local Postgres).
+- Prod API: `https://api.ironfront.live` (Cloud Run + Cloud SQL); `infra/.env.prod` for db-migrate.
 
 ## Game Auth Runtime
 - `AuthManager` is the auth state orchestrator.
@@ -30,8 +34,4 @@
   - `user-service` (stack: prod) for Cloud Run + Cloud SQL + Secret Manager.
 - Single deploy target: prod at api.ironfront.live.
 - Image deploy flow uses immutable tags and `linux/amd64` buildx images.
-- User-service recipes:
-  - `just user-service::db-migrate`
-  - `just user-service::deploy`
-  - `just user-service::smoke`
-  - `just user-service::release`
+- User-service recipes (from `user-service/`): `fix`, `dev`, `push-image`, `db-migrate`, `deploy`.

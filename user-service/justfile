@@ -8,28 +8,21 @@ image_name := env_var_or_default("IMAGE_NAME", "user-service")
 fix:
 	pnpm run fix
 
-# Build and push a user-service image to Artifact Registry.
-# Usage:
-#   just push-image                      # auto immutable tag
-#   just push-image my-tag               # explicit tag
-push-image tag="":
-	TAG="{{tag}}"; \
-	if [[ -z "$TAG" ]]; then \
-		TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
-	fi; \
+dev:
+	source ../infra/.env.dev 2>/dev/null || true
+	pnpm run dev
+
+push-image:
+	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
 	IMAGE="{{gcp_region}}-docker.pkg.dev/{{gcp_project}}/{{artifact_repo}}/{{image_name}}:${TAG}"; \
 	echo "Building and pushing linux/amd64 image $IMAGE"; \
 	docker buildx build --platform linux/amd64 -t "$IMAGE" --push .; \
 	echo "IMAGE_TAG=$TAG"; \
 	echo "IMAGE=$IMAGE"
 
-# Run DB migrations against prod Cloud SQL using cloud-sql-proxy.
 db-migrate:
-	just db-migrate-stack "prod"
-
-db-migrate-stack stack:
 	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
-	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts {{stack}})"; \
+	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts prod)"; \
 	INSTANCE_CONN="${STACK_GCP_PROJECT}:${STACK_GCP_REGION}:${STACK_DB_INSTANCE}"; \
 	echo "Starting cloud-sql-proxy for $INSTANCE_CONN"; \
 	cloud-sql-proxy --address 127.0.0.1 --port 5432 "$INSTANCE_CONN" >/tmp/cloud-sql-proxy.log 2>&1 & \
@@ -43,33 +36,10 @@ db-migrate-stack stack:
 	DATABASE_URL="postgresql://${STACK_DB_USER}:${STACK_DB_PASSWORD_ENCODED}@127.0.0.1:5432/${STACK_DB_NAME}" STAGE="$STACK_STAGE" PGS_WEB_CLIENT_ID="$STACK_PGS_WEB_CLIENT_ID" PGS_WEB_CLIENT_SECRET="$STACK_PGS_WEB_CLIENT_SECRET" pnpm run db:migrate; \
 	echo "$STACK_STAGE DB migrations completed"
 
-# Deploy user-service to prod with an immutable image tag.
 deploy:
-	just deploy-stack "prod"
-
-deploy-stack stack:
 	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
 	just push-image "$TAG"; \
 	cd ../infra/user-service; \
-	pulumi config set user-service-infra:imageTag "$TAG" --stack {{stack}}; \
-	pulumi up --yes --stack {{stack}}; \
-	echo "Deployed image tag $TAG to stack {{stack}}"
-
-# Smoke test for prod API.
-smoke:
-	just smoke-stack "prod"
-
-smoke-stack stack:
-	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts {{stack}})"; \
-	echo "smoke stack=$STACK_NAME api=$STACK_API_BASE_URL"; \
-	HEALTH_RESPONSE="$(curl -sS "$STACK_API_BASE_URL/healthz" || true)"; \
-	echo "healthz: $HEALTH_RESPONSE"; \
-	DEV_REJECTED="$(curl -sS -X POST "$STACK_API_BASE_URL/auth/exchange" -H "content-type: application/json" -d '{"provider":"dev","proof":"dev:smoke","client":{"stage":"prod"}}' || true)"; \
-	echo "dev-provider-rejected: $DEV_REJECTED"
-
-# Full flow: migrate, deploy, smoke.
-release:
-	just db-migrate
-	just deploy
-	just smoke
-
+	pulumi config set user-service-infra:imageTag "$TAG" --stack prod; \
+	pulumi up --yes --stack prod; \
+	echo "Deployed image tag $TAG to stack prod"

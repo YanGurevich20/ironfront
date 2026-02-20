@@ -1,6 +1,8 @@
 # user-service infra
 
-Pulumi stack for deploying `user-service` on Cloud Run.
+Pulumi stack for deploying `user-service` on Cloud Run. Prod only.
+
+Env: `infra/.env.prod` for prod (db-migrate); `infra/.env.dev` for local dev (just dev).
 
 ## Commands
 - `pnpm run pulumi:preview`
