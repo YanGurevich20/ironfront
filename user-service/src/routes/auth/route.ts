@@ -5,12 +5,7 @@ import { postExchangeHandler } from "./post_exchange.js";
 
 const requestSchema = z.object({
   provider: z.enum(["dev", "pgs"]),
-  proof: z.string().min(1),
-  client: z.object({
-    stage: z.enum(["dev", "prod"]),
-    app_version: z.string().optional(),
-    platform: z.string().optional()
-  })
+  proof: z.string().min(1)
 });
 
 export const authRouter = new Hono();

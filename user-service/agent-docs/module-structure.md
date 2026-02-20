@@ -9,5 +9,6 @@
 - `fix`: lint/typecheck
 - `dev`: run user-service locally; loads `infra/.env.dev` (STAGE=dev, DATABASE_URL, etc.)
 - `push-image`: build and push Docker image to Artifact Registry
-- `db-migrate`: run migrations against prod Cloud SQL (requires cloud-sql-proxy, `infra/.env.prod`)
+- `migrate-dev`: run `drizzle push` against local Postgres (`infra/.env.dev`)
+- `migrate-prod`: run `drizzle push` against prod Cloud SQL (requires cloud-sql-proxy)
 - `deploy`: push-image, set imageTag in Pulumi prod stack, pulumi up

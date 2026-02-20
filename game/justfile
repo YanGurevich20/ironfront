@@ -35,6 +35,14 @@ fmt:
 # Refresh cache, then run build, formatter, and lint.
 fix: refresh-cache build fmt lint
 
+
+apk-install:
+	adb install -r dist/android/Ironfront.apk
+
+apk-export:
+	mkdir -p dist/android
+	{{godot_bin}} --headless --path . --export-release "Android APK" dist/android/Ironfront.apk
+
 # Export dedicated Linux server executable.
 server-export:
 	mkdir -p dist/server
@@ -75,9 +83,3 @@ server-logs instance=default_instance zone=default_zone remote_dir=default_remot
 # Follow server logs on a GCP VM.
 server-logs-follow instance=default_instance zone=default_zone remote_dir=default_remote_dir:
 	gcloud compute ssh {{instance}} --zone {{zone}} --command "cd {{remote_dir}} && tail -f server.log"
-
-install-apk:
-	adb install -r dist/android/Ironfront.apk
-
-follow-logs:
-	adb logcat | rg -i "godot"

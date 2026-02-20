@@ -35,6 +35,9 @@ func _ready() -> void:
 	Utils.connect_checked(arena_client.local_player_respawned, ui_manager.hide_online_death_overlay)
 	Utils.connect_checked(auth_manager.sign_in_succeeded, _on_auth_sign_in_succeeded)
 	Utils.connect_checked(auth_manager.sign_in_failed, _on_auth_sign_in_failed)
+	Utils.connect_checked(auth_manager.username_setup_required, _on_username_setup_required)
+	Utils.connect_checked(auth_manager.username_submit_completed, _on_username_submit_completed)
+	Utils.connect_checked(UiBus.username_submit_requested, auth_manager.submit_username)
 	PlayerProfileUtils.save_player_metrics()
 
 
@@ -101,14 +104,31 @@ func _on_arena_session_ended(summary: Dictionary) -> void:
 
 func _on_auth_sign_in_succeeded(result: AuthResult) -> void:
 	var player_data: PlayerData = PlayerData.get_instance()
-	var resolved_display_name: String = result.display_name.strip_edges()
-	if not resolved_display_name.is_empty():
-		player_data.player_name = resolved_display_name
+	var resolved_username: String = result.username.strip_edges()
+	if not resolved_username.is_empty():
+		player_data.player_name = resolved_username
 		player_data.save()
 	UiBus.auth_sign_in_finished.emit(true)
+	if result.username_updated_at.is_empty():
+		return
 	UiBus.login_pressed.emit()
 
 
 func _on_auth_sign_in_failed(reason: String) -> void:
 	print("[client-app] auth sign-in failed reason=%s" % reason)
 	UiBus.auth_sign_in_finished.emit(false)
+
+
+func _on_username_setup_required(initial_username: String) -> void:
+	UiBus.username_prompt_requested.emit(initial_username)
+
+
+func _on_username_submit_completed(success: bool, reason: String, username: String) -> void:
+	if not success:
+		UiBus.username_submit_finished.emit(false, reason)
+		return
+	var player_data: PlayerData = PlayerData.get_instance()
+	player_data.player_name = username
+	player_data.save()
+	UiBus.username_submit_finished.emit(true, "")
+	UiBus.login_pressed.emit()

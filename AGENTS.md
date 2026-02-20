@@ -1,25 +1,27 @@
 # Ironfront Monorepo Guide for Agents
+## PRODUCTION MODE: RAPID DEVELOPMENT
 
 ## Terminology
-- Use `module` for each top-level component in this repository.
-- Use `project` for the entire repository.
+- Use `module` for each top-level component in this repo, and `project` for the entire repo.
 
 ## Structure
 - Top-level directories are modules (for example `game/`, `matchmaker/`, `user-service/`, `project-infra/`,`fleet/`).
 - Each module includes `agent-docs/index.md` as the module docs table of contents.
 - Each module has `justfile`, with a `fix` recipe that will run the lint/format/static-analysis tools on the module.
-- __temporary__ root level has `.env` for secrets and `.config` for public config, before a proper distributed package/env is implemented.
 
 ## Tooling
 - Root `justfile` orchestrates cross-module workflows.
-- Each module has its own `justfile`.
 - Root `justfile` should load modules with `mod <module>` and may expose root aliases.
+- Each module has its own `justfile`.
 
-## Global Required Workflow Rules
+## CORE RULES
+### These rules take presedence over all other rules, and represent the core philosophy of the project and developer.
 - Use root `just fix` after cross-module changes, otherwise use a targeted `just <module>::fix`.
 - Read the module's `agent-docs/index.md` and any files required in that index before beginning implementation.
 - No gcloud commands for manipulating infrastructure - everything should be done via the infra repo.
-- Config and secret policy:
-  - Keep non-sensitive runtime config centralized in plain config code.
-  - Use `.env` for local/dev secrets.
-  - Use CI/CD-reachable secret stores (for example Secret Manager) for prod secrets.
+- as long as `PRODUCTION MODE` at the top of this file is set to `RAPID DEVELOPMENT`, use a "fast iteration, zero legacy, not scared of breaking things" mindset. This means:
+  - removing lines of code is a success metric, and minimal systems are always more maintainable than complex ones.
+  - we can make experimental changes and not be afraid of data loss.
+  - we do not need to keep legacy and compatibility wrappers.
+  - drizzle push is preferred to migrations.
+  - large refactors are welcome and preferred over small targeted changes.

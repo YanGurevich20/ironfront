@@ -7,6 +7,9 @@ signal log_out_pressed
 signal auth_retry_requested
 signal auth_sign_in_started
 signal auth_sign_in_finished(success: bool)
+signal username_prompt_requested(initial_username: String)
+signal username_submit_requested(username: String)
+signal username_submit_finished(success: bool, reason: String)
 signal quit_pressed
 signal garage_menu_pressed
 signal play_pressed

@@ -14,18 +14,18 @@ dev:
 dev-db:
 	docker start ironfront-user-service-pg || docker run --name ironfront-user-service-pg -e POSTGRES_USER=user -e POSTGRES_PASSWORD=pass -e POSTGRES_DB=user_service -p 5432:5432 postgres:16
 
-push-image:
-	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
+push-image tag=(`git rev-parse --short HEAD` + "-" + `date +%Y%m%d%H%M%S`):
+	TAG="{{tag}}"; \
 	IMAGE="{{gcp_region}}-docker.pkg.dev/{{gcp_project}}/{{artifact_repo}}/{{image_name}}:${TAG}"; \
 	echo "Building and pushing linux/amd64 image $IMAGE"; \
 	docker buildx build --platform linux/amd64 -t "$IMAGE" --push .; \
 	echo "IMAGE_TAG=$TAG"; \
 	echo "IMAGE=$IMAGE"
 
-db-migrate target:
-	just _db-migrate-{{target}}
+migrate target:
+	just _migrate-{{target}}
 
-_db-migrate-prod:
+_migrate-prod:
 	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
 	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts prod)"; \
 	INSTANCE_CONN="${STACK_GCP_PROJECT}:${STACK_GCP_REGION}:${STACK_DB_INSTANCE}"; \
@@ -38,13 +38,13 @@ _db-migrate-prod:
 		if nc -z 127.0.0.1 5432 >/dev/null 2>&1; then break; fi; \
 		sleep 0.5; \
 	done; \
-	DATABASE_URL="postgresql://${STACK_DB_USER}:${STACK_DB_PASSWORD_ENCODED}@127.0.0.1:5432/${STACK_DB_NAME}" STAGE="$STACK_STAGE" PGS_WEB_CLIENT_ID="$STACK_PGS_WEB_CLIENT_ID" PGS_WEB_CLIENT_SECRET="$STACK_PGS_WEB_CLIENT_SECRET" pnpm run db:migrate; \
-	echo "$STACK_STAGE DB migrations completed"
+	DATABASE_URL="postgresql://${STACK_DB_USER}:${STACK_DB_PASSWORD_ENCODED}@127.0.0.1:5432/${STACK_DB_NAME}" pnpm run db:push; \
+	echo "$STACK_STAGE DB push completed"
 
-_db-migrate-dev:
+_migrate-dev:
 	just dev-db
-	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run db:migrate
-
+	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run db:push
+	
 deploy:
 	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
 	just push-image "$TAG"; \
