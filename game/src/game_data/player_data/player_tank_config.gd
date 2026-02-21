@@ -1,20 +1,24 @@
 class_name PlayerTankConfig extends Resource
 
-@export var tank_id: TankManager.TankId
+@export var tank_id: String
 @export var shell_amounts: Dictionary[ShellSpec, int]
 @export var _is_initialized: bool = false
 
 
-func _init(_tank_id: TankManager.TankId = tank_id) -> void:
+func _init(_tank_id: String = tank_id) -> void:
 	if _is_initialized:
 		return
-	tank_id = _tank_id
-	var tank_spec: TankSpec = TankManager.tank_specs[tank_id]
+	var resolved_tank_id: String = _tank_id.strip_edges()
+	if resolved_tank_id.is_empty():
+		resolved_tank_id = TankManager.TANK_ID_M4A1_SHERMAN
+	tank_id = resolved_tank_id
+	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id)
+	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % tank_id)
 	shell_amounts = {tank_spec.allowed_shells[0]: tank_spec.shell_capacity}
 	_is_initialized = true
 
 
-func assert_valid_for_tank(expected_tank_id: TankManager.TankId) -> void:
+func assert_valid_for_tank(expected_tank_id: String) -> void:
 	assert(tank_id == expected_tank_id, "PlayerTankConfig tank_id mismatch")
 	var shell_ids: Array[String] = ShellManager.get_shell_ids_for_tank(tank_id)
 	assert(not shell_ids.is_empty(), "Tank has no registered shells: %s" % tank_id)
@@ -29,7 +33,8 @@ func assert_valid_for_tank(expected_tank_id: TankManager.TankId) -> void:
 		assert(shell_count >= 0, "Negative shell count: %s" % shell_count)
 		total_shell_count += shell_count
 	assert(total_shell_count > 0, "Tank has no ammunition")
-	var tank_spec: TankSpec = TankManager.tank_specs[tank_id]
+	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id)
+	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % tank_id)
 	assert(total_shell_count <= tank_spec.shell_capacity, "Shell capacity exceeded")
 
 

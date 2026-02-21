@@ -76,7 +76,7 @@ func _apply_cli_args() -> void:
 func _on_arena_join_requested(
 	peer_id: int,
 	player_name: String,
-	requested_tank_id: int,
+	requested_tank_id: String,
 	requested_shell_loadout_by_id: Dictionary,
 	requested_selected_shell_id: String
 ) -> void:
@@ -99,7 +99,7 @@ func _on_arena_join_requested(
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		network_session.reject_arena_join(peer_id, join_message)
 		return
-	var tank_id: int = int(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
+	var tank_id: String = str(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
 	var join_spawn_result: Dictionary = server_arena_runtime.spawn_peer_tank_at_random(
 		peer_id, cleaned_player_name, tank_id
 	)
@@ -221,7 +221,7 @@ func _on_arena_respawn_requested(peer_id: int) -> void:
 		return
 	var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
 	var player_name: String = str(peer_state.get("player_name", ""))
-	var tank_id: int = arena_session_state.get_peer_tank_id(peer_id)
+	var tank_id: String = arena_session_state.get_peer_tank_id(peer_id)
 	var respawn_result: Dictionary = server_arena_runtime.respawn_peer_tank_at_random(
 		peer_id, player_name, tank_id
 	)

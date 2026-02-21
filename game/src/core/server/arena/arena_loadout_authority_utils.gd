@@ -87,7 +87,7 @@ static func reject_peer_fire(
 	send_peer_loadout_state(runtime, peer_id, spawned_tank)
 
 
-static func resolve_valid_tank_id(tank_id: int) -> int:
+static func resolve_valid_tank_id(tank_id: String) -> String:
 	if TankManager.tank_specs.has(tank_id):
 		return tank_id
 	return ArenaSessionState.DEFAULT_TANK_ID

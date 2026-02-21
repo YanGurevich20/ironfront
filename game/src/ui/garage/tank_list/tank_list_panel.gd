@@ -1,12 +1,12 @@
 class_name TankListPanel
 extends Control
 
-signal unlock_tank_requested(tank_id: TankManager.TankId)
+signal unlock_tank_requested(tank_id: String)
 
-signal tank_selected(tank_id: TankManager.TankId)
+signal tank_selected(tank_id: String)
 
 var _player_dollars: int = 0
-var _unlocked_tank_ids: Array[TankManager.TankId] = []
+var _unlocked_tank_ids: Array[String] = []
 
 @onready var tank_list: HBoxContainer = %TankList
 @onready var _tank_list_item_scene: PackedScene = preload(
@@ -20,14 +20,11 @@ func _ready() -> void:
 		tank_list.remove_child(child)
 		child.queue_free()
 
-	var tank_ids := TankManager.TankId.values()
-	var all_tank_ids: Array[TankManager.TankId] = []
-	for id: int in tank_ids:
-		all_tank_ids.append(id)
+	var all_tank_ids: Array[String] = TankManager.get_tank_ids()
 
 	var player_data: PlayerData = PlayerData.get_instance()
 	if !player_data.is_developer:
-		all_tank_ids.remove_at(all_tank_ids.find(TankManager.TankId.DEBUG_TANK))
+		all_tank_ids.remove_at(all_tank_ids.find(TankManager.TANK_ID_DEBUG_TANK))
 	display_player_data(player_data)
 
 	# Keep track of the latest unlocked tank item
@@ -48,7 +45,7 @@ func _ready() -> void:
 	_update_item_states()
 
 	# Determine which tank should be selected initially
-	var saved_tank_id: TankManager.TankId = player_data.selected_tank_id
+	var saved_tank_id: String = player_data.selected_tank_id
 	# If the saved tank is unlocked, select it; otherwise fall back to the latest unlocked
 	if _unlocked_tank_ids.has(saved_tank_id):
 		select_tank_by_id(saved_tank_id)
@@ -60,7 +57,7 @@ func _update_item_states() -> void:
 	for item: TankListItem in tank_list.get_children():
 		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
 		var player_data: PlayerData = PlayerData.get_instance()
-		var selected_id: TankManager.TankId = player_data.selected_tank_id
+		var selected_id: String = player_data.selected_tank_id
 		if unlocked:
 			if item.tank_id == selected_id:
 				item.state = item.State.SELECTED
@@ -95,7 +92,7 @@ func _select_tank(item: TankListItem) -> void:
 
 
 # Allow parent node to programmatically select a tank by its ID.
-func select_tank_by_id(tank_id: TankManager.TankId) -> void:
+func select_tank_by_id(tank_id: String) -> void:
 	for item: TankListItem in tank_list.get_children():
 		if item.tank_id == tank_id:
 			_select_tank(item)

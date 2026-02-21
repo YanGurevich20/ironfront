@@ -77,7 +77,7 @@ func get_spawn_transforms_by_id() -> Dictionary[StringName, Transform2D]:
 	return arena_spawn_transforms_by_id.duplicate(true)
 
 
-func spawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: int) -> Dictionary:
+func spawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: String) -> Dictionary:
 	var random_spawn: Dictionary = _pick_random_spawn()
 	if random_spawn.is_empty():
 		return {"success": false, "reason": "NO_SPAWN_AVAILABLE"}
@@ -91,7 +91,7 @@ func spawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: int) 
 	}
 
 
-func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: int) -> Dictionary:
+func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: String) -> Dictionary:
 	if not is_peer_tank_dead(peer_id):
 		return {"success": false, "reason": "TANK_NOT_DEAD"}
 	var random_spawn: Dictionary = _pick_random_spawn()
@@ -114,13 +114,13 @@ func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: int
 func _spawn_peer_tank(
 	peer_id: int,
 	player_name: String,
-	tank_id: int,
+	tank_id: String,
 	spawn_id: StringName,
 	spawn_transform: Transform2D
 ) -> void:
 	if actor_tanks_by_id.has(peer_id):
 		despawn_peer_tank(peer_id, "REPLACED_EXISTING_TANK")
-	var validated_tank_id: int = ArenaLoadoutAuthorityUtils.resolve_valid_tank_id(tank_id)
+	var validated_tank_id: String = ArenaLoadoutAuthorityUtils.resolve_valid_tank_id(tank_id)
 	var spawned_tank: Tank = TankManager.create_tank(
 		validated_tank_id, TankManager.TankControllerType.DUMMY
 	)
@@ -152,7 +152,7 @@ func _spawn_peer_tank(
 func _respawn_peer_tank(
 	peer_id: int,
 	player_name: String,
-	tank_id: int,
+	tank_id: String,
 	spawn_id: StringName,
 	spawn_transform: Transform2D
 ) -> bool:
@@ -256,7 +256,7 @@ func _spawn_bot_actor(bot_display_index: int) -> bool:
 	var spawn_transform: Transform2D = random_spawn.get("spawn_transform", Transform2D.IDENTITY)
 	var actor_id: int = _allocate_bot_actor_id()
 	var bot_tank: Tank = TankManager.create_tank(
-		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.AI
+		TankManager.TANK_ID_M4A1_SHERMAN, TankManager.TankControllerType.AI
 	)
 	bot_tank.add_to_group("arena_bot")
 	var bot_player_name: String = "BOT%d" % bot_display_index
@@ -268,7 +268,7 @@ func _spawn_bot_actor(bot_display_index: int) -> bool:
 		{
 			"is_bot": true,
 			"player_name": bot_player_name,
-			"tank_id": int(TankManager.TankId.M4A1_SHERMAN),
+			"tank_id": TankManager.TANK_ID_M4A1_SHERMAN,
 			"bot_display_index": bot_display_index,
 		}
 	)

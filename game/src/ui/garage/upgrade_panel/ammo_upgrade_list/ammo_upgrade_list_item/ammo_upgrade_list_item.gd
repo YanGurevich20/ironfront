@@ -55,7 +55,9 @@ func display_shell(
 	player_tank_config: PlayerTankConfig, shell_spec_data: ShellSpec, player_dollars: int
 ) -> void:
 	shell_spec = shell_spec_data
-	var tank_spec := TankManager.tank_specs[player_tank_config.tank_id]
+	var tank_spec: TankSpec = TankManager.tank_specs.get(player_tank_config.tank_id)
+	if tank_spec == null:
+		return
 	var is_locked: bool = not player_tank_config.shell_amounts.has(shell_spec)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture

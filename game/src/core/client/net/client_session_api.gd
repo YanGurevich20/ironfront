@@ -14,7 +14,7 @@ func send_client_hello(protocol_version: int, player_name: String) -> void:
 
 func send_join_arena(
 	player_name: String,
-	selected_tank_id: int,
+	selected_tank_id: String,
 	shell_loadout_by_id: Dictionary,
 	selected_shell_id: String
 ) -> void:
@@ -38,7 +38,7 @@ func _receive_client_hello(_client_protocol_version: int, _player_name: String) 
 @rpc("any_peer", "reliable")
 func _join_arena(
 	_player_name: String,
-	_requested_tank_id: int,
+	_requested_tank_id: String,
 	_requested_shell_loadout_by_id: Dictionary,
 	_requested_selected_shell_id: String
 ) -> void:

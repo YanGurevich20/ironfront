@@ -1,14 +1,14 @@
 class_name PlayerData extends Resource
 
-const DEFAULT_TANK_ID: TankManager.TankId = TankManager.TankId.M4A1_SHERMAN
-const FILE_NAME: String = "player_data"
+const DEFAULT_TANK_ID: String = TankManager.TANK_ID_M4A1_SHERMAN
+const FILE_NAME: String = "player_data_v2"
 
 @export var player_name: String = "Player"
 @export var stars_per_level: Dictionary[int, int] = {}
 @export var dollars: int = 300_000
 @export var bonds: int = 0
-@export var tank_configs: Dictionary[TankManager.TankId, PlayerTankConfig] = {}
-@export var selected_tank_id: TankManager.TankId
+@export var tank_configs: Dictionary[String, PlayerTankConfig] = {}
+@export var selected_tank_id: String
 @export var is_developer: bool = false
 
 
@@ -40,14 +40,14 @@ func get_stars_for_level(level: int) -> int:
 	return stars_per_level.get(level, 0)
 
 
-func get_unlocked_tank_ids() -> Array[TankManager.TankId]:
-	var unlocked_tank_ids: Array[TankManager.TankId] = []
-	for id: TankManager.TankId in tank_configs.keys():
-		unlocked_tank_ids.append(id)
+func get_unlocked_tank_ids() -> Array[String]:
+	var unlocked_tank_ids: Array[String] = []
+	for tank_id: String in tank_configs.keys():
+		unlocked_tank_ids.append(tank_id)
 	return unlocked_tank_ids
 
 
-func get_tank_config(tank_id: TankManager.TankId) -> PlayerTankConfig:
+func get_tank_config(tank_id: String) -> PlayerTankConfig:
 	return tank_configs[tank_id]
 
 
@@ -55,7 +55,7 @@ func get_current_tank_config() -> PlayerTankConfig:
 	return get_tank_config(selected_tank_id)
 
 
-func unlock_tank(tank_id: TankManager.TankId) -> void:
+func unlock_tank(tank_id: String) -> void:
 	if tank_configs.has(tank_id):
 		push_warning("Tank already unlocked: ", tank_id)
 		return
@@ -78,7 +78,7 @@ func build_join_arena_payload() -> Dictionary:
 		not selected_shell_id.is_empty(), "No usable shell for tank_id: %s" % tank_config.tank_id
 	)
 	return {
-		"tank_id": int(tank_config.tank_id),
+		"tank_id": tank_config.tank_id,
 		"shell_loadout_by_id": shell_loadout_by_id,
 		"selected_shell_id": selected_shell_id,
 	}

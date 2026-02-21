@@ -9,6 +9,7 @@ fix:
 	pnpm run fix
 
 dev:
+	just dev-db
 	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run dev
 
 dev-db:

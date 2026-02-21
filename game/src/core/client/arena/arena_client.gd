@@ -107,7 +107,7 @@ func end_session(status_message: String) -> void:
 func _send_join_arena() -> void:
 	var player_data: PlayerData = PlayerData.get_instance()
 	var join_loadout_payload: Dictionary = player_data.build_join_arena_payload()
-	var selected_tank_id: int = int(
+	var selected_tank_id: String = str(
 		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
 	)
 	session_api.send_join_arena(

@@ -1,7 +1,7 @@
 class_name ArenaSessionState
 extends RefCounted
 
-const DEFAULT_TANK_ID: int = int(TankManager.TankId.M4A1_SHERMAN)
+const DEFAULT_TANK_ID: String = TankManager.TANK_ID_M4A1_SHERMAN
 
 var max_players: int = 10
 var created_unix_time: float = 0.0
@@ -16,7 +16,7 @@ func _init(max_player_count: int = 10) -> void:
 func try_join_peer(
 	peer_id: int,
 	player_name: String,
-	requested_tank_id: int,
+	requested_tank_id: String,
 	requested_shell_loadout_by_id: Dictionary,
 	requested_selected_shell_id: String
 ) -> Dictionary:
@@ -35,7 +35,7 @@ func try_join_peer(
 			"message": str(validation_result.get("message", "INVALID TANK CONFIGURATION")),
 		}
 
-	var tank_id: int = int(validation_result.get("tank_id", DEFAULT_TANK_ID))
+	var tank_id: String = str(validation_result.get("tank_id", DEFAULT_TANK_ID))
 	var selected_shell_id: String = str(validation_result.get("selected_shell_id", ""))
 	var ammo_by_shell_id: Dictionary = validation_result.get("ammo_by_shell_id", {})
 
@@ -237,11 +237,11 @@ func consume_peer_shell_ammo(peer_id: int, shell_id: String) -> bool:
 	return true
 
 
-func get_peer_tank_id(peer_id: int) -> int:
+func get_peer_tank_id(peer_id: int) -> String:
 	if not players_by_peer_id.has(peer_id):
 		return DEFAULT_TANK_ID
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	return int(peer_state.get("tank_id", DEFAULT_TANK_ID))
+	return str(peer_state.get("tank_id", DEFAULT_TANK_ID))
 
 
 func get_peer_selected_shell_id(peer_id: int) -> String:
@@ -316,16 +316,19 @@ func get_player_count() -> int:
 
 
 func _validate_requested_loadout(
-	requested_tank_id: int,
+	requested_tank_id: String,
 	requested_shell_loadout_by_id: Dictionary,
 	requested_selected_shell_id: String
 ) -> Dictionary:
 	var validation_result: Dictionary = {"valid": false, "message": "INVALID TANK CONFIGURATION"}
-	var tank_id: int = requested_tank_id
+	var tank_id: String = requested_tank_id.strip_edges()
+	if tank_id.is_empty():
+		tank_id = DEFAULT_TANK_ID
 	if not TankManager.tank_specs.has(tank_id):
 		validation_result["message"] = "INVALID TANK"
 		return validation_result
-	var tank_spec: TankSpec = TankManager.tank_specs[tank_id]
+	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id)
+	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % tank_id)
 	var allowed_shell_ids: Array[String] = ShellManager.get_shell_ids_for_tank(tank_id)
 	if allowed_shell_ids.is_empty():
 		validation_result["message"] = "TANK HAS NO SHELLS"

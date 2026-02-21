@@ -6,5 +6,7 @@ class_name TankDisplayPanel extends Control
 func display_tank(player_data: PlayerData) -> void:
 	if not player_data.is_selected_tank_valid():
 		return
-	var tank_spec: TankSpec = TankManager.tank_specs[player_data.selected_tank_id]
+	var tank_spec: TankSpec = TankManager.tank_specs.get(player_data.selected_tank_id)
+	if tank_spec == null:
+		return
 	tank_display.texture = tank_spec.preview_texture

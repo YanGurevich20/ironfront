@@ -127,13 +127,13 @@ func _spawn_tank(tank: Tank, spawn_point: Marker2D) -> void:
 
 func _spawn_player() -> void:
 	var player_data: PlayerData = PlayerData.get_instance()
-	var selected_tank_id: TankManager.TankId = player_data.selected_tank_id
-	var unlocked_tank_ids: Array[TankManager.TankId] = player_data.get_unlocked_tank_ids()
+	var selected_tank_id: String = player_data.selected_tank_id
+	var unlocked_tank_ids: Array[String] = player_data.get_unlocked_tank_ids()
 	if !unlocked_tank_ids.has(selected_tank_id):
 		if unlocked_tank_ids.size() > 0:
 			selected_tank_id = unlocked_tank_ids[0]
 		else:
-			selected_tank_id = TankManager.TankId.TIGER_1
+			selected_tank_id = TankManager.TANK_ID_TIGER_1
 	var player: Tank = TankManager.create_tank(selected_tank_id, TANK_CONTROLLER_TYPE.PLAYER)
 	player_tank = player
 	_spawn_tank(player_tank, player_spawn_point)
@@ -146,7 +146,7 @@ func _spawn_enemies() -> void:
 			TANK_CONTROLLER_TYPE.DUMMY if is_dummy else TANK_CONTROLLER_TYPE.AI
 		)
 		var enemy_tank: Tank = TankManager.create_tank(
-			TankManager.TankId.M4A1_SHERMAN, controller_type
+			TankManager.TANK_ID_M4A1_SHERMAN, controller_type
 		)
 		_spawn_tank(enemy_tank, spawn_point)
 

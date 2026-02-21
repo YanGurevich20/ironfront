@@ -19,7 +19,9 @@ func display_ammo_upgrade_list(player_data_input: PlayerData) -> void:
 	var tank_config: PlayerTankConfig = player_data.get_current_tank_config()
 	for child in get_children():
 		child.queue_free()
-	var tank_spec := TankManager.tank_specs[tank_config.tank_id]
+	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_config.tank_id)
+	if tank_spec == null:
+		return
 	max_allowed_count = tank_spec.shell_capacity
 	for shell_spec: ShellSpec in tank_spec.allowed_shells:
 		var list_item: AmmoUpgradeListItem = ammo_upgrade_list_item_scene.instantiate()

@@ -355,7 +355,7 @@ func _spawn_remote_tank(
 ) -> void:
 	assert(arena_level != null, "ArenaReplication requires arena_level")
 	var remote_tank: Tank = TankManager.create_tank(
-		TankManager.TankId.M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
+		TankManager.TANK_ID_M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
 	)
 	remote_tank.display_player_name = player_name.strip_edges()
 	remote_tank.freeze = true

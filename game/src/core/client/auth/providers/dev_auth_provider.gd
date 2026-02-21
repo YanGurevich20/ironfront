@@ -2,7 +2,7 @@ class_name DevAuthProvider
 extends AuthProvider
 
 @export var dev_user_id: String = "dev-local-user"
-@export var sign_in_delay_seconds: float = 3.0
+@export var sign_in_delay_seconds: float = 1.0
 
 
 func sign_in() -> void:
@@ -26,5 +26,6 @@ func _complete_sign_in() -> void:
 		return
 	_set_sign_in_in_progress(false)
 	var issued_at_msec: int = int(Time.get_unix_time_from_system() * 1000)
-	var proof: String = "%s:%d" % [dev_user_id, issued_at_msec]
+	var unique_id: String = "%s-%s" % [dev_user_id, Env.get_env("instance_id", "")]
+	var proof: String = "%s:%d" % [unique_id, issued_at_msec]
 	sign_in_succeeded.emit(AuthResult.new("dev", proof, 0))

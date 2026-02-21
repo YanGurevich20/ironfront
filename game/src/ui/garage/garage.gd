@@ -18,8 +18,10 @@ func _ready() -> void:
 	display_player_data()
 
 
-func _on_tank_unlock_requested(tank_id: TankManager.TankId) -> void:
-	var tank_spec: TankSpec = TankManager.tank_specs[tank_id]
+func _on_tank_unlock_requested(tank_id: String) -> void:
+	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id)
+	if tank_spec == null:
+		return
 	if player_data.dollars < tank_spec.dollar_cost:
 		return  #TODO: Feedback insufficient funds
 	player_data.dollars -= tank_spec.dollar_cost
@@ -39,7 +41,7 @@ func _on_shell_unlock_requested(shell_spec: ShellSpec) -> void:
 	display_player_data()
 
 
-func _on_tank_selected(tank_id: TankManager.TankId) -> void:
+func _on_tank_selected(tank_id: String) -> void:
 	player_data.selected_tank_id = tank_id
 	player_data.save()
 	display_player_data()

@@ -28,7 +28,7 @@ const CALIBER_THRESHOLD_LARGE: float = 120.0
 
 @export_category("Info")
 @export_group("Info")
-@export var id: String
+@export var tank_id: String
 @export var display_name: String
 @export var full_name: String
 @export var nation: String

@@ -26,7 +26,9 @@ func _ready() -> void:
 func initialize() -> void:
 	var player_data := PlayerData.get_instance()
 	var player_tank_config: PlayerTankConfig = player_data.get_current_tank_config()
-	tank_spec = TankManager.tank_specs[player_tank_config.tank_id]
+	tank_spec = TankManager.tank_specs.get(player_tank_config.tank_id)
+	if tank_spec == null:
+		return
 	shell_counts = player_tank_config.shell_amounts.duplicate()
 	for shell_spec: ShellSpec in shell_counts.keys():
 		if shell_counts[shell_spec] == 0:

@@ -4,7 +4,7 @@ extends Node
 signal arena_join_requested(
 	peer_id: int,
 	player_name: String,
-	requested_tank_id: int,
+	requested_tank_id: String,
 	requested_shell_loadout_by_id: Dictionary,
 	requested_selected_shell_id: String
 )
@@ -33,7 +33,7 @@ func _receive_client_hello(client_protocol_version: int, player_name: String) ->
 @rpc("any_peer", "reliable")
 func _join_arena(
 	player_name: String,
-	requested_tank_id: int,
+	requested_tank_id: String,
 	requested_shell_loadout_by_id: Dictionary,
 	requested_selected_shell_id: String
 ) -> void:
