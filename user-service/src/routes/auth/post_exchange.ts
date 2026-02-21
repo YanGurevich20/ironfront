@@ -65,8 +65,6 @@ export async function postExchangeHandler(context: Context) {
     return context.json({ error: identity.error }, identity.statusCode);
   }
 
-  const providerSubject = identity.providerSubject;
-  const providerUsername = identity.providerUsername.trim();
   const issuedSession = issueSession(config.sessionTtlSeconds);
 
   const result = await db.transaction(async (tx) => {
@@ -74,7 +72,7 @@ export async function postExchangeHandler(context: Context) {
       columns: { account_id: true },
       where: and(
         eq(authIdentities.provider, body.provider),
-        eq(authIdentities.provider_subject, providerSubject)
+        eq(authIdentities.provider_subject, identity.providerSubject)
       )
     });
 
@@ -87,11 +85,11 @@ export async function postExchangeHandler(context: Context) {
       accountId = createdAccountId;
       await tx.insert(accounts).values({
         account_id: createdAccountId,
-        username: providerUsername
+        username: identity.providerUsername.trim()
       });
       await tx.insert(authIdentities).values({
         provider: body.provider,
-        provider_subject: providerSubject,
+        provider_subject: identity.providerSubject,
         account_id: createdAccountId
       });
     }
@@ -109,12 +107,10 @@ export async function postExchangeHandler(context: Context) {
     };
   });
 
-  const response: AuthExchangeResponse = {
+  return context.json<AuthExchangeResponse>({
     account_id: result.accountId,
     session_token: issuedSession.token,
     expires_at_unix: issuedSession.expiresAtUnix,
     is_new_account: result.isNewAccount
-  };
-
-  return context.json(response);
+  });
 }
