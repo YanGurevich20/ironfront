@@ -3,6 +3,7 @@ extends PanelContainer
 
 var player_data: PlayerData = PlayerData.get_instance()
 var preferences: Preferences = Preferences.get_instance()
+var account: Account = Account.get_instance()
 var feedback_display_token: int = 0
 
 @onready var dollars_label: Label = %DollarsLabel
@@ -18,14 +19,18 @@ func _ready() -> void:
 		garage_menu_button.pressed, func() -> void: UiBus.garage_menu_pressed.emit()
 	)
 	Utils.connect_checked(play_button.pressed, _on_play_pressed)
+	Utils.connect_checked(
+		account.economy.dollars_updated, func(_new_dollars: int) -> void: _refresh_economy_labels()
+	)
+	Utils.connect_checked(
+		account.economy.bonds_updated, func(_new_bonds: int) -> void: _refresh_economy_labels()
+	)
+	_refresh_economy_labels()
 
 
-func display_player_data() -> void:
-	var dollars: int = player_data.dollars
-	var bonds: int = player_data.bonds
-	dollars_label.text = Utils.format_dollars(dollars)
-	bonds_label.text = Utils.format_bonds(bonds)
-
+func _refresh_economy_labels() -> void:
+	dollars_label.text = Utils.format_dollars(account.economy.dollars)
+	bonds_label.text = Utils.format_bonds(account.economy.bonds)
 
 func _on_play_pressed() -> void:
 	var selected_tank_id: String = preferences.selected_tank_id

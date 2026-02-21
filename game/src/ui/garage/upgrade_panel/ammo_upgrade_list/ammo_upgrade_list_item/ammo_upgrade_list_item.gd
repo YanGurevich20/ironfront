@@ -7,9 +7,11 @@ enum State { LOCKED = 0, UNLOCKABLE = 1, UNLOCKED = 2 }
 
 const MAX_TICK_COUNT: int = 20
 
+var account: Account = Account.get_instance()
 var shell_spec: ShellSpec
 var current_count: int
 var current_allowed_count: int
+var is_locked: bool = true
 var state: State:
 	set(value):
 		_state = value
@@ -51,14 +53,12 @@ var _state: State = State.LOCKED
 @onready var price_label: Label = %PriceLabel
 
 
-func display_shell(
-	player_tank_config: PlayerTankConfig, shell_spec_data: ShellSpec, player_dollars: int
-) -> void:
+func display_shell(player_tank_config: PlayerTankConfig, shell_spec_data: ShellSpec) -> void:
 	shell_spec = shell_spec_data
 	var tank_spec: TankSpec = TankManager.tank_specs.get(player_tank_config.tank_id)
 	if tank_spec == null:
 		return
-	var is_locked: bool = not player_tank_config.shell_amounts.has(shell_spec)
+	is_locked = not player_tank_config.shell_amounts.has(shell_spec)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
 	shell_name_label.text = shell_spec.shell_name
@@ -72,10 +72,7 @@ func display_shell(
 	if is_locked:
 		current_allowed_count = 0
 		update_count(0)
-		if player_dollars >= shell_spec.unlock_cost:
-			state = State.UNLOCKABLE
-		else:
-			state = State.LOCKED
+		_refresh_locked_state()
 	else:
 		var loaded_count := player_tank_config.get_shell_amount(shell_spec)
 		var current_total_count := player_tank_config.get_total_shell_count()
@@ -86,6 +83,9 @@ func display_shell(
 
 
 func _ready() -> void:
+	Utils.connect_checked(
+		account.economy.dollars_updated, func(_new_dollars: int) -> void: _refresh_locked_state()
+	)
 	Utils.connect_checked(shell_button.pressed, func() -> void: _on_shell_button_pressed())
 	Utils.connect_checked(
 		count_decrement_button.pressed, func() -> void: update_count(current_count - 1)
@@ -121,6 +121,15 @@ func _set_lock_overlay_visibility(show_lock_overlay: bool) -> void:
 
 func _set_unlockable_overlay_visibility(show_unlockable_overlay: bool) -> void:
 	unlockable_overlay.visible = show_unlockable_overlay
+
+
+func _refresh_locked_state() -> void:
+	if not is_locked:
+		return
+	if account.economy.dollars >= shell_spec.unlock_cost:
+		state = State.UNLOCKABLE
+		return
+	state = State.LOCKED
 
 
 func _on_shell_button_pressed() -> void:

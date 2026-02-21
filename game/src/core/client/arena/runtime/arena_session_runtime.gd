@@ -61,8 +61,8 @@ func build_summary(status_message: String) -> Dictionary:
 	return rewards.build_summary(status_message)
 
 
-func apply_rewards(player_data: PlayerData) -> void:
-	rewards.apply_rewards(player_data)
+func apply_rewards() -> void:
+	rewards.apply_rewards()
 
 
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:

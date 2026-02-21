@@ -54,5 +54,5 @@ func display_player_data(player_data: PlayerData) -> void:
 		return
 	is_tank_selected = true
 	select_tank_warning.visible = false
-	ammo_upgrade_list.display_ammo_upgrade_list(player_data, selected_tank_id)
+	ammo_upgrade_list.display_ammo_upgrade_list(player_data)
 	_show_list(ammo_upgrade_list, ammo_button)

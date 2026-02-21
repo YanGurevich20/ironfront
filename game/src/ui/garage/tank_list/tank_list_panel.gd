@@ -4,7 +4,7 @@ extends Control
 signal unlock_tank_requested(tank_id: String)
 
 var preferences: Preferences = Preferences.get_instance()
-var _player_dollars: int = 0
+var account: Account = Account.get_instance()
 var _unlocked_tank_ids: Array[String] = []
 
 @onready var tank_list: HBoxContainer = %TankList
@@ -16,6 +16,9 @@ var _unlocked_tank_ids: Array[String] = []
 func _ready() -> void:
 	Utils.connect_checked(
 		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: _update_item_states()
+	)
+	Utils.connect_checked(
+		account.economy.dollars_updated, func(_new_dollars: int) -> void: _update_item_states()
 	)
 	for child in tank_list.get_children():
 		tank_list.remove_child(child)
@@ -56,6 +59,7 @@ func _ready() -> void:
 
 func _update_item_states() -> void:
 	var selected_id: String = preferences.selected_tank_id
+	var player_dollars: int = account.economy.dollars
 	for item: TankListItem in tank_list.get_children():
 		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
 		if unlocked:
@@ -64,7 +68,7 @@ func _update_item_states() -> void:
 			else:
 				item.state = item.State.UNLOCKED
 		else:
-			if _player_dollars >= item.tank_price:
+			if player_dollars >= item.tank_price:
 				item.state = item.State.UNLOCKABLE
 			else:
 				item.state = item.State.LOCKED
@@ -103,6 +107,5 @@ func select_tank_by_id(tank_id: String) -> void:
 
 # Public API for parent to provide latest player data.
 func display_player_data(player_data: PlayerData) -> void:
-	_player_dollars = player_data.dollars
 	_unlocked_tank_ids = player_data.get_unlocked_tank_ids()
 	_update_item_states()
