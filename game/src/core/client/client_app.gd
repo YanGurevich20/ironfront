@@ -59,18 +59,15 @@ func _on_arena_session_ended(summary: Dictionary) -> void:
 	ui_manager.display_online_match_end(summary)
 
 
-func _on_auth_sign_in_succeeded(result: AuthResult) -> void:
+func _on_auth_sign_in_succeeded(_result: AuthResult) -> void:
 	var account: Account = Account.get_instance()
-	account.hydrate_frm_auth_result(result)
-	account.save()
-
 	var player_data: PlayerData = PlayerData.get_instance()
-	var resolved_username: String = result.username.strip_edges()
+	var resolved_username: String = account.username.strip_edges()
 	if not resolved_username.is_empty():
 		player_data.player_name = resolved_username
 		player_data.save()
 	UiBus.auth_sign_in_finished.emit(true)
-	if result.username_updated_at_unix == null or int(result.username_updated_at_unix) <= 0:
+	if account.username_updated_at <= 0:
 		return
 	UiBus.login_pressed.emit()
 

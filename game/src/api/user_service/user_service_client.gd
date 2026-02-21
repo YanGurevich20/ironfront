@@ -47,21 +47,15 @@ func exchange_auth(provider_result: AuthResult) -> UserServiceExchangeAuthResult
 			str(me_result.get("reason", "USER_SERVICE_ME_REQUEST_FAILED"))
 		)
 
-	var me_body: UserServiceMeResponseBody = UserServiceMeResponseBody.from_dict(
-		me_result.get("body", {})
-	)
+	var me_body: Dictionary = me_result.get("body", {})
+	UserServiceMeResponseParser.hydrate_account_from_me_body(me_body)
 
 	return UserServiceExchangeAuthResult.ok(
 		AuthResult.new(
 			provider_result.provider,
 			provider_result.proof,
 			exchange_body.expires_at_unix,
-			exchange_body.account_id,
-			me_body.username,
-			exchange_body.session_token,
-			me_body.username_updated_at_unix,
-			me_body.economy,
-			me_body.loadout
+			exchange_body.session_token
 		)
 	)
 

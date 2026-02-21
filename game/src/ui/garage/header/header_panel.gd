@@ -32,6 +32,7 @@ func _refresh_economy_labels() -> void:
 	dollars_label.text = Utils.format_dollars(account.economy.dollars)
 	bonds_label.text = Utils.format_bonds(account.economy.bonds)
 
+
 func _on_play_pressed() -> void:
 	var selected_tank_id: String = preferences.selected_tank_id
 	if not player_data.is_tank_unlocked(selected_tank_id):

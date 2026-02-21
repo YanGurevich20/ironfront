@@ -19,7 +19,6 @@ var _user_service_client: UserServiceClient
 var _is_signed_in: bool = false
 var _is_sign_in_in_progress: bool = false
 var _session_token: String = ""
-var _auth_result: AuthResult
 
 
 func _ready() -> void:
@@ -49,7 +48,6 @@ func sign_out() -> void:
 	_is_signed_in = false
 	_is_sign_in_in_progress = false
 	_session_token = ""
-	_auth_result = null
 	_active_provider.sign_out()
 
 
@@ -74,19 +72,13 @@ func _on_provider_sign_in_succeeded(result: AuthResult) -> void:
 	_is_signed_in = true
 	_is_sign_in_in_progress = false
 	_session_token = auth_result.session_token
-	_auth_result = auth_result
+	var account: Account = Account.get_instance()
 	_log_auth(
-		(
-			"sign-in completed account_id=%s username=%s"
-			% [auth_result.account_id, auth_result.username]
-		)
+		"sign-in completed account_id=%s username=%s" % [account.account_id, account.username]
 	)
 	sign_in_succeeded.emit(auth_result)
-	if (
-		auth_result.username_updated_at_unix == null
-		or int(auth_result.username_updated_at_unix) <= 0
-	):
-		username_setup_required.emit(auth_result.username)
+	if account.username_updated_at <= 0:
+		username_setup_required.emit(account.username)
 
 
 func _on_provider_sign_in_failed(reason: String) -> void:
@@ -99,9 +91,6 @@ func _on_provider_sign_in_failed(reason: String) -> void:
 func submit_username(username: String) -> void:
 	if not _is_signed_in:
 		username_submit_completed.emit(false, "NOT_SIGNED_IN", "")
-		return
-	if _auth_result == null:
-		username_submit_completed.emit(false, "AUTH_RESULT_MISSING", "")
 		return
 	var trimmed_username: String = username.strip_edges()
 	if trimmed_username.is_empty():
@@ -119,8 +108,10 @@ func submit_username(username: String) -> void:
 		username_submit_completed.emit(false, "USERNAME_PATCH_PARSE_FAILED", "")
 		return
 
-	_auth_result.username = patch_body.username
-	_auth_result.username_updated_at_unix = patch_body.username_updated_at_unix
+	var account: Account = Account.get_instance()
+	account.username = patch_body.username
+	account.username_updated_at = patch_body.username_updated_at_unix
+	account.save()
 	username_submit_completed.emit(true, "", patch_body.username)
 
 
