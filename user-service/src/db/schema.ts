@@ -1,7 +1,8 @@
 import { integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { ulid } from "ulid";
 
 export const accounts = pgTable("accounts", {
-  account_id: text().primaryKey(),
+  account_id: text().$defaultFn(() => ulid()).primaryKey(),
   username: text(),
   username_updated_at_unix: integer(),
   economy: jsonb().notNull().$type<Record<string, unknown>>().default({dollars: 1_000, bonds: 0}),
@@ -28,11 +29,15 @@ export const authIdentities = pgTable(
   ]
 );
 
-export const sessions = pgTable("sessions", {
-  session_token_hash: text().primaryKey(),
-  account_id: text()
-    .notNull()
-    .references(() => accounts.account_id, { onDelete: "cascade" }),
-  expires_at_unix: integer().notNull(),
-  created_at: timestamp({ withTimezone: true }).notNull().defaultNow()
-});
+export const sessions = pgTable(
+  "sessions",
+  {
+    session_token_hash: text().primaryKey(),
+    account_id: text()
+      .notNull()
+      .references(() => accounts.account_id, { onDelete: "cascade" }),
+    expires_at_unix: integer().notNull(),
+    created_at: timestamp({ withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [uniqueIndex("sessions_account_id_idx").on(table.account_id)]
+);

@@ -1,12 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { verifyPgsAuthCode } from "../../auth/pgs.js";
 import { issueSession } from "../../auth/tokens.js";
 import { config } from "../../config.js";
 import { db } from "../../db/client.js";
-import { accounts, authIdentities, sessions } from "../../db/schema.js";
+import { getOrCreateAccount } from "../../db/queries/get_or_create_account.js";
+import { sessions } from "../../db/schema.js";
 import type { AuthExchangeResponse } from "../../types.js";
-import { ulid } from "ulid";
 
 export type ExchangeBody = {
   provider: "dev" | "pgs";
@@ -68,41 +68,29 @@ export async function postExchangeHandler(context: Context) {
   const issuedSession = issueSession(config.sessionTtlSeconds);
 
   const result = await db.transaction(async (tx) => {
-    const existingIdentity = await tx.query.authIdentities.findFirst({
-      columns: { account_id: true },
-      where: and(
-        eq(authIdentities.provider, body.provider),
-        eq(authIdentities.provider_subject, identity.providerSubject)
-      )
+    const accountResult = await getOrCreateAccount(tx, {
+      provider: body.provider,
+      providerSubject: identity.providerSubject,
+      providerUsername: identity.providerUsername
     });
+    const accountId = accountResult.accountId;
 
-    let accountId = existingIdentity?.account_id ?? "";
-    let isNewAccount = false;
-
-    if (!accountId) {
-      isNewAccount = true;
-      const createdAccountId = ulid();
-      accountId = createdAccountId;
-      await tx.insert(accounts).values({
-        account_id: createdAccountId,
-        username: identity.providerUsername.trim()
+    await tx
+      .insert(sessions)
+      .values({
+        account_id: accountId,
+        session_token_hash: issuedSession.tokenHash,
+        expires_at_unix: issuedSession.expiresAtUnix
+      })
+      .onConflictDoUpdate({
+        target: sessions.account_id,
+        set: {
+          session_token_hash: issuedSession.tokenHash,
+          expires_at_unix: issuedSession.expiresAtUnix
+        }
       });
-      await tx.insert(authIdentities).values({
-        provider: body.provider,
-        provider_subject: identity.providerSubject,
-        account_id: createdAccountId
-      });
-    }
-
-    await tx.delete(sessions).where(eq(sessions.account_id, accountId));
-
-    await tx.insert(sessions).values({
-      account_id: accountId,
-      session_token_hash: issuedSession.tokenHash,
-      expires_at_unix: issuedSession.expiresAtUnix
-    });
     return {
-      isNewAccount,
+      isNewAccount: accountResult.isNewAccount,
       accountId
     };
   });
