@@ -14,8 +14,9 @@ Response:
 ## GET /me
 - Requires `Authorization: Bearer <session_token>`.
 - Returns authoritative profile payload.
+- Time fields use Unix timestamp integers (seconds) with nullable semantics when unset (for example `username_updated_at_unix: number | null`).
 
 ## PATCH /me/username
 - Requires `Authorization: Bearer <session_token>`.
 - Request: `{ username }`
-- Marks username onboarding complete by setting `username_updated_at`.
+- Marks username onboarding complete by setting `username_updated_at_unix`.

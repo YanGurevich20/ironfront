@@ -3,7 +3,7 @@ import { integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-o
 export const accounts = pgTable("accounts", {
   account_id: text().primaryKey(),
   username: text(),
-  username_updated_at: timestamp({ withTimezone: true }),
+  username_updated_at_unix: integer(),
   economy: jsonb().notNull().$type<Record<string, unknown>>().default({dollars: 1_000, bonds: 0}),
   loadout: jsonb().notNull().$type<Record<string, unknown>>().default({tank_configs: {}}),
   created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),

@@ -15,8 +15,7 @@ export async function getMeHandler(context: Context<{ Variables: MeRouteVars }>)
   return context.json({
     account_id: account.account_id,
     username: account.username,
-    username_updated_at: account.username_updated_at,
-    progression: account.progression,
+    username_updated_at_unix: account.username_updated_at_unix,
     economy: account.economy,
     loadout: account.loadout
   });

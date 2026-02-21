@@ -96,6 +96,8 @@ export async function postExchangeHandler(context: Context) {
       });
     }
 
+    await tx.delete(sessions).where(eq(sessions.account_id, accountId));
+
     await tx.insert(sessions).values({
       account_id: accountId,
       session_token_hash: issuedSession.tokenHash,

@@ -17,7 +17,7 @@ export async function patchUsernameHandler(context: Context<{ Variables: MeRoute
     .update(accounts)
     .set({
       username,
-      username_updated_at: new Date(),
+      username_updated_at_unix: Math.floor(Date.now() / 1000),
       updated_at: new Date()
     })
     .where(eq(accounts.account_id, accountId));
@@ -32,6 +32,6 @@ export async function patchUsernameHandler(context: Context<{ Variables: MeRoute
   return context.json({
     account_id: account.account_id,
     username: account.username,
-    username_updated_at: account.username_updated_at
+    username_updated_at_unix: account.username_updated_at_unix
   });
 }

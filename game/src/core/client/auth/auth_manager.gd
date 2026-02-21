@@ -82,7 +82,7 @@ func _on_provider_sign_in_succeeded(result: AuthResult) -> void:
 		)
 	)
 	sign_in_succeeded.emit(auth_result)
-	if auth_result.username_updated_at.is_empty():
+	if auth_result.username_updated_at <= 0:
 		username_setup_required.emit(auth_result.username)
 
 

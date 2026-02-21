@@ -31,6 +31,7 @@ var network_server: Node = get_node("/root/Main/Runtime/Network")
 ## 4) Parse at Boundaries, Keep Internals Typed
 - RPC payloads and generic dictionaries are trust boundaries.
 - Parse/coerce once, then continue with typed values.
+- For external time fields (for example HTTP/API payloads), convert at the boundary to Unix timestamp integers (seconds) and use Unix `int` internally.
 
 Good:
 ```gdscript

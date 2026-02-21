@@ -26,6 +26,9 @@ push-image tag=(`git rev-parse --short HEAD` + "-" + `date +%Y%m%d%H%M%S`):
 migrate target:
 	just _migrate-{{target}}
 
+studio target:
+	just _studio-{{target}}
+
 _migrate-prod:
 	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
 	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts prod)"; \
@@ -45,7 +48,26 @@ _migrate-prod:
 _migrate-dev:
 	just dev-db
 	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run db:push
-	
+
+_studio-dev:
+	just dev-db
+	set -a; source ../infra/.env.dev 2>/dev/null || true; set +a; pnpm run db:studio
+
+_studio-prod:
+	command -v cloud-sql-proxy >/dev/null || { echo "cloud-sql-proxy is required"; exit 1; }; \
+	eval "$(pnpm -s tsx src/scripts/resolve_stack_env.ts prod)"; \
+	INSTANCE_CONN="${STACK_GCP_PROJECT}:${STACK_GCP_REGION}:${STACK_DB_INSTANCE}"; \
+	echo "Starting cloud-sql-proxy for $INSTANCE_CONN"; \
+	cloud-sql-proxy --address 127.0.0.1 --port 5432 "$INSTANCE_CONN" >/tmp/cloud-sql-proxy.log 2>&1 & \
+	PROXY_PID=$!; \
+	cleanup() { kill "$PROXY_PID" >/dev/null 2>&1 || true; }; \
+	trap cleanup EXIT; \
+	for i in $(seq 1 20); do \
+		if nc -z 127.0.0.1 5432 >/dev/null 2>&1; then break; fi; \
+		sleep 0.5; \
+	done; \
+	DATABASE_URL="postgresql://${STACK_DB_USER}:${STACK_DB_PASSWORD_ENCODED}@127.0.0.1:5432/${STACK_DB_NAME}" pnpm run db:studio
+
 deploy:
 	TAG="$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)"; \
 	just push-image "$TAG"; \

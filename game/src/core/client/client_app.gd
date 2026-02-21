@@ -103,13 +103,17 @@ func _on_arena_session_ended(summary: Dictionary) -> void:
 
 
 func _on_auth_sign_in_succeeded(result: AuthResult) -> void:
+	var account: Account = Account.get_instance()
+	account.hydrate_frm_auth_result(result)
+	account.save()
+
 	var player_data: PlayerData = PlayerData.get_instance()
 	var resolved_username: String = result.username.strip_edges()
 	if not resolved_username.is_empty():
 		player_data.player_name = resolved_username
 		player_data.save()
 	UiBus.auth_sign_in_finished.emit(true)
-	if result.username_updated_at.is_empty():
+	if result.username_updated_at <= 0:
 		return
 	UiBus.login_pressed.emit()
 
@@ -127,6 +131,9 @@ func _on_username_submit_completed(success: bool, reason: String, username: Stri
 	if not success:
 		UiBus.username_submit_finished.emit(false, reason)
 		return
+	var account: Account = Account.get_instance()
+	account.username = username
+	account.save()
 	var player_data: PlayerData = PlayerData.get_instance()
 	player_data.player_name = username
 	player_data.save()

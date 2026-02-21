@@ -17,9 +17,6 @@ func exchange_auth(provider_result: AuthResult) -> UserServiceExchangeAuthResult
 		"provider": provider_result.provider,
 		"proof": provider_result.proof,
 	}
-	var failure_reason: String = ""
-	var exchange_body: UserServiceExchangeResponseBody
-	var me_body: UserServiceMeResponseBody
 	var exchange_result: Dictionary[String, Variant] = await _api_client.request_json(
 		exchange_url,
 		HTTPClient.METHOD_POST,
@@ -27,28 +24,33 @@ func exchange_auth(provider_result: AuthResult) -> UserServiceExchangeAuthResult
 		JSON.stringify(exchange_payload)
 	)
 	if not bool(exchange_result.get("success", false)):
-		failure_reason = str(exchange_result.get("reason", "USER_SERVICE_EXCHANGE_FAILED"))
-	else:
-		exchange_body = UserServiceExchangeResponseBody.from_dict(exchange_result.get("body", {}))
-		if exchange_body == null:
-			failure_reason = "USER_SERVICE_EXCHANGE_PARSE_FAILED"
-		else:
-			_log_user_service("exchange succeeded, fetching profile")
-			var me_url: String = "%s/me" % _base_url
-			var me_result: Dictionary[String, Variant] = await _api_client.request_json(
-				me_url,
-				HTTPClient.METHOD_GET,
-				["Authorization: Bearer %s" % exchange_body.session_token],
-				""
-			)
-			if not bool(me_result.get("success", false)):
-				failure_reason = str(me_result.get("reason", "USER_SERVICE_ME_REQUEST_FAILED"))
-			else:
-				me_body = UserServiceMeResponseBody.from_dict(me_result.get("body", {}))
-				if me_body == null:
-					failure_reason = "USER_SERVICE_ME_PARSE_FAILED"
-	if not failure_reason.is_empty():
-		return UserServiceExchangeAuthResult.fail(failure_reason)
+		return UserServiceExchangeAuthResult.fail(
+			str(exchange_result.get("reason", "USER_SERVICE_EXCHANGE_FAILED"))
+		)
+
+	var exchange_body: UserServiceExchangeResponseBody = UserServiceExchangeResponseBody.from_dict(
+		exchange_result.get("body", {})
+	)
+	if exchange_body == null:
+		return UserServiceExchangeAuthResult.fail("USER_SERVICE_EXCHANGE_PARSE_FAILED")
+
+	_log_user_service("exchange succeeded, fetching profile")
+	var me_url: String = "%s/me" % _base_url
+	var me_result: Dictionary[String, Variant] = await _api_client.request_json(
+		me_url,
+		HTTPClient.METHOD_GET,
+		["Authorization: Bearer %s" % exchange_body.session_token],
+		""
+	)
+	if not bool(me_result.get("success", false)):
+		return UserServiceExchangeAuthResult.fail(
+			str(me_result.get("reason", "USER_SERVICE_ME_REQUEST_FAILED"))
+		)
+
+	var me_body: UserServiceMeResponseBody = UserServiceMeResponseBody.from_dict(
+		me_result.get("body", {})
+	)
+
 	return UserServiceExchangeAuthResult.ok(
 		AuthResult.new(
 			provider_result.provider,
@@ -57,7 +59,9 @@ func exchange_auth(provider_result: AuthResult) -> UserServiceExchangeAuthResult
 			exchange_body.account_id,
 			me_body.username,
 			exchange_body.session_token,
-			me_body.username_updated_at
+			me_body.username_updated_at,
+			me_body.economy,
+			me_body.loadout
 		)
 	)
 
