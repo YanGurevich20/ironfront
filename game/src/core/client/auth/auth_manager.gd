@@ -82,7 +82,10 @@ func _on_provider_sign_in_succeeded(result: AuthResult) -> void:
 		)
 	)
 	sign_in_succeeded.emit(auth_result)
-	if auth_result.username_updated_at <= 0:
+	if (
+		auth_result.username_updated_at_unix == null
+		or int(auth_result.username_updated_at_unix) <= 0
+	):
 		username_setup_required.emit(auth_result.username)
 
 
@@ -117,7 +120,7 @@ func submit_username(username: String) -> void:
 		return
 
 	_auth_result.username = patch_body.username
-	_auth_result.username_updated_at = patch_body.username_updated_at
+	_auth_result.username_updated_at_unix = patch_body.username_updated_at_unix
 	username_submit_completed.emit(true, "", patch_body.username)
 
 

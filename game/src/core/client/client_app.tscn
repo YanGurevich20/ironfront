@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://be21fw4w6bp6g" path="res://src/core/client/net/client_session_api.gd" id="4_session"]
 [ext_resource type="Script" uid="uid://cu8ibigju5v6u" path="res://src/core/client/net/client_gameplay_api.gd" id="5_gameplay"]
 [ext_resource type="Script" path="res://src/core/client/auth/auth_manager.gd" id="6_auth_manager"]
-[ext_resource type="Script" uid="uid://c3i6ky3ot5tdb" path="res://src/core/client/offline/offline_runtime.gd" id="7_offline_runtime"]
 [ext_resource type="PackedScene" path="res://src/core/client/arena/arena_client.tscn" id="8_arena_client"]
 
 [node name="Runtime" type="Node2D" unique_id=2016107524]
@@ -29,10 +28,6 @@ script = ExtResource("4_session")
 [node name="Gameplay" type="Node" parent="." unique_id=98500580]
 unique_name_in_owner = true
 script = ExtResource("5_gameplay")
-
-[node name="OfflineRuntime" type="Node" parent="." unique_id=1321691773]
-unique_name_in_owner = true
-script = ExtResource("7_offline_runtime")
 
 [node name="ArenaClient" parent="." unique_id=1327342706 instance=ExtResource("8_arena_client")]
 unique_name_in_owner = true

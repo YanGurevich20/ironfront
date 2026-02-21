@@ -99,7 +99,7 @@ func end_session(status_message: String) -> void:
 	var player_data: PlayerData = PlayerData.get_instance()
 	var summary: Dictionary = runtime.build_summary(status_message)
 	runtime.apply_rewards(player_data)
-	GameplayBus.level_finished_and_saved.emit()
+	GameplayBus.level_finished.emit()
 	_leave_arena()
 	session_ended.emit(summary)
 

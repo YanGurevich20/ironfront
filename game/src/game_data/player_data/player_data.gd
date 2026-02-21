@@ -4,7 +4,6 @@ const DEFAULT_TANK_ID: String = TankManager.TANK_ID_M4A1_SHERMAN
 const FILE_NAME: String = "player_data_v2"
 
 @export var player_name: String = "Player"
-@export var stars_per_level: Dictionary[int, int] = {}
 @export var dollars: int = 300_000
 @export var bonds: int = 0
 @export var tank_configs: Dictionary[String, PlayerTankConfig] = {}
@@ -27,17 +26,6 @@ func _init() -> void:
 
 func add_dollars(amount: int) -> void:
 	dollars += amount
-
-
-func update_progress(level: int, stars: int, dollars_earned: int) -> void:
-	var previous_stars: int = stars_per_level.get(level, 0)
-	if stars >= previous_stars:
-		stars_per_level[level] = stars
-	add_dollars(dollars_earned)
-
-
-func get_stars_for_level(level: int) -> int:
-	return stars_per_level.get(level, 0)
 
 
 func get_unlocked_tank_ids() -> Array[String]:

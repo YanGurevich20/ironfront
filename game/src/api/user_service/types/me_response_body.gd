@@ -3,7 +3,7 @@ extends RefCounted
 
 var account_id: String
 var username: String
-var username_updated_at: int
+var username_updated_at_unix: Variant
 var economy: AccountEconomy
 var loadout: AccountLoadout
 
@@ -11,13 +11,13 @@ var loadout: AccountLoadout
 func _init(
 	next_account_id: String,
 	next_username: String,
-	next_username_updated_at: int,
+	next_username_updated_at_unix: Variant,
 	next_economy: AccountEconomy,
 	next_loadout: AccountLoadout
 ) -> void:
 	account_id = next_account_id
 	username = next_username
-	username_updated_at = next_username_updated_at
+	username_updated_at_unix = next_username_updated_at_unix
 	economy = next_economy
 	loadout = next_loadout
 
@@ -25,7 +25,7 @@ func _init(
 static func from_dict(body: Dictionary) -> UserServiceMeResponseBody:
 	var account_id: String = str(body.get("account_id", "")).strip_edges()
 	var username: String = str(body.get("username", "")).strip_edges()
-	var username_updated_at: int = int(body.get("username_updated_at_unix", 0))
+	var username_updated_at_unix: Variant = body.get("username_updated_at_unix", null)
 	var economy_dict: Dictionary = body.get("economy", {})
 	var economy: AccountEconomy = AccountEconomy.new()
 	economy.dollars = int(economy_dict.get("dollars", 0))
@@ -41,5 +41,5 @@ static func from_dict(body: Dictionary) -> UserServiceMeResponseBody:
 		tank_config.shell_loadout_by_id = tank_payload.get("shell_loadout_by_id", {})
 		loadout.tank_configs[tank_id] = tank_config
 	return UserServiceMeResponseBody.new(
-		account_id, username, username_updated_at, economy, loadout
+		account_id, username, username_updated_at_unix, economy, loadout
 	)

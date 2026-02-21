@@ -1,16 +1,12 @@
-[gd_scene load_steps=16 format=3 uid="uid://bbwbe6voggknh"]
+[gd_scene load_steps=12 format=3 uid="uid://bbwbe6voggknh"]
 
 [ext_resource type="Script" uid="uid://dfdooe5mh6vby" path="res://src/ui/ui_manager.gd" id="1_yp0ob"]
 [ext_resource type="PackedScene" uid="uid://s5td064aaxj4" path="res://src/ui/overlays/garage_menu_overlay/garage_menu_overlay.tscn" id="2_30b5s"]
 [ext_resource type="PackedScene" uid="uid://b1d2c8q0t8m4b" path="res://src/ui/battle_interface/battle_interface.tscn" id="2_w7alx"]
-[ext_resource type="PackedScene" uid="uid://doykr13uqyd0t" path="res://src/ui/overlays/pause_overlay/pause_overlay.tscn" id="5_iquxp"]
-[ext_resource type="PackedScene" uid="uid://doxr5ti5rl2ly" path="res://src/ui/overlays/result_overlay/result_overlay.tscn" id="6_o5bsg"]
 [ext_resource type="PackedScene" uid="uid://y7yy28xv8gj6" path="res://src/ui/overlays/settings_overlay/settings_overlay.tscn" id="7_q5581"]
-[ext_resource type="PackedScene" uid="uid://dli0nb24kjbl7" path="res://src/ui/overlays/metrics_overlay/metrics_overlay.tscn" id="8_hcyq4"]
 [ext_resource type="PackedScene" uid="uid://dslajcx0t8u3k" path="res://src/ui/garage/garage.tscn" id="9_nymso"]
 [ext_resource type="PackedScene" uid="uid://dxmwayjad206f" path="res://src/ui/login_menu/login_menu.tscn" id="10_30b5s"]
 [ext_resource type="PackedScene" uid="uid://dg228i3wg5mxx" path="res://src/ui/overlays/shell_info_overlay/shell_info_overlay.tscn" id="11_cd8r4"]
-[ext_resource type="PackedScene" uid="uid://d0m67gddqumno" path="res://src/ui/overlays/level_select_overlay/level_select_overlay.tscn" id="11_i3dcd"]
 [ext_resource type="PackedScene" path="res://src/ui/overlays/online_join_overlay/online_join_overlay.tscn" id="12_tjgmx"]
 [ext_resource type="PackedScene" path="res://src/ui/overlays/online_pause_overlay/online_pause_overlay.tscn" id="13_slq0t"]
 [ext_resource type="PackedScene" path="res://src/ui/overlays/online_match_result_overlay/online_match_result_overlay.tscn" id="14_6mbh0"]
@@ -30,9 +26,6 @@ visible = false
 [node name="GarageMenuOverlay" parent="." instance=ExtResource("2_30b5s")]
 visible = false
 
-[node name="PauseOverlay" parent="." instance=ExtResource("5_iquxp")]
-visible = false
-
 [node name="OnlinePauseOverlay" parent="." instance=ExtResource("13_slq0t")]
 unique_name_in_owner = true
 visible = false
@@ -45,16 +38,7 @@ visible = false
 unique_name_in_owner = true
 visible = false
 
-[node name="ResultOverlay" parent="." instance=ExtResource("6_o5bsg")]
-visible = false
-
 [node name="SettingsOverlay" parent="." instance=ExtResource("7_q5581")]
-visible = false
-
-[node name="MetricsOverlay" parent="." instance=ExtResource("8_hcyq4")]
-visible = false
-
-[node name="LevelSelectOverlay" parent="." instance=ExtResource("11_i3dcd")]
 visible = false
 
 [node name="ShellInfoOverlay" parent="." instance=ExtResource("11_cd8r4")]

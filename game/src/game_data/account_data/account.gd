@@ -21,6 +21,8 @@ func save() -> void:
 func hydrate_frm_auth_result(result: AuthResult) -> void:
 	account_id = result.account_id.strip_edges()
 	username = result.username.strip_edges()
-	username_updated_at = result.username_updated_at
+	username_updated_at = (
+		int(result.username_updated_at_unix) if result.username_updated_at_unix != null else 0
+	)
 	economy = result.economy.duplicate(true)
 	loadout = result.loadout.duplicate(true)

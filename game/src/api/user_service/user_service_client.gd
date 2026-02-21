@@ -59,7 +59,7 @@ func exchange_auth(provider_result: AuthResult) -> UserServiceExchangeAuthResult
 			exchange_body.account_id,
 			me_body.username,
 			exchange_body.session_token,
-			me_body.username_updated_at,
+			me_body.username_updated_at_unix,
 			me_body.economy,
 			me_body.loadout
 		)

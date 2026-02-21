@@ -13,7 +13,7 @@ func _ready() -> void:
 	Utils.connect_checked(tank_list_panel.unlock_tank_requested, _on_tank_unlock_requested)
 	Utils.connect_checked(tank_list_panel.tank_selected, _on_tank_selected)
 	Utils.connect_checked(UiBus.shell_unlock_requested, _on_shell_unlock_requested)
-	Utils.connect_checked(GameplayBus.level_finished_and_saved, display_player_data)
+	Utils.connect_checked(GameplayBus.level_finished, display_player_data)
 	Utils.connect_checked(GameplayBus.player_data_changed, display_player_data)
 	display_player_data()
 

@@ -1,11 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://dxmwayjad206f"]
+[gd_scene format=3 uid="uid://dxmwayjad206f"]
 
 [ext_resource type="Script" uid="uid://dc4p0vrs0h0ey" path="res://src/ui/login_menu/login_menu.gd" id="1_l6yps"]
 [ext_resource type="Texture2D" uid="uid://b8tvmrfhhem1l" path="res://src/ui/login_menu/assets/title.png" id="2_fe2o3"]
 [ext_resource type="Texture2D" uid="uid://bl12j8vl6stb8" path="res://src/ui/login_menu/assets/main_background_360p.png" id="2_omy8q"]
 [ext_resource type="Texture2D" uid="uid://br02men0xxxvv" path="res://src/global_assets/icons/discord.svg" id="4_tetei"]
 
-[node name="LoginMenu" type="Control"]
+[node name="LoginMenu" type="Control" unique_id=349629836]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,7 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_l6yps")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="." unique_id=217025315]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,7 +25,7 @@ texture = ExtResource("2_omy8q")
 expand_mode = 5
 stretch_mode = 6
 
-[node name="Title" type="TextureRect" parent="."]
+[node name="Title" type="TextureRect" parent="." unique_id=156533681]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -37,7 +37,7 @@ offset_bottom = 174.0
 grow_horizontal = 0
 texture = ExtResource("2_fe2o3")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=268408099]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -52,22 +52,22 @@ grow_horizontal = 0
 grow_vertical = 2
 theme_type_variation = &"PanelContainerDark"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=390107684]
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="LoginButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="LoginButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1023190307]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"GoldButton"
 text = "SIGN IN"
 
-[node name="QuitButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="QuitButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1714833084]
 unique_name_in_owner = true
 layout_mode = 2
 text = "QUIT"
 
-[node name="DiscordLinkButton" type="Button" parent="."]
+[node name="DiscordLinkButton" type="Button" parent="." unique_id=183388066]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 2
@@ -81,38 +81,59 @@ grow_vertical = 0
 icon = ExtResource("4_tetei")
 expand_icon = true
 
-[node name="UsernamePromptPanel" type="PanelContainer" parent="."]
+[node name="UsernamePromptContainer" type="CenterContainer" parent="." unique_id=238774024]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -110.0
-offset_right = 200.0
-offset_bottom = 110.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"PanelContainerDark"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UsernamePromptPanel"]
-layout_mode = 2
-
-[node name="UsernamePromptTitle" type="Label" parent="UsernamePromptPanel/VBoxContainer"]
+[node name="UsernamePromptPanel" type="PanelContainer" parent="UsernamePromptContainer" unique_id=411100607]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PanelContainerDark"
+
+[node name="MarginContainer" type="MarginContainer" parent="UsernamePromptContainer/UsernamePromptPanel" unique_id=251374020]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer" unique_id=488854237]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="UsernamePromptTitle" type="Label" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer/VBoxContainer" unique_id=1142075005]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"GoldLabel"
+theme_override_font_sizes/font_size = 18
 text = "WELCOME COMMANDER"
 horizontal_alignment = 1
 
-[node name="UsernameInput" type="LineEdit" parent="UsernamePromptPanel/VBoxContainer"]
+[node name="UsernamePromptSubtitle" type="Label" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer/VBoxContainer" unique_id=437617806]
 unique_name_in_owner = true
 layout_mode = 2
-placeholder_text = "USERNAME"
+theme_override_font_sizes/font_size = 12
+text = "CHOOSE YOUR CALL SIGN"
+horizontal_alignment = 1
 
-[node name="UsernameStatusLabel" type="Label" parent="UsernamePromptPanel/VBoxContainer"]
+[node name="UsernameInputPanel" type="PanelContainer" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer/VBoxContainer" unique_id=392226253]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UsernameInput" type="LineEdit" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer/VBoxContainer/UsernameInputPanel" unique_id=599463972]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+placeholder_text = "CALL SIGN"
+alignment = 1
+
+[node name="UsernameStatusLabel" type="Label" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer/VBoxContainer" unique_id=1391150942]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -120,7 +141,7 @@ theme_type_variation = &"WarningLabel"
 text = "USERNAME REQUIRED"
 horizontal_alignment = 1
 
-[node name="UsernameSubmitButton" type="Button" parent="UsernamePromptPanel/VBoxContainer"]
+[node name="UsernameSubmitButton" type="Button" parent="UsernamePromptContainer/UsernamePromptPanel/MarginContainer/VBoxContainer" unique_id=1516519569]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"GoldButton"

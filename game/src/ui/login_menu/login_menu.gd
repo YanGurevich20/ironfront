@@ -4,7 +4,7 @@ extends Control
 @onready var login_button: Button = %LoginButton
 @onready var quit_button: Button = %QuitButton
 @onready var discord_link_button: Button = %DiscordLinkButton
-@onready var username_prompt_panel: PanelContainer = %UsernamePromptPanel
+@onready var username_prompt_container: CenterContainer = %UsernamePromptContainer
 @onready var username_prompt_title: Label = %UsernamePromptTitle
 @onready var username_input: LineEdit = %UsernameInput
 @onready var username_submit_button: Button = %UsernameSubmitButton
@@ -28,7 +28,7 @@ func _ready() -> void:
 			if open_result != OK:
 				push_warning("Failed to open Discord link: ", open_result)
 	)
-	username_prompt_panel.visible = false
+	username_prompt_container.visible = false
 	username_status_label.visible = false
 	_set_idle_button_state("SIGN IN")
 
@@ -49,7 +49,7 @@ func _on_auth_sign_in_started() -> void:
 func _on_auth_sign_in_finished(success: bool) -> void:
 	if success:
 		return
-	username_prompt_panel.visible = false
+	username_prompt_container.visible = false
 	_set_idle_button_state("RETRY AUTH")
 
 
@@ -60,7 +60,7 @@ func _set_idle_button_state(button_text: String) -> void:
 
 func _on_username_prompt_requested(initial_username: String) -> void:
 	username_prompt_title.text = "WELCOME COMMANDER"
-	username_prompt_panel.visible = true
+	username_prompt_container.visible = true
 	username_status_label.visible = false
 	username_input.text = initial_username.strip_edges()
 	username_submit_button.disabled = false
@@ -86,7 +86,7 @@ func _on_username_input_submitted(_text: String) -> void:
 
 func _on_username_submit_finished(success: bool, reason: String) -> void:
 	if success:
-		username_prompt_panel.visible = false
+		username_prompt_container.visible = false
 		return
 	username_submit_button.disabled = false
 	username_submit_button.text = "CONTINUE"

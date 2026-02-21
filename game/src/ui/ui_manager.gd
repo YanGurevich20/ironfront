@@ -9,15 +9,11 @@ var _online_session_active: bool = false
 @onready var battle_interface: BattleInterface = $BattleInterface
 @onready var garage: Garage = $Garage
 @onready var login_menu: Control = $LoginMenu
-@onready var pause_overlay: PauseOverlay = $PauseOverlay
 @onready var online_pause_overlay: OnlinePauseOverlay = %OnlinePauseOverlay
 @onready var online_match_result_overlay: OnlineMatchResultOverlay = %OnlineMatchResultOverlay
 @onready var online_death_overlay: Control = %OnlineDeathOverlay
-@onready var result_overlay: ResultOverlay = $ResultOverlay
 @onready var settings_overlay: SettingsOverlay = $SettingsOverlay
-@onready var metrics_overlay: MetricsOverlay = $MetricsOverlay
 @onready var garage_menu_overlay: GarageMenuOverlay = $GarageMenuOverlay
-@onready var level_select_overlay: LevelSelectOverlay = $LevelSelectOverlay
 @onready var shell_info_overlay: ShellInfoOverlay = $ShellInfoOverlay
 @onready var online_join_overlay: OnlineJoinOverlay = $OnlineJoinOverlay
 
@@ -28,15 +24,11 @@ func _ready() -> void:
 	_menu_nodes = [login_menu, garage]
 	_control_nodes = [battle_interface]
 	_overlay_nodes = [
-		pause_overlay,
 		online_pause_overlay,
 		online_match_result_overlay,
 		online_death_overlay,
-		result_overlay,
 		settings_overlay,
-		metrics_overlay,
 		garage_menu_overlay,
-		level_select_overlay,
 		shell_info_overlay,
 		online_join_overlay
 	]
@@ -69,23 +61,11 @@ func show_overlay(overlay: Control) -> void:
 
 func hide_overlays() -> void:
 	Utils.hide_nodes(_overlay_nodes)
-	# TODO: temporary fix for sub-menu back press.
 	UiBus.resume_requested.emit()
-
-
-func display_result(
-	success: bool, metrics: Dictionary, objectives: Array, reward_info: Dictionary
-) -> void:
-	result_overlay.display_result(success, metrics, objectives, reward_info)
-	show_overlay(result_overlay)
 
 
 func finish_level() -> void:
 	battle_interface.finish_level()
-
-
-func update_objectives(objectives: Array) -> void:
-	pause_overlay.set_objectives(objectives)
 
 
 func set_network_client(network_client: ENetClient) -> void:
@@ -133,20 +113,9 @@ func hide_online_join_overlay() -> void:
 
 #endregion
 #region Signal handlers
-func _on_play_pressed() -> void:
-	show_overlay(level_select_overlay)
-	level_select_overlay.display_levels()
-
-
 func _on_shell_info_requested(shell_spec: ShellSpec) -> void:
 	shell_info_overlay.display_shell_info(shell_spec)
 	show_overlay(shell_info_overlay)
-
-
-func _on_metrics_pressed() -> void:
-	var metrics := Metrics.get_instance().metrics
-	metrics_overlay.display_metrics(metrics)
-	show_overlay(metrics_overlay)
 
 
 func _on_level_started() -> void:
@@ -158,8 +127,6 @@ func _on_pause_pressed() -> void:
 		return
 	if _online_session_active:
 		show_overlay(online_pause_overlay)
-		return
-	show_overlay(pause_overlay)
 
 
 func _on_resume_pressed() -> void:
@@ -181,17 +148,6 @@ func _on_close_settings_pressed() -> void:
 func _on_return_pressed() -> void:
 	show_menu(garage)
 	UiBus.return_to_menu_requested.emit()
-
-
-func _on_retry_pressed() -> void:
-	print("retry pressed ui manager")
-	hide_overlays()
-	UiBus.restart_level_requested.emit()
-
-
-func _on_abort_pressed() -> void:
-	hide_overlays()
-	UiBus.abort_level_requested.emit()
 
 
 func _on_online_abort_pressed() -> void:
@@ -222,26 +178,14 @@ func _on_garage_menu_pressed() -> void:
 #region Helpers
 func _connect_signals() -> void:
 	Utils.connect_checked(UiBus.login_pressed, _on_login_pressed)
-
-	Utils.connect_checked(UiBus.play_pressed, _on_play_pressed)
 	Utils.connect_checked(UiBus.shell_info_requested, _on_shell_info_requested)
 	Utils.connect_checked(UiBus.garage_menu_pressed, _on_garage_menu_pressed)
 	Utils.connect_checked(garage_menu_overlay.exit_overlay_pressed, hide_overlays)
 	Utils.connect_checked(garage_menu_overlay.settings_pressed, _on_settings_pressed)
-	Utils.connect_checked(garage_menu_overlay.metrics_pressed, _on_metrics_pressed)
-
 	Utils.connect_checked(UiBus.log_out_pressed, _on_log_out_pressed)
-
 	Utils.connect_checked(GameplayBus.level_started, _on_level_started)
-	Utils.connect_checked(level_select_overlay.exit_overlay_pressed, hide_overlays)
-
 	Utils.connect_checked(shell_info_overlay.exit_overlay_pressed, hide_overlays)
-
 	Utils.connect_checked(UiBus.pause_input, _on_pause_pressed)
-
-	Utils.connect_checked(pause_overlay.exit_overlay_pressed, _on_resume_pressed)
-	Utils.connect_checked(pause_overlay.settings_pressed, _on_settings_pressed)
-	Utils.connect_checked(pause_overlay.abort_pressed, _on_abort_pressed)
 	Utils.connect_checked(online_pause_overlay.exit_overlay_pressed, _on_resume_pressed)
 	Utils.connect_checked(online_pause_overlay.settings_pressed, _on_settings_pressed)
 	Utils.connect_checked(online_pause_overlay.abort_pressed, _on_online_abort_pressed)
@@ -251,18 +195,7 @@ func _connect_signals() -> void:
 	online_death_overlay.connect(
 		"return_pressed", Callable(self, "_on_online_death_return_pressed")
 	)
-
-	#* result overlay *#
-	Utils.connect_checked(result_overlay.exit_overlay_pressed, _on_return_pressed)
-	Utils.connect_checked(result_overlay.retry_pressed, _on_retry_pressed)
-
-	#* settings overlay *#
 	Utils.connect_checked(settings_overlay.exit_overlay_pressed, _on_exit_settings_pressed)
-
-	#* metrics overlay *#
-	Utils.connect_checked(metrics_overlay.exit_overlay_pressed, hide_overlays)
-
-	#* online join overlay *#
 	Utils.connect_checked(MultiplayerBus.online_join_cancel_requested, hide_online_join_overlay)
 	Utils.connect_checked(online_join_overlay.close_requested, hide_online_join_overlay)
 
@@ -272,4 +205,4 @@ func _hide_all() -> void:
 	Utils.hide_nodes(_control_nodes)
 	Utils.hide_nodes(_overlay_nodes)
 
-#endregion
+#endregion``

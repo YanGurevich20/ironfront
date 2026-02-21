@@ -7,7 +7,7 @@ var expires_at_unix: int
 var account_id: String
 var username: String
 var session_token: String
-var username_updated_at: int
+var username_updated_at_unix: Variant
 var economy: AccountEconomy
 var loadout: AccountLoadout
 
@@ -19,7 +19,7 @@ func _init(
 	next_account_id: String = "",
 	next_username: String = "",
 	next_session_token: String = "",
-	next_username_updated_at: int = 0,
+	next_username_updated_at_unix: Variant = null,
 	next_economy: AccountEconomy = AccountEconomy.new(),
 	next_loadout: AccountLoadout = AccountLoadout.new()
 ) -> void:
@@ -29,6 +29,6 @@ func _init(
 	account_id = next_account_id
 	username = next_username
 	session_token = next_session_token
-	username_updated_at = next_username_updated_at
+	username_updated_at_unix = next_username_updated_at_unix
 	economy = next_economy
 	loadout = next_loadout

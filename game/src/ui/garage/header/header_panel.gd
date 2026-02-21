@@ -8,7 +8,6 @@ var feedback_display_token: int = 0
 @onready var bonds_label: Label = %BondsLabel
 @onready var garage_menu_button: Button = %GarageMenuButton
 @onready var play_button: Button = %PlayButton
-@onready var play_online_button: Button = %PlayOnlineButton
 @onready var warning_label: Label = %WarningLabel
 @onready var warning_label_container: Control = %WarningLabelContainer
 
@@ -18,7 +17,6 @@ func _ready() -> void:
 		garage_menu_button.pressed, func() -> void: UiBus.garage_menu_pressed.emit()
 	)
 	Utils.connect_checked(play_button.pressed, _on_play_pressed)
-	Utils.connect_checked(play_online_button.pressed, _on_play_online_pressed)
 
 
 func display_player_data() -> void:
@@ -30,10 +28,6 @@ func display_player_data() -> void:
 
 
 func _on_play_pressed() -> void:
-	UiBus.play_pressed.emit()
-
-
-func _on_play_online_pressed() -> void:
 	if not player_data.is_selected_tank_valid():
 		_display_warning("SELECT A TANK")
 		return
@@ -41,7 +35,7 @@ func _on_play_online_pressed() -> void:
 	if tank_config.get_total_shell_count() == 0:
 		_display_warning("NOT ENOUGH AMMO")
 		return
-	UiBus.play_online_pressed.emit()
+	UiBus.play_pressed.emit()
 
 
 func _display_warning(text: String) -> void:

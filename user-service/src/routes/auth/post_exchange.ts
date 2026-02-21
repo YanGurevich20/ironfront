@@ -28,8 +28,8 @@ type ResolvedProviderIdentity =
 function resolveDevIdentity(proof: string): ResolvedProviderIdentity {
   return {
     success: true,
-    providerSubject: proof.split(":")[0] ?? proof,
-    providerUsername: "DEV_PLAYER"
+    providerSubject: proof,
+    providerUsername: proof
   };
 }
 

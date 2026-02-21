@@ -47,7 +47,24 @@ if payload["peer_id"] > 0:
 	do_spawn(payload["peer_id"], payload["player_name"])
 ```
 
-## 5) Signals for Cross-System Communication
+## 5) Nullable Built-in Types
+- GDScript has no `int?` or `T | null` syntax for built-ins.
+- Use `Variant` where a value may be null (for example API fields that omit or explicitly null a field).
+- Coerce to a concrete type at use sites: `int(v) if v != null else 0`.
+
+Good:
+```gdscript
+var username_updated_at_unix: Variant = body.get("username_updated_at_unix", null)
+if username_updated_at_unix == null or int(username_updated_at_unix) <= 0:
+	show_username_prompt()
+```
+
+Bad:
+```gdscript
+var username_updated_at: int = body.get("username_updated_at_unix", 0)
+```
+
+## 6) Signals for Cross-System Communication
 - Use signals for intent/event boundaries.
 - Avoid direct two-way coupling across domains.
 - Pattern:
@@ -55,7 +72,7 @@ if payload["peer_id"] > 0:
   - orchestrator handles it
   - runtime mutates world
 
-## 6) One Owner Per Responsibility
+## 7) One Owner Per Responsibility
 - Do not split one decision across multiple layers.
 - Example ownership split:
   - network layer: transport + protocol validation
@@ -74,7 +91,7 @@ Bad:
 # network picks spawn and runtime also validates/changes it later
 ```
 
-## 7) Keep Hot Paths Simple
+## 8) Keep Hot Paths Simple
 - Validate invariants once at startup.
 - Avoid repeated null checks in per-tick/per-message loops unless state is truly optional.
 
@@ -91,7 +108,7 @@ if arena_runtime != null and arena_session_state != null and network_server != n
 	# repeated every tick
 ```
 
-## 8) Return Structured Results for Cross-Layer Operations
+## 9) Return Structured Results for Cross-Layer Operations
 - For helper calls crossing boundaries, return result dictionaries with explicit status.
 
 Good:
@@ -109,17 +126,17 @@ if not result.get("success", false):
 	return
 ```
 
-## 9) Prefer Small Helpers Over Monoliths
+## 10) Prefer Small Helpers Over Monoliths
 - If a method grows too large, extract cohesive helpers.
 - Helpers should have clear input/output and no hidden side effects when possible.
 
-## 10) Avoid These Patterns
+## 11) Avoid These Patterns
 - `.call(...)` to bypass typing.
 - Leading-underscore parameter names used only to dodge warnings.
 - Deep `get_node("A/B/C/D")` when `%UniqueName` is possible.
 - Unbounded file growth; extract helpers before scripts become hard to scan.
 
-## 11) Prefer `class_name` Globals for Static APIs
+## 12) Prefer `class_name` Globals for Static APIs
 - For utility classes with `class_name`, call static functions directly by class name.
 - Do not add local `preload(...)` aliases for globally-registered utility classes unless there is a demonstrated load-order problem.
 
