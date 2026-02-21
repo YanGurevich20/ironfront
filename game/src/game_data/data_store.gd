@@ -11,7 +11,7 @@ static func load_or_create(cls: GDScript, file_name: String) -> Resource:
 	var path: String = build_path(file_name)
 
 	if ResourceLoader.exists(path):
-		var loaded := ResourceLoader.load(path)
+		var loaded := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_REUSE)
 		if loaded == null:
 			push_warning("Failed to load %s, recreating resource." % path)
 			save(instance, file_name)

@@ -20,6 +20,11 @@
 - Prefer mount/unmount of subtree roots to model start/stop over distributed `is_active` flags.
 - Keep lifecycle boundaries explicit: orchestrator nodes own creation/teardown and expose stable signals to parents.
 
+## UI Resource Reactivity Rule
+- For UI that reflects `Resource` state, bind once in `_ready()` to the shared `Resource` instance, hydrate initial values immediately, and update via that resource's explicit change signals.
+- Avoid cross-tree parent-driven `display_*` fanout refresh calls for fields that already expose specific change signals.
+- Keep signal handling local to the UI node that owns the visual element.
+
 ## Folder Structure Guideline
 - Prefer organizing folders to mirror ownership and lifecycle boundaries in the scene tree.
 - Keep stable orchestrators at the domain root (for example `arena/arena_client.*`).

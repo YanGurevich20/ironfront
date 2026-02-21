@@ -3,8 +3,7 @@ extends Control
 
 signal unlock_tank_requested(tank_id: String)
 
-signal tank_selected(tank_id: String)
-
+var preferences: Preferences = Preferences.get_instance()
 var _player_dollars: int = 0
 var _unlocked_tank_ids: Array[String] = []
 
@@ -14,8 +13,10 @@ var _unlocked_tank_ids: Array[String] = []
 )
 
 
-#TODO: Convert the tank list panel to use a display_player_data() method instead of _ready()
 func _ready() -> void:
+	Utils.connect_checked(
+		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: _update_item_states()
+	)
 	for child in tank_list.get_children():
 		tank_list.remove_child(child)
 		child.queue_free()
@@ -45,7 +46,7 @@ func _ready() -> void:
 	_update_item_states()
 
 	# Determine which tank should be selected initially
-	var saved_tank_id: String = player_data.selected_tank_id
+	var saved_tank_id: String = preferences.selected_tank_id
 	# If the saved tank is unlocked, select it; otherwise fall back to the latest unlocked
 	if _unlocked_tank_ids.has(saved_tank_id):
 		select_tank_by_id(saved_tank_id)
@@ -54,10 +55,9 @@ func _ready() -> void:
 
 
 func _update_item_states() -> void:
+	var selected_id: String = preferences.selected_tank_id
 	for item: TankListItem in tank_list.get_children():
 		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
-		var player_data: PlayerData = PlayerData.get_instance()
-		var selected_id: String = player_data.selected_tank_id
 		if unlocked:
 			if item.tank_id == selected_id:
 				item.state = item.State.SELECTED
@@ -83,12 +83,14 @@ func _on_item_pressed(item: TankListItem) -> void:
 func _select_tank(item: TankListItem) -> void:
 	if item.state in [item.State.LOCKED, item.State.UNLOCKABLE]:
 		return
+	var selected_tank_id: String = item.tank_id
+	preferences.selected_tank_id = selected_tank_id
+	preferences.save()
 	for other: TankListItem in tank_list.get_children():
 		if other == item:
 			other.state = other.State.SELECTED
 		elif other.state == other.State.SELECTED:
 			other.state = other.State.UNLOCKED
-	tank_selected.emit(item.tank_id)
 
 
 # Allow parent node to programmatically select a tank by its ID.

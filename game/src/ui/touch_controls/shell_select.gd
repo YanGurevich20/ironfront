@@ -3,6 +3,8 @@ extends Control
 
 @export var is_expanded: bool = false
 
+var player_data: PlayerData = PlayerData.get_instance()
+var preferences: Preferences = Preferences.get_instance()
 var shell_counts: Dictionary[ShellSpec, int] = {}
 var current_shell_spec: ShellSpec
 var tank_spec: TankSpec
@@ -24,8 +26,9 @@ func _ready() -> void:
 
 
 func initialize() -> void:
-	var player_data := PlayerData.get_instance()
-	var player_tank_config: PlayerTankConfig = player_data.get_current_tank_config()
+	var player_tank_config: PlayerTankConfig = player_data.get_selected_tank_config(
+		preferences.selected_tank_id
+	)
 	tank_spec = TankManager.tank_specs.get(player_tank_config.tank_id)
 	if tank_spec == null:
 		return

@@ -39,7 +39,7 @@ func get_tank_config(tank_id: String) -> PlayerTankConfig:
 	return tank_configs[tank_id]
 
 
-func get_current_tank_config() -> PlayerTankConfig:
+func get_selected_tank_config(selected_tank_id: String) -> PlayerTankConfig:
 	return get_tank_config(selected_tank_id)
 
 
@@ -52,13 +52,13 @@ func unlock_tank(tank_id: String) -> void:
 	selected_tank_id = tank_id
 
 
-func is_selected_tank_valid() -> bool:
-	return selected_tank_id in tank_configs.keys()
+func is_tank_unlocked(tank_id: String) -> bool:
+	return tank_id in tank_configs.keys()
 
 
-func build_join_arena_payload() -> Dictionary:
-	assert(is_selected_tank_valid(), "Invalid selected tank_id: %s" % selected_tank_id)
-	var tank_config: PlayerTankConfig = get_current_tank_config()
+func build_join_arena_payload(selected_tank_id: String) -> Dictionary:
+	assert(is_tank_unlocked(selected_tank_id), "Invalid selected tank_id: %s" % selected_tank_id)
+	var tank_config: PlayerTankConfig = get_selected_tank_config(selected_tank_id)
 	tank_config.assert_valid_for_tank(selected_tank_id)
 	var shell_loadout_by_id: Dictionary = tank_config.build_shell_loadout_by_id()
 	var selected_shell_id: String = tank_config.pick_selected_shell_id(shell_loadout_by_id)

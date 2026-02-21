@@ -25,6 +25,7 @@ var protocol_version: int = MultiplayerProtocol.PROTOCOL_VERSION
 var phase: ArenaPhase = ArenaPhase.DISCONNECTED
 var cancel_join_requested: bool = false
 var runtime: ArenaSessionRuntime
+var preferences: Preferences = Preferences.get_instance()
 
 @onready var enet_client: ENetClient = %Network
 @onready var session_api: ClientSessionApi = %Session
@@ -106,10 +107,9 @@ func end_session(status_message: String) -> void:
 
 func _send_join_arena() -> void:
 	var player_data: PlayerData = PlayerData.get_instance()
-	var join_loadout_payload: Dictionary = player_data.build_join_arena_payload()
-	var selected_tank_id: String = str(
-		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
-	)
+	var selected_tank_id: String = preferences.selected_tank_id
+	var join_loadout_payload: Dictionary = player_data.build_join_arena_payload(selected_tank_id)
+	selected_tank_id = str(join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
 	session_api.send_join_arena(
 		player_data.player_name,
 		selected_tank_id,

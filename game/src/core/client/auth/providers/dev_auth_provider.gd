@@ -3,6 +3,7 @@ extends AuthProvider
 
 @export var sign_in_delay_seconds: float = 1.0
 
+
 func sign_in() -> void:
 	if _is_sign_in_in_progress:
 		return

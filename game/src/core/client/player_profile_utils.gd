@@ -6,7 +6,8 @@ static func create_local_player_tank(
 	controller_type: TankManager.TankControllerType = TankManager.TankControllerType.PLAYER
 ) -> Tank:
 	var player_data: PlayerData = PlayerData.get_instance()
-	var selected_tank_id: String = player_data.selected_tank_id
+	var preferences: Preferences = Preferences.get_instance()
+	var selected_tank_id: String = preferences.selected_tank_id
 	var unlocked_tank_ids: Array[String] = player_data.get_unlocked_tank_ids()
 	if not unlocked_tank_ids.has(selected_tank_id):
 		if unlocked_tank_ids.size() > 0:

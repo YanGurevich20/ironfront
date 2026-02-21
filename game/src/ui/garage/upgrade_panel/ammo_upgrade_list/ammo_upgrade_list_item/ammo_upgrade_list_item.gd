@@ -155,7 +155,10 @@ func update_buttons() -> void:
 
 func save_count() -> void:
 	var player_data := PlayerData.get_instance()
-	var current_tank_config: PlayerTankConfig = player_data.get_current_tank_config()
+	var preferences: Preferences = Preferences.get_instance()
+	var current_tank_config: PlayerTankConfig = player_data.get_selected_tank_config(
+		preferences.selected_tank_id
+	)
 
 	#? Only save if the shell is unlocked (exists in the shell_amounts dictionary)
 	if current_tank_config.shell_amounts.has(shell_spec):

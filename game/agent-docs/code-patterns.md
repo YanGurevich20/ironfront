@@ -1,4 +1,4 @@
-# GDScript Guidelines (LLM-Directed)
+# Code Patterns (LLM-Directed)
 
 This file is written for code-generating agents. Follow it literally.
 
@@ -64,50 +64,6 @@ Bad:
 var username_updated_at: int = body.get("username_updated_at_unix", 0)
 ```
 
-## 6) Signals for Cross-System Communication
-- Use signals for intent/event boundaries.
-- Avoid direct two-way coupling across domains.
-- Pattern:
-  - net layer emits intent signal
-  - orchestrator handles it
-  - runtime mutates world
-
-## 7) One Owner Per Responsibility
-- Do not split one decision across multiple layers.
-- Example ownership split:
-  - network layer: transport + protocol validation
-  - runtime layer: spawn selection + world mutation
-  - orchestrator: wiring + lifecycle
-
-Good:
-```gdscript
-var spawn_result: Dictionary = arena_runtime.spawn_peer_tank_at_random(
-	peer_id, player_name, tank_id
-)
-```
-
-Bad:
-```gdscript
-# network picks spawn and runtime also validates/changes it later
-```
-
-## 8) Keep Hot Paths Simple
-- Validate invariants once at startup.
-- Avoid repeated null checks in per-tick/per-message loops unless state is truly optional.
-
-Good:
-```gdscript
-func _physics_process(delta: float) -> void:
-	var states: Array[Dictionary] = arena_runtime.step_authoritative_runtime(arena_session_state, delta)
-	network_server.set_authoritative_player_states(states)
-```
-
-Bad:
-```gdscript
-if arena_runtime != null and arena_session_state != null and network_server != null:
-	# repeated every tick
-```
-
 ## 9) Return Structured Results for Cross-Layer Operations
 - For helper calls crossing boundaries, return result dictionaries with explicit status.
 
@@ -126,16 +82,6 @@ if not result.get("success", false):
 	return
 ```
 
-## 10) Prefer Small Helpers Over Monoliths
-- If a method grows too large, extract cohesive helpers.
-- Helpers should have clear input/output and no hidden side effects when possible.
-
-## 11) Avoid These Patterns
-- `.call(...)` to bypass typing.
-- Leading-underscore parameter names used only to dodge warnings.
-- Deep `get_node("A/B/C/D")` when `%UniqueName` is possible.
-- Unbounded file growth; extract helpers before scripts become hard to scan.
-
 ## 12) Prefer `class_name` Globals for Static APIs
 - For utility classes with `class_name`, call static functions directly by class name.
 - Do not add local `preload(...)` aliases for globally-registered utility classes unless there is a demonstrated load-order problem.
@@ -151,6 +97,60 @@ Bad:
 const DATA_STORE := preload("res://src/game_data/data_store.gd")
 var player_data: PlayerData = DATA_STORE.load_or_create(PlayerData, PlayerData.FILE_NAME)
 DATA_STORE.save(player_data, PlayerData.FILE_NAME)
+```
+
+## 13) Cached Resource Binding Pattern (DataStore-Backed)
+- For resources loaded through `DataStore.load_or_create(...)`, treat them as cache-backed singleton state objects in runtime usage.
+- Preferred binding is top-level typed vars at class scope, then use those vars directly in methods.
+- Do not repeatedly call `get_instance()` in the same node/script when a single bound reference is sufficient.
+- These resources are considered always available in runtime and are only persisted to disk when `save()` is called explicitly.
+
+Good:
+```gdscript
+class_name TankDisplayPanel extends Control
+
+var account: Account = Account.get_instance()
+var preferences: Preferences = Preferences.get_instance()
+
+func _ready() -> void:
+	Utils.connect_checked(
+		account.username_updated,
+		func(new_username: String) -> void: username_label.text = new_username
+	)
+	Utils.connect_checked(
+		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: display_tank()
+	)
+	display_tank()
+
+func display_tank() -> void:
+	var tank_spec: TankSpec = TankManager.tank_specs.get(preferences.selected_tank_id)
+	if tank_spec == null:
+		return
+	tank_display.texture = tank_spec.preview_texture
+```
+
+Bad:
+```gdscript
+class_name TankDisplayPanel extends Control
+
+func _ready() -> void:
+	var account: Account = Account.get_instance()
+	var preferences: Preferences = Preferences.get_instance()
+	Utils.connect_checked(
+		account.username_updated,
+		func(new_username: String) -> void: username_label.text = new_username
+	)
+	display_tank()
+	Utils.connect_checked(
+		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: display_tank()
+	)
+
+func display_tank() -> void:
+	var preferences: Preferences = Preferences.get_instance()
+	var tank_spec: TankSpec = TankManager.tank_specs.get(preferences.selected_tank_id)
+	if tank_spec == null:
+		return
+	tank_display.texture = tank_spec.preview_texture
 ```
 
 ## Documentation Requirement

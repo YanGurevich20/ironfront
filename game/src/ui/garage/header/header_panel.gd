@@ -2,6 +2,7 @@ class_name HeaderPanel
 extends PanelContainer
 
 var player_data: PlayerData = PlayerData.get_instance()
+var preferences: Preferences = Preferences.get_instance()
 var feedback_display_token: int = 0
 
 @onready var dollars_label: Label = %DollarsLabel
@@ -20,7 +21,6 @@ func _ready() -> void:
 
 
 func display_player_data() -> void:
-	player_data = PlayerData.get_instance()
 	var dollars: int = player_data.dollars
 	var bonds: int = player_data.bonds
 	dollars_label.text = Utils.format_dollars(dollars)
@@ -28,10 +28,11 @@ func display_player_data() -> void:
 
 
 func _on_play_pressed() -> void:
-	if not player_data.is_selected_tank_valid():
+	var selected_tank_id: String = preferences.selected_tank_id
+	if not player_data.is_tank_unlocked(selected_tank_id):
 		_display_warning("SELECT A TANK")
 		return
-	var tank_config: PlayerTankConfig = player_data.get_current_tank_config()
+	var tank_config: PlayerTankConfig = player_data.get_selected_tank_config(selected_tank_id)
 	if tank_config.get_total_shell_count() == 0:
 		_display_warning("NOT ENOUGH AMMO")
 		return
