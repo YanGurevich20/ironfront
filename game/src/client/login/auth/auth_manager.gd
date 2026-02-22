@@ -16,8 +16,6 @@ const PGS_PROVIDER_SCENE: PackedScene = preload(
 var _active_provider: AuthProvider
 var _api_client: ApiClient
 var _user_service_client: UserServiceClient
-var _is_signed_in: bool = false
-var _is_sign_in_in_progress: bool = false
 var _session_token: String = ""
 
 
@@ -32,11 +30,10 @@ func _ready() -> void:
 
 
 func retry_sign_in() -> void:
-	if _is_signed_in or _is_sign_in_in_progress:
+	if not _session_token.is_empty() or _active_provider.has_sign_in_operation():
 		_log_auth("sign-in ignored (already signed in or in progress)")
 		return
 	_log_auth("sign-in started")
-	_is_sign_in_in_progress = true
 	_active_provider.sign_in()
 
 
@@ -44,8 +41,6 @@ func sign_out() -> void:
 	if _active_provider == null:
 		return
 	_log_auth("sign-out requested")
-	_is_signed_in = false
-	_is_sign_in_in_progress = false
 	_session_token = ""
 	Account.clear()
 	_active_provider.sign_out()
@@ -53,27 +48,22 @@ func sign_out() -> void:
 
 func _on_provider_sign_in_succeeded(result: AuthResult) -> void:
 	_log_auth("provider sign-in succeeded provider=%s" % result.provider)
-	# TODO(phase-4-cleanup): During headless/editor shutdown, this await can remain in-flight
-	# and leave a GDScriptFunctionState leak warning. Treat as known transitional issue and
-	# add explicit teardown cancellation/await unblocking in cleanup phase.
 	var exchange_result: UserServiceExchangeAuthResult = await _user_service_client.exchange_auth(
 		result
 	)
+	if not is_inside_tree():
+		return
 	if not exchange_result.success:
-		_is_signed_in = false
-		_is_sign_in_in_progress = false
+		_session_token = ""
 		_log_auth("user-service exchange failed reason=%s" % exchange_result.reason)
 		sign_in_failed.emit(exchange_result.reason)
 		return
 	var auth_result: AuthResult = exchange_result.auth_result
 	if auth_result == null:
-		_is_signed_in = false
-		_is_sign_in_in_progress = false
+		_session_token = ""
 		_log_auth("user-service exchange failed invalid response shape")
 		sign_in_failed.emit("USER_SERVICE_INVALID_RESPONSE")
 		return
-	_is_signed_in = true
-	_is_sign_in_in_progress = false
 	_session_token = auth_result.session_token
 	_log_auth(
 		"sign-in completed account_id=%s username=%s" % [Account.account_id, Account.username]
@@ -84,14 +74,13 @@ func _on_provider_sign_in_succeeded(result: AuthResult) -> void:
 
 
 func _on_provider_sign_in_failed(reason: String) -> void:
-	_is_signed_in = false
-	_is_sign_in_in_progress = false
+	_session_token = ""
 	_log_auth("provider sign-in failed reason=%s" % reason)
 	sign_in_failed.emit(reason)
 
 
 func submit_username(username: String) -> void:
-	if not _is_signed_in:
+	if _session_token.is_empty():
 		username_submit_completed.emit(false, "NOT_SIGNED_IN", "")
 		return
 	if username.is_empty():
@@ -100,6 +89,8 @@ func submit_username(username: String) -> void:
 	var patch_result: UserServicePatchUsernameResult = await _user_service_client.patch_username(
 		_session_token, username
 	)
+	if not is_inside_tree():
+		return
 	if not patch_result.success:
 		username_submit_completed.emit(false, patch_result.reason, "")
 		return

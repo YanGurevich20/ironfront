@@ -62,6 +62,7 @@ func _mount_garage_root() -> void:
 func _mount_arena_root() -> void:
 	_unmount_active_root()
 	var arena_root: ArenaRoot = ARENA_ROOT_SCENE.instantiate()
+	arena_root.configure_network_stack(network_client, session_api, gameplay_api)
 	world_state_container.add_child(arena_root)
 	Utils.connect_checked(arena_root.return_to_garage_requested, _on_return_to_garage_requested)
 	Utils.connect_checked(arena_root.arena_finished, _on_arena_finished)

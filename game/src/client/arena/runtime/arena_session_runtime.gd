@@ -52,7 +52,7 @@ func stop_session() -> void:
 func request_respawn() -> void:
 	if not arena_match.is_local_player_dead():
 		return
-	if not input.can_send_gameplay_requests():
+	if enet_client == null or not enet_client.is_connected_to_server():
 		return
 	gameplay_api.request_respawn()
 

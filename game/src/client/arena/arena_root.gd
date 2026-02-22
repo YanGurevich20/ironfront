@@ -28,19 +28,18 @@ func configure_network_stack(
 	_enet_client = enet_client
 	_session_api = session_api
 	_gameplay_api = gameplay_api
+	_configure_arena_client_if_possible()
 
 
 func _enter_tree() -> void:
-	_wire_network_stack_from_ancestor()
 	_configure_arena_client_if_possible()
 
 
 func _ready() -> void:
-	_wire_network_stack_from_ancestor()
-	_configure_arena_client_if_possible()
 	assert(_enet_client != null, "ArenaRoot missing ENetClient dependency")
 	assert(_session_api != null, "ArenaRoot missing ClientSessionApi dependency")
 	assert(_gameplay_api != null, "ArenaRoot missing ClientGameplayApi dependency")
+	_configure_arena_client_if_possible()
 	_hide_all_overlays()
 	Utils.connect_checked(arena_client.join_status_changed, _on_join_status_changed)
 	Utils.connect_checked(arena_client.join_completed, _on_join_completed)
@@ -159,20 +158,6 @@ func _on_online_death_return_pressed() -> void:
 
 func _on_return_to_garage() -> void:
 	arena_finished.emit(_last_session_summary)
-
-
-func _wire_network_stack_from_ancestor() -> void:
-	if _enet_client != null and _session_api != null and _gameplay_api != null:
-		return
-	var ancestor: Node = get_parent()
-	while ancestor != null:
-		var client_app: ClientApp = ancestor as ClientApp
-		if client_app != null:
-			_enet_client = client_app.network_client
-			_session_api = client_app.session_api
-			_gameplay_api = client_app.gameplay_api
-			return
-		ancestor = ancestor.get_parent()
 
 
 func _configure_arena_client_if_possible() -> void:

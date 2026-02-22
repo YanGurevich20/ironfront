@@ -1,7 +1,9 @@
 class_name ApiClient
 extends Node
 
-var _active_requests: Array[HTTPRequest] = []
+
+func _exit_tree() -> void:
+	cancel_all_requests()
 
 
 func request_json(
@@ -12,15 +14,12 @@ func request_json(
 	_log_api("http request method=%d url=%s" % [method, url])
 	var request: HTTPRequest = HTTPRequest.new()
 	add_child(request)
-	_active_requests.append(request)
 	var request_error: Error = request.request(url, headers, method, body)
 	if request_error != OK:
-		_active_requests.erase(request)
 		request.queue_free()
 		_log_api("http request creation failed error=%d url=%s" % [request_error, url])
 		return {"success": false, "reason": "USER_SERVICE_HTTP_REQUEST_FAILED"}
 	var response: Array = await request.request_completed
-	_active_requests.erase(request)
 	if is_instance_valid(request):
 		request.queue_free()
 
@@ -40,7 +39,8 @@ func request_json(
 
 
 func cancel_all_requests() -> void:
-	for request: HTTPRequest in _active_requests:
+	for child: Node in get_children():
+		var request: HTTPRequest = child as HTTPRequest
 		if request == null:
 			continue
 		request.cancel_request()
@@ -53,7 +53,6 @@ func cancel_all_requests() -> void:
 			PackedByteArray()
 		)
 		request.queue_free()
-	_active_requests.clear()
 
 
 func _log_api(message: String) -> void:
