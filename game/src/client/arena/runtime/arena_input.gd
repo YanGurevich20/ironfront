@@ -14,8 +14,6 @@ var pending_left_track_input: float = 0.0
 var pending_right_track_input: float = 0.0
 var pending_turret_input: float = 0.0
 var session_running: bool = false
-var _debug_logged_lever_events: int = 0
-var _debug_logged_wheel_events: int = 0
 
 
 func start_session(
@@ -38,16 +36,6 @@ func start_session(
 	_connect_gameplay_bus()
 	set_process(true)
 	session_running = true
-	print(
-		(
-			"[client-input] session_started connected=%s send_interval=%.4f reset_seq=%s"
-			% [
-				str(can_send_gameplay_requests()),
-				input_send_interval_seconds,
-				str(reset_sequence_state)
-			]
-		)
-	)
 
 
 func stop_session(reset_sequence_state: bool = true) -> void:
@@ -65,12 +53,6 @@ func stop_session(reset_sequence_state: bool = true) -> void:
 		local_input_tick = 0
 		local_fire_request_seq = 0
 		local_shell_select_seq = 0
-	print(
-		(
-			"[client-input] session_stopped reset_seq=%s last_tick=%d"
-			% [str(reset_sequence_state), local_input_tick]
-		)
-	)
 
 
 func can_send_gameplay_requests() -> bool:
@@ -88,18 +70,6 @@ func _process(delta: float) -> void:
 	gameplay_api.send_input_intent(
 		local_input_tick, pending_left_track_input, pending_right_track_input, pending_turret_input
 	)
-	if local_input_tick <= 5 or (local_input_tick % 30) == 0:
-		print(
-			(
-				"[client-input] send_input tick=%d left=%.2f right=%.2f turret=%.2f"
-				% [
-					local_input_tick,
-					pending_left_track_input,
-					pending_right_track_input,
-					pending_turret_input
-				]
-			)
-		)
 
 
 func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
@@ -110,19 +80,6 @@ func _on_lever_input(lever_side: Lever.LeverSide, value: float) -> void:
 		pending_left_track_input = clamped_value
 	elif lever_side == Lever.LeverSide.RIGHT:
 		pending_right_track_input = clamped_value
-	if _debug_logged_lever_events < 12:
-		_debug_logged_lever_events += 1
-		print(
-			(
-				"[client-input] lever side=%s value=%.2f pending_left=%.2f pending_right=%.2f"
-				% [
-					str(lever_side),
-					clamped_value,
-					pending_left_track_input,
-					pending_right_track_input
-				]
-			)
-		)
 	arena_match.set_local_input(
 		pending_left_track_input, pending_right_track_input, pending_turret_input
 	)
@@ -132,9 +89,6 @@ func _on_wheel_input(value: float) -> void:
 	if arena_match.is_local_player_dead():
 		return
 	pending_turret_input = clamp(value, -1.0, 1.0)
-	if _debug_logged_wheel_events < 8:
-		_debug_logged_wheel_events += 1
-		print("[client-input] wheel value=%.2f pending_turret=%.2f" % [value, pending_turret_input])
 	arena_match.set_local_input(
 		pending_left_track_input, pending_right_track_input, pending_turret_input
 	)
@@ -144,7 +98,6 @@ func _on_fire_input() -> void:
 	if arena_match.is_local_player_dead() or not can_send_gameplay_requests():
 		return
 	local_fire_request_seq += 1
-	print("[client-input] fire_request seq=%d" % local_fire_request_seq)
 	gameplay_api.request_fire(local_fire_request_seq)
 
 
