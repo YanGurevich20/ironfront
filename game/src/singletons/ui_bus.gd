@@ -1,15 +1,5 @@
 extends Node
 
-# UI intent and flow signals
-
-signal login_pressed
-signal log_out_pressed
-signal auth_retry_requested
-signal auth_sign_in_started
-signal auth_sign_in_finished(success: bool)
-signal username_prompt_requested(initial_username: String)
-signal username_submit_requested(username: String)
-signal username_submit_finished(success: bool, reason: String)
 signal quit_pressed
 signal garage_menu_pressed
 signal play_pressed
@@ -19,4 +9,3 @@ signal shell_info_requested(shell_spec: ShellSpec)
 signal resume_requested
 signal online_session_end_requested(status_message: String)
 signal online_respawn_requested
-signal return_to_menu_requested

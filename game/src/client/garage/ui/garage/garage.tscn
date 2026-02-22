@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://dslajcx0t8u3k"]
+
+[ext_resource type="PackedScene" uid="uid://dl4au2fgo071" path="res://src/client/garage/ui/garage/header/header_panel.tscn" id="1_m7huh"]
+[ext_resource type="Script" uid="uid://dabqtp587rwcn" path="res://src/client/garage/ui/garage/garage.gd" id="1_tqyjs"]
+[ext_resource type="PackedScene" uid="uid://bttmy3kqvmgjf" path="res://src/client/garage/ui/garage/tank_display_panel/tank_display_panel.tscn" id="2_ip7jb"]
+[ext_resource type="PackedScene" uid="uid://c13olu340r4yx" path="res://src/client/garage/ui/garage/upgrade_panel/upgrade_panel.tscn" id="3_ip7jb"]
+[ext_resource type="PackedScene" uid="uid://dct3lf2waqoil" path="res://src/client/garage/ui/garage/tank_list/tank_list_panel.tscn" id="3_tqyjs"]
+
+[node name="Garage" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+script = ExtResource("1_tqyjs")
+
+[node name="HeaderPanel" parent="." instance=ExtResource("1_m7huh")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="TankDisplayPanel" parent="HBoxContainer" instance=ExtResource("2_ip7jb")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="UpgradePanel" parent="HBoxContainer" instance=ExtResource("3_ip7jb")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TankListPanel" parent="." instance=ExtResource("3_tqyjs")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0

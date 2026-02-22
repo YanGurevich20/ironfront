@@ -22,10 +22,9 @@ func _apply_settings() -> void:
 
 
 func initialize(tank: Tank) -> void:
-	var player_data := PlayerData.get_instance()
 	var resolved_player_name: String = tank.display_player_name
 	if resolved_player_name.is_empty():
-		resolved_player_name = player_data.player_name if tank.is_player else "AI"
+		resolved_player_name = Account.username if tank.is_player else "AI"
 	player_name_label.text = resolved_player_name
 	health_bar.tint_progress = Colors.FRIENDLY_GREEN if tank.is_player else Colors.ENEMY_RED
 	damage_ticker_label.modulate = Colors.ENEMY_RED if tank.is_player else Colors.GOLD

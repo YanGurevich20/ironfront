@@ -1,0 +1,119 @@
+[gd_scene format=3 uid="uid://c13olu340r4yx"]
+
+[ext_resource type="PackedScene" uid="uid://cbeua31b6isr0" path="res://src/client/garage/ui/garage/upgrade_panel/upgrade_list_item/upgrade_list_item.tscn" id="1_x4cpo"]
+[ext_resource type="Script" uid="uid://stet18neyqx" path="res://src/client/garage/ui/garage/upgrade_panel/upgrade_panel.gd" id="2_mwfdq"]
+[ext_resource type="Script" uid="uid://dx5sodlppqts6" path="res://src/client/garage/ui/garage/upgrade_panel/ammo_upgrade_list/ammo_upgrade_list.gd" id="3_76ils"]
+[ext_resource type="PackedScene" uid="uid://d0xyaf7obfc1q" path="res://src/client/garage/ui/garage/upgrade_panel/ammo_upgrade_list/ammo_upgrade_list_item/ammo_upgrade_list_item.tscn" id="3_tr4hg"]
+
+[node name="UpgradePanel" type="PanelContainer" unique_id=1275138848]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_type_variation = &"PanelContainerDark"
+script = ExtResource("2_mwfdq")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1136354338]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=923759617]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="HboxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer" unique_id=891434118]
+layout_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ModulesButton" type="Button" parent="VBoxContainer/MarginContainer/HboxContainer" unique_id=315336267]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+disabled = true
+toggle_mode = true
+button_pressed = true
+text = "MODULES"
+
+[node name="CrewButton" type="Button" parent="VBoxContainer/MarginContainer/HboxContainer" unique_id=1898011438]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+disabled = true
+toggle_mode = true
+text = "CREW"
+
+[node name="EquipmentButton" type="Button" parent="VBoxContainer/MarginContainer/HboxContainer" unique_id=1017733264]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+disabled = true
+toggle_mode = true
+text = "EQUIPMENT
+"
+
+[node name="AmmoButton" type="Button" parent="VBoxContainer/MarginContainer/HboxContainer" unique_id=1904766607]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "AMMO"
+
+[node name="SelectTankWarning" type="PanelContainer" parent="VBoxContainer" unique_id=1692839996]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/SelectTankWarning" unique_id=1473782809]
+layout_mode = 2
+text = "SELECT A TANK YA WONKA"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer" unique_id=1101635769]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="UpgradeListContainer" type="VBoxContainer" parent="VBoxContainer/ScrollContainer" unique_id=1014412011]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ModuleUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer" unique_id=1773526617]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/ModuleUpgradeList" unique_id=2062471560 instance=ExtResource("1_x4cpo")]
+layout_mode = 2
+
+[node name="CrewUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer" unique_id=1277896046]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EquipmentUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer" unique_id=1353090522]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="AmmoUpgradeList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/UpgradeListContainer" unique_id=719071632]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("3_76ils")
+
+[node name="AmmoUpgradeListItem" parent="VBoxContainer/ScrollContainer/UpgradeListContainer/AmmoUpgradeList" unique_id=359641478 instance=ExtResource("3_tr4hg")]
+layout_mode = 2

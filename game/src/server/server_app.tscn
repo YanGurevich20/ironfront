@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/server/server_app.gd" id="1_server_app"]
+[ext_resource type="Script" path="res://src/server/net/enet_server.gd" id="2_net"]
+[ext_resource type="Script" path="res://src/server/arena/arena_runtime.gd" id="3_runtime"]
+[ext_resource type="Script" path="res://src/server/net/server_session_api.gd" id="4_session"]
+[ext_resource type="Script" path="res://src/server/net/server_gameplay_api.gd" id="5_gameplay"]
+[ext_resource type="Script" path="res://src/server/arena/arena_actors.gd" id="6_actors"]
+[ext_resource type="Script" path="res://src/server/arena/arena_simulation.gd" id="7_simulation"]
+[ext_resource type="Script" path="res://src/server/arena/arena_shell_controller.gd" id="8_shell_controller"]
+
+[node name="Runtime" type="Node"]
+script = ExtResource("1_server_app")
+
+[node name="Network" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_net")
+
+[node name="Session" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_session")
+
+[node name="Gameplay" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("5_gameplay")
+
+[node name="ArenaRuntime" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_runtime")
+
+[node name="Actors" type="Node" parent="ArenaRuntime"]
+unique_name_in_owner = true
+script = ExtResource("6_actors")
+
+[node name="Simulation" type="Node" parent="ArenaRuntime"]
+unique_name_in_owner = true
+script = ExtResource("7_simulation")
+
+[node name="ShellController" type="Node" parent="ArenaRuntime"]
+unique_name_in_owner = true
+script = ExtResource("8_shell_controller")

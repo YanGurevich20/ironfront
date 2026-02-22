@@ -1,5 +1,7 @@
 # Ironfront Monorepo Guide for Agents
 ## PRODUCTION MODE: RAPID DEVELOPMENT
+## PRODUCTION USER COUNT: 0
+## TESTERS COUNT: 2
 
 ## Terminology
 - Use `module` for each top-level component in this repo, and `project` for the entire repo.

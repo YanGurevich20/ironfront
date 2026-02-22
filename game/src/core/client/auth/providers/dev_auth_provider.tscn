@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://src/core/client/auth/providers/dev_auth_provider.gd" id="1_dev_provider"]
-
-[node name="DevAuthProvider" type="Node"]
-script = ExtResource("1_dev_provider")
