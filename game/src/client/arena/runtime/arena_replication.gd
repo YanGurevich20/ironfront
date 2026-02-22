@@ -147,6 +147,12 @@ func play_remote_fire_effect(peer_id: int) -> void:
 
 func replace_local_player_tank(next_local_player_tank: Tank) -> void:
 	local_player_tank = next_local_player_tank
+	has_pending_local_authoritative_state = false
+	pending_local_authoritative_server_tick = 0
+	pending_local_authoritative_position = Vector2.ZERO
+	pending_local_authoritative_rotation = 0.0
+	pending_local_authoritative_linear_velocity = Vector2.ZERO
+	pending_local_last_processed_input_tick = 0
 
 
 func respawn_remote_tank(
