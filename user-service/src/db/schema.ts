@@ -11,7 +11,7 @@ type AccountEconomy = {
   bonds: number;
 };
 
-type AccountLoadout = {
+export type AccountLoadout = {
   selected_tank_id: string | null;
   tanks: Record<string, AccountTankLoadout>;
 };

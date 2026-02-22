@@ -324,11 +324,10 @@ func _validate_requested_loadout(
 	var tank_id: String = requested_tank_id.strip_edges()
 	if tank_id.is_empty():
 		tank_id = DEFAULT_TANK_ID
-	if not TankManager.tank_specs.has(tank_id):
+	var tank_spec: TankSpec = TankManager.find_tank_spec(tank_id)
+	if tank_spec == null:
 		validation_result["message"] = "INVALID TANK"
 		return validation_result
-	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id)
-	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % tank_id)
 	var allowed_shell_ids: Array[String] = ShellManager.get_shell_ids_for_tank(tank_id)
 	if allowed_shell_ids.is_empty():
 		validation_result["message"] = "TANK HAS NO SHELLS"

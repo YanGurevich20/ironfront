@@ -8,7 +8,7 @@ enum State { LOCKED = 0, UNLOCKABLE = 1, UNLOCKED = 2 }
 const MAX_TICK_COUNT: int = 20
 
 var shell_spec: ShellSpec
-var tank_id: String = ""
+var tank_spec: TankSpec
 var current_count: int
 var current_allowed_count: int
 var is_locked: bool = true
@@ -54,22 +54,20 @@ var _state: State = State.LOCKED
 
 
 func display_shell(
-	selected_tank_id: String, tank_config: TankConfig, shell_spec_data: ShellSpec
+	tank_spec_data: TankSpec, tank_config: TankConfig, shell_spec_data: ShellSpec
 ) -> void:
 	shell_spec = shell_spec_data
-	tank_id = selected_tank_id
-	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id, null)
-	assert(tank_spec != null, "Missing tank spec for selected_tank_id=%s" % tank_id)
-	var shell_id: String = ShellManager.get_shell_id(shell_spec)
-	is_locked = not tank_config.unlocked_shell_ids.has(shell_id)
-	var max_allowed_count := tank_spec.shell_capacity
+	tank_spec = tank_spec_data
+	assert(tank_spec != null, "Missing tank spec")
+	is_locked = not tank_config.unlocked_shell_specs.has(shell_spec)
+	var max_cap := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
 	shell_name_label.text = shell_spec.shell_name
 	shell_stats_label.text = (
 		"D: %dHP | P: %dmm" % [shell_spec.damage, roundi(shell_spec.penetration)]
 	)
-	count_slider.max_value = max_allowed_count
-	count_slider.tick_count = clamp(max_allowed_count + 1, 2, MAX_TICK_COUNT)
+	count_slider.max_value = max_cap
+	count_slider.tick_count = clamp(max_cap + 1, 2, MAX_TICK_COUNT)
 	ammo_count_container.show()
 	price_label.text = Utils.format_dollars(shell_spec.unlock_cost)
 	if is_locked:
@@ -77,11 +75,11 @@ func display_shell(
 		update_count(0)
 		_refresh_locked_state()
 	else:
-		var loaded_count: int = int(tank_config.shell_loadout_by_id.get(shell_id, 0))
+		var loaded_count: int = int(tank_config.shell_loadout_by_spec.get(shell_spec, 0))
 		var current_total_count: int = 0
-		for shell_count_variant: Variant in tank_config.shell_loadout_by_id.values():
+		for shell_count_variant: Variant in tank_config.shell_loadout_by_spec.values():
 			current_total_count += int(shell_count_variant)
-		var unallocated_count: int = max_allowed_count - current_total_count
+		var unallocated_count: int = max_cap - current_total_count
 		current_allowed_count = loaded_count + unallocated_count
 		update_count(loaded_count)
 		state = State.UNLOCKED
@@ -168,9 +166,7 @@ func update_buttons() -> void:
 
 
 func save_count() -> void:
-	var current_tank_config: TankConfig = Account.loadout.tanks.get(tank_id, null)
-	assert(current_tank_config != null, "Missing tank config for tank_id=%s" % tank_id)
-	var shell_id: String = ShellManager.get_shell_id(shell_spec)
-	if not current_tank_config.unlocked_shell_ids.has(shell_id):
+	if is_locked:
 		return
-	current_tank_config.shell_loadout_by_id[shell_id] = current_count
+	var cfg: TankConfig = Account.loadout.get_selected_tank_config()
+	cfg.shell_loadout_by_spec[shell_spec] = current_count

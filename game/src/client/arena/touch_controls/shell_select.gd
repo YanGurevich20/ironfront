@@ -22,27 +22,22 @@ func _ready() -> void:
 		GameplayBus.online_loadout_state_updated, _on_online_loadout_state_updated
 	)
 	Utils.connect_checked(
-		Account.loadout.selected_tank_id_updated,
-		func(_tank_id: String) -> void: _refresh_from_account()
+		Account.loadout.selected_tank_spec_updated,
+		func(_spec: TankSpec) -> void: _refresh_from_account()
 	)
 	_refresh_from_account()
 
 
 func _refresh_from_account() -> void:
-	var selected_tank_id: String = Account.loadout.selected_tank_id
+	tank_spec = Account.loadout.selected_tank_spec
 	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
-	if tank_config == null:
-		shell_counts.clear()
-		_clear_shell_list()
-		return
-	tank_spec = TankManager.tank_specs.get(selected_tank_id, null)
-	assert(tank_spec != null, "Missing tank spec for selected_tank_id=%s" % selected_tank_id)
 	var previous_shell_spec: ShellSpec = current_shell_spec
 	var next_shell_counts: Dictionary[ShellSpec, int] = {}
-	for shell_id_variant: Variant in tank_config.shell_loadout_by_id.keys():
-		var shell_id: String = str(shell_id_variant)
-		var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
-		var shell_count: int = int(tank_config.shell_loadout_by_id[shell_id_variant])
+	for shell_spec_key: Variant in tank_config.shell_loadout_by_spec.keys():
+		var shell_spec: ShellSpec = shell_spec_key as ShellSpec
+		if shell_spec == null:
+			continue
+		var shell_count: int = int(tank_config.shell_loadout_by_spec[shell_spec_key])
 		if shell_count <= 0:
 			continue
 		next_shell_counts[shell_spec] = shell_count
@@ -67,8 +62,11 @@ func _clear_shell_list() -> void:
 
 
 func update_counts() -> void:
-	for child: ShellListItem in shell_list.get_children():
-		child.update_shell_amount(shell_counts[child.shell_spec])
+	for child_variant: Variant in shell_list.get_children():
+		var child: ShellListItem = child_variant as ShellListItem
+		if child == null or child.shell_spec == null:
+			continue
+		child.update_shell_amount(int(shell_counts.get(child.shell_spec, 0)))
 
 
 func _on_shell_selected(shell_spec: ShellSpec) -> void:

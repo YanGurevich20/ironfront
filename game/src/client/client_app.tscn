@@ -1,9 +1,27 @@
 [gd_scene format=3 uid="uid://2x0ir0mr4lgn"]
 
 [ext_resource type="Script" uid="uid://cpnw0smwvs8pn" path="res://src/client/client_app.gd" id="1_client_app"]
+[ext_resource type="Script" path="res://src/client/net/enet_client.gd" id="2_network"]
+[ext_resource type="Script" path="res://src/client/net/client_session_api.gd" id="3_session"]
+[ext_resource type="Script" path="res://src/client/net/client_gameplay_api.gd" id="4_gameplay"]
 
 [node name="Runtime" type="Node2D" unique_id=2016107524]
 script = ExtResource("1_client_app")
 
-[node name="StateContainer" type="CanvasLayer" parent="." unique_id=908707254]
+[node name="WorldStateContainer" type="Node2D" parent="." unique_id=908707254]
 unique_name_in_owner = true
+
+[node name="UiStateContainer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+
+[node name="Network" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_network")
+
+[node name="Session" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_session")
+
+[node name="Gameplay" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_gameplay")

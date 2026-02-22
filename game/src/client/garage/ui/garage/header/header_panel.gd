@@ -33,11 +33,8 @@ func _refresh_economy_labels() -> void:
 
 func _on_play_pressed() -> void:
 	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
-	if tank_config == null:
-		_display_warning("SELECT A TANK")
-		return
 	var total_shell_count: int = 0
-	for shell_count_variant: Variant in tank_config.shell_loadout_by_id.values():
+	for shell_count_variant: Variant in tank_config.shell_loadout_by_spec.values():
 		total_shell_count += int(shell_count_variant)
 	if total_shell_count == 0:
 		_display_warning("NOT ENOUGH AMMO")

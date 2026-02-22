@@ -5,7 +5,7 @@ signal item_pressed
 
 enum State { LOCKED = 0, UNLOCKABLE = 1, UNLOCKED = 2, SELECTED = 3 }
 
-var tank_id: String
+var tank_spec: TankSpec
 var tank_price: int = 0
 var state: State:
 	set(value):
@@ -65,10 +65,9 @@ func set_unlockable_overlay_visibility(show_unlockable_overlay: bool) -> void:
 	_unlockable_overlay.visible = show_unlockable_overlay
 
 
-func display_tank(_tank_id: String) -> void:
-	tank_id = _tank_id
-	var tank_spec: TankSpec = TankManager.tank_specs.get(_tank_id)
-	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % _tank_id)
+func display_tank(spec: TankSpec) -> void:
+	tank_spec = spec
+	assert(tank_spec != null, "Missing tank spec")
 	tank_price = tank_spec.dollar_cost
 	_tank_image.texture = tank_spec.preview_texture
 	_price_label.text = Utils.format_dollars(tank_price)

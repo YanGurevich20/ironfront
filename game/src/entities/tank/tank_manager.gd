@@ -33,15 +33,31 @@ static func get_tank_ids() -> Array[String]:
 	return tank_ids
 
 
-static func create_tank(tank_id: String, tank_controller_type: TankControllerType) -> Tank:
+static func find_tank_spec(tank_id: String) -> TankSpec:
+	return tank_specs.get(tank_id, null)
+
+
+static func require_tank_spec(tank_id: String) -> TankSpec:
+	var spec: TankSpec = find_tank_spec(tank_id)
+	assert(spec != null, "TankManager: missing tank spec for tank_id=%s" % tank_id)
+	return spec
+
+
+static func create_tank_from_spec(
+	tank_spec: TankSpec, tank_controller_type: TankControllerType
+) -> Tank:
+	assert(tank_spec != null, "TankManager: create_tank_from_spec received null tank_spec")
 	var is_player: bool = (
 		tank_controller_type == TankControllerType.PLAYER
 		or tank_controller_type == TankControllerType.MULTIPLAYER
 	)
 	var tank: Tank = TankScene.instantiate()
-	var tank_spec: TankSpec = tank_specs.get(tank_id)
-	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % tank_id)
 	tank.is_player = is_player
 	tank.tank_spec = tank_spec
 	tank.controller = tank_controller_scenes[tank_controller_type].instantiate()
 	return tank
+
+
+static func create_tank(tank_id: String, tank_controller_type: TankControllerType) -> Tank:
+	var tank_spec: TankSpec = require_tank_spec(tank_id)
+	return create_tank_from_spec(tank_spec, tank_controller_type)

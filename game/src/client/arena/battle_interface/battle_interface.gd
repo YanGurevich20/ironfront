@@ -1,4 +1,5 @@
-class_name BattleInterface extends Control
+class_name BattleInterface
+extends Control
 
 var network_client: ENetClient
 
@@ -10,7 +11,6 @@ var network_client: ENetClient
 
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	player_hud.set_hud_active(false)
 
 

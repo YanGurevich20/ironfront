@@ -50,8 +50,7 @@ func handle_shell_spawn_received(
 ) -> void:
 	if firing_peer_id != multiplayer.get_unique_id():
 		replication.play_remote_fire_effect(firing_peer_id)
-	var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
-	assert(shell_spec != null, "Invalid shell_id from server: %s" % shell_id)
+	var shell_spec: ShellSpec = ShellManager.require_shell_spec(shell_id)
 	var shell: Shell = SHELL_SCENE.instantiate()
 	shell.initialize_from_spawn(
 		shell_spec, spawn_position, shell_velocity, shell_rotation, null, true
@@ -113,10 +112,7 @@ func handle_shell_impact_received(
 func handle_loadout_state_received(
 	selected_shell_id: String, shell_counts_by_id: Dictionary, reload_time_left: float
 ) -> void:
-	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
-	assert(
-		selected_shell_spec != null, "Invalid selected_shell_id from server: %s" % selected_shell_id
-	)
+	var selected_shell_spec: ShellSpec = ShellManager.require_shell_spec(selected_shell_id)
 	var selected_shell_count: int = max(0, int(shell_counts_by_id.get(selected_shell_id, 0)))
 	local_player_tank.apply_authoritative_shell_state(
 		selected_shell_spec, selected_shell_count, reload_time_left

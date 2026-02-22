@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { db } from "../../db/client.js";
 import { accounts } from "../../db/schema.js";
+import { ensureStarterLoadout } from "../../loadout.js";
 import type { MeRouteVars } from "./require_bearer_session.js";
 
 type MeResponse = {
@@ -27,5 +28,6 @@ export async function getMeHandler(context: Context<{ Variables: MeRouteVars }>)
   if (!account) {
     return context.json({ error: "PROFILE_NOT_FOUND" }, 404);
   }
-  return context.json<MeResponse>(account);
+  const loadout = ensureStarterLoadout(account.loadout);
+  return context.json<MeResponse>({ ...account, loadout });
 }

@@ -5,11 +5,17 @@ static var shell_ids_by_tank_id: Dictionary[String, Array] = {}
 static var initialized: bool = false
 
 
-static func get_shell_spec(shell_id: String) -> ShellSpec:
+static func find_shell_spec(shell_id: String) -> ShellSpec:
 	_ensure_initialized()
 	if not shell_specs_by_id.has(shell_id):
 		return null
 	return shell_specs_by_id[shell_id]
+
+
+static func require_shell_spec(shell_id: String) -> ShellSpec:
+	var spec: ShellSpec = find_shell_spec(shell_id)
+	assert(spec != null, "ShellManager: missing shell spec for shell_id=%s" % shell_id)
+	return spec
 
 
 static func has_shell_id(shell_id: String) -> bool:
@@ -34,9 +40,8 @@ static func _ensure_initialized() -> void:
 		return
 	shell_specs_by_id.clear()
 	shell_ids_by_tank_id.clear()
-	for tank_id: String in TankManager.tank_specs.keys():
-		var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id)
-		assert(tank_spec != null, "ShellManager: tank spec missing for tank_id=%s" % tank_id)
+	for tank_id: String in TankManager.get_tank_ids():
+		var tank_spec: TankSpec = TankManager.require_tank_spec(tank_id)
 		var shell_ids: Array[String] = []
 		for shell_spec: ShellSpec in tank_spec.allowed_shells:
 			assert(

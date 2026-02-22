@@ -1,9 +1,9 @@
 class_name TankListPanel
 extends Control
 
-signal unlock_tank_requested(tank_id: String)
+signal unlock_tank_requested(tank_spec: TankSpec)
 
-var _unlocked_tank_ids: Array[String] = []
+var _unlocked_tank_specs: Array[TankSpec] = []
 
 @onready var tank_list: HBoxContainer = %TankList
 @onready var _tank_list_item_scene: PackedScene = preload(
@@ -13,12 +13,12 @@ var _unlocked_tank_ids: Array[String] = []
 
 func _ready() -> void:
 	Utils.connect_checked(
-		Account.loadout.selected_tank_id_updated,
-		func(_tank_id: String) -> void: _update_item_states()
+		Account.loadout.selected_tank_spec_updated,
+		func(_spec: TankSpec) -> void: _update_item_states()
 	)
 	Utils.connect_checked(
 		Account.loadout.tanks_updated,
-		func(_tanks: Dictionary[String, TankConfig]) -> void: _refresh_unlocked_tank_ids()
+		func(_tanks: Dictionary) -> void: _refresh_unlocked_tank_specs()
 	)
 	Utils.connect_checked(
 		Account.economy.dollars_updated, func(_new_dollars: int) -> void: _update_item_states()
@@ -26,42 +26,40 @@ func _ready() -> void:
 	for child in tank_list.get_children():
 		child.queue_free()
 
-	var all_tank_ids: Array[String] = TankManager.get_tank_ids()
-	_refresh_unlocked_tank_ids()
+	var all_tank_specs: Array[TankSpec] = []
+	for tank_id: String in TankManager.get_tank_ids():
+		all_tank_specs.append(TankManager.require_tank_spec(tank_id))
+	_refresh_unlocked_tank_specs()
 
-	# Keep track of the latest unlocked tank item
 	var latest_unlocked_item: TankListItem = null
 
-	for tank_id in all_tank_ids:
+	for spec: TankSpec in all_tank_specs:
 		var tank_list_item: TankListItem = _tank_list_item_scene.instantiate()
 		Utils.connect_checked(
 			tank_list_item.item_pressed, func() -> void: _on_item_pressed(tank_list_item)
 		)
 		tank_list.add_child(tank_list_item)
-		tank_list_item.display_tank(tank_id)
+		tank_list_item.display_tank(spec)
 
-		# If this tank is unlocked, update the latest unlocked item
-		if _unlocked_tank_ids.has(tank_id):
+		if _unlocked_tank_specs.has(spec):
 			latest_unlocked_item = tank_list_item
 
 	_update_item_states()
 
-	# Determine which tank should be selected initially
-	var saved_tank_id: String = Account.loadout.selected_tank_id
-	# If the saved tank is unlocked, select it; otherwise fall back to the latest unlocked
-	if _unlocked_tank_ids.has(saved_tank_id):
-		select_tank_by_id(saved_tank_id)
+	var saved_spec: TankSpec = Account.loadout.selected_tank_spec
+	if _unlocked_tank_specs.has(saved_spec):
+		select_tank_by_spec(saved_spec)
 	elif latest_unlocked_item != null:
 		_select_tank(latest_unlocked_item)
 
 
 func _update_item_states() -> void:
-	var selected_id: String = Account.loadout.selected_tank_id
+	var selected_spec: TankSpec = Account.loadout.selected_tank_spec
 	var player_dollars: int = Account.economy.dollars
 	for item: TankListItem in tank_list.get_children():
-		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
+		var unlocked: bool = _unlocked_tank_specs.has(item.tank_spec)
 		if unlocked:
-			if item.tank_id == selected_id:
+			if item.tank_spec == selected_spec:
 				item.state = item.State.SELECTED
 			else:
 				item.state = item.State.UNLOCKED
@@ -75,7 +73,7 @@ func _update_item_states() -> void:
 func _on_item_pressed(item: TankListItem) -> void:
 	match item.state:
 		item.State.UNLOCKABLE:
-			unlock_tank_requested.emit(item.tank_id)
+			unlock_tank_requested.emit(item.tank_spec)
 		item.State.UNLOCKED, item.State.SELECTED:
 			_select_tank(item)
 		_:
@@ -85,8 +83,7 @@ func _on_item_pressed(item: TankListItem) -> void:
 func _select_tank(item: TankListItem) -> void:
 	if item.state in [item.State.LOCKED, item.State.UNLOCKABLE]:
 		return
-	var selected_tank_id: String = item.tank_id
-	Account.loadout.selected_tank_id = selected_tank_id
+	Account.loadout.selected_tank_spec = item.tank_spec
 	for other: TankListItem in tank_list.get_children():
 		if other == item:
 			other.state = other.State.SELECTED
@@ -94,14 +91,13 @@ func _select_tank(item: TankListItem) -> void:
 			other.state = other.State.UNLOCKED
 
 
-# Allow parent node to programmatically select a tank by its ID.
-func select_tank_by_id(tank_id: String) -> void:
+func select_tank_by_spec(tank_spec: TankSpec) -> void:
 	for item: TankListItem in tank_list.get_children():
-		if item.tank_id == tank_id:
+		if item.tank_spec == tank_spec:
 			_select_tank(item)
 			return
 
 
-func _refresh_unlocked_tank_ids() -> void:
-	_unlocked_tank_ids = Account.loadout.get_tank_ids()
+func _refresh_unlocked_tank_specs() -> void:
+	_unlocked_tank_specs = Account.loadout.get_tank_specs()
 	_update_item_states()

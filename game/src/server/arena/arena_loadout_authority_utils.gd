@@ -31,8 +31,7 @@ static func handle_peer_fire_request(
 	if selected_shell_count <= 0:
 		reject_peer_fire(runtime, peer_id, spawned_tank, "OUT_OF_AMMO")
 		return
-	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
-	assert(selected_shell_spec != null, "Invalid selected shell_id: %s" % selected_shell_id)
+	var selected_shell_spec: ShellSpec = ShellManager.require_shell_spec(selected_shell_id)
 	spawned_tank.set_current_shell_spec(selected_shell_spec)
 	spawned_tank.set_remaining_shell_count(selected_shell_count)
 	if spawned_tank.turret.get_reload_time_left() > 0.0:
@@ -58,8 +57,7 @@ static func sync_peer_tank_shell_state(
 	runtime: ServerArenaRuntime, peer_id: int, spawned_tank: Tank
 ) -> void:
 	var selected_shell_id: String = runtime.arena_session_state.get_peer_selected_shell_id(peer_id)
-	var selected_shell_spec: ShellSpec = ShellManager.get_shell_spec(selected_shell_id)
-	assert(selected_shell_spec != null, "Invalid selected shell_id: %s" % selected_shell_id)
+	var selected_shell_spec: ShellSpec = ShellManager.require_shell_spec(selected_shell_id)
 	var selected_shell_count: int = runtime.arena_session_state.get_peer_shell_count(
 		peer_id, selected_shell_id
 	)
@@ -88,6 +86,6 @@ static func reject_peer_fire(
 
 
 static func resolve_valid_tank_id(tank_id: String) -> String:
-	if TankManager.tank_specs.has(tank_id):
+	if TankManager.find_tank_spec(tank_id) != null:
 		return tank_id
 	return ArenaSessionState.DEFAULT_TANK_ID

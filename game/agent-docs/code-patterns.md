@@ -110,7 +110,6 @@ Good:
 class_name TankDisplayPanel extends Control
 
 var account: Account = Account.get_instance()
-var preferences: Preferences = Preferences.get_instance()
 
 func _ready() -> void:
 	Utils.connect_checked(
@@ -118,12 +117,12 @@ func _ready() -> void:
 		func(new_username: String) -> void: username_label.text = new_username
 	)
 	Utils.connect_checked(
-		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: display_tank()
+		account.loadout.selected_tank_spec_updated, func(_spec: TankSpec) -> void: display_tank()
 	)
 	display_tank()
 
 func display_tank() -> void:
-	var tank_spec: TankSpec = TankManager.tank_specs.get(preferences.selected_tank_id)
+	var tank_spec: TankSpec = account.loadout.selected_tank_spec
 	if tank_spec == null:
 		return
 	tank_display.texture = tank_spec.preview_texture
@@ -135,19 +134,18 @@ class_name TankDisplayPanel extends Control
 
 func _ready() -> void:
 	var account: Account = Account.get_instance()
-	var preferences: Preferences = Preferences.get_instance()
 	Utils.connect_checked(
 		account.username_updated,
 		func(new_username: String) -> void: username_label.text = new_username
 	)
 	display_tank()
 	Utils.connect_checked(
-		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: display_tank()
+		account.loadout.selected_tank_spec_updated, func(_spec: TankSpec) -> void: display_tank()
 	)
 
 func display_tank() -> void:
-	var preferences: Preferences = Preferences.get_instance()
-	var tank_spec: TankSpec = TankManager.tank_specs.get(preferences.selected_tank_id)
+	var account: Account = Account.get_instance()
+	var tank_spec: TankSpec = account.loadout.selected_tank_spec
 	if tank_spec == null:
 		return
 	tank_display.texture = tank_spec.preview_texture
@@ -159,19 +157,19 @@ func display_tank() -> void:
 
 Good:
 ```gdscript
-var selected_tank_id: String = account.loadout.selected_tank_id
-account.loadout.selected_tank_id = item.tank_id
+var selected_tank_spec: TankSpec = account.loadout.selected_tank_spec
+account.loadout.selected_tank_spec = item.tank_spec
 Utils.connect_checked(
-	account.loadout.selected_tank_id_updated,
-	func(_tank_id: String) -> void: _update_item_states()
+	account.loadout.selected_tank_spec_updated,
+	func(_spec: TankSpec) -> void: _update_item_states()
 )
 ```
 
 Bad:
 ```gdscript
-var selected_tank_id: String = account.loadout.get_selected_tank_id()
-account.set_selected_tank_id(item.tank_id)
-Utils.connect_checked(account.selected_tank_id_updated, _update_item_states)
+var selected_tank_spec: TankSpec = account.loadout.get_selected_tank_spec()
+account.set_selected_tank_spec(item.tank_spec)
+Utils.connect_checked(account.selected_tank_spec_updated, _update_item_states)
 ```
 
 ## Documentation Requirement

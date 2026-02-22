@@ -14,28 +14,24 @@ func _ready() -> void:
 	Utils.connect_checked(UiBus.shell_unlock_requested, _on_shell_unlock_requested)
 
 
-func _on_tank_unlock_requested(tank_id: String) -> void:
-	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id, null)
-	assert(tank_spec != null, "Missing tank spec for tank_id=%s" % tank_id)
+func _on_tank_unlock_requested(tank_spec: TankSpec) -> void:
+	assert(tank_spec != null, "Missing tank spec")
 	if Account.economy.dollars < tank_spec.dollar_cost:
 		return
 	Account.economy.dollars -= tank_spec.dollar_cost
-	Account.loadout.unlock_tank(tank_id)
+	Account.loadout.unlock_tank(tank_spec)
 
 
 func _on_shell_unlock_requested(shell_spec: ShellSpec) -> void:
 	var unlock_cost := shell_spec.unlock_cost
 	if Account.economy.dollars < unlock_cost:
-		return  #TODO: Feedback insufficient funds
-	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
-	if tank_config == null:
 		return
-	var shell_id: String = ShellManager.get_shell_id(shell_spec)
+	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
 	Account.economy.dollars -= unlock_cost
-	if not tank_config.unlocked_shell_ids.has(shell_id):
-		tank_config.unlocked_shell_ids.append(shell_id)
-	if not tank_config.shell_loadout_by_id.has(shell_id):
-		tank_config.shell_loadout_by_id[shell_id] = 0
+	if not tank_config.unlocked_shell_specs.has(shell_spec):
+		tank_config.unlocked_shell_specs.append(shell_spec)
+	if not tank_config.shell_loadout_by_spec.has(shell_spec):
+		tank_config.shell_loadout_by_spec[shell_spec] = 0
 
 
 func show_online_join_feedback(message: String, is_error: bool) -> void:

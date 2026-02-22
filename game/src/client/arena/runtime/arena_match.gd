@@ -11,6 +11,7 @@ var arena_level: ArenaLevelMvp
 var local_player_tank: Tank
 var local_player_dead: bool = false
 var log_context: Dictionary = {}
+var _debug_set_input_log_count: int = 0
 
 @onready var replication: ArenaReplication = %Replication
 @onready var shells: ArenaShells = %Shells
@@ -33,6 +34,18 @@ func configure_log_context(next_log_context: Dictionary) -> void:
 func start_match(spawn_position: Vector2, spawn_rotation: float) -> bool:
 	assert(level_container != null, "ArenaMatch requires level_container")
 	stop_match()
+	print(
+		(
+			"%s start_match spawn_pos=%s spawn_rot=%.3f level_container=%s children=%d"
+			% [
+				_log_prefix(),
+				spawn_position,
+				spawn_rotation,
+				level_container.get_path(),
+				level_container.get_child_count()
+			]
+		)
+	)
 	var level_node: Node = ARENA_LEVEL_SCENE.instantiate()
 	var next_arena_level: ArenaLevelMvp = level_node as ArenaLevelMvp
 	if next_arena_level == null:
@@ -48,9 +61,36 @@ func start_match(spawn_position: Vector2, spawn_rotation: float) -> bool:
 	level_container.add_child(next_arena_level)
 	next_arena_level.add_child(spawned_player_tank)
 	spawned_player_tank.apply_spawn_state(spawn_position, spawn_rotation)
+	print(
+		(
+			"%s local_tank_spawned tank=%s visible=%s inside_tree=%s parent=%s pos=%s rot=%.3f"
+			% [
+				_log_prefix(),
+				str(spawned_player_tank.get_instance_id()),
+				str(spawned_player_tank.visible),
+				str(spawned_player_tank.is_inside_tree()),
+				str(spawned_player_tank.get_parent().get_path()),
+				spawned_player_tank.global_position,
+				spawned_player_tank.global_rotation,
+			]
+		)
+	)
 	arena_level = next_arena_level
 	local_player_tank = spawned_player_tank
+	print(
+		(
+			"%s local_tank_visual z_index=%d z_as_relative=%s top_level=%s modulate=%s"
+			% [
+				_log_prefix(),
+				local_player_tank.z_index,
+				str(local_player_tank.z_as_relative),
+				str(local_player_tank.top_level),
+				str(local_player_tank.modulate),
+			]
+		)
+	)
 	local_player_dead = false
+	_debug_set_input_log_count = 0
 	replication.start_match(arena_level, local_player_tank)
 	shells.start_match(arena_level, local_player_tank)
 	if not GameplayBus.tank_destroyed.is_connected(_on_tank_destroyed):
@@ -63,6 +103,7 @@ func stop_match() -> void:
 	if GameplayBus.tank_destroyed.is_connected(_on_tank_destroyed):
 		GameplayBus.tank_destroyed.disconnect(_on_tank_destroyed)
 	local_player_dead = false
+	_debug_set_input_log_count = 0
 	shells.stop_match()
 	replication.stop_match()
 	if local_player_tank != null:
@@ -143,6 +184,20 @@ func set_local_input(
 	local_player_tank.left_track_input = left_track_input
 	local_player_tank.right_track_input = right_track_input
 	local_player_tank.turret_rotation_input = turret_rotation_input
+	if _debug_set_input_log_count < 12:
+		_debug_set_input_log_count += 1
+		print(
+			(
+				"%s set_local_input left=%.2f right=%.2f turret=%.2f tank=%s"
+				% [
+					_log_prefix(),
+					left_track_input,
+					right_track_input,
+					turret_rotation_input,
+					str(local_player_tank.get_instance_id())
+				]
+			)
+		)
 
 
 func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) -> void:
@@ -155,6 +210,19 @@ func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) 
 		return
 	arena_level.add_child(respawned_tank)
 	respawned_tank.apply_spawn_state(spawn_position, spawn_rotation)
+	print(
+		(
+			"%s local_tank_respawned tank=%s visible=%s inside_tree=%s pos=%s rot=%.3f"
+			% [
+				_log_prefix(),
+				str(respawned_tank.get_instance_id()),
+				str(respawned_tank.visible),
+				str(respawned_tank.is_inside_tree()),
+				respawned_tank.global_position,
+				respawned_tank.global_rotation,
+			]
+		)
+	)
 	local_player_tank = respawned_tank
 	local_player_dead = false
 	replication.replace_local_player_tank(local_player_tank)

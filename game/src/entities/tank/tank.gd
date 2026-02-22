@@ -16,6 +16,7 @@ var turret_rotation_input := 0.0
 var distance_traveled: float = 0.0
 var settings_data: SettingsData
 var _health: int
+var _debug_motion_log_accumulator_seconds: float = 0.0
 
 @onready var turret: Turret = %Turret
 @onready var cannon: Sprite2D = %Cannon
@@ -36,6 +37,9 @@ var _health: int
 
 
 func _ready() -> void:
+	if tank_spec == null:
+		push_error("[tank] missing_tank_spec instance=%s" % str(get_instance_id()))
+		return
 	settings_data = SettingsData.get_instance()
 	self.linear_damp = tank_spec.linear_damping
 	self.angular_damp = tank_spec.angular_damping
@@ -48,6 +52,27 @@ func _ready() -> void:
 		camera_2d.make_current()
 		Utils.connect_checked(GameplayBus.settings_changed, _apply_settings)
 		_apply_settings()
+	var active_camera: Camera2D = get_viewport().get_camera_2d()
+	print(
+		(
+			(
+				"[tank] ready instance=%s is_player=%s visible=%s tank_id=%s health=%d"
+				+ " max_speed=%.2f accel=%.2f hull_tex=%s turret_tex=%s camera_current=%s"
+			)
+			% [
+				str(get_instance_id()),
+				str(is_player),
+				str(visible),
+				tank_spec.tank_id,
+				tank_spec.health,
+				tank_spec.max_speed,
+				tank_spec.max_acceleration,
+				str(hull.texture != null),
+				str(turret.texture != null),
+				str(active_camera == camera_2d),
+			]
+		)
+	)
 
 
 func _apply_settings() -> void:
@@ -157,6 +182,28 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	# === Distance Tracking ===
 	distance_traveled += global_position.distance_to(_last_position)
 	_last_position = global_position
+	_debug_motion_log_accumulator_seconds += state.step
+	if _debug_motion_log_accumulator_seconds >= 0.5 and is_player:
+		_debug_motion_log_accumulator_seconds = 0.0
+		if (
+			abs(left_track_input) > 0.15
+			or abs(right_track_input) > 0.15
+			or abs(turret_rotation_input) > 0.15
+		):
+			var speed: float = state.linear_velocity.length()
+			print(
+				(
+					"[tank] motion inputs left=%.2f right=%.2f turret=%.2f speed=%.2f sleeping=%s freeze=%s"
+					% [
+						left_track_input,
+						right_track_input,
+						turret_rotation_input,
+						speed,
+						str(sleeping),
+						str(freeze)
+					]
+				)
+			)
 
 
 func get_forward_speed(velocity: Vector2) -> float:

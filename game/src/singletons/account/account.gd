@@ -24,8 +24,9 @@ func clear() -> void:
 	_ensure_nested_instances()
 	economy.dollars = 0
 	economy.bonds = 0
-	loadout.tanks = {}
-	loadout.selected_tank_id = ""
+	var cleared_tanks: Dictionary[TankSpec, TankConfig] = {}
+	loadout.tanks = cleared_tanks
+	loadout.selected_tank_spec = null
 	account_cleared.emit()
 
 

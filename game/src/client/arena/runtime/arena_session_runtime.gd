@@ -7,6 +7,7 @@ signal local_player_respawned
 var gameplay_api: ClientGameplayApi
 var enet_client: ENetClient
 var level_container: Node2D
+var _next_snapshot_debug_at_seconds: float = 0.0
 
 @onready var arena_match: ArenaMatch = %ArenaMatch
 @onready var input: ArenaInput = %ArenaInput
@@ -35,6 +36,7 @@ func start_session(spawn_position: Vector2, spawn_rotation: float) -> bool:
 	arena_match.configure_level_container(level_container)
 	if not arena_match.start_match(spawn_position, spawn_rotation):
 		return false
+	_next_snapshot_debug_at_seconds = 0.0
 	input.start_session(gameplay_api, enet_client, arena_match)
 	rewards.start_session()
 	_connect_gameplay_api_signals()
@@ -47,6 +49,7 @@ func stop_session() -> void:
 	input.stop_session()
 	rewards.stop_session()
 	arena_match.stop_match()
+	_next_snapshot_debug_at_seconds = 0.0
 
 
 func request_respawn() -> void:
@@ -67,6 +70,27 @@ func apply_rewards() -> void:
 
 func _on_state_snapshot_received(server_tick: int, player_states: Array, max_players: int) -> void:
 	arena_match.apply_state_snapshot(server_tick, player_states)
+	var now_seconds: float = float(Time.get_ticks_usec()) / 1_000_000.0
+	if now_seconds >= _next_snapshot_debug_at_seconds:
+		_next_snapshot_debug_at_seconds = now_seconds + 0.5
+		var local_peer_id: int = multiplayer.get_unique_id()
+		for player_state_variant: Variant in player_states:
+			var player_state: Dictionary = player_state_variant
+			if int(player_state.get("peer_id", 0)) != local_peer_id:
+				continue
+				print(
+					(
+						"[client-runtime] snapshot tick=%d last_input=%d pos=%s vel=%.2f alive=%s"
+						% [
+							server_tick,
+							int(player_state.get("last_processed_input_tick", 0)),
+							player_state.get("position", Vector2.ZERO),
+							(player_state.get("linear_velocity", Vector2.ZERO) as Vector2).length(),
+							str(bool(player_state.get("is_alive", true)))
+						]
+					)
+				)
+			break
 	var active_human_players: int = 0
 	var active_bots: int = 0
 	for player_state_variant: Variant in player_states:

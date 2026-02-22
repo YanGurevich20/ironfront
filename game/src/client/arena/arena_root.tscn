@@ -1,9 +1,6 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://src/client/arena/arena_root.gd" id="1_script"]
-[ext_resource type="Script" path="res://src/client/net/enet_client.gd" id="2_network"]
-[ext_resource type="Script" path="res://src/client/net/client_session_api.gd" id="3_session"]
-[ext_resource type="Script" path="res://src/client/net/client_gameplay_api.gd" id="4_gameplay"]
 [ext_resource type="PackedScene" path="res://src/client/arena/arena_client.tscn" id="5_arena_client"]
 [ext_resource type="PackedScene" path="res://src/client/arena/battle_interface/battle_interface.tscn" id="6_battle"]
 [ext_resource type="PackedScene" path="res://src/client/arena/overlays/online_join_overlay/online_join_overlay.tscn" id="7_join"]
@@ -11,47 +8,33 @@
 [ext_resource type="PackedScene" path="res://src/client/arena/overlays/online_match_result_overlay/online_match_result_overlay.tscn" id="9_match"]
 [ext_resource type="PackedScene" path="res://src/client/arena/overlays/online_death_overlay/online_death_overlay.tscn" id="10_death"]
 
-[node name="ArenaRoot" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="ArenaRoot" type="Node"]
 script = ExtResource("1_script")
 
 [node name="LevelContainer" type="Node2D" parent="."]
 unique_name_in_owner = true
 
-[node name="Network" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("2_network")
-
-[node name="Session" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("3_session")
-
-[node name="Gameplay" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("4_gameplay")
-
 [node name="ArenaClient" parent="." instance=ExtResource("5_arena_client")]
 
-[node name="BattleInterface" parent="." instance=ExtResource("6_battle")]
-visible = false
+[node name="ArenaHudLayer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
 
-[node name="OnlineJoinOverlay" parent="." instance=ExtResource("7_join")]
+[node name="BattleInterface" parent="ArenaHudLayer" instance=ExtResource("6_battle")]
 unique_name_in_owner = true
 visible = false
 
-[node name="OnlinePauseOverlay" parent="." instance=ExtResource("8_pause")]
+[node name="OnlineJoinOverlay" parent="ArenaHudLayer" instance=ExtResource("7_join")]
 unique_name_in_owner = true
 visible = false
 
-[node name="OnlineMatchResultOverlay" parent="." instance=ExtResource("9_match")]
+[node name="OnlinePauseOverlay" parent="ArenaHudLayer" instance=ExtResource("8_pause")]
 unique_name_in_owner = true
 visible = false
 
-[node name="OnlineDeathOverlay" parent="." instance=ExtResource("10_death")]
+[node name="OnlineMatchResultOverlay" parent="ArenaHudLayer" instance=ExtResource("9_match")]
+unique_name_in_owner = true
+visible = false
+
+[node name="OnlineDeathOverlay" parent="ArenaHudLayer" instance=ExtResource("10_death")]
 unique_name_in_owner = true
 visible = false

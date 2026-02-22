@@ -26,13 +26,29 @@ var phase: ArenaPhase = ArenaPhase.DISCONNECTED
 var cancel_join_requested: bool = false
 var runtime: ArenaSessionRuntime
 
-@onready var enet_client: ENetClient = %Network
-@onready var session_api: ClientSessionApi = %Session
-@onready var gameplay_api: ClientGameplayApi = %Gameplay
-@onready var level_container: Node2D = %LevelContainer
+var enet_client: ENetClient
+var session_api: ClientSessionApi
+var gameplay_api: ClientGameplayApi
+var level_container: Node2D
+
+
+func configure_dependencies(
+	next_enet_client: ENetClient,
+	next_session_api: ClientSessionApi,
+	next_gameplay_api: ClientGameplayApi,
+	next_level_container: Node2D
+) -> void:
+	enet_client = next_enet_client
+	session_api = next_session_api
+	gameplay_api = next_gameplay_api
+	level_container = next_level_container
 
 
 func _ready() -> void:
+	assert(enet_client != null, "ArenaClient missing ENetClient dependency")
+	assert(session_api != null, "ArenaClient missing ClientSessionApi dependency")
+	assert(gameplay_api != null, "ArenaClient missing ClientGameplayApi dependency")
+	assert(level_container != null, "ArenaClient missing level_container dependency")
 	Utils.connect_checked(multiplayer.connected_to_server, _on_connected_to_server)
 	Utils.connect_checked(
 		multiplayer.connection_failed, func() -> void: _on_connection_ended("CONNECTION FAILED")
@@ -104,7 +120,7 @@ func end_session(status_message: String) -> void:
 
 
 func _send_join_arena() -> void:
-	var join_loadout_payload: Dictionary = _build_join_arena_payload_from_account()
+	var join_loadout_payload: Dictionary = Account.loadout.to_join_arena_payload()
 	var selected_tank_id: String = str(
 		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
 	)
@@ -114,35 +130,6 @@ func _send_join_arena() -> void:
 		join_loadout_payload.get("shell_loadout_by_id", {}),
 		str(join_loadout_payload.get("selected_shell_id", ""))
 	)
-
-
-func _build_join_arena_payload_from_account() -> Dictionary:
-	var selected_tank_id: String = Account.loadout.selected_tank_id
-	if selected_tank_id.is_empty():
-		selected_tank_id = ArenaSessionState.DEFAULT_TANK_ID
-	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
-	if tank_config == null:
-		push_warning("[client] missing loadout for selected_tank_id=%s" % selected_tank_id)
-		return {
-			"tank_id": selected_tank_id,
-			"shell_loadout_by_id": {},
-			"selected_shell_id": "",
-		}
-	var shell_loadout_by_id: Dictionary = {}
-	for shell_id_variant: Variant in tank_config.shell_loadout_by_id.keys():
-		var shell_id: String = str(shell_id_variant)
-		shell_loadout_by_id[shell_id] = int(tank_config.shell_loadout_by_id[shell_id_variant])
-	var selected_shell_id: String = ""
-	for shell_id: String in ShellManager.get_shell_ids_for_tank(selected_tank_id):
-		var shell_count: int = int(shell_loadout_by_id.get(shell_id, 0))
-		if shell_count > 0:
-			selected_shell_id = shell_id
-			break
-	return {
-		"tank_id": selected_tank_id,
-		"shell_loadout_by_id": shell_loadout_by_id,
-		"selected_shell_id": selected_shell_id,
-	}
 
 
 func _start_arena(spawn_position: Vector2, spawn_rotation: float) -> bool:

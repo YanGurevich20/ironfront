@@ -31,12 +31,11 @@ func _ready() -> void:
 		ammo_button.pressed, func() -> void: _show_list(ammo_upgrade_list, ammo_button)
 	)
 	Utils.connect_checked(
-		Account.loadout.selected_tank_id_updated,
-		func(_tank_id: String) -> void: _refresh_from_account()
+		Account.loadout.selected_tank_spec_updated,
+		func(_spec: TankSpec) -> void: _refresh_from_account()
 	)
 	Utils.connect_checked(
-		Account.loadout.tanks_updated,
-		func(_tanks: Dictionary[String, TankConfig]) -> void: _refresh_from_account()
+		Account.loadout.tanks_updated, func(_tanks: Dictionary) -> void: _refresh_from_account()
 	)
 	_refresh_from_account()
 
@@ -51,14 +50,9 @@ func _show_list(list_to_show: VBoxContainer, button_pressed: Button) -> void:
 
 
 func _refresh_from_account() -> void:
-	var selected_tank_id: String = Account.loadout.selected_tank_id
+	var selected_tank_spec: TankSpec = Account.loadout.selected_tank_spec
 	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
-	if tank_config == null:
-		is_tank_selected = false
-		select_tank_warning.visible = true
-		ammo_upgrade_list.clear_list()
-		return
 	is_tank_selected = true
 	select_tank_warning.visible = false
-	ammo_upgrade_list.display_tank_loadout(selected_tank_id, tank_config)
+	ammo_upgrade_list.display_tank_loadout(selected_tank_spec, tank_config)
 	_show_list(ammo_upgrade_list, ammo_button)

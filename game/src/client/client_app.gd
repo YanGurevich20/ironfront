@@ -14,7 +14,11 @@ const SHELL_INFO_OVERLAY_SCENE: PackedScene = preload(
 var _settings_overlay: SettingsOverlay
 var _shell_info_overlay: ShellInfoOverlay
 
-@onready var state_container: Node = %StateContainer
+@onready var world_state_container: Node2D = %WorldStateContainer
+@onready var ui_state_container: CanvasLayer = %UiStateContainer
+@onready var network_client: ENetClient = %Network
+@onready var session_api: ClientSessionApi = %Session
+@onready var gameplay_api: ClientGameplayApi = %Gameplay
 
 
 func _ready() -> void:
@@ -27,7 +31,7 @@ func _ready() -> void:
 func _mount_login_root() -> void:
 	_unmount_active_root()
 	var login_root: LoginRoot = LOGIN_ROOT_SCENE.instantiate()
-	state_container.add_child(login_root)
+	ui_state_container.add_child(login_root)
 	Utils.connect_checked(login_root.login_completed, _on_login_completed)
 
 
@@ -49,7 +53,7 @@ func _setup_shared_overlays() -> void:
 func _mount_garage_root() -> void:
 	_unmount_active_root()
 	var garage_root: GarageRoot = GARAGE_ROOT_SCENE.instantiate()
-	state_container.add_child(garage_root)
+	ui_state_container.add_child(garage_root)
 	Utils.connect_checked(garage_root.play_requested, _on_play_requested)
 	Utils.connect_checked(garage_root.logout_requested, _on_logout_requested)
 	Utils.connect_checked(garage_root.settings_requested, _on_settings_requested)
@@ -58,7 +62,7 @@ func _mount_garage_root() -> void:
 func _mount_arena_root() -> void:
 	_unmount_active_root()
 	var arena_root: ArenaRoot = ARENA_ROOT_SCENE.instantiate()
-	state_container.add_child(arena_root)
+	world_state_container.add_child(arena_root)
 	Utils.connect_checked(arena_root.return_to_garage_requested, _on_return_to_garage_requested)
 	Utils.connect_checked(arena_root.arena_finished, _on_arena_finished)
 	Utils.connect_checked(arena_root.logout_requested, _on_logout_requested)
@@ -66,7 +70,9 @@ func _mount_arena_root() -> void:
 
 
 func _unmount_active_root() -> void:
-	for child: Node in state_container.get_children():
+	for child: Node in world_state_container.get_children():
+		child.queue_free()
+	for child: Node in ui_state_container.get_children():
 		child.queue_free()
 
 
