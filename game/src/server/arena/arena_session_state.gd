@@ -13,41 +13,32 @@ func _init(max_player_count: int = 10) -> void:
 	created_unix_time = Time.get_unix_time_from_system()
 
 
-func try_join_peer(
-	peer_id: int,
-	player_name: String,
-	requested_tank_id: String,
-	requested_shell_loadout_by_id: Dictionary,
-	requested_selected_shell_id: String
-) -> Dictionary:
+func try_join_peer(peer_id: int, player_name: String, requested_loadout: Dictionary) -> Dictionary:
 	if players_by_peer_id.has(peer_id):
 		return {"success": false, "message": "ALREADY JOINED ARENA"}
-
 	if players_by_peer_id.size() >= max_players:
 		return {"success": false, "message": "ARENA FULL"}
 
-	var validation_result: Dictionary = _validate_requested_loadout(
-		requested_tank_id, requested_shell_loadout_by_id, requested_selected_shell_id
-	)
+	var validation_result: Dictionary = _validate_requested_loadout(requested_loadout)
 	if not validation_result.get("valid", false):
 		return {
 			"success": false,
 			"message": str(validation_result.get("message", "INVALID TANK CONFIGURATION")),
 		}
 
-	var tank_id: String = str(validation_result.get("tank_id", DEFAULT_TANK_ID))
-	var selected_shell_id: String = str(validation_result.get("selected_shell_id", ""))
-	var ammo_by_shell_id: Dictionary = validation_result.get("ammo_by_shell_id", {})
+	var tank_spec: TankSpec = validation_result.get("tank_spec", null)
+	var selected_shell_spec: ShellSpec = validation_result.get("selected_shell_spec", null)
+	var ammo_by_shell_spec: Dictionary = validation_result.get("ammo_by_shell_spec", {})
 
 	players_by_peer_id[peer_id] = {
 		"peer_id": peer_id,
 		"player_name": player_name,
 		"joined_unix_time": Time.get_unix_time_from_system(),
-		"tank_id": tank_id,
-		"selected_shell_id": selected_shell_id,
-		"ammo_by_shell_id": ammo_by_shell_id.duplicate(true),
-		"entry_selected_shell_id": selected_shell_id,
-		"entry_ammo_by_shell_id": ammo_by_shell_id.duplicate(true),
+		"tank_spec": tank_spec,
+		"selected_shell_spec": selected_shell_spec,
+		"ammo_by_shell_spec": ammo_by_shell_spec.duplicate(true),
+		"entry_selected_shell_spec": selected_shell_spec,
+		"entry_ammo_by_shell_spec": ammo_by_shell_spec.duplicate(true),
 		"state_position": Vector2.ZERO,
 		"state_rotation": 0.0,
 		"state_linear_velocity": Vector2.ZERO,
@@ -68,9 +59,7 @@ func try_join_peer(
 	return {
 		"success": true,
 		"message": "JOINED GLOBAL ARENA",
-		"tank_id": tank_id,
-		"selected_shell_id": selected_shell_id,
-		"ammo_by_shell_id": ammo_by_shell_id.duplicate(true),
+		"tank_spec": tank_spec,
 	}
 
 
@@ -196,75 +185,89 @@ func consume_peer_shell_select_request(peer_id: int) -> Dictionary:
 	peer_state["pending_shell_select_seq"] = 0
 	peer_state["pending_shell_select_id"] = ""
 	players_by_peer_id[peer_id] = peer_state
+	var shell_spec: ShellSpec = ShellManager.find_shell_spec(pending_shell_select_id)
 	return {
 		"shell_select_seq": pending_shell_select_seq,
-		"shell_id": pending_shell_select_id,
+		"shell_spec": shell_spec,
 	}
 
 
-func apply_peer_shell_selection(peer_id: int, shell_id: String) -> bool:
+func apply_peer_shell_selection(peer_id: int, shell_spec: ShellSpec) -> bool:
 	if not players_by_peer_id.has(peer_id):
 		return false
-	if shell_id.is_empty():
+	if shell_spec == null:
 		return false
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	var ammo_by_shell_id: Dictionary = peer_state.get("ammo_by_shell_id", {})
-	if not ammo_by_shell_id.has(shell_id):
+	var ammo_by_shell_spec: Dictionary = peer_state.get("ammo_by_shell_spec", {})
+	if not ammo_by_shell_spec.has(shell_spec):
 		return false
-	var shell_count: int = int(ammo_by_shell_id.get(shell_id, 0))
+	var shell_count: int = int(ammo_by_shell_spec.get(shell_spec, 0))
 	if shell_count <= 0:
 		return false
-	peer_state["selected_shell_id"] = shell_id
+	peer_state["selected_shell_spec"] = shell_spec
 	players_by_peer_id[peer_id] = peer_state
 	return true
 
 
-func consume_peer_shell_ammo(peer_id: int, shell_id: String) -> bool:
+func consume_peer_shell_ammo(peer_id: int, shell_spec: ShellSpec) -> bool:
 	if not players_by_peer_id.has(peer_id):
 		return false
-	if shell_id.is_empty():
+	if shell_spec == null:
 		return false
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	var ammo_by_shell_id: Dictionary = peer_state.get("ammo_by_shell_id", {})
-	if not ammo_by_shell_id.has(shell_id):
+	var ammo_by_shell_spec: Dictionary = peer_state.get("ammo_by_shell_spec", {})
+	if not ammo_by_shell_spec.has(shell_spec):
 		return false
-	var shell_count: int = int(ammo_by_shell_id.get(shell_id, 0))
+	var shell_count: int = int(ammo_by_shell_spec.get(shell_spec, 0))
 	if shell_count <= 0:
 		return false
-	ammo_by_shell_id[shell_id] = shell_count - 1
-	peer_state["ammo_by_shell_id"] = ammo_by_shell_id
+	ammo_by_shell_spec[shell_spec] = shell_count - 1
+	peer_state["ammo_by_shell_spec"] = ammo_by_shell_spec
 	players_by_peer_id[peer_id] = peer_state
 	return true
 
 
-func get_peer_tank_id(peer_id: int) -> String:
+func get_peer_tank_spec(peer_id: int) -> TankSpec:
 	if not players_by_peer_id.has(peer_id):
-		return DEFAULT_TANK_ID
+		return TankManager.require_tank_spec(DEFAULT_TANK_ID)
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	return str(peer_state.get("tank_id", DEFAULT_TANK_ID))
+	var tank_spec: TankSpec = peer_state.get("tank_spec", null)
+	if tank_spec != null:
+		return tank_spec
+	return TankManager.require_tank_spec(DEFAULT_TANK_ID)
 
 
-func get_peer_selected_shell_id(peer_id: int) -> String:
+func get_peer_selected_shell_spec(peer_id: int) -> ShellSpec:
 	if not players_by_peer_id.has(peer_id):
-		return ""
+		return null
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	return str(peer_state.get("selected_shell_id", ""))
+	return peer_state.get("selected_shell_spec", null)
 
 
-func get_peer_shell_count(peer_id: int, shell_id: String) -> int:
+func get_peer_shell_count(peer_id: int, shell_spec: ShellSpec) -> int:
 	if not players_by_peer_id.has(peer_id):
 		return 0
+	if shell_spec == null:
+		return 0
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	var ammo_by_shell_id: Dictionary = peer_state.get("ammo_by_shell_id", {})
-	return int(ammo_by_shell_id.get(shell_id, 0))
+	var ammo_by_shell_spec: Dictionary = peer_state.get("ammo_by_shell_spec", {})
+	return int(ammo_by_shell_spec.get(shell_spec, 0))
 
 
 func get_peer_ammo_by_shell_id(peer_id: int) -> Dictionary:
 	if not players_by_peer_id.has(peer_id):
 		return {}
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	var ammo_by_shell_id: Dictionary = peer_state.get("ammo_by_shell_id", {})
-	return ammo_by_shell_id.duplicate(true)
+	var ammo_by_shell_spec: Dictionary = peer_state.get("ammo_by_shell_spec", {})
+	var ammo_by_shell_id: Dictionary = {}
+	for shell_spec_variant: Variant in ammo_by_shell_spec.keys():
+		var shell_spec: ShellSpec = shell_spec_variant as ShellSpec
+		if shell_spec == null:
+			continue
+		ammo_by_shell_id[ShellManager.get_shell_id(shell_spec)] = int(
+			ammo_by_shell_spec.get(shell_spec_variant, 0)
+		)
+	return ammo_by_shell_id
 
 
 func clear_peer_control_intent(peer_id: int) -> bool:
@@ -285,12 +288,12 @@ func _reset_peer_loadout_to_entry_state(peer_id: int) -> bool:
 	if not players_by_peer_id.has(peer_id):
 		return false
 	var peer_state: Dictionary = players_by_peer_id[peer_id]
-	var entry_selected_shell_id: String = str(peer_state.get("entry_selected_shell_id", ""))
-	var entry_ammo_by_shell_id: Dictionary = peer_state.get("entry_ammo_by_shell_id", {})
-	if entry_selected_shell_id.is_empty() or entry_ammo_by_shell_id.is_empty():
+	var entry_selected_shell_spec: ShellSpec = peer_state.get("entry_selected_shell_spec", null)
+	var entry_ammo_by_shell_spec: Dictionary = peer_state.get("entry_ammo_by_shell_spec", {})
+	if entry_selected_shell_spec == null or entry_ammo_by_shell_spec.is_empty():
 		return false
-	peer_state["selected_shell_id"] = entry_selected_shell_id
-	peer_state["ammo_by_shell_id"] = entry_ammo_by_shell_id.duplicate(true)
+	peer_state["selected_shell_spec"] = entry_selected_shell_spec
+	peer_state["ammo_by_shell_spec"] = entry_ammo_by_shell_spec.duplicate(true)
 	peer_state["pending_fire_request_seq"] = 0
 	peer_state["pending_shell_select_seq"] = 0
 	peer_state["pending_shell_select_id"] = ""
@@ -315,56 +318,69 @@ func get_player_count() -> int:
 	return players_by_peer_id.size()
 
 
-func _validate_requested_loadout(
-	requested_tank_id: String,
-	requested_shell_loadout_by_id: Dictionary,
-	requested_selected_shell_id: String
-) -> Dictionary:
+func _validate_requested_loadout(requested_loadout: Dictionary) -> Dictionary:
 	var validation_result: Dictionary = {"valid": false, "message": "INVALID TANK CONFIGURATION"}
-	var tank_id: String = requested_tank_id.strip_edges()
-	if tank_id.is_empty():
-		tank_id = DEFAULT_TANK_ID
+	var requested_tank_id: String = str(requested_loadout.get("tank_id", "")).strip_edges()
+	var requested_shell_loadout_by_id: Dictionary = requested_loadout.get("shell_loadout_by_id", {})
+	var requested_selected_shell_id: String = (
+		str(requested_loadout.get("selected_shell_id", "")).strip_edges()
+	)
+
+	var tank_id: String = requested_tank_id if not requested_tank_id.is_empty() else DEFAULT_TANK_ID
 	var tank_spec: TankSpec = TankManager.find_tank_spec(tank_id)
+	var ammo_by_shell_spec: Dictionary = {}
+	var selected_shell_spec: ShellSpec = null
+	var total_shell_count: int = 0
 	if tank_spec == null:
 		validation_result["message"] = "INVALID TANK"
-		return validation_result
-	var allowed_shell_ids: Array[String] = ShellManager.get_shell_ids_for_tank(tank_id)
-	if allowed_shell_ids.is_empty():
+	elif tank_spec.allowed_shells.is_empty():
 		validation_result["message"] = "TANK HAS NO SHELLS"
-		return validation_result
-	var ammo_by_shell_id: Dictionary = {}
-	var total_shell_count: int = 0
-	for shell_id: String in allowed_shell_ids:
-		var requested_count: int = max(0, int(requested_shell_loadout_by_id.get(shell_id, 0)))
-		ammo_by_shell_id[shell_id] = requested_count
-		total_shell_count += requested_count
-	if ammo_by_shell_id.is_empty():
-		validation_result["message"] = "NO VALID SHELLS"
-	elif total_shell_count <= 0:
-		validation_result["message"] = "NO AMMUNITION"
-	elif total_shell_count > tank_spec.shell_capacity:
-		validation_result["message"] = "SHELL CAPACITY EXCEEDED"
 	else:
-		var selected_shell_id: String = requested_selected_shell_id.strip_edges()
-		var selected_shell_count: int = int(ammo_by_shell_id.get(selected_shell_id, 0))
-		if selected_shell_id.is_empty() or selected_shell_count <= 0:
-			selected_shell_id = _pick_first_shell_with_ammo(ammo_by_shell_id)
-		if selected_shell_id.is_empty():
-			validation_result["message"] = "NO USABLE SHELL"
+		for shell_spec: ShellSpec in tank_spec.allowed_shells:
+			var shell_id: String = ShellManager.get_shell_id(shell_spec)
+			var requested_count: int = max(0, int(requested_shell_loadout_by_id.get(shell_id, 0)))
+			ammo_by_shell_spec[shell_spec] = requested_count
+			total_shell_count += requested_count
+		if ammo_by_shell_spec.is_empty():
+			validation_result["message"] = "NO VALID SHELLS"
+		elif total_shell_count <= 0:
+			validation_result["message"] = "NO AMMUNITION"
+		elif total_shell_count > tank_spec.shell_capacity:
+			validation_result["message"] = "SHELL CAPACITY EXCEEDED"
 		else:
-			validation_result["valid"] = true
-			validation_result["tank_id"] = tank_id
-			validation_result["selected_shell_id"] = selected_shell_id
-			validation_result["ammo_by_shell_id"] = ammo_by_shell_id
+			selected_shell_spec = _resolve_allowed_shell_spec(
+				ammo_by_shell_spec, requested_selected_shell_id
+			)
+			if selected_shell_spec == null:
+				selected_shell_spec = _pick_first_shell_with_ammo(ammo_by_shell_spec)
+			if selected_shell_spec == null:
+				validation_result["message"] = "NO USABLE SHELL"
+			else:
+				validation_result["valid"] = true
+				validation_result["tank_spec"] = tank_spec
+				validation_result["selected_shell_spec"] = selected_shell_spec
+				validation_result["ammo_by_shell_spec"] = ammo_by_shell_spec
 	return validation_result
 
 
-func _pick_first_shell_with_ammo(ammo_by_shell_id: Dictionary) -> String:
-	var shell_ids: Array = ammo_by_shell_id.keys()
-	shell_ids.sort()
-	for shell_id_variant: Variant in shell_ids:
-		var shell_id: String = str(shell_id_variant)
-		var shell_count: int = int(ammo_by_shell_id.get(shell_id, 0))
-		if shell_count > 0:
-			return shell_id
-	return ""
+func _resolve_allowed_shell_spec(ammo_by_shell_spec: Dictionary, shell_id: String) -> ShellSpec:
+	if shell_id.is_empty():
+		return null
+	var shell_spec: ShellSpec = ShellManager.find_shell_spec(shell_id)
+	if shell_spec == null:
+		return null
+	if not ammo_by_shell_spec.has(shell_spec):
+		return null
+	if int(ammo_by_shell_spec.get(shell_spec, 0)) <= 0:
+		return null
+	return shell_spec
+
+
+func _pick_first_shell_with_ammo(ammo_by_shell_spec: Dictionary) -> ShellSpec:
+	for shell_spec_variant: Variant in ammo_by_shell_spec.keys():
+		var shell_spec: ShellSpec = shell_spec_variant as ShellSpec
+		if shell_spec == null:
+			continue
+		if int(ammo_by_shell_spec.get(shell_spec_variant, 0)) > 0:
+			return shell_spec
+	return null

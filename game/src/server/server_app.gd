@@ -74,11 +74,7 @@ func _apply_cli_args() -> void:
 
 
 func _on_arena_join_requested(
-	peer_id: int,
-	player_name: String,
-	requested_tank_id: String,
-	requested_shell_loadout_by_id: Dictionary,
-	requested_selected_shell_id: String
+	peer_id: int, player_name: String, requested_loadout: Dictionary
 ) -> void:
 	if arena_session_state.has_peer(peer_id):
 		_remove_arena_peer(peer_id, "REJOIN_REQUEST")
@@ -88,20 +84,19 @@ func _on_arena_join_requested(
 		network_session.reject_arena_join(peer_id, "INVALID PLAYER NAME")
 		return
 	var join_result: Dictionary = arena_session_state.try_join_peer(
-		peer_id,
-		cleaned_player_name,
-		requested_tank_id,
-		requested_shell_loadout_by_id,
-		requested_selected_shell_id
+		peer_id, cleaned_player_name, requested_loadout
 	)
 	var join_message: String = str(join_result.get("message", "JOIN FAILED"))
 	if not join_result.get("success", false):
 		print("[server][join] reject_join_arena peer=%d reason=%s" % [peer_id, join_message])
 		network_session.reject_arena_join(peer_id, join_message)
 		return
-	var tank_id: String = str(join_result.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID))
+	var tank_spec: TankSpec = join_result.get("tank_spec", null)
+	if tank_spec == null:
+		network_session.reject_arena_join(peer_id, "INVALID TANK")
+		return
 	var join_spawn_result: Dictionary = server_arena_runtime.spawn_peer_tank_at_random(
-		peer_id, cleaned_player_name, tank_id
+		peer_id, cleaned_player_name, tank_spec
 	)
 	if not join_spawn_result.get("success", false):
 		arena_session_state.remove_peer(peer_id, "NO_SPAWN_AVAILABLE")
@@ -221,9 +216,11 @@ func _on_arena_respawn_requested(peer_id: int) -> void:
 		return
 	var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
 	var player_name: String = str(peer_state.get("player_name", ""))
-	var tank_id: String = arena_session_state.get_peer_tank_id(peer_id)
+	var tank_spec: TankSpec = arena_session_state.get_peer_tank_spec(peer_id)
+	if tank_spec == null:
+		return
 	var respawn_result: Dictionary = server_arena_runtime.respawn_peer_tank_at_random(
-		peer_id, player_name, tank_id
+		peer_id, player_name, tank_spec
 	)
 	if not respawn_result.get("success", false):
 		var reason: String = str(respawn_result.get("reason", "RESPAWN_FAILED"))
@@ -240,7 +237,11 @@ func _on_arena_respawn_requested(peer_id: int) -> void:
 		peer_id, spawn_transform.origin, spawn_transform.get_rotation(), Vector2.ZERO, 0.0
 	)
 	network_gameplay.broadcast_arena_respawn(
-		peer_id, player_name, spawn_transform.origin, spawn_transform.get_rotation()
+		peer_id,
+		player_name,
+		tank_spec.tank_id,
+		spawn_transform.origin,
+		spawn_transform.get_rotation()
 	)
 	print("[server][arena] player_respawned peer=%d spawn_id=%s" % [peer_id, spawn_id])
 

@@ -83,12 +83,16 @@ func apply_state_snapshot(server_tick: int, player_states: Array) -> void:
 
 
 func handle_remote_respawn_received(
-	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+	peer_id: int,
+	player_name: String,
+	tank_id: String,
+	spawn_position: Vector2,
+	spawn_rotation: float
 ) -> void:
 	if peer_id == multiplayer.get_unique_id():
 		_respawn_local_player_tank(spawn_position, spawn_rotation)
 		return
-	replication.respawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation)
+	replication.respawn_remote_tank(peer_id, player_name, tank_id, spawn_position, spawn_rotation)
 
 
 func handle_shell_spawn_received(

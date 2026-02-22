@@ -143,7 +143,11 @@ func _receive_arena_shell_impact(
 
 @rpc("authority", "reliable")
 func _receive_arena_respawn(
-	_peer_id: int, _player_name: String, _spawn_position: Vector2, _spawn_rotation: float
+	_peer_id: int,
+	_player_name: String,
+	_tank_id: String,
+	_spawn_position: Vector2,
+	_spawn_rotation: float
 ) -> void:
 	push_warning("[server][gameplay] unexpected RPC: _receive_arena_respawn")
 
@@ -166,11 +170,15 @@ func _receive_arena_kill_event(_kill_event_payload: Dictionary) -> void:
 
 
 func broadcast_arena_respawn(
-	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+	peer_id: int,
+	player_name: String,
+	tank_id: String,
+	spawn_position: Vector2,
+	spawn_rotation: float
 ) -> void:
 	for connected_peer_id: int in multiplayer.get_peers():
 		_receive_arena_respawn.rpc_id(
-			connected_peer_id, peer_id, player_name, spawn_position, spawn_rotation
+			connected_peer_id, peer_id, player_name, tank_id, spawn_position, spawn_rotation
 		)
 
 
@@ -283,12 +291,17 @@ func _build_player_states_snapshot() -> Array[Dictionary]:
 		var peer_state: Dictionary = arena_session_state.get_peer_state(peer_id)
 		if peer_state.is_empty():
 			continue
+		var tank_spec: TankSpec = peer_state.get("tank_spec", null)
+		var tank_id: String = (
+			tank_spec.tank_id if tank_spec != null else TankManager.TANK_ID_M4A1_SHERMAN
+		)
 		(
 			snapshot_player_states
 			. append(
 				{
 					"peer_id": peer_id,
 					"player_name": peer_state.get("player_name", ""),
+					"tank_id": tank_id,
 					"position": peer_state.get("state_position", Vector2.ZERO),
 					"rotation": peer_state.get("state_rotation", 0.0),
 					"linear_velocity": peer_state.get("state_linear_velocity", Vector2.ZERO),

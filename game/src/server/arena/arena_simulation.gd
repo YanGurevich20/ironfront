@@ -40,6 +40,9 @@ func step_authoritative_runtime(
 		var actor_metadata: Dictionary = actors.actor_metadata_by_id.get(actor_id, {})
 		var is_bot: bool = bool(actor_metadata.get("is_bot", false))
 		var player_name: String = actors.get_actor_player_name(actor_id)
+		var tank_id: String = str(actor_metadata.get("tank_id", ""))
+		if tank_id.is_empty() and actor_tank.tank_spec != null:
+			tank_id = actor_tank.tank_spec.tank_id
 		var last_processed_input_tick: int = 0
 		if not is_bot:
 			var peer_state: Dictionary = next_arena_session_state.get_peer_state(actor_id)
@@ -50,6 +53,7 @@ func step_authoritative_runtime(
 				{
 					"peer_id": actor_id,
 					"player_name": player_name,
+					"tank_id": tank_id,
 					"position": actor_tank.global_position,
 					"rotation": actor_tank.global_rotation,
 					"linear_velocity": actor_tank.linear_velocity,

@@ -121,15 +121,7 @@ func end_session(status_message: String) -> void:
 
 func _send_join_arena() -> void:
 	var join_loadout_payload: Dictionary = Account.loadout.to_join_arena_payload()
-	var selected_tank_id: String = str(
-		join_loadout_payload.get("tank_id", ArenaSessionState.DEFAULT_TANK_ID)
-	)
-	session_api.send_join_arena(
-		Account.username,
-		selected_tank_id,
-		join_loadout_payload.get("shell_loadout_by_id", {}),
-		str(join_loadout_payload.get("selected_shell_id", ""))
-	)
+	session_api.send_join_arena(Account.username, join_loadout_payload)
 
 
 func _start_arena(spawn_position: Vector2, spawn_rotation: float) -> bool:

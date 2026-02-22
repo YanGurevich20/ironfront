@@ -36,12 +36,16 @@ func get_spawn_transforms_by_id() -> Dictionary[StringName, Transform2D]:
 	return actors.get_spawn_transforms_by_id()
 
 
-func spawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: String) -> Dictionary:
-	return actors.spawn_peer_tank_at_random(peer_id, player_name, tank_id)
+func spawn_peer_tank_at_random(
+	peer_id: int, player_name: String, tank_spec: TankSpec
+) -> Dictionary:
+	return actors.spawn_peer_tank_at_random(peer_id, player_name, tank_spec)
 
 
-func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: String) -> Dictionary:
-	return actors.respawn_peer_tank_at_random(peer_id, player_name, tank_id)
+func respawn_peer_tank_at_random(
+	peer_id: int, player_name: String, tank_spec: TankSpec
+) -> Dictionary:
+	return actors.respawn_peer_tank_at_random(peer_id, player_name, tank_spec)
 
 
 func despawn_peer_tank(peer_id: int, reason: String) -> void:

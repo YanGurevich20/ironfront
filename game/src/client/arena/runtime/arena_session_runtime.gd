@@ -144,9 +144,15 @@ func _on_arena_shell_impact_received(
 
 
 func _on_arena_respawn_received(
-	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+	peer_id: int,
+	player_name: String,
+	tank_id: String,
+	spawn_position: Vector2,
+	spawn_rotation: float
 ) -> void:
-	arena_match.handle_remote_respawn_received(peer_id, player_name, spawn_position, spawn_rotation)
+	arena_match.handle_remote_respawn_received(
+		peer_id, player_name, tank_id, spawn_position, spawn_rotation
+	)
 
 
 func _on_arena_loadout_state_received(

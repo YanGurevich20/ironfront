@@ -152,6 +152,7 @@ func replace_local_player_tank(next_local_player_tank: Tank) -> void:
 func respawn_remote_tank(
 	peer_id: int,
 	player_name: String,
+	tank_id: String,
 	spawn_position: Vector2,
 	spawn_rotation: float,
 	spawn_turret_rotation: float = 0.0
@@ -161,7 +162,9 @@ func respawn_remote_tank(
 		remote_tank.queue_free()
 	remote_tanks_by_peer_id.erase(peer_id)
 	remote_snapshot_history_by_peer_id.erase(peer_id)
-	_spawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation, spawn_turret_rotation)
+	_spawn_remote_tank(
+		peer_id, player_name, tank_id, spawn_position, spawn_rotation, spawn_turret_rotation
+	)
 
 
 func get_tank_by_peer_id(peer_id: int) -> Tank:
@@ -267,10 +270,13 @@ func _ensure_remote_tank(peer_id: int, player_state: Dictionary) -> void:
 	if remote_tanks_by_peer_id.has(peer_id):
 		return
 	var player_name: String = str(player_state.get("player_name", ""))
+	var tank_id: String = str(player_state.get("tank_id", TankManager.TANK_ID_M4A1_SHERMAN))
 	var spawn_position: Vector2 = player_state.get("position", Vector2.ZERO)
 	var spawn_rotation: float = float(player_state.get("rotation", 0.0))
 	var spawn_turret_rotation: float = float(player_state.get("turret_rotation", 0.0))
-	_spawn_remote_tank(peer_id, player_name, spawn_position, spawn_rotation, spawn_turret_rotation)
+	_spawn_remote_tank(
+		peer_id, player_name, tank_id, spawn_position, spawn_rotation, spawn_turret_rotation
+	)
 
 
 func _remove_stale_remote_tanks(seen_peer_ids: Dictionary) -> void:
@@ -349,13 +355,17 @@ func _update_remote_tank_interpolation() -> void:
 func _spawn_remote_tank(
 	peer_id: int,
 	player_name: String,
+	tank_id: String,
 	spawn_position: Vector2,
 	spawn_rotation: float,
 	spawn_turret_rotation: float
 ) -> void:
 	assert(arena_level != null, "ArenaReplication requires arena_level")
+	var resolved_tank_id: String = tank_id
+	if TankManager.find_tank_spec(resolved_tank_id) == null:
+		resolved_tank_id = TankManager.TANK_ID_M4A1_SHERMAN
 	var remote_tank: Tank = TankManager.create_tank(
-		TankManager.TANK_ID_M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
+		resolved_tank_id, TankManager.TankControllerType.DUMMY
 	)
 	remote_tank.display_player_name = player_name.strip_edges()
 	remote_tank.network_peer_id = peer_id

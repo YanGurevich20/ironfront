@@ -12,13 +12,8 @@ func send_client_hello(protocol_version: int, player_name: String) -> void:
 	_receive_client_hello.rpc_id(1, protocol_version, player_name)
 
 
-func send_join_arena(
-	player_name: String,
-	selected_tank_id: String,
-	shell_loadout_by_id: Dictionary,
-	selected_shell_id: String
-) -> void:
-	_join_arena.rpc_id(1, player_name, selected_tank_id, shell_loadout_by_id, selected_shell_id)
+func send_join_arena(player_name: String, join_loadout_payload: Dictionary) -> void:
+	_join_arena.rpc_id(1, player_name, join_loadout_payload)
 
 
 func send_leave_arena() -> void:
@@ -36,12 +31,7 @@ func _receive_client_hello(_client_protocol_version: int, _player_name: String) 
 
 
 @rpc("any_peer", "reliable")
-func _join_arena(
-	_player_name: String,
-	_requested_tank_id: String,
-	_requested_shell_loadout_by_id: Dictionary,
-	_requested_selected_shell_id: String
-) -> void:
+func _join_arena(_player_name: String, _requested_loadout: Dictionary) -> void:
 	push_warning("[client][session] unexpected RPC: _join_arena")
 
 

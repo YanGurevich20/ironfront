@@ -5,7 +5,11 @@ signal state_snapshot_received(server_tick: int, player_states: Array, max_playe
 signal arena_shell_spawn_received
 signal arena_shell_impact_received
 signal arena_respawn_received(
-	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+	peer_id: int,
+	player_name: String,
+	tank_id: String,
+	spawn_position: Vector2,
+	spawn_rotation: float
 )
 signal arena_fire_rejected_received(reason: String)
 signal arena_loadout_state_received(
@@ -102,9 +106,13 @@ func _receive_arena_shell_impact(
 
 @rpc("authority", "reliable")
 func _receive_arena_respawn(
-	peer_id: int, player_name: String, spawn_position: Vector2, spawn_rotation: float
+	peer_id: int,
+	player_name: String,
+	tank_id: String,
+	spawn_position: Vector2,
+	spawn_rotation: float
 ) -> void:
-	arena_respawn_received.emit(peer_id, player_name, spawn_position, spawn_rotation)
+	arena_respawn_received.emit(peer_id, player_name, tank_id, spawn_position, spawn_rotation)
 
 
 @rpc("authority", "reliable")

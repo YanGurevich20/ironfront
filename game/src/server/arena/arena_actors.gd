@@ -77,13 +77,15 @@ func get_spawn_transforms_by_id() -> Dictionary[StringName, Transform2D]:
 	return arena_spawn_transforms_by_id.duplicate(true)
 
 
-func spawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: String) -> Dictionary:
+func spawn_peer_tank_at_random(
+	peer_id: int, player_name: String, tank_spec: TankSpec
+) -> Dictionary:
 	var random_spawn: Dictionary = _pick_random_spawn()
 	if random_spawn.is_empty():
 		return {"success": false, "reason": "NO_SPAWN_AVAILABLE"}
 	var spawn_id: StringName = random_spawn.get("spawn_id", StringName())
 	var spawn_transform: Transform2D = random_spawn.get("spawn_transform", Transform2D.IDENTITY)
-	_spawn_peer_tank(peer_id, player_name, tank_id, spawn_id, spawn_transform)
+	_spawn_peer_tank(peer_id, player_name, tank_spec, spawn_id, spawn_transform)
 	return {
 		"success": true,
 		"spawn_id": spawn_id,
@@ -91,7 +93,9 @@ func spawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: Strin
 	}
 
 
-func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: String) -> Dictionary:
+func respawn_peer_tank_at_random(
+	peer_id: int, player_name: String, tank_spec: TankSpec
+) -> Dictionary:
 	if not is_peer_tank_dead(peer_id):
 		return {"success": false, "reason": "TANK_NOT_DEAD"}
 	var random_spawn: Dictionary = _pick_random_spawn()
@@ -100,7 +104,7 @@ func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: Str
 	var spawn_id: StringName = random_spawn.get("spawn_id", StringName())
 	var spawn_transform: Transform2D = random_spawn.get("spawn_transform", Transform2D.IDENTITY)
 	var respawned: bool = _respawn_peer_tank(
-		peer_id, player_name, tank_id, spawn_id, spawn_transform
+		peer_id, player_name, tank_spec, spawn_id, spawn_transform
 	)
 	if not respawned:
 		return {"success": false, "reason": "RESPAWN_FAILED"}
@@ -114,15 +118,14 @@ func respawn_peer_tank_at_random(peer_id: int, player_name: String, tank_id: Str
 func _spawn_peer_tank(
 	peer_id: int,
 	player_name: String,
-	tank_id: String,
+	tank_spec: TankSpec,
 	spawn_id: StringName,
 	spawn_transform: Transform2D
 ) -> void:
 	if actor_tanks_by_id.has(peer_id):
 		despawn_peer_tank(peer_id, "REPLACED_EXISTING_TANK")
-	var validated_tank_id: String = ArenaLoadoutAuthorityUtils.resolve_valid_tank_id(tank_id)
-	var spawned_tank: Tank = TankManager.create_tank(
-		validated_tank_id, TankManager.TankControllerType.DUMMY
+	var spawned_tank: Tank = TankManager.create_tank_from_spec(
+		tank_spec, TankManager.TankControllerType.DUMMY
 	)
 	spawned_tank.add_to_group("arena_human_player")
 	_register_actor(
@@ -132,7 +135,7 @@ func _spawn_peer_tank(
 		{
 			"is_bot": false,
 			"player_name": player_name,
-			"tank_id": validated_tank_id,
+			"tank_id": tank_spec.tank_id,
 		}
 	)
 	spawned_tank.apply_spawn_state(spawn_transform.origin, spawn_transform.get_rotation())
@@ -152,13 +155,13 @@ func _spawn_peer_tank(
 func _respawn_peer_tank(
 	peer_id: int,
 	player_name: String,
-	tank_id: String,
+	tank_spec: TankSpec,
 	spawn_id: StringName,
 	spawn_transform: Transform2D
 ) -> bool:
 	if not is_peer_tank_dead(peer_id):
 		return false
-	_spawn_peer_tank(peer_id, player_name, tank_id, spawn_id, spawn_transform)
+	_spawn_peer_tank(peer_id, player_name, tank_spec, spawn_id, spawn_transform)
 	print("[server][arena-runtime] tank_respawned actor=%d spawn_id=%s" % [peer_id, spawn_id])
 	return true
 
