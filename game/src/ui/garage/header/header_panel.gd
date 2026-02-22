@@ -1,9 +1,6 @@
 class_name HeaderPanel
 extends PanelContainer
 
-var player_data: PlayerData = PlayerData.get_instance()
-var preferences: Preferences = Preferences.get_instance()
-var account: Account = Account.get_instance()
 var feedback_display_token: int = 0
 
 @onready var dollars_label: Label = %DollarsLabel
@@ -20,26 +17,28 @@ func _ready() -> void:
 	)
 	Utils.connect_checked(play_button.pressed, _on_play_pressed)
 	Utils.connect_checked(
-		account.economy.dollars_updated, func(_new_dollars: int) -> void: _refresh_economy_labels()
+		Account.economy.dollars_updated, func(_new_dollars: int) -> void: _refresh_economy_labels()
 	)
 	Utils.connect_checked(
-		account.economy.bonds_updated, func(_new_bonds: int) -> void: _refresh_economy_labels()
+		Account.economy.bonds_updated, func(_new_bonds: int) -> void: _refresh_economy_labels()
 	)
 	_refresh_economy_labels()
 
 
 func _refresh_economy_labels() -> void:
-	dollars_label.text = Utils.format_dollars(account.economy.dollars)
-	bonds_label.text = Utils.format_bonds(account.economy.bonds)
+	dollars_label.text = Utils.format_dollars(Account.economy.dollars)
+	bonds_label.text = Utils.format_bonds(Account.economy.bonds)
 
 
 func _on_play_pressed() -> void:
-	var selected_tank_id: String = preferences.selected_tank_id
-	if not player_data.is_tank_unlocked(selected_tank_id):
+	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
+	if tank_config == null:
 		_display_warning("SELECT A TANK")
 		return
-	var tank_config: PlayerTankConfig = player_data.get_selected_tank_config(selected_tank_id)
-	if tank_config.get_total_shell_count() == 0:
+	var total_shell_count: int = 0
+	for shell_count_variant: Variant in tank_config.shell_loadout_by_id.values():
+		total_shell_count += int(shell_count_variant)
+	if total_shell_count == 0:
 		_display_warning("NOT ENOUGH AMMO")
 		return
 	UiBus.play_pressed.emit()

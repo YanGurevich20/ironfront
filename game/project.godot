@@ -29,6 +29,7 @@ UiBus="*res://src/singletons/ui_bus.gd"
 GameplayBus="*res://src/singletons/gameplay_bus.gd"
 MultiplayerBus="*res://src/singletons/multiplayer_bus.gd"
 AppConfig="*res://src/config/app_config.gd"
+Account="*res://src/game_data/account_data/account.gd"
 GodotPlayGameServices="*uid://d0ahkopwqod3r"
 
 [debug]

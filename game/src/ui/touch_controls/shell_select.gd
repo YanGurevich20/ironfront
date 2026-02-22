@@ -3,8 +3,6 @@ extends Control
 
 @export var is_expanded: bool = false
 
-var player_data: PlayerData = PlayerData.get_instance()
-var preferences: Preferences = Preferences.get_instance()
 var shell_counts: Dictionary[ShellSpec, int] = {}
 var current_shell_spec: ShellSpec
 var tank_spec: TankSpec
@@ -23,24 +21,33 @@ func _ready() -> void:
 	Utils.connect_checked(
 		GameplayBus.online_loadout_state_updated, _on_online_loadout_state_updated
 	)
-
-
-func initialize() -> void:
-	var player_tank_config: PlayerTankConfig = player_data.get_selected_tank_config(
-		preferences.selected_tank_id
+	Utils.connect_checked(
+		Account.loadout.selected_tank_id_updated,
+		func(_tank_id: String) -> void: _refresh_from_account()
 	)
-	tank_spec = TankManager.tank_specs.get(player_tank_config.tank_id)
-	if tank_spec == null:
+	_refresh_from_account()
+
+
+func _refresh_from_account() -> void:
+	var selected_tank_id: String = Account.loadout.selected_tank_id
+	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
+	if tank_config == null:
+		shell_counts.clear()
+		_clear_shell_list()
 		return
-	shell_counts = player_tank_config.shell_amounts.duplicate()
-	for shell_spec: ShellSpec in shell_counts.keys():
-		if shell_counts[shell_spec] == 0:
-			var removed := shell_counts.erase(shell_spec)
-			if not removed:
-				pass
-	for child in shell_list.get_children():
-		shell_list.remove_child(child)
-		child.queue_free()
+	tank_spec = TankManager.tank_specs.get(selected_tank_id, null)
+	assert(tank_spec != null, "Missing tank spec for selected_tank_id=%s" % selected_tank_id)
+	var previous_shell_spec: ShellSpec = current_shell_spec
+	var next_shell_counts: Dictionary[ShellSpec, int] = {}
+	for shell_id_variant: Variant in tank_config.shell_loadout_by_id.keys():
+		var shell_id: String = str(shell_id_variant)
+		var shell_spec: ShellSpec = ShellManager.get_shell_spec(shell_id)
+		var shell_count: int = int(tank_config.shell_loadout_by_id[shell_id_variant])
+		if shell_count <= 0:
+			continue
+		next_shell_counts[shell_spec] = shell_count
+	shell_counts = next_shell_counts
+	_clear_shell_list()
 	for shell_spec: ShellSpec in shell_counts.keys():
 		var shell_list_item: ShellListItem = shell_list_item_scene.instantiate()
 		shell_list.add_child(shell_list_item)
@@ -48,7 +55,16 @@ func initialize() -> void:
 		Utils.connect_checked(shell_list_item.shell_selected, _on_shell_selected)
 		Utils.connect_checked(shell_list_item.shell_expand_requested, _on_shell_expand_requested)
 	update_counts()
-	_select_first_valid_shell()
+	if previous_shell_spec != null and shell_counts.has(previous_shell_spec):
+		_on_shell_selected(previous_shell_spec)
+	else:
+		_select_first_valid_shell()
+
+
+func _clear_shell_list() -> void:
+	for child in shell_list.get_children():
+		shell_list.remove_child(child)
+		child.queue_free()
 
 
 func update_counts() -> void:

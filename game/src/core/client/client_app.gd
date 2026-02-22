@@ -60,14 +60,12 @@ func _on_arena_session_ended(summary: Dictionary) -> void:
 
 
 func _on_auth_sign_in_succeeded(_result: AuthResult) -> void:
-	var account: Account = Account.get_instance()
 	var player_data: PlayerData = PlayerData.get_instance()
-	var resolved_username: String = account.username.strip_edges()
-	if not resolved_username.is_empty():
-		player_data.player_name = resolved_username
+	if not Account.username.is_empty():
+		player_data.player_name = Account.username
 		player_data.save()
 	UiBus.auth_sign_in_finished.emit(true)
-	if account.username_updated_at <= 0:
+	if Account.username_updated_at <= 0:
 		return
 	UiBus.login_pressed.emit()
 
@@ -85,9 +83,7 @@ func _on_username_submit_completed(success: bool, reason: String, username: Stri
 	if not success:
 		UiBus.username_submit_finished.emit(false, reason)
 		return
-	var account: Account = Account.get_instance()
-	account.username = username
-	account.save()
+	Account.username = username
 	var player_data: PlayerData = PlayerData.get_instance()
 	player_data.player_name = username
 	player_data.save()

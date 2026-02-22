@@ -153,5 +153,26 @@ func display_tank() -> void:
 	tank_display.texture = tank_spec.preview_texture
 ```
 
+## 14) Resource State via Properties, Not Wrapper Accessors
+- For `Resource`-owned state, prefer direct properties and property signals over local `get_*` / `set_*` wrappers.
+- Keep fallback/coercion rules in the property `get`/`set`, and consume `resource.field` at callsites.
+
+Good:
+```gdscript
+var selected_tank_id: String = account.loadout.selected_tank_id
+account.loadout.selected_tank_id = item.tank_id
+Utils.connect_checked(
+	account.loadout.selected_tank_id_updated,
+	func(_tank_id: String) -> void: _update_item_states()
+)
+```
+
+Bad:
+```gdscript
+var selected_tank_id: String = account.loadout.get_selected_tank_id()
+account.set_selected_tank_id(item.tank_id)
+Utils.connect_checked(account.selected_tank_id_updated, _update_item_states)
+```
+
 ## Documentation Requirement
 - When a new pattern is adopted in this repo, update this file with a concrete good/bad example.

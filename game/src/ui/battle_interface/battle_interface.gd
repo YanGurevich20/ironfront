@@ -32,7 +32,6 @@ func finish_level() -> void:
 
 
 func start_level() -> void:
-	tank_control.display_controls()
 	enemy_indicators.display_indicators()
 	tank_hud_layer.display_huds()
 	player_hud.set_hud_active(true)

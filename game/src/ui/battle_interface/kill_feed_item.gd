@@ -25,10 +25,7 @@ func set_kill_event(
 ) -> void:
 	killer_label.text = _format_player_tank_label(killer_name, killer_tank_name)
 	killer_label.modulate = Colors.GOLD if killer_is_local else Colors.ENEMY_RED
-	var resolved_shell_short_name: String = shell_short_name.strip_edges()
-	shell_label.text = (
-		resolved_shell_short_name if not resolved_shell_short_name.is_empty() else "SHELL"
-	)
+	shell_label.text = shell_short_name if not shell_short_name.is_empty() else "SHELL"
 	shell_label.modulate = Colors.WHITE_BRIGHT
 	victim_label.text = _format_player_tank_label(victim_name, victim_tank_name)
 	victim_label.modulate = Colors.GOLD if victim_is_local else Colors.ENEMY_RED
@@ -40,10 +37,6 @@ func _on_expire_timeout() -> void:
 
 
 func _format_player_tank_label(player_name: String, tank_name: String) -> String:
-	var resolved_player_name: String = player_name.strip_edges()
-	var resolved_tank_name: String = tank_name.strip_edges()
-	if resolved_player_name.is_empty():
-		resolved_player_name = "PLAYER"
-	if resolved_tank_name.is_empty():
-		resolved_tank_name = "TANK"
+	var resolved_player_name: String = player_name if not player_name.is_empty() else "PLAYER"
+	var resolved_tank_name: String = tank_name if not tank_name.is_empty() else "TANK"
 	return "%s [%s]" % [resolved_player_name, resolved_tank_name]

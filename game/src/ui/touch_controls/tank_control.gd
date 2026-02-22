@@ -84,10 +84,6 @@ func reset_input() -> void:
 	fire_button.reset_input()
 
 
-func display_controls() -> void:
-	shell_select.initialize()
-
-
 func _on_lever_double_tapped(source_lever: Lever) -> void:
 	dual_control_active = true
 	dual_control_master = source_lever

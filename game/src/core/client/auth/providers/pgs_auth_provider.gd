@@ -14,6 +14,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	server_client_id = AppConfig.pgs_server_client_id
 	Utils.connect_checked(sign_in_client.user_authenticated, _on_user_authenticated)
 	Utils.connect_checked(
 		sign_in_client.server_side_access_requested, _on_server_side_access_requested

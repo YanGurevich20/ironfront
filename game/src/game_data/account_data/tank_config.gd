@@ -1,6 +1,6 @@
 class_name TankConfig
-extends Resource
+extends RefCounted
 
-@export var tank_id: String = ""
-@export var unlocked_shell_ids: Array[String] = []
-@export var shell_loadout_by_id: Dictionary[String, int] = {}
+var tank_id: String = ""
+var unlocked_shell_ids: Array[String] = []
+var shell_loadout_by_id: Dictionary[String, int] = {}

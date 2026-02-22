@@ -6,7 +6,6 @@ extends Node
 var kills: int = 0
 var reward_dollars: int = 0
 var last_kill_event_seq: int = 0
-var account: Account = Account.get_instance()
 
 
 func start_session() -> void:
@@ -64,5 +63,4 @@ func apply_rewards() -> void:
 	var resolved_reward_dollars: int = max(0, reward_dollars)
 	if resolved_reward_dollars <= 0:
 		return
-	account.economy.dollars += resolved_reward_dollars
-	account.save()
+	Account.economy.dollars += resolved_reward_dollars

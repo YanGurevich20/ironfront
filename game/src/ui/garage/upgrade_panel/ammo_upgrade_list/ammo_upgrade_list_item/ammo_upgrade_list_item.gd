@@ -7,8 +7,8 @@ enum State { LOCKED = 0, UNLOCKABLE = 1, UNLOCKED = 2 }
 
 const MAX_TICK_COUNT: int = 20
 
-var account: Account = Account.get_instance()
 var shell_spec: ShellSpec
+var tank_id: String = ""
 var current_count: int
 var current_allowed_count: int
 var is_locked: bool = true
@@ -53,12 +53,15 @@ var _state: State = State.LOCKED
 @onready var price_label: Label = %PriceLabel
 
 
-func display_shell(player_tank_config: PlayerTankConfig, shell_spec_data: ShellSpec) -> void:
+func display_shell(
+	selected_tank_id: String, tank_config: TankConfig, shell_spec_data: ShellSpec
+) -> void:
 	shell_spec = shell_spec_data
-	var tank_spec: TankSpec = TankManager.tank_specs.get(player_tank_config.tank_id)
-	if tank_spec == null:
-		return
-	is_locked = not player_tank_config.shell_amounts.has(shell_spec)
+	tank_id = selected_tank_id
+	var tank_spec: TankSpec = TankManager.tank_specs.get(tank_id, null)
+	assert(tank_spec != null, "Missing tank spec for selected_tank_id=%s" % tank_id)
+	var shell_id: String = ShellManager.get_shell_id(shell_spec)
+	is_locked = not tank_config.unlocked_shell_ids.has(shell_id)
 	var max_allowed_count := tank_spec.shell_capacity
 	shell_icon.texture = shell_spec.base_shell_type.round_texture
 	shell_name_label.text = shell_spec.shell_name
@@ -74,8 +77,10 @@ func display_shell(player_tank_config: PlayerTankConfig, shell_spec_data: ShellS
 		update_count(0)
 		_refresh_locked_state()
 	else:
-		var loaded_count := player_tank_config.get_shell_amount(shell_spec)
-		var current_total_count := player_tank_config.get_total_shell_count()
+		var loaded_count: int = int(tank_config.shell_loadout_by_id.get(shell_id, 0))
+		var current_total_count: int = 0
+		for shell_count_variant: Variant in tank_config.shell_loadout_by_id.values():
+			current_total_count += int(shell_count_variant)
 		var unallocated_count: int = max_allowed_count - current_total_count
 		current_allowed_count = loaded_count + unallocated_count
 		update_count(loaded_count)
@@ -84,7 +89,7 @@ func display_shell(player_tank_config: PlayerTankConfig, shell_spec_data: ShellS
 
 func _ready() -> void:
 	Utils.connect_checked(
-		account.economy.dollars_updated, func(_new_dollars: int) -> void: _refresh_locked_state()
+		Account.economy.dollars_updated, func(_new_dollars: int) -> void: _refresh_locked_state()
 	)
 	Utils.connect_checked(shell_button.pressed, func() -> void: _on_shell_button_pressed())
 	Utils.connect_checked(
@@ -126,7 +131,7 @@ func _set_unlockable_overlay_visibility(show_unlockable_overlay: bool) -> void:
 func _refresh_locked_state() -> void:
 	if not is_locked:
 		return
-	if account.economy.dollars >= shell_spec.unlock_cost:
+	if Account.economy.dollars >= shell_spec.unlock_cost:
 		state = State.UNLOCKABLE
 		return
 	state = State.LOCKED
@@ -163,13 +168,9 @@ func update_buttons() -> void:
 
 
 func save_count() -> void:
-	var player_data := PlayerData.get_instance()
-	var preferences: Preferences = Preferences.get_instance()
-	var current_tank_config: PlayerTankConfig = player_data.get_selected_tank_config(
-		preferences.selected_tank_id
-	)
-
-	#? Only save if the shell is unlocked (exists in the shell_amounts dictionary)
-	if current_tank_config.shell_amounts.has(shell_spec):
-		current_tank_config.set_shell_amount(shell_spec, current_count)
-		player_data.save()
+	var current_tank_config: TankConfig = Account.loadout.tanks.get(tank_id, null)
+	assert(current_tank_config != null, "Missing tank config for tank_id=%s" % tank_id)
+	var shell_id: String = ShellManager.get_shell_id(shell_spec)
+	if not current_tank_config.unlocked_shell_ids.has(shell_id):
+		return
+	current_tank_config.shell_loadout_by_id[shell_id] = current_count

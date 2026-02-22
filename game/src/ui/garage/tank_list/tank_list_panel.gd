@@ -4,7 +4,6 @@ extends Control
 signal unlock_tank_requested(tank_id: String)
 
 var preferences: Preferences = Preferences.get_instance()
-var account: Account = Account.get_instance()
 var _unlocked_tank_ids: Array[String] = []
 
 @onready var tank_list: HBoxContainer = %TankList
@@ -15,21 +14,22 @@ var _unlocked_tank_ids: Array[String] = []
 
 func _ready() -> void:
 	Utils.connect_checked(
-		preferences.selected_tank_id_updated, func(_tank_id: String) -> void: _update_item_states()
+		Account.loadout.selected_tank_id_updated,
+		func(_tank_id: String) -> void: _update_item_states()
 	)
 	Utils.connect_checked(
-		account.economy.dollars_updated, func(_new_dollars: int) -> void: _update_item_states()
+		Account.loadout.tanks_updated,
+		func(_tanks: Dictionary[String, TankConfig]) -> void: _refresh_unlocked_tank_ids()
+	)
+	Utils.connect_checked(
+		Account.economy.dollars_updated, func(_new_dollars: int) -> void: _update_item_states()
 	)
 	for child in tank_list.get_children():
 		tank_list.remove_child(child)
 		child.queue_free()
 
 	var all_tank_ids: Array[String] = TankManager.get_tank_ids()
-
-	var player_data: PlayerData = PlayerData.get_instance()
-	if !player_data.is_developer:
-		all_tank_ids.remove_at(all_tank_ids.find(TankManager.TANK_ID_DEBUG_TANK))
-	display_player_data(player_data)
+	_refresh_unlocked_tank_ids()
 
 	# Keep track of the latest unlocked tank item
 	var latest_unlocked_item: TankListItem = null
@@ -49,7 +49,7 @@ func _ready() -> void:
 	_update_item_states()
 
 	# Determine which tank should be selected initially
-	var saved_tank_id: String = preferences.selected_tank_id
+	var saved_tank_id: String = Account.loadout.selected_tank_id
 	# If the saved tank is unlocked, select it; otherwise fall back to the latest unlocked
 	if _unlocked_tank_ids.has(saved_tank_id):
 		select_tank_by_id(saved_tank_id)
@@ -58,8 +58,8 @@ func _ready() -> void:
 
 
 func _update_item_states() -> void:
-	var selected_id: String = preferences.selected_tank_id
-	var player_dollars: int = account.economy.dollars
+	var selected_id: String = Account.loadout.selected_tank_id
+	var player_dollars: int = Account.economy.dollars
 	for item: TankListItem in tank_list.get_children():
 		var unlocked: bool = _unlocked_tank_ids.has(item.tank_id)
 		if unlocked:
@@ -88,6 +88,7 @@ func _select_tank(item: TankListItem) -> void:
 	if item.state in [item.State.LOCKED, item.State.UNLOCKABLE]:
 		return
 	var selected_tank_id: String = item.tank_id
+	Account.loadout.selected_tank_id = selected_tank_id
 	preferences.selected_tank_id = selected_tank_id
 	preferences.save()
 	for other: TankListItem in tank_list.get_children():
@@ -105,7 +106,6 @@ func select_tank_by_id(tank_id: String) -> void:
 			return
 
 
-# Public API for parent to provide latest player data.
-func display_player_data(player_data: PlayerData) -> void:
-	_unlocked_tank_ids = player_data.get_unlocked_tank_ids()
+func _refresh_unlocked_tank_ids() -> void:
+	_unlocked_tank_ids = Account.loadout.get_tank_ids()
 	_update_item_states()

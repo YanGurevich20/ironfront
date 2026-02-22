@@ -23,7 +23,7 @@ func _apply_settings() -> void:
 
 func initialize(tank: Tank) -> void:
 	var player_data := PlayerData.get_instance()
-	var resolved_player_name: String = tank.display_player_name.strip_edges()
+	var resolved_player_name: String = tank.display_player_name
 	if resolved_player_name.is_empty():
 		resolved_player_name = player_data.player_name if tank.is_player else "AI"
 	player_name_label.text = resolved_player_name

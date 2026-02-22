@@ -2,12 +2,10 @@ class_name TankManager
 
 enum TankControllerType { PLAYER = 0, MULTIPLAYER = 1, AI = 2, DUMMY = 3 }
 
-const TANK_ID_DEBUG_TANK: String = "debug_tank"
 const TANK_ID_M4A1_SHERMAN: String = "m4a1_sherman"
 const TANK_ID_TIGER_1: String = "tiger_1"
 
 static var tank_specs: Dictionary[String, TankSpec] = {
-	TANK_ID_DEBUG_TANK: preload("res://src/entities/tank/tanks/debug_tank/debug_tank.tres"),
 	TANK_ID_M4A1_SHERMAN: preload("res://src/entities/tank/tanks/m4a1_sherman/m4a1_sherman.tres"),
 	TANK_ID_TIGER_1: preload("res://src/entities/tank/tanks/tiger_1/tiger_1.tres"),
 }

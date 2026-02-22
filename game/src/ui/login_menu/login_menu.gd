@@ -62,7 +62,7 @@ func _on_username_prompt_requested(initial_username: String) -> void:
 	username_prompt_title.text = "WELCOME COMMANDER"
 	username_prompt_container.visible = true
 	username_status_label.visible = false
-	username_input.text = initial_username.strip_edges()
+	username_input.text = initial_username
 	username_submit_button.disabled = false
 	username_submit_button.text = "CONTINUE"
 	username_input.grab_focus()

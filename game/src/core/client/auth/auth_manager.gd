@@ -48,6 +48,7 @@ func sign_out() -> void:
 	_is_signed_in = false
 	_is_sign_in_in_progress = false
 	_session_token = ""
+	Account.clear()
 	_active_provider.sign_out()
 
 
@@ -72,13 +73,12 @@ func _on_provider_sign_in_succeeded(result: AuthResult) -> void:
 	_is_signed_in = true
 	_is_sign_in_in_progress = false
 	_session_token = auth_result.session_token
-	var account: Account = Account.get_instance()
 	_log_auth(
-		"sign-in completed account_id=%s username=%s" % [account.account_id, account.username]
+		"sign-in completed account_id=%s username=%s" % [Account.account_id, Account.username]
 	)
 	sign_in_succeeded.emit(auth_result)
-	if account.username_updated_at <= 0:
-		username_setup_required.emit(account.username)
+	if Account.username_updated_at <= 0:
+		username_setup_required.emit(Account.username)
 
 
 func _on_provider_sign_in_failed(reason: String) -> void:
@@ -92,12 +92,11 @@ func submit_username(username: String) -> void:
 	if not _is_signed_in:
 		username_submit_completed.emit(false, "NOT_SIGNED_IN", "")
 		return
-	var trimmed_username: String = username.strip_edges()
-	if trimmed_username.is_empty():
+	if username.is_empty():
 		username_submit_completed.emit(false, "USERNAME_REQUIRED", "")
 		return
 	var patch_result: UserServicePatchUsernameResult = await _user_service_client.patch_username(
-		_session_token, trimmed_username
+		_session_token, username
 	)
 	if not patch_result.success:
 		username_submit_completed.emit(false, patch_result.reason, "")
@@ -108,23 +107,15 @@ func submit_username(username: String) -> void:
 		username_submit_completed.emit(false, "USERNAME_PATCH_PARSE_FAILED", "")
 		return
 
-	var account: Account = Account.get_instance()
-	account.username = patch_body.username
-	account.username_updated_at = patch_body.username_updated_at_unix
-	account.save()
+	Account.username = patch_body.username
+	Account.username_updated_at = patch_body.username_updated_at_unix
 	username_submit_completed.emit(true, "", patch_body.username)
 
 
 func _instantiate_provider() -> AuthProvider:
 	var use_pgs_provider: bool = AppConfig.should_use_pgs_provider()
 	var provider_scene: PackedScene = PGS_PROVIDER_SCENE if use_pgs_provider else DEV_PROVIDER_SCENE
-	var provider_node: Node = provider_scene.instantiate()
-	var provider: AuthProvider = provider_node as AuthProvider
-	assert(provider != null, "Provider scene root must inherit AuthProvider")
-	if use_pgs_provider:
-		var pgs_provider: PgsAuthProvider = provider as PgsAuthProvider
-		assert(pgs_provider != null, "PGS provider scene root must inherit PgsAuthProvider")
-		pgs_provider.server_client_id = AppConfig.pgs_server_client_id
+	var provider: AuthProvider = provider_scene.instantiate()
 	add_child(provider)
 	return provider
 

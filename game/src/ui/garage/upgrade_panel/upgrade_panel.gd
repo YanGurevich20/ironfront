@@ -2,7 +2,6 @@ class_name UpgradePanel
 extends Control
 
 var is_tank_selected: bool = false
-var preferences: Preferences = Preferences.get_instance()
 
 @onready var modules_button: Button = %ModulesButton
 @onready var crew_button: Button = %CrewButton
@@ -32,9 +31,14 @@ func _ready() -> void:
 		ammo_button.pressed, func() -> void: _show_list(ammo_upgrade_list, ammo_button)
 	)
 	Utils.connect_checked(
-		preferences.selected_tank_id_updated,
-		func(_tank_id: String) -> void: display_player_data(PlayerData.get_instance())
+		Account.loadout.selected_tank_id_updated,
+		func(_tank_id: String) -> void: _refresh_from_account()
 	)
+	Utils.connect_checked(
+		Account.loadout.tanks_updated,
+		func(_tanks: Dictionary[String, TankConfig]) -> void: _refresh_from_account()
+	)
+	_refresh_from_account()
 
 
 func _show_list(list_to_show: VBoxContainer, button_pressed: Button) -> void:
@@ -46,13 +50,15 @@ func _show_list(list_to_show: VBoxContainer, button_pressed: Button) -> void:
 		list.visible = list == list_to_show
 
 
-func display_player_data(player_data: PlayerData) -> void:
-	var selected_tank_id: String = preferences.selected_tank_id
-	if not player_data.is_tank_unlocked(selected_tank_id):
+func _refresh_from_account() -> void:
+	var selected_tank_id: String = Account.loadout.selected_tank_id
+	var tank_config: TankConfig = Account.loadout.get_selected_tank_config()
+	if tank_config == null:
 		is_tank_selected = false
 		select_tank_warning.visible = true
+		ammo_upgrade_list.clear_list()
 		return
 	is_tank_selected = true
 	select_tank_warning.visible = false
-	ammo_upgrade_list.display_ammo_upgrade_list(player_data)
+	ammo_upgrade_list.display_tank_loadout(selected_tank_id, tank_config)
 	_show_list(ammo_upgrade_list, ammo_button)
