@@ -47,6 +47,7 @@ func start_match(spawn_position: Vector2, spawn_rotation: float) -> bool:
 		return false
 	level_container.add_child(next_arena_level)
 	next_arena_level.add_child(spawned_player_tank)
+	spawned_player_tank.network_peer_id = multiplayer.get_unique_id()
 	spawned_player_tank.apply_spawn_state(spawn_position, spawn_rotation)
 	arena_level = next_arena_level
 	local_player_tank = spawned_player_tank
@@ -154,6 +155,7 @@ func _respawn_local_player_tank(spawn_position: Vector2, spawn_rotation: float) 
 		push_error("%s arena_respawn_failed player_tank_creation" % _log_prefix())
 		return
 	arena_level.add_child(respawned_tank)
+	respawned_tank.network_peer_id = multiplayer.get_unique_id()
 	respawned_tank.apply_spawn_state(spawn_position, spawn_rotation)
 	local_player_tank = respawned_tank
 	local_player_dead = false

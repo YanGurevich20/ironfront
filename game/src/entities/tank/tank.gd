@@ -9,6 +9,7 @@ signal impact_result_received(impact_result: ShellSpec.ImpactResult, tank: Tank)
 
 var is_player: bool
 var display_player_name: String = ""
+var network_peer_id: int = 0
 var controller: Node
 var right_track_input := 0.0
 var left_track_input := 0.0

@@ -358,6 +358,7 @@ func _spawn_remote_tank(
 		TankManager.TANK_ID_M4A1_SHERMAN, TankManager.TankControllerType.DUMMY
 	)
 	remote_tank.display_player_name = player_name.strip_edges()
+	remote_tank.network_peer_id = peer_id
 	remote_tank.freeze = true
 	remote_tank.sleeping = true
 	arena_level.add_child(remote_tank)

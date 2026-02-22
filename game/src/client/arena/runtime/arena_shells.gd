@@ -82,21 +82,50 @@ func handle_shell_impact_received(
 	post_impact_rotation: float,
 	continue_simulation: bool
 ) -> void:
-	var target_tank: Tank = replication.get_tank_by_peer_id(target_peer_id)
-	if target_tank == null:
-		push_warning(
+	if replication == null:
+		push_error(
 			(
 				(
-					"%s authoritative_shell_impact_missing_target shot_id=%d "
-					+ "firing_peer=%d target_peer=%d hit_position=%s"
+					"%s authoritative_shell_impact_replication_missing shot_id=%d "
+					+ "firing_peer=%d target_peer=%d"
 				)
-				% [_log_prefix(), shot_id, firing_peer_id, target_peer_id, hit_position]
+				% [_log_prefix(), shot_id, firing_peer_id, target_peer_id]
 			)
 		)
 		return
-	_emit_local_player_impact_event(
-		shot_id, firing_peer_id, target_peer_id, result_type, damage, target_tank
-	)
+	var target_tank: Tank = replication.get_tank_by_peer_id(target_peer_id)
+	if target_tank == null or not is_instance_valid(target_tank):
+		push_warning(
+			(
+				(
+					"%s authoritative_shell_impact_missing_or_invalid_target shot_id=%d "
+					+ "firing_peer=%d target_peer=%d hit_position=%s local_tank_valid=%s "
+					+ "remote_tank_count=%d"
+				)
+				% [
+					_log_prefix(),
+					shot_id,
+					firing_peer_id,
+					target_peer_id,
+					hit_position,
+					str(local_player_tank != null and is_instance_valid(local_player_tank)),
+					replication.remote_tanks_by_peer_id.size()
+				]
+			)
+		)
+		return
+	if target_tank.tank_spec == null:
+		push_error(
+			(
+				(
+					"%s authoritative_shell_impact_target_missing_spec shot_id=%d "
+					+ "target_peer=%d target_instance=%s"
+				)
+				% [_log_prefix(), shot_id, target_peer_id, str(target_tank.get_instance_id())]
+			)
+		)
+		return
+	_emit_local_player_impact_event(shot_id, firing_peer_id, target_peer_id, result_type, damage)
 	_reconcile_authoritative_shell_impact(
 		shot_id, hit_position, post_impact_velocity, post_impact_rotation, continue_simulation
 	)
@@ -142,7 +171,7 @@ func _reconcile_authoritative_shell_impact(
 	if not active_shells_by_shot_id.has(shot_id):
 		return
 	var impacted_shell: Shell = active_shells_by_shot_id[shot_id]
-	if impacted_shell == null:
+	if impacted_shell == null or not is_instance_valid(impacted_shell):
 		active_shells_by_shot_id.erase(shot_id)
 		return
 	impacted_shell.global_position = hit_position
@@ -156,60 +185,29 @@ func _reconcile_authoritative_shell_impact(
 
 
 func _emit_local_player_impact_event(
-	shot_id: int,
-	firing_peer_id: int,
-	target_peer_id: int,
-	result_type: int,
-	damage: int,
-	target_tank: Tank
+	shot_id: int, firing_peer_id: int, target_peer_id: int, result_type: int, damage: int
 ) -> void:
 	var local_peer_id: int = multiplayer.get_unique_id()
 	var local_is_firing: bool = firing_peer_id == local_peer_id
 	var local_is_target: bool = target_peer_id == local_peer_id
 	if not local_is_firing and not local_is_target:
 		return
-	var related_tank_name: String = _resolve_related_tank_name(
-		local_is_firing, firing_peer_id, target_tank
-	)
-	var shell_short_name: String = _resolve_shell_type_label(shot_id)
+	var shell_type: int = _resolve_shell_type(shot_id)
 	GameplayBus.player_impact_event.emit(
-		local_is_target, result_type, damage, related_tank_name, shell_short_name
+		shot_id, firing_peer_id, target_peer_id, local_is_target, result_type, damage, shell_type
 	)
 
 
-func _resolve_related_tank_name(
-	local_is_firing: bool, firing_peer_id: int, target_tank: Tank
-) -> String:
-	if local_is_firing:
-		return _resolve_tank_name(target_tank)
-	var source_tank: Tank = replication.get_tank_by_peer_id(firing_peer_id)
-	return _resolve_tank_name(source_tank)
-
-
-func _resolve_tank_name(tank: Tank) -> String:
-	if tank == null or tank.tank_spec == null:
-		return "TANK"
-	var display_name: String = tank.tank_spec.display_name.strip_edges()
-	if display_name.is_empty():
-		return "TANK"
-	return display_name
-
-
-func _resolve_shell_type_label(shot_id: int) -> String:
+func _resolve_shell_type(shot_id: int) -> int:
 	var tracked_shell: Shell = active_shells_by_shot_id.get(shot_id)
 	if (
 		tracked_shell == null
+		or not is_instance_valid(tracked_shell)
 		or tracked_shell.shell_spec == null
 		or tracked_shell.shell_spec.base_shell_type == null
 	):
-		return "SHELL"
-	var shell_type_name: String = (
-		str(BaseShellType.ShellType.find_key(tracked_shell.shell_spec.base_shell_type.shell_type))
-		. strip_edges()
-	)
-	if shell_type_name.is_empty():
-		return "SHELL"
-	return shell_type_name
+		return -1
+	return int(tracked_shell.shell_spec.base_shell_type.shell_type)
 
 
 func _connect_gameplay_bus() -> void:

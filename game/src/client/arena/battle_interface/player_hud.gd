@@ -8,6 +8,8 @@ const EVENT_ENEMY_RED: Color = Colors.ENEMY_RED
 
 var hud_active: bool = false
 var tracked_player_tank: Tank
+var player_mag_event_rows: Array[HBoxContainer] = []
+var next_mag_event_row_index: int = 0
 
 @onready var player_health_value_label: Label = %PlayerHealthValue
 @onready var player_health_bar: TextureProgressBar = %PlayerHealthBar
@@ -21,6 +23,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	player_health_bar.tint_progress = Colors.FRIENDLY_GREEN
 	Utils.connect_checked(GameplayBus.player_impact_event, _on_player_impact_event)
+	_initialize_impact_rows()
 	_reset_display()
 	visible = false
 
@@ -89,31 +92,35 @@ func _on_player_tank_tree_exiting() -> void:
 
 
 func _on_player_impact_event(
+	_shot_id: int,
+	firing_peer_id: int,
+	target_peer_id: int,
 	local_is_target: bool,
 	result_type: int,
 	damage: int,
-	related_tank_name: String,
-	shell_short_name: String
+	shell_type: int
 ) -> void:
 	if not hud_active:
 		return
-	var item: HBoxContainer = player_mag_event_item_scene.instantiate() as HBoxContainer
+	var item: HBoxContainer = _next_impact_row()
 	if item == null:
 		return
-	player_mag_event_list.add_child(item)
-	var hp_label: Label = item.get_node("HpLabel")
-	var verb_label: Label = item.get_node("VerbLabel")
-	var enemy_label: Label = item.get_node("EnemyLabel")
-	var shell_label: Label = item.get_node("ShellLabel")
+	var hp_label: Label = item.get_node_or_null("HpLabel") as Label
+	var verb_label: Label = item.get_node_or_null("VerbLabel") as Label
+	var enemy_label: Label = item.get_node_or_null("EnemyLabel") as Label
+	var shell_label: Label = item.get_node_or_null("ShellLabel") as Label
+	if hp_label == null or verb_label == null or enemy_label == null or shell_label == null:
+		return
+	var related_tank_name: String = _resolve_related_tank_name(firing_peer_id, target_peer_id)
 	hp_label.text = _build_hp_text(local_is_target, damage)
 	hp_label.modulate = _resolve_hp_color(local_is_target, result_type)
 	verb_label.text = _build_verb_text(local_is_target, result_type)
 	verb_label.modulate = EVENT_TEXT_WHITE
 	enemy_label.text = "[%s]" % related_tank_name
 	enemy_label.modulate = EVENT_ENEMY_RED
-	shell_label.text = shell_short_name
+	shell_label.text = _resolve_shell_type_label(shell_type)
 	shell_label.modulate = EVENT_TEXT_WHITE
-	_trim_player_mag_event_list_to_limit()
+	item.visible = true
 
 
 func _update_health_display(health: int) -> void:
@@ -123,12 +130,39 @@ func _update_health_display(health: int) -> void:
 	player_health_value_label.text = "%d/%d" % [clamped_health, max_health]
 
 
-func _trim_player_mag_event_list_to_limit() -> void:
-	while player_mag_event_list.get_child_count() > MAX_MAG_EVENT_ITEMS:
-		var oldest_item: Control = player_mag_event_list.get_child(0)
-		if oldest_item == null:
-			return
-		oldest_item.queue_free()
+func _initialize_impact_rows() -> void:
+	_clear_player_mag_event_list()
+	player_mag_event_rows.clear()
+	for _i: int in range(MAX_MAG_EVENT_ITEMS):
+		var item: HBoxContainer = player_mag_event_item_scene.instantiate() as HBoxContainer
+		if item == null:
+			continue
+		item.visible = false
+		player_mag_event_list.add_child(item)
+		player_mag_event_rows.append(item)
+	next_mag_event_row_index = 0
+
+
+func _next_impact_row() -> HBoxContainer:
+	if player_mag_event_rows.is_empty():
+		return null
+	if next_mag_event_row_index >= player_mag_event_rows.size():
+		next_mag_event_row_index = 0
+	var row: HBoxContainer = player_mag_event_rows[next_mag_event_row_index]
+	next_mag_event_row_index = (next_mag_event_row_index + 1) % player_mag_event_rows.size()
+	var row_index: int = row.get_index()
+	var latest_index: int = player_mag_event_list.get_child_count() - 1
+	if row_index >= 0 and row_index != latest_index:
+		player_mag_event_list.move_child(row, latest_index)
+	return row
+
+
+func _clear_impact_rows() -> void:
+	next_mag_event_row_index = 0
+	for row: HBoxContainer in player_mag_event_rows:
+		if row == null:
+			continue
+		row.visible = false
 
 
 func _clear_player_mag_event_list() -> void:
@@ -171,4 +205,41 @@ func _reset_display() -> void:
 	player_health_bar.max_value = 1
 	player_health_bar.value = 0
 	player_health_value_label.text = HP_PLACEHOLDER_TEXT
-	_clear_player_mag_event_list()
+	_clear_impact_rows()
+
+
+func _resolve_related_tank_name(firing_peer_id: int, target_peer_id: int) -> String:
+	var local_peer_id: int = multiplayer.get_unique_id()
+	var local_is_firing: bool = firing_peer_id == local_peer_id
+	var related_peer_id: int = target_peer_id if local_is_firing else firing_peer_id
+	var related_tank: Tank = _find_tank_by_peer_id(related_peer_id)
+	return _resolve_tank_name(related_tank)
+
+
+func _find_tank_by_peer_id(peer_id: int) -> Tank:
+	for node: Node in get_tree().get_nodes_in_group("tank"):
+		var tank: Tank = node as Tank
+		if tank == null:
+			continue
+		if tank.network_peer_id != peer_id:
+			continue
+		return tank
+	return null
+
+
+func _resolve_tank_name(tank: Tank) -> String:
+	if tank == null or not is_instance_valid(tank) or tank.tank_spec == null:
+		return "TANK"
+	var display_name: String = tank.tank_spec.display_name.strip_edges()
+	if display_name.is_empty():
+		return "TANK"
+	return display_name
+
+
+func _resolve_shell_type_label(shell_type: int) -> String:
+	if shell_type < 0:
+		return "SHELL"
+	var shell_type_name: String = str(BaseShellType.ShellType.find_key(shell_type)).strip_edges()
+	if shell_type_name.is_empty():
+		return "SHELL"
+	return shell_type_name

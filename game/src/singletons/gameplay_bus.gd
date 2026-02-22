@@ -24,11 +24,13 @@ signal player_kill_event(
 	victim_is_local: bool
 )
 signal player_impact_event(
+	shot_id: int,
+	firing_peer_id: int,
+	target_peer_id: int,
 	local_is_target: bool,
 	result_type: int,
 	damage: int,
-	related_tank_name: String,
-	shell_short_name: String
+	shell_type: int
 )
 
 signal shell_fired(shell: Shell, tank: Tank)

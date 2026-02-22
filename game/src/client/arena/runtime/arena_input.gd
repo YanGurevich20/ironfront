@@ -97,6 +97,15 @@ func _on_wheel_input(value: float) -> void:
 func _on_fire_input() -> void:
 	if arena_match.is_local_player_dead() or not can_send_gameplay_requests():
 		return
+	var local_player_tank: Tank = arena_match.local_player_tank
+	if local_player_tank == null:
+		return
+	if local_player_tank.turret.get_reload_time_left() > 0.0:
+		return
+	if local_player_tank.turret.remaining_shell_count <= 0:
+		return
+	local_player_tank.play_fire_effect()
+	local_player_tank.turret.reset_reload_timer()
 	local_fire_request_seq += 1
 	gameplay_api.request_fire(local_fire_request_seq)
 
